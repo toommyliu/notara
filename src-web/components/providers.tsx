@@ -1,6 +1,21 @@
-import { ThemeProvider } from "./theme-provider"
-import type { ReactNode } from 'react';
+import { createRouter, RouterProvider } from "@tanstack/react-router";
 
-export function Providers({ children }: { children: ReactNode }) {
-    return <ThemeProvider defaultTheme="system">{children}</ThemeProvider>
+import { ThemeProvider } from "./theme-provider";
+import { routeTree } from "~/routeTree.gen";
+
+export const router = createRouter({ routeTree });
+
+declare module "@tanstack/react-router" {
+    interface Register {
+        router: typeof router;
+    }
+}
+
+
+export function Providers() {
+    return (
+        <ThemeProvider defaultTheme="system">
+            <RouterProvider router={router} />
+        </ThemeProvider>
+    );
 }
