@@ -1,7 +1,7 @@
 import { useState } from "react";
-import reactLogo from "./assets/react.svg";
 import { invoke } from "@tauri-apps/api/core";
-import "./App.css";
+import { Button } from '~/ui/button';
+import { ModeToggle } from "~/components/mode-toggle";
 
 function App() {
   const [greetMsg, setGreetMsg] = useState("");
@@ -18,12 +18,9 @@ function App() {
         Hello world!
       </h1>
 
-      <div className="row">
-        <a href="https://vite.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <p>Click on the Tauri, Vite, and React logos to learn more.</p>
+      <ModeToggle />
+
+      <Button>Button</Button>
 
       <form
         className="row"
