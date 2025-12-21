@@ -334,9 +334,11 @@ export function AppSidebar() {
             const group = groups.find((g) => g.id === activeDragId);
             if (!group) return null;
 
-            const groupNotes = group.noteIds
-                .map((id) => notes.get(id))
-                .filter((n): n is Note => n !== undefined);
+            const groupNotes = group.isCollapsed
+                ? []
+                : group.noteIds
+                    .map((id) => notes.get(id))
+                    .filter((n): n is Note => n !== undefined);
 
             return (
                 <div className="min-w-56 bg-transparent border-0 shadow-none overflow-hidden">
