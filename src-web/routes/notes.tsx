@@ -5,6 +5,7 @@ import { BlockEditor } from "~/components/editor/block-editor";
 import { Button } from "~/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/popover";
 import { useSidebar } from "~/components/ui/sidebar";
+import { useNotes } from "~/hooks/use-notes";
 
 import IconMoreHorizontal from "~icons/lucide/more-horizontal";
 import IconStar from "~icons/lucide/star";
@@ -17,13 +18,6 @@ import { cn } from "~/lib/utils";
 export const Route = createFileRoute("/notes")({
     component: NotesPage,
 });
-
-const currentNote = {
-    id: "1",
-    title: "My First Note",
-    emoji: "📝",
-    isPrivate: true,
-};
 
 const EDITOR_PADDING_STORAGE_KEY = "notara:editor:padding";
 
@@ -50,16 +44,17 @@ function isPaddingPresetKey(value: string): value is PaddingPresetKey {
 }
 
 function NotesPage() {
-    const [title, setTitle] = useState(currentNote.title);
+    const { activeNote, updateNote } = useNotes();
     const titleRef = useRef<HTMLHeadingElement>(null);
     const { state: sidebarState } = useSidebar();
     const [paddingPrefs, setPaddingPrefs] = useState<PaddingPrefs>(DEFAULT_PADDING_PREFS);
 
+    // Update the displayed title when the active note changes
     useEffect(() => {
-        if (titleRef.current) {
-            titleRef.current.textContent = currentNote.title;
+        if (titleRef.current && activeNote) {
+            titleRef.current.textContent = activeNote.title;
         }
-    }, []);
+    }, [activeNote?.id]);
 
     useEffect(() => {
         try {
@@ -80,6 +75,12 @@ function NotesPage() {
         localStorage.setItem(EDITOR_PADDING_STORAGE_KEY, JSON.stringify(paddingPrefs));
     }, [paddingPrefs]);
 
+    const handleTitleChange = (newTitle: string) => {
+        if (activeNote) {
+            updateNote(activeNote.id, { title: newTitle });
+        }
+    };
+
     const actions = useMemo(() => (
         <>
             <NotePaddingControl
@@ -97,9 +98,9 @@ function NotesPage() {
     ), [paddingPrefs]);
 
     usePageHeader({
-        title,
-        emoji: currentNote.emoji,
-        isPrivate: currentNote.isPrivate,
+        title: activeNote?.title ?? "Untitled",
+        emoji: activeNote?.emoji ?? "📝",
+        isPrivate: true,
         actions,
     });
 
@@ -109,20 +110,32 @@ function NotesPage() {
         paddingRight: `${activePadding.px}px`,
     } satisfies CSSProperties;
 
+    if (!activeNote) {
+        return (
+            <main className="flex-1 overflow-y-auto flex items-center justify-center">
+                <div className="text-center text-muted-foreground">
+                    <p className="text-lg">No note selected</p>
+                    <p className="text-sm mt-1">Select a note from the sidebar or create a new one</p>
+                </div>
+            </main>
+        );
+    }
+
     return (
         <main className="flex-1 overflow-y-auto">
             <div className="max-w-3xl mx-auto py-16" style={editorPaddingStyle}>
                 <div className="flex justify-start mb-4">
                     <button className="text-7xl hover:bg-muted/50 rounded-lg p-2 -m-2 transition-colors">
-                        {currentNote.emoji}
+                        {activeNote.emoji}
                     </button>
                 </div>
 
                 <h1
+                    key={activeNote.id}
                     ref={titleRef}
                     contentEditable
                     suppressContentEditableWarning
-                    onInput={(ev) => setTitle(ev.currentTarget.textContent || "")}
+                    onInput={(ev) => handleTitleChange(ev.currentTarget.textContent || "")}
                     onKeyDown={(ev) => {
                         if (ev.key === "Enter" || ev.key === "Tab") {
                             ev.preventDefault();

@@ -18,9 +18,12 @@ type NotesContextState = {
     groups: Group[];
     notes: Map<string, Note>;
     activeNoteId: string | null;
+    activeNote: Note | null;
 
     // Actions
     selectNote: (noteId: string) => void;
+    addNote: (groupId: string, title?: string, emoji?: string) => string;
+    updateNote: (noteId: string, updates: Partial<Omit<Note, 'id'>>) => void;
     addGroup: (title?: string) => void;
     toggleGroupCollapse: (groupId: string) => void;
     reorderGroups: (activeId: string, overId: string) => void;
@@ -55,13 +58,47 @@ const INITIAL_GROUPS: Group[] = [
 
 export function NotesProvider({ children }: PropsWithChildren) {
     const [groups, setGroups] = useState<Group[]>(INITIAL_GROUPS);
-    const [notes] = useState<Map<string, Note>>(
+    const [notes, setNotes] = useState<Map<string, Note>>(
         () => new Map(INITIAL_NOTES.map((n) => [n.id, n]))
     );
     const [activeNoteId, setActiveNoteId] = useState<string | null>("note-1");
 
+    const activeNote = activeNoteId ? notes.get(activeNoteId) ?? null : null;
+
     const selectNote = useCallback((noteId: string) => {
         setActiveNoteId(noteId);
+    }, []);
+
+    const addNote = useCallback((groupId: string, title = "Untitled", emoji = "📝"): string => {
+        const id = `note-${crypto.randomUUID()}`;
+        const newNote: Note = { id, title, emoji };
+
+        setNotes((prev) => {
+            const next = new Map(prev);
+            next.set(id, newNote);
+            return next;
+        });
+
+        setGroups((prev) =>
+            prev.map((g) =>
+                g.id === groupId
+                    ? { ...g, noteIds: [...g.noteIds, id] }
+                    : g
+            )
+        );
+
+        setActiveNoteId(id);
+        return id;
+    }, []);
+
+    const updateNote = useCallback((noteId: string, updates: Partial<Omit<Note, 'id'>>) => {
+        setNotes((prev) => {
+            const note = prev.get(noteId);
+            if (!note) return prev;
+            const next = new Map(prev);
+            next.set(noteId, { ...note, ...updates });
+            return next;
+        });
     }, []);
 
     const addGroup = useCallback((title?: string) => {
@@ -119,10 +156,10 @@ export function NotesProvider({ children }: PropsWithChildren) {
                         } else {
                             newNoteIds.push(noteId);
                         }
-                    
+
                         return { ...group, noteIds: newNoteIds };
                     }
-                    
+
                     return group;
                 });
             });
@@ -154,7 +191,10 @@ export function NotesProvider({ children }: PropsWithChildren) {
                 groups,
                 notes,
                 activeNoteId,
+                activeNote,
                 selectNote,
+                addNote,
+                updateNote,
                 addGroup,
                 toggleGroupCollapse,
                 reorderGroups,

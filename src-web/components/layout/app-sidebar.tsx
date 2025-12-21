@@ -41,8 +41,6 @@ import { usePlatformLayout } from "~/hooks/use-platform";
 import { cn } from "~/lib/utils";
 
 import IconAdd from "~icons/lucide/plus";
-import IconChevronRight from "~icons/lucide/chevron-right";
-import IconChevronDown from "~icons/lucide/chevron-down";
 import IconDelete from "~icons/lucide/trash";
 import IconFolderPlus from "~icons/lucide/folder-plus";
 import IconHome from "~icons/lucide/home";
@@ -108,7 +106,7 @@ function SortableNote({ note, groupId, isActive, onSelect }: SortableNoteProps) 
                 isActive={isActive}
                 tooltip={note.title}
                 className={cn(
-                    "group/note cursor-grab active:cursor-grabbing",
+                    "cursor-grab active:cursor-grabbing",
                     isDragging && "opacity-30"
                 )}
                 {...attributes}
@@ -116,7 +114,6 @@ function SortableNote({ note, groupId, isActive, onSelect }: SortableNoteProps) 
             >
                 <span>{note.emoji}</span>
                 <span className="flex-1 truncate">{note.title}</span>
-                <IconChevronRight className="size-3 opacity-0 group-hover/note:opacity-100 transition-opacity" />
             </SidebarMenuButton>
         </SidebarMenuItem>
     );
@@ -160,14 +157,12 @@ function SortableGroup({
         transition,
     };
 
-    const ChevronIcon = group.isCollapsed ? IconChevronRight : IconChevronDown;
-
     return (
         <SidebarGroup
             ref={setNodeRef}
             style={style}
             className={cn(
-                "relative rounded-md px-2 py-1 transition-colors duration-200",
+                "group/sidebar-group relative rounded-md px-2 py-1 transition-colors duration-200",
                 isDragSelected && "bg-sidebar-accent/30 ring-1 ring-sidebar-border",
                 isDragging && "opacity-30",
                 showDropBackground && isOver && !isDragging && "bg-blue-500/10"
@@ -184,13 +179,16 @@ function SortableGroup({
                         e.stopPropagation();
                         onToggleCollapse();
                     }}
-                    className="flex items-center gap-1 flex-1 min-w-0"
+                    className="flex-1 min-w-0 text-left"
                 >
-                    <ChevronIcon className="size-3" />
                     <span className="truncate">{group.title}</span>
                 </button>
             </SidebarGroupLabel>
-            <SidebarGroupAction title="New Page" onClick={onAddNote}>
+            <SidebarGroupAction
+                title="New Page"
+                onClick={onAddNote}
+                className="top-1.5 rounded-sm opacity-0 group-hover/sidebar-group:opacity-100 transition-opacity"
+            >
                 <IconAdd className="size-4" />
                 <span className="sr-only">New Page</span>
             </SidebarGroupAction>
@@ -227,6 +225,7 @@ export function AppSidebar() {
         notes,
         activeNoteId,
         selectNote,
+        addNote,
         addGroup,
         toggleGroupCollapse,
         reorderGroups,
@@ -255,8 +254,8 @@ export function AppSidebar() {
         const droppableContainers =
             activeType === "group"
                 ? args.droppableContainers.filter(
-                      (container) => container.data.current?.type === "group"
-                  )
+                    (container) => container.data.current?.type === "group"
+                )
                 : args.droppableContainers;
 
         return closestCenter({ ...args, droppableContainers });
@@ -430,9 +429,7 @@ export function AppSidebar() {
                                     showDropBackground={!isDraggingGroup}
                                     onNoteSelect={selectNote}
                                     onToggleCollapse={() => toggleGroupCollapse(group.id)}
-                                    onAddNote={() => {
-                                        // TODO: Add new note to group
-                                    }}
+                                    onAddNote={() => addNote(group.id)}
                                 />
                             );
                         })}
