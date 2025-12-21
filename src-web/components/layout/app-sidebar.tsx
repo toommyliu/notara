@@ -317,55 +317,16 @@ export function AppSidebar() {
 
     // Get the currently dragged item for the overlay
     const getDragOverlayContent = () => {
-        if (!activeDragId) return null;
+        if (!activeDragId || activeDragType !== "note") return null;
 
-        if (activeDragType === "note") {
-            const note = notes.get(activeDragId);
-            if (!note) return null;
-            return (
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-background border rounded-md shadow-lg text-sm">
-                    <span>{note.emoji}</span>
-                    <span>{note.title}</span>
-                </div>
-            );
-        }
-
-        if (activeDragType === "group") {
-            const group = groups.find((g) => g.id === activeDragId);
-            if (!group) return null;
-
-            const groupNotes = group.isCollapsed
-                ? []
-                : group.noteIds
-                    .map((id) => notes.get(id))
-                    .filter((n): n is Note => n !== undefined);
-
-            return (
-                <div className="min-w-56 bg-transparent border-0 shadow-none overflow-hidden">
-                    <div className="px-2 h-8 flex items-center text-xs font-medium text-muted-foreground/80">
-                        <span className="truncate">{group.title}</span>
-                    </div>
-
-                    {groupNotes.length > 0 && (
-                        <div className="px-2 pb-1">
-                            <div className="rounded-md">
-                                {groupNotes.map((note) => (
-                                    <div
-                                        key={note.id}
-                                        className="flex items-center gap-2 h-8 text-sm text-muted-foreground/60"
-                                    >
-                                        <span>{note.emoji}</span>
-                                        <span className="flex-1 truncate">{note.title}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    )}
-                </div>
-            );
-        }
-
-        return null;
+        const note = notes.get(activeDragId);
+        if (!note) return null;
+        return (
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-background border rounded-md shadow-lg text-sm">
+                <span>{note.emoji}</span>
+                <span>{note.title}</span>
+            </div>
+        );
     };
 
     return (
