@@ -170,7 +170,7 @@ function SortableGroup({
         >
             {isOver && <DropIndicator />}
             <SidebarGroupLabel
-                className="w-full min-w-0 text-xs text-muted-foreground cursor-grab active:cursor-grabbing"
+                className="w-full min-w-0 text-sm text-muted-foreground cursor-grab active:cursor-grabbing"
                 {...attributes}
                 {...listeners}
             >
@@ -187,7 +187,7 @@ function SortableGroup({
             <SidebarGroupAction
                 title="New Page"
                 onClick={onAddNote}
-                className="top-1.5 rounded-sm opacity-0 group-hover/sidebar-group:opacity-100 transition-opacity"
+                className="top-2 rounded-sm opacity-0 group-hover/sidebar-group:opacity-100 transition-opacity"
             >
                 <IconAdd className="size-4" />
                 <span className="sr-only">New Page</span>
