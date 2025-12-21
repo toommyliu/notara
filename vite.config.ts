@@ -1,7 +1,9 @@
 import { defineConfig } from "vite";
+
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
+import Icons from "unplugin-icons/vite";
 import path from "node:path";
 
 const host = process.env.TAURI_DEV_HOST;
@@ -15,7 +17,15 @@ export default defineConfig(async () => ({
       routesDirectory: "./src-web/routes",
       generatedRouteTree: "./src-web/routeTree.gen.ts",
     }),
-    react(),
+    react({
+      babel: {
+        plugins: ["babel-plugin-react-compiler"],
+      },
+    }),
+    Icons({
+      compiler: "jsx",
+      jsx: "react",
+    }),
     tailwindcss(),
   ],
 
