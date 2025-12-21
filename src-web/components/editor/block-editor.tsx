@@ -101,6 +101,7 @@ type SortableBlockProps = {
     onKeyDown: (ev: KeyboardEvent, block: Block) => void;
     onFocus: () => void;
     onBlur: () => void;
+    isSelected: boolean;
     blockRef: (el: HTMLElement | null) => void;
 };
 
@@ -111,6 +112,7 @@ function SortableBlock({
     onKeyDown,
     onFocus,
     onBlur,
+    isSelected,
     blockRef,
 }: SortableBlockProps) {
     const {
@@ -133,8 +135,11 @@ function SortableBlock({
             ref={setNodeRef}
             style={style}
             className={cn(
-                "group relative flex items-start gap-1 hover:bg-accent/30 -mx-2 px-2 rounded-sm transition-colors",
-                isDragging && "opacity-30"
+                "group relative flex items-start gap-1 -mx-2 px-2 rounded-sm transition-all",
+                isDragging && "opacity-30",
+                isSelected
+                    ? "bg-amber/10"
+                    : "hover:bg-accent/30"
             )}
         >
             <div
@@ -216,11 +221,32 @@ export function BlockEditor({ initialBlocks }: BlockEditorProps) {
         query: "",
     });
 
+    const lastSelectAllPressRef = useRef<number>(0);
+    const [selectedBlockIds, setSelectedBlockIds] = useState<Set<string>>(new Set());
+
     const blockRefs = useRef<Map<string, HTMLElement>>(new Map());
     const containerRef = useRef<HTMLDivElement>(null);
-    const lastSelectAllBlockId = useRef<string | null>(null);
 
     const { isMac } = usePlatformLayout();
+
+    const selectAllBlocks = useCallback(() => {
+        const selection = window.getSelection();
+        const container = containerRef.current;
+        if (!selection || !container) return;
+
+        setSelectedBlockIds(new Set(blocks.map((b) => b.id)));
+
+        const range = document.createRange();
+        range.selectNodeContents(container);
+        selection.removeAllRanges();
+        selection.addRange(range);
+    }, [blocks]);
+
+    const clearBlockSelection = useCallback(() => {
+        if (selectedBlockIds.size > 0) {
+            setSelectedBlockIds(new Set());
+        }
+    }, [selectedBlockIds.size]);
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -292,16 +318,6 @@ export function BlockEditor({ initialBlocks }: BlockEditorProps) {
         });
     }, []);
 
-    const selectAllBlocks = useCallback(() => {
-        const selection = window.getSelection();
-        if (!selection || !containerRef.current) return;
-
-        const range = document.createRange();
-        range.selectNodeContents(containerRef.current);
-        selection.removeAllRanges();
-        selection.addRange(range);
-    }, []);
-
     const focusBlock = (id: string, position: "start" | "end" = "end") => {
         setTimeout(() => {
             const el = blockRefs.current.get(id);
@@ -337,33 +353,42 @@ export function BlockEditor({ initialBlocks }: BlockEditorProps) {
         const blockIndex = blocks.findIndex((b) => b.id === block.id);
         const modKey = isMac ? ev.metaKey : ev.ctrlKey;
 
-        // mod + a: Select all in current block, or if already selected, select all blocks
+        // mod + a: Select current block on first press, all blocks on quick double-press
         if (ev.key === "a" && modKey && !ev.shiftKey) {
             ev.preventDefault();
-            const selection = window.getSelection();
-            if (!selection) return;
 
-            // If we already did select-all on this block, expand to all blocks
-            if (lastSelectAllBlockId.current === block.id) {
-                // TODO: doesnt work
-                selectAllBlocks();
-                lastSelectAllBlockId.current = null;
-            } else {
-                // Select all text in current block
-                const range = document.createRange();
-                range.selectNodeContents(element);
-                selection.removeAllRanges();
-                selection.addRange(range);
-                lastSelectAllBlockId.current = block.id;
+            const now = Date.now();
+            const timeSinceLastPress = now - lastSelectAllPressRef.current;
+            lastSelectAllPressRef.current = now;
+
+            // If all blocks are already selected, do nothing
+            if (selectedBlockIds.size === blocks.length) {
+                return;
             }
+
+            // Double-press within 400ms: select all blocks
+            if (timeSinceLastPress < 400 && timeSinceLastPress > 0) {
+                selectAllBlocks();
+                return;
+            }
+
+            // Single press: select current block content
+            const selection = window.getSelection();
+            const range = document.createRange();
+            range.selectNodeContents(element);
+            selection?.removeAllRanges();
+            selection?.addRange(range);
             return;
         }
 
-        // Escape: Close slash menu if open, otherwise blur the current block
+        // Escape: Close slash menu if open, clear selection state, or blur the current block
         if (ev.key === "Escape") {
             ev.preventDefault();
             if (slashMenu.isOpen) {
                 setSlashMenu((prev) => ({ ...prev, isOpen: false }));
+            } else if (selectedBlockIds.size > 0) {
+                clearBlockSelection();
+                window.getSelection()?.removeAllRanges();
             } else {
                 element.blur();
             }
@@ -638,7 +663,7 @@ export function BlockEditor({ initialBlocks }: BlockEditorProps) {
                 items={blocks.map((b) => b.id)}
                 strategy={verticalListSortingStrategy}
             >
-                <div ref={containerRef} className="space-y-0.5">
+                <div ref={containerRef} className="space-y-0.5" tabIndex={-1}>
                     {blocks.map((b) => (
                         <SortableBlock
                             key={b.id}
@@ -646,8 +671,12 @@ export function BlockEditor({ initialBlocks }: BlockEditorProps) {
                             onAddAfter={() => addBlockAfter(b.id)}
                             onUpdateBlock={(updates) => updateBlock(b.id, updates)}
                             onKeyDown={handleBlockKeyDown}
-                            onFocus={() => setActiveBlockId(b.id)}
+                            onFocus={() => {
+                                setActiveBlockId(b.id);
+                                clearBlockSelection();
+                            }}
                             onBlur={() => setActiveBlockId(null)}
+                            isSelected={selectedBlockIds.has(b.id)}
                             blockRef={(el) => {
                                 if (el) {
                                     blockRefs.current.set(b.id, el);
