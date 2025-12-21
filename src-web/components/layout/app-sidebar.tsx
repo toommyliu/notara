@@ -365,7 +365,7 @@ export function AppSidebar() {
 
                 <SidebarSeparator />
 
-                <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar">
+                <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar overscroll-contain">
                     <DndContext
                         sensors={sensors}
                         autoScroll={false}
