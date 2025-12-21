@@ -365,45 +365,47 @@ export function AppSidebar() {
 
                 <SidebarSeparator />
 
-                <DndContext
-                    sensors={sensors}
-                    autoScroll={false}
-                    collisionDetection={collisionDetection}
-                    modifiers={[restrictToVerticalAxis]}
-                    onDragStart={handleDragStart}
-                    onDragEnd={handleDragEnd}
-                >
-                    <SortableContext
-                        items={groups.map((g) => g.id)}
-                        strategy={verticalListSortingStrategy}
+                <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar">
+                    <DndContext
+                        sensors={sensors}
+                        autoScroll={false}
+                        collisionDetection={collisionDetection}
+                        modifiers={[restrictToVerticalAxis]}
+                        onDragStart={handleDragStart}
+                        onDragEnd={handleDragEnd}
                     >
-                        {groups.map((group) => {
-                            const groupNotes = group.noteIds
-                                .map((id) => notes.get(id))
-                                .filter((n): n is Note => n !== undefined);
+                        <SortableContext
+                            items={groups.map((g) => g.id)}
+                            strategy={verticalListSortingStrategy}
+                        >
+                            {groups.map((group) => {
+                                const groupNotes = group.noteIds
+                                    .map((id) => notes.get(id))
+                                    .filter((n): n is Note => n !== undefined);
 
-                            return (
-                                <SortableGroup
-                                    key={group.id}
-                                    group={group}
-                                    notes={groupNotes}
-                                    activeNoteId={activeNoteId}
-                                    isDragSelected={draggingGroupId === group.id}
-                                    showDropBackground={!isDraggingGroup}
-                                    onNoteSelect={selectNote}
-                                    onToggleCollapse={() => toggleGroupCollapse(group.id)}
-                                    onAddNote={() => addNote(group.id)}
-                                />
-                            );
-                        })}
-                    </SortableContext>
+                                return (
+                                    <SortableGroup
+                                        key={group.id}
+                                        group={group}
+                                        notes={groupNotes}
+                                        activeNoteId={activeNoteId}
+                                        isDragSelected={draggingGroupId === group.id}
+                                        showDropBackground={!isDraggingGroup}
+                                        onNoteSelect={selectNote}
+                                        onToggleCollapse={() => toggleGroupCollapse(group.id)}
+                                        onAddNote={() => addNote(group.id)}
+                                    />
+                                );
+                            })}
+                        </SortableContext>
 
-                    <DragOverlay dropAnimation={null}>
-                        {getDragOverlayContent()}
-                    </DragOverlay>
-                </DndContext>
+                        <DragOverlay dropAnimation={null}>
+                            {getDragOverlayContent()}
+                        </DragOverlay>
+                    </DndContext>
+                </div>
 
-                <SidebarGroup className="mt-auto">
+                <SidebarGroup>
                     <SidebarGroupContent>
                         <SidebarMenu>
                             <SidebarMenuItem>
