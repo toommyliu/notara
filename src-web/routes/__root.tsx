@@ -14,9 +14,9 @@ export const Route = createRootRoute({
             <PageHeaderProvider>
                 <SidebarProvider>
                     <AppHeader />
-                    <TitlebarSpacer />
                     <AppSidebar />
                     <SidebarInset>
+                        <TitlebarSpacer />
                         <Outlet />
                     </SidebarInset>
                     <TanStackRouterDevtools />

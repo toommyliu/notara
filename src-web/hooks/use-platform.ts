@@ -20,6 +20,7 @@ type LayoutTokens = {
     isMac: boolean;
     isWindows: boolean;
     isLinux: boolean;
+    isTauri: boolean;
     titlebarHeight: number;
     leftInset: number;
     rightInset: number;
@@ -38,23 +39,67 @@ function normalizePlatform(osTypeValue: string): Platform {
     }
 }
 
-function getLayout(platform: Platform): LayoutTokens {
+function isTauriEnvironment(): boolean {
+    return typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
+}
+
+function getLayout(platform: Platform, isTauri: boolean): LayoutTokens {
     const isMac = platform === MACOS;
     const isWindows = platform === WINDOWS;
     const isLinux = platform === LINUX;
 
+    // Browser: keep titlebar visible but without traffic light insets
+    if (!isTauri) {
+        return {
+            platform,
+            isMac: false,
+            isWindows: false,
+            isLinux: false,
+            isTauri: false,
+            titlebarHeight: TITLEBAR_HEIGHT,
+            leftInset: BASE_LEFT_INSET,
+            rightInset: BASE_RIGHT_INSET,
+        };
+    }
+
+    // Tauri: apply platform-specific titlebar adjustments
     return {
         platform,
         isMac,
         isWindows,
         isLinux,
+        isTauri: true,
         titlebarHeight: TITLEBAR_HEIGHT,
         leftInset: isMac ? MAC_LEFT_INSET : BASE_LEFT_INSET,
         rightInset: isMac ? BASE_RIGHT_INSET : WIN_LINUX_RIGHT_INSET,
     };
 }
 
+function getPlatformSafe(): Platform {
+    if (isTauriEnvironment()) {
+        try {
+            return normalizePlatform(osType());
+        } catch {
+        }
+    }
+
+    // fallback to userAgent if tauri fails
+    if (typeof navigator !== "undefined") {
+        const userAgent = navigator.userAgent.toLowerCase();
+        if (userAgent.includes("macos")) {
+            return MACOS;
+        } else if (userAgent.includes("windows")) {
+            return WINDOWS;
+        } else if (userAgent.includes("linux")) {
+            return LINUX;
+        }
+    }
+
+    return UNKNOWN;
+}
+
 export function usePlatformLayout(): LayoutTokens {
-    const platform = useMemo(() => normalizePlatform(osType()), []);
-    return useMemo(() => getLayout(platform), [platform]);
+    const isTauri = useMemo(() => isTauriEnvironment(), []);
+    const platform = useMemo(() => getPlatformSafe(), []);
+    return useMemo(() => getLayout(platform, isTauri), [platform, isTauri]);
 }
