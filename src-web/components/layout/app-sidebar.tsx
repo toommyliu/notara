@@ -442,9 +442,6 @@ export function AppSidebar() {
                     <SidebarMenuItem>
                         <SettingsTrigger />
                     </SidebarMenuItem>
-                    <SidebarMenuItem>
-                        <ModeToggle />
-                    </SidebarMenuItem>
                 </SidebarMenu>
             </SidebarFooter>
 
