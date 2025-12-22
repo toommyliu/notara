@@ -35,7 +35,6 @@ import {
     SidebarSeparator,
     useSidebar,
 } from "~/ui/sidebar";
-import { ModeToggle } from "~/components/mode-toggle";
 import { SettingsTrigger } from "~/components/settings-dialog";
 
 import IconAdd from "~icons/lucide/plus";
