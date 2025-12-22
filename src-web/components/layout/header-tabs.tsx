@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, type WheelEvent } from "react";
 import {
     DndContext,
     DragOverlay,
@@ -131,18 +131,14 @@ export function HeaderTabs() {
         })
     );
 
-    // Only render in horizontal mode when visible
-    if (orientation !== "horizontal" || !isTabBarVisible) return null;
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-    const hasTabs = pinnedTabs.length > 0 || openTabs.length > 0;
-    if (!hasTabs) return null;
-
-    const handleDragStart = (event: DragStartEvent) => {
-        setActiveDragId(event.active.id as string);
+    const handleDragStart = (ev: DragStartEvent) => {
+        setActiveDragId(ev.active.id as string);
     };
 
-    const handleDragEnd = (event: DragEndEvent) => {
-        const { active, over } = event;
+    const handleDragEnd = (ev: DragEndEvent) => {
+        const { active, over } = ev;
         setActiveDragId(null);
 
         if (!over || active.id === over.id) return;
@@ -164,17 +160,22 @@ export function HeaderTabs() {
         }
     };
 
-    const draggedNote = activeDragId ? notes.get(activeDragId) : null;
-    const allTabs = [...pinnedTabs, ...openTabs];
-    const scrollContainerRef = useRef<HTMLDivElement>(null);
-
     // Convert vertical wheel scroll to horizontal scroll for mouse users
-    const handleWheel = (e: React.WheelEvent) => {
-        if (scrollContainerRef.current && e.deltaY !== 0) {
-            e.preventDefault();
-            scrollContainerRef.current.scrollLeft += e.deltaY;
+    const handleWheel = (ev: WheelEvent) => {
+        if (scrollContainerRef.current && ev.deltaY !== 0) {
+            ev.preventDefault();
+            scrollContainerRef.current.scrollLeft += ev.deltaY;
         }
     };
+
+    // Only render in horizontal mode when visible
+    if (orientation !== "horizontal" || !isTabBarVisible) return null;
+
+    const hasTabs = pinnedTabs.length > 0 || openTabs.length > 0;
+    if (!hasTabs) return null;
+
+    const draggedNote = activeDragId ? notes.get(activeDragId) : null;
+    const allTabs = [...pinnedTabs, ...openTabs];
 
     return (
         <DndContext
