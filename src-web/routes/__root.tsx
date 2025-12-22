@@ -5,7 +5,6 @@ import { listen } from "@tauri-apps/api/event";
 
 import { AppHeader } from "~/components/layout/app-header";
 import { AppSidebar } from "~/components/layout/app-sidebar";
-import { TabBar } from "~/components/layout/tab-bar";
 import { TitlebarSpacer } from "~/components/layout/app-titlebar";
 import { SettingsDialogContent } from "~/components/settings-dialog";
 import { SidebarInset, SidebarProvider, useSidebar } from "~/ui/sidebar";
@@ -19,16 +18,10 @@ import { useTabs } from "~/hooks/use-tabs";
 import { useIsTauri } from "~/hooks/use-tauri";
 
 function MainContent() {
-    const { orientation, pinnedTabs, openTabs, isTabBarVisible } = useTabs();
-    const hasTabs = pinnedTabs.length > 0 || openTabs.length > 0;
-    const isVertical = orientation === "vertical";
-    const showVerticalTabs = hasTabs && isTabBarVisible && isVertical;
-
     return (
         <SidebarInset className="overflow-hidden">
             <TitlebarSpacer />
             <div className="flex flex-1 min-h-0 overflow-hidden">
-                {showVerticalTabs && <TabBar />}
                 <Outlet />
             </div>
         </SidebarInset>
@@ -87,7 +80,7 @@ function AppShell() {
             <AppSidebar />
             <MainContent />
             <SettingsDialogContent />
-            <TanStackRouterDevtools />
+            <TanStackRouterDevtools position='bottom-right' />
         </>
     );
 }

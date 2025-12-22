@@ -121,7 +121,7 @@ function HeaderTabItem({
 }
 
 export function HeaderTabs() {
-    const { pinnedTabs, openTabs, activeTabId, setActiveTab, closeTab, reorderTabs, isTabBarVisible, orientation } = useTabs();
+    const { pinnedTabs, openTabs, activeTabId, setActiveTab, closeTab, reorderTabs, isTabBarVisible } = useTabs();
     const { notes, groups, addNote } = useNotes();
     const [activeDragId, setActiveDragId] = useState<string | null>(null);
 
@@ -168,8 +168,8 @@ export function HeaderTabs() {
         }
     };
 
-    // Only render in horizontal mode when visible
-    if (orientation !== "horizontal" || !isTabBarVisible) return null;
+    // Only render when visible
+    if (!isTabBarVisible) return null;
 
     const hasTabs = pinnedTabs.length > 0 || openTabs.length > 0;
     if (!hasTabs) return null;

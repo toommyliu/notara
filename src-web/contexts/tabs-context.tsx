@@ -3,13 +3,10 @@ import { arrayMove } from "@dnd-kit/sortable";
 
 const TABS_STORAGE_KEY = "notara:tabs";
 
-type TabOrientation = "horizontal" | "vertical";
-
 type TabsState = {
     pinnedTabs: string[];
     openTabs: string[];
     activeTabId: string | null;
-    orientation: TabOrientation;
     isTabBarVisible: boolean;
 };
 
@@ -19,7 +16,6 @@ type TabsContextValue = TabsState & {
     pinTab: (noteId: string) => void;
     unpinTab: (noteId: string) => void;
     reorderTabs: (activeId: string, overId: string, section: "pinned" | "open") => void;
-    setOrientation: (orientation: TabOrientation) => void;
     setActiveTab: (noteId: string) => void;
     toggleTabBar: () => void;
 };
@@ -30,7 +26,6 @@ const DEFAULT_STATE: TabsState = {
     pinnedTabs: [],
     openTabs: [],
     activeTabId: null,
-    orientation: "vertical",
     isTabBarVisible: true,
 };
 
@@ -43,7 +38,6 @@ function loadTabsState(): TabsState {
                 pinnedTabs: Array.isArray(parsed.pinnedTabs) ? parsed.pinnedTabs : [],
                 openTabs: Array.isArray(parsed.openTabs) ? parsed.openTabs : [],
                 activeTabId: parsed.activeTabId ?? null,
-                orientation: parsed.orientation === "horizontal" ? "horizontal" : "vertical",
                 isTabBarVisible: typeof parsed.isTabBarVisible === "boolean" ? parsed.isTabBarVisible : true,
             };
         }
@@ -166,10 +160,6 @@ export function TabsProvider({ children }: PropsWithChildren) {
         });
     }, [updateState]);
 
-    const setOrientation = useCallback((orientation: TabOrientation) => {
-        updateState((prev) => ({ ...prev, orientation }));
-    }, [updateState]);
-
     const setActiveTab = useCallback((noteId: string) => {
         updateState((prev) => ({ ...prev, activeTabId: noteId }));
     }, [updateState]);
@@ -187,7 +177,6 @@ export function TabsProvider({ children }: PropsWithChildren) {
                 pinTab,
                 unpinTab,
                 reorderTabs,
-                setOrientation,
                 setActiveTab,
                 toggleTabBar,
             }}

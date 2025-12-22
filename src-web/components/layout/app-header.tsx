@@ -11,9 +11,9 @@ import { useTabs } from "~/hooks/use-tabs";
 export function AppHeader() {
     const { config } = usePageHeaderContext();
     const { title, emoji, isPrivate, actions } = config;
-    const { orientation, isTabBarVisible, pinnedTabs, openTabs } = useTabs();
+    const { isTabBarVisible, pinnedTabs, openTabs } = useTabs();
 
-    const showHorizontalTabs = orientation === "horizontal" && isTabBarVisible && (pinnedTabs.length > 0 || openTabs.length > 0);
+    const showTabs = isTabBarVisible && (pinnedTabs.length > 0 || openTabs.length > 0);
 
     return (
         <AppTitlebar className="border-b border-border/40 overscroll-none">
@@ -32,7 +32,7 @@ export function AppHeader() {
 
                 <div className="flex-1 min-w-0" />
 
-                {!showHorizontalTabs && (emoji || title) && (
+                {!showTabs && (emoji || title) && (
                     <div className="flex items-center gap-2 shrink-0 mr-2">
                         {emoji && <span className="text-base shrink-0">{emoji}</span>}
                         {title && <span className="truncate font-medium text-sm max-w-[150px]">{title}</span>}
