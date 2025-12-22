@@ -27,11 +27,9 @@ export function AppHeader() {
                     className="mx-2 h-4 self-center"
                 />
 
-                <div className="flex items-center h-full">
+                <div className="flex items-center h-full min-w-0 overflow-hidden flex-1">
                     <HeaderTabs />
                 </div>
-
-                <div className="flex-1 min-w-0" />
 
                 {!showTabs && (emoji || title) && (
                     <div className="flex items-center gap-2 shrink-0 mr-2">

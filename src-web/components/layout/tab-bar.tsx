@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useCallback, type WheelEvent } from "react";
 import {
     DndContext,
     DragOverlay,
@@ -177,6 +177,19 @@ export function TabBar() {
     const draggedNote = activeDragId ? notes.get(activeDragId) : null;
     const hasTabs = pinnedTabs.length > 0 || openTabs.length > 0;
 
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+    const handleWheel = useCallback((ev: WheelEvent<HTMLDivElement>) => {
+        const container = scrollContainerRef.current;
+        if (!container) return;
+
+        // Convert vertical scroll to horizontal scroll
+        if (Math.abs(ev.deltaY) > Math.abs(ev.deltaX)) {
+            ev.preventDefault();
+            container.scrollLeft += ev.deltaY;
+        }
+    }, []);
+
     if (!hasTabs || !isTabBarVisible) return null;
 
     return (
@@ -187,7 +200,15 @@ export function TabBar() {
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
         >
-            <div className="h-10 border-b border-border/40 flex items-center px-2 overflow-x-auto shrink-0 bg-background/80 backdrop-blur-sm">
+            <div
+                ref={scrollContainerRef}
+                onWheel={handleWheel}
+                className="h-10 border-b border-border/40 flex items-center px-2 overflow-x-auto overflow-y-hidden shrink-0 bg-background/80 backdrop-blur-sm scrollbar-custom"
+                style={{
+                    overscrollBehavior: 'contain',
+                    touchAction: 'pan-x',
+                }}
+            >
                 <TabSection
                     noteIds={pinnedTabs}
                     isPinned={true}

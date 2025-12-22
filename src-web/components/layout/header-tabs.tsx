@@ -187,7 +187,7 @@ export function HeaderTabs() {
         >
             <div
                 ref={scrollContainerRef}
-                className="flex items-center gap-0.5 min-w-0 overflow-x-auto scrollbar-none"
+                className="flex items-center gap-0.5 min-w-0 overflow-x-scroll overflow-y-hidden scrollbar-none pb-2 -mb-2"
                 style={{ WebkitAppRegion: "no-drag", overscrollBehavior: "contain" } as CSSProperties}
                 onWheel={handleWheel}
             >
