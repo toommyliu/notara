@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, type WheelEvent } from "react";
+import { useState, useRef, useEffect, type WheelEvent, type RefObject, type CSSProperties } from "react";
 import {
     DndContext,
     DragOverlay,
@@ -74,15 +74,15 @@ function HeaderTabItem({
         <div
             ref={(node) => {
                 setNodeRef(node);
-                (tabRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
+                (tabRef as RefObject<HTMLDivElement | null>).current = node;
             }}
             style={style}
             className={cn(
-                "group relative flex items-center gap-1.5 px-2.5 py-1 rounded-md select-none shrink-0",
-                "transition-all duration-150 ease-out cursor-pointer",
+                "group relative flex items-center gap-1.5 px-3 py-1 select-none shrink-0",
+                "transition-all duration-200 ease-out cursor-pointer",
                 isActive
-                    ? "bg-muted/80 text-foreground"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/40",
+                    ? "bg-muted/80 text-foreground rounded-lg"
+                    : "text-muted-foreground hover:text-foreground hover:bg-muted/30 rounded-lg",
                 isDragging && "opacity-50"
             )}
             {...attributes}
@@ -108,9 +108,9 @@ function HeaderTabItem({
                     onClose();
                 }}
                 className={cn(
-                    "relative z-10 p-0.5 rounded transition-all",
+                    "relative z-10 p-0.5 rounded-sm transition-all",
                     "opacity-0 group-hover:opacity-100",
-                    "text-muted-foreground/60 hover:text-foreground hover:bg-background/60"
+                    "text-muted-foreground/60 hover:text-foreground hover:bg-background/80"
                 )}
                 aria-label="Close tab"
             >
@@ -188,7 +188,7 @@ export function HeaderTabs() {
             <div
                 ref={scrollContainerRef}
                 className="flex items-center gap-0.5 min-w-0 overflow-x-auto scrollbar-none"
-                style={{ WebkitAppRegion: "no-drag", overscrollBehavior: "contain" } as React.CSSProperties}
+                style={{ WebkitAppRegion: "no-drag", overscrollBehavior: "contain" } as CSSProperties}
                 onWheel={handleWheel}
             >
                 <SortableContext items={allTabs} strategy={horizontalListSortingStrategy}>

@@ -24,11 +24,12 @@ export function AppHeader() {
 
                 <Separator
                     orientation="vertical"
-                    className="mx-2 h-4"
-                    style={{ alignSelf: "center" }}
+                    className="mx-2 h-4 self-center"
                 />
 
-                <HeaderTabs />
+                <div className="flex items-center h-full">
+                    <HeaderTabs />
+                </div>
 
                 <div className="flex-1 min-w-0" />
 

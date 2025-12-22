@@ -1,18 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type Dispatch, type SetStateAction } from "react";
 
 import { BlockEditor } from "~/components/editor/block-editor";
-import { Button } from "~/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/popover";
+import { useSidebar } from "~/components/ui/sidebar";
+import { Button } from "~/ui/button";
 
 import IconMoreHorizontal from "~icons/lucide/more-horizontal";
 import IconStar from "~icons/lucide/star";
 import IconArrowLeftRight from "~icons/lucide/arrow-left-right";
 
-import { useSidebar } from "~/components/ui/sidebar";
 import { useNotes } from "~/hooks/use-notes";
 import { useTabs } from "~/hooks/use-tabs";
-
 import { usePageHeader } from "~/hooks/use-page-header";
 
 import { cn } from "~/lib/utils";
@@ -170,7 +169,7 @@ function NotesPage() {
 type NotePaddingControlProps = {
     presets: typeof PADDING_PRESETS;
     prefs: PaddingPrefs;
-    onChange: React.Dispatch<React.SetStateAction<PaddingPrefs>>;
+    onChange: Dispatch<SetStateAction<PaddingPrefs>>;
 };
 
 function NotePaddingControl({ presets, prefs, onChange }: NotePaddingControlProps) {
