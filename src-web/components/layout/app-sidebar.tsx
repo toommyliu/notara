@@ -33,6 +33,7 @@ import {
     SidebarMenuItem,
     SidebarRail,
     SidebarSeparator,
+    useSidebar,
 } from "~/ui/sidebar";
 import { ModeToggle } from "~/components/mode-toggle";
 import { SettingsTrigger } from "~/components/settings-dialog";
@@ -239,6 +240,7 @@ export function AppSidebar() {
         reorderNotesInGroup,
     } = useNotes();
     const { openTab, activeTabId } = useTabs();
+    const { open } = useSidebar();
 
     const [activeDragId, setActiveDragId] = useState<string | null>(null);
     const [activeDragType, setActiveDragType] = useState<"note" | "group" | null>(null);
@@ -347,7 +349,7 @@ export function AppSidebar() {
         >
             <SidebarContent
                 className="overflow-x-hidden"
-            // style={{ paddingTop: layout.isMac ? layout.titlebarHeight / 2 : undefined }}
+                style={{ paddingTop: !open && layout.isMac ? layout.titlebarHeight / 2 : undefined }}
             >
                 <SidebarGroup className="py-2">
                     <SidebarGroupContent>
