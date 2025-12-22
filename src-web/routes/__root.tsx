@@ -19,9 +19,9 @@ import { useIsTauri } from "~/hooks/use-tauri";
 
 function MainContent() {
     return (
-        <SidebarInset className="overflow-hidden">
+        <SidebarInset>
             <TitlebarSpacer />
-            <div className="flex flex-1 min-h-0 overflow-hidden">
+            <div className="flex flex-1 min-h-0">
                 <Outlet />
             </div>
         </SidebarInset>
