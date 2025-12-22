@@ -167,4 +167,37 @@
   [data-slot="sidebar-container"] {
     transition: left 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
   }
+
+  /* Hidden scrollbar */
+  .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Slim scrolbar */
+  .scrollbar-slim {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+
+  .scrollbar-slim::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .scrollbar-slim::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-slim::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 2px;
+  }
+
+  .scrollbar-slim::-webkit-scrollbar-thumb:hover {
+    background: var(--muted-foreground);
+  }
 }

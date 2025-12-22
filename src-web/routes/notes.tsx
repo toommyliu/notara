@@ -116,7 +116,7 @@ function NotesPage() {
 
     if (!activeNote) {
         return (
-            <main className="flex-1 overflow-y-auto flex items-center justify-center">
+            <main className="flex-1 min-h-0 overflow-hidden flex items-center justify-center">
                 <div className="text-center text-muted-foreground">
                     <p className="text-lg">No note selected</p>
                     <p className="text-sm mt-1">Select a note from the sidebar or create a new one</p>
@@ -126,7 +126,7 @@ function NotesPage() {
     }
 
     return (
-        <main className="flex-1 overflow-y-auto">
+        <main className="flex-1 min-h-0 overflow-y-auto">
             <div className="max-w-3xl mx-auto py-16" style={editorPaddingStyle}>
                 <div className="flex justify-start mb-4">
                     <button className="text-7xl hover:bg-muted/50 rounded-lg p-2 -m-2 transition-colors">

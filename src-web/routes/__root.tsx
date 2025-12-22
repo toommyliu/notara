@@ -22,14 +22,13 @@ function MainContent() {
     const { orientation, pinnedTabs, openTabs, isTabBarVisible } = useTabs();
     const hasTabs = pinnedTabs.length > 0 || openTabs.length > 0;
     const isVertical = orientation === "vertical";
-    const showTabs = hasTabs && isTabBarVisible;
+    const showVerticalTabs = hasTabs && isTabBarVisible && isVertical;
 
     return (
-        <SidebarInset>
+        <SidebarInset className="overflow-hidden">
             <TitlebarSpacer />
-            {!isVertical && showTabs && <TabBar />}
             <div className="flex flex-1 min-h-0 overflow-hidden">
-                {isVertical && showTabs && <TabBar />}
+                {showVerticalTabs && <TabBar />}
                 <Outlet />
             </div>
         </SidebarInset>
