@@ -5,6 +5,7 @@ Default permissions for the notara-mac-window plugin
 #### This default permission set includes the following:
 
 - `allow-set-theme`
+- `allow-set-title`
 
 ## Permission Table
 
@@ -37,6 +38,32 @@ Enables the set_theme command without any pre-configured scope.
 <td>
 
 Denies the set_theme command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`notara-mac-window:allow-set-title`
+
+</td>
+<td>
+
+Enables the set_title command without any pre-configured scope.
+
+</td>
+</tr>
+
+<tr>
+<td>
+
+`notara-mac-window:deny-set-title`
+
+</td>
+<td>
+
+Denies the set_title command without any pre-configured scope.
 
 </td>
 </tr>
