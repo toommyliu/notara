@@ -35,17 +35,20 @@ import {
     SidebarSeparator,
 } from "~/ui/sidebar";
 import { ModeToggle } from "~/components/mode-toggle";
-import { type Group, type Note } from "~/contexts/notes-context";
-import { useNotes } from "~/hooks/use-notes";
-import { usePlatformLayout } from "~/hooks/use-platform";
-import { cn } from "~/lib/utils";
+import { SettingsTrigger } from "~/components/settings-dialog";
 
 import IconAdd from "~icons/lucide/plus";
 import IconDelete from "~icons/lucide/trash";
 import IconFolderPlus from "~icons/lucide/folder-plus";
 import IconHome from "~icons/lucide/home";
 import IconSearch from "~icons/lucide/search";
-import IconSettings from "~icons/lucide/settings";
+
+import { type Group, type Note } from "~/contexts/notes-context";
+import { useNotes } from "~/hooks/use-notes";
+import { useTabs } from "~/hooks/use-tabs";
+import { usePlatformLayout } from "~/hooks/use-platform";
+
+import { cn } from "~/lib/utils";
 
 function DropIndicator() {
     return (
@@ -98,23 +101,28 @@ function SortableNote({ note, groupId, isActive, onSelect }: SortableNoteProps) 
         transition,
     };
 
+    const handleClick = () => {
+        onSelect();
+    };
+
     return (
         <SidebarMenuItem ref={setNodeRef} style={style} className="relative">
             {isOver && <DropIndicator />}
-            <SidebarMenuButton
-                onClick={onSelect}
-                isActive={isActive}
-                tooltip={note.title}
-                className={cn(
-                    "cursor-grab active:cursor-grabbing",
-                    isDragging && "opacity-30"
-                )}
-                {...attributes}
-                {...listeners}
-            >
-                <span>{note.emoji}</span>
-                <span className="flex-1 truncate">{note.title}</span>
-            </SidebarMenuButton>
+            <Link to="/notes" onClick={handleClick}>
+                <SidebarMenuButton
+                    isActive={isActive}
+                    tooltip={note.title}
+                    className={cn(
+                        "cursor-grab active:cursor-grabbing",
+                        isDragging && "opacity-30"
+                    )}
+                    {...attributes}
+                    {...listeners}
+                >
+                    <span>{note.emoji}</span>
+                    <span className="flex-1 truncate">{note.title}</span>
+                </SidebarMenuButton>
+            </Link>
         </SidebarMenuItem>
     );
 }
@@ -223,8 +231,6 @@ export function AppSidebar() {
     const {
         groups,
         notes,
-        activeNoteId,
-        selectNote,
         addNote,
         addGroup,
         toggleGroupCollapse,
@@ -232,6 +238,7 @@ export function AppSidebar() {
         moveNote,
         reorderNotesInGroup,
     } = useNotes();
+    const { openTab, activeTabId } = useTabs();
 
     const [activeDragId, setActiveDragId] = useState<string | null>(null);
     const [activeDragType, setActiveDragType] = useState<"note" | "group" | null>(null);
@@ -388,10 +395,10 @@ export function AppSidebar() {
                                         key={group.id}
                                         group={group}
                                         notes={groupNotes}
-                                        activeNoteId={activeNoteId}
+                                        activeNoteId={activeTabId}
                                         isDragSelected={draggingGroupId === group.id}
                                         showDropBackground={!isDraggingGroup}
-                                        onNoteSelect={selectNote}
+                                        onNoteSelect={openTab}
                                         onToggleCollapse={() => toggleGroupCollapse(group.id)}
                                         onAddNote={() => addNote(group.id)}
                                     />
@@ -432,10 +439,7 @@ export function AppSidebar() {
             <SidebarFooter className="pb-2">
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <SidebarMenuButton tooltip="Settings">
-                            <IconSettings className="size-4" />
-                            <span>Settings</span>
-                        </SidebarMenuButton>
+                        <SettingsTrigger />
                     </SidebarMenuItem>
                     <SidebarMenuItem>
                         <ModeToggle />

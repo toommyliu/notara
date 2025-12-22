@@ -4,12 +4,14 @@ import { useEffect, useMemo, useRef, useState, type CSSProperties } from "react"
 import { BlockEditor } from "~/components/editor/block-editor";
 import { Button } from "~/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/popover";
-import { useSidebar } from "~/components/ui/sidebar";
-import { useNotes } from "~/hooks/use-notes";
 
 import IconMoreHorizontal from "~icons/lucide/more-horizontal";
 import IconStar from "~icons/lucide/star";
 import IconArrowLeftRight from "~icons/lucide/arrow-left-right";
+
+import { useSidebar } from "~/components/ui/sidebar";
+import { useNotes } from "~/hooks/use-notes";
+import { useTabs } from "~/hooks/use-tabs";
 
 import { usePageHeader } from "~/hooks/use-page-header";
 
@@ -44,7 +46,9 @@ function isPaddingPresetKey(value: string): value is PaddingPresetKey {
 }
 
 function NotesPage() {
-    const { activeNote, updateNote } = useNotes();
+    const { notes, updateNote } = useNotes();
+    const { activeTabId } = useTabs();
+    const activeNote = activeTabId ? notes.get(activeTabId) ?? null : null;
     const titleRef = useRef<HTMLHeadingElement>(null);
     const { state: sidebarState } = useSidebar();
     const [paddingPrefs, setPaddingPrefs] = useState<PaddingPrefs>(DEFAULT_PADDING_PREFS);
