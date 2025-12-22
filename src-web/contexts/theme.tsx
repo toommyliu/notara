@@ -1,4 +1,7 @@
 import { createContext, useEffect, useState, type PropsWithChildren } from "react"
+import { getCurrentWindow } from "@tauri-apps/api/window"
+
+import { useIsTauri } from "~/hooks/use-tauri"
 
 type Theme = "dark" | "light" | "system"
 
@@ -13,7 +16,7 @@ type ThemeProviderState = {
 }
 
 const initialState: ThemeProviderState = {
-    theme: "system",
+    theme: "light",
     setTheme: () => null,
 }
 
@@ -21,13 +24,14 @@ export const ThemeProviderContext = createContext<ThemeProviderState>(initialSta
 
 export function ThemeProvider({
     children,
-    defaultTheme = "system",
+    defaultTheme = "light",
     storageKey = "theme",
     ...props
 }: ThemeProviderProps) {
     const [theme, setTheme] = useState<Theme>(
         () => (localStorage.getItem(storageKey) as Theme) || defaultTheme
     )
+    const isTauri = useIsTauri()
 
     useEffect(() => {
         const root = window.document.documentElement
@@ -45,6 +49,20 @@ export function ThemeProvider({
         }
 
         root.classList.add(theme)
+    }, [theme])
+
+    useEffect(() => {
+        if (!isTauri) return
+
+        const applyNativeTheme = async () => {
+            try {
+                const target: "light" | "dark" | null = theme === "dark" ? "dark" : theme === "light" ? "light" : null
+                await getCurrentWindow().setTheme(target)
+            } catch {
+            }
+        }
+
+        applyNativeTheme()
     }, [theme])
 
     const value = {
