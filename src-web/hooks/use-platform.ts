@@ -6,10 +6,11 @@ import { useMemo, useState, useEffect } from "react";
 import { useIsTauri } from "~/hooks/use-tauri";
 
 const TITLEBAR_HEIGHT = 40;
-const MAC_LEFT_INSET = 72;
-const BASE_LEFT_INSET = 8;
+const MAC_LEFT_INSET = 80;
+const BASE_LEFT_INSET = 12;
 const WIN_LINUX_RIGHT_INSET = 138;
-const BASE_RIGHT_INSET = 8;
+const BASE_RIGHT_INSET = 12;
+const RIBBON_WIDTH = 48;
 
 const MACOS = "macos";
 const WINDOWS = "windows";
@@ -27,6 +28,7 @@ type LayoutTokens = {
     titlebarHeight: number;
     leftInset: number;
     rightInset: number;
+    ribbonWidth: number;
     isFullscreen: boolean;
 };
 
@@ -48,32 +50,31 @@ function getLayout(platform: Platform, isTauri: boolean, isFullscreen: boolean):
     const isWindows = platform === WINDOWS;
     const isLinux = platform === LINUX;
 
-    // Browser: keep titlebar visible but without traffic light insets
-    if (!isTauri) {
-        return {
-            platform,
-            isMac: false,
-            isWindows: false,
-            isLinux: false,
-            isTauri: false,
-            titlebarHeight: TITLEBAR_HEIGHT,
-            leftInset: BASE_LEFT_INSET,
-            rightInset: BASE_RIGHT_INSET,
-            isFullscreen: false,
-        };
-    }
-
-    // Tauri: apply platform-specific titlebar adjustments
-    return {
+    const baseTokens = {
         platform,
         isMac,
         isWindows,
         isLinux,
-        isTauri: true,
+        isTauri,
+        ribbonWidth: RIBBON_WIDTH,
+        isFullscreen,
         titlebarHeight: TITLEBAR_HEIGHT,
+        rightInset: BASE_RIGHT_INSET,
+    };
+
+    if (!isTauri) {
+        return {
+            ...baseTokens,
+            leftInset: BASE_LEFT_INSET,
+            rightInset: BASE_RIGHT_INSET,
+        };
+    }
+
+    // Tauri-specific overrides
+    return {
+        ...baseTokens,
         leftInset: isMac && !isFullscreen ? MAC_LEFT_INSET : BASE_LEFT_INSET,
         rightInset: isMac ? BASE_RIGHT_INSET : WIN_LINUX_RIGHT_INSET,
-        isFullscreen,
     };
 }
 
@@ -88,7 +89,7 @@ function getPlatformSafe(): Platform {
     // fallback to userAgent if tauri fails
     if (typeof navigator !== "undefined") {
         const userAgent = navigator.userAgent.toLowerCase();
-        if (userAgent.includes("macos")) {
+        if (userAgent.includes("macintosh") || userAgent.includes("mac os x")) {
             return MACOS;
         } else if (userAgent.includes("windows")) {
             return WINDOWS;

@@ -23,6 +23,7 @@ import {
   TooltipTrigger,
 } from "~/components/ui/tooltip"
 import { useIsMobile } from "~/hooks/use-mobile"
+import { usePlatformLayout } from "~/hooks/use-platform"
 import IconPanelLeft from "~icons/lucide/panel-left"
 
 const SIDEBAR_COOKIE_NAME = "sidebar_state"
@@ -145,6 +146,7 @@ function Sidebar({
   collapsible?: "offcanvas" | "icon" | "none"
 }) {
   const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
+  const layout = usePlatformLayout()
 
   if (collapsible === "none") {
     return (
@@ -199,12 +201,14 @@ function Sidebar({
       <div
         data-slot="sidebar-gap"
         className={cn(
-          "transition-[width] duration-200 ease-linear relative w-(--sidebar-width) bg-transparent",
-          "group-data-[collapsible=offcanvas]:w-0",
+          "relative bg-transparent",
+          // The gap should be ribbon width + sidebar width
+          "w-[calc(var(--sidebar-ribbon-width,0px)+var(--sidebar-width))]",
+          "group-data-[collapsible=offcanvas]:w-[var(--sidebar-ribbon-width,0px)]",
           "group-data-[side=right]:rotate-180",
           variant === "floating" || variant === "inset"
-            ? "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4)))]"
-            : "group-data-[collapsible=icon]:w-(--sidebar-width-icon)"
+            ? "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+var(--sidebar-ribbon-width,0px))]"
+            : "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+var(--sidebar-ribbon-width,0px))]"
         )}
       />
       {/* Hover trigger zone - reveals sidebar when hovering near edge */}
@@ -212,17 +216,21 @@ function Sidebar({
         <div
           data-slot="sidebar-hover-trigger"
           className={cn(
-            "fixed bottom-0 z-20 w-4",
-            side === "left" ? "left-0" : "right-0"
+            "fixed z-20 w-4",
+            side === "left" ? "left-[var(--sidebar-ribbon-width,0px)]" : "right-0"
           )}
+          style={{
+            top: layout.titlebarHeight,
+            bottom: 0,
+          }}
         />
       )}
       <div
         data-slot="sidebar-container"
         className={cn(
-          "fixed bottom-0 z-10 hidden w-(--sidebar-width) transition-[left,right,width] duration-200 ease-linear md:flex",
+          "fixed bottom-0 z-10 hidden w-(--sidebar-width) md:flex",
           side === "left"
-            ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)] group-data-[collapsible=offcanvas]:hover:left-0"
+            ? "left-[var(--sidebar-ribbon-width,0px)] group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)] group-data-[collapsible=offcanvas]:hover:left-[var(--sidebar-ribbon-width,0px)]"
             : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)] group-data-[collapsible=offcanvas]:hover:right-0",
           // Adjust the padding for floating and inset variants.
           variant === "floating" || variant === "inset"

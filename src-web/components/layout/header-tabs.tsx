@@ -78,12 +78,12 @@ function HeaderTabItem({
             }}
             style={style}
             className={cn(
-                "group relative flex items-center gap-1.5 px-3 py-1 select-none shrink-0",
-                "transition-all duration-200 ease-out cursor-pointer",
+                "group relative flex items-center gap-1.5 px-3 py-1 select-none shrink-0 rounded-md",
+                "transition-all duration-150 ease-out cursor-pointer",
                 isActive
-                    ? "bg-muted/80 text-foreground rounded-lg"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/30 rounded-lg",
-                isDragging && "opacity-50"
+                    ? "text-foreground bg-muted/60"
+                    : "text-muted-foreground/70 hover:text-foreground hover:bg-muted/30",
+                isDragging && "opacity-50",
             )}
             {...attributes}
             {...listeners}
@@ -168,7 +168,6 @@ export function HeaderTabs() {
         }
     };
 
-    // Only render when visible
     if (!isTabBarVisible) return null;
 
     const hasTabs = pinnedTabs.length > 0 || openTabs.length > 0;
@@ -204,7 +203,7 @@ export function HeaderTabs() {
                     ))}
 
                     {pinnedTabs.length > 0 && openTabs.length > 0 && (
-                        <div className="w-px h-3.5 mx-1 shrink-0" />
+                        <div className="w-px h-3.5 mx-1 shrink-0 bg-border/60" />
                     )}
 
                     {openTabs.map((noteId) => (
@@ -222,7 +221,7 @@ export function HeaderTabs() {
                 <button
                     onClick={handleNewTab}
                     className={cn(
-                        "shrink-0 p-1.5 rounded-md transition-colors",
+                        "shrink-0 p-1 rounded-md transition-colors",
                         "text-muted-foreground/60 hover:text-foreground hover:bg-muted/40"
                     )}
                     aria-label="New tab"

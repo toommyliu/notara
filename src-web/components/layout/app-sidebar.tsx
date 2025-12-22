@@ -33,16 +33,11 @@ import {
     SidebarMenuButton,
     SidebarMenuItem,
     SidebarRail,
-    SidebarSeparator,
-    useSidebar,
 } from "~/ui/sidebar";
-import { SettingsTrigger } from "~/components/settings-dialog";
 
 import IconAdd from "~icons/lucide/plus";
 import IconDelete from "~icons/lucide/trash";
 import IconFolderPlus from "~icons/lucide/folder-plus";
-import IconHome from "~icons/lucide/home";
-import IconSearch from "~icons/lucide/search";
 
 import { type Group, type Note } from "~/contexts/notes-context";
 import { useNotes } from "~/hooks/use-notes";
@@ -240,7 +235,6 @@ export function AppSidebar() {
         reorderNotesInGroup,
     } = useNotes();
     const { openTab, activeTabId } = useTabs();
-    const { open } = useSidebar();
 
     const [activeDragId, setActiveDragId] = useState<string | null>(null);
     const [activeDragType, setActiveDragType] = useState<"note" | "group" | null>(null);
@@ -347,31 +341,7 @@ export function AppSidebar() {
                 height: `calc(100vh - ${layout.titlebarHeight}px)`,
             }}
         >
-            <SidebarHeader
-                style={{ paddingTop: !open && layout.isMac && !layout.isFullscreen ? layout.titlebarHeight / 2 : undefined }}
-            >
-                <SidebarGroup className="py-2">
-                    <SidebarGroupContent>
-                        <SidebarMenu>
-                            <SidebarMenuItem>
-                                <Link to="/">
-                                    <SidebarMenuButton tooltip="Home">
-                                        <IconHome className="size-4" />
-                                        <span>Home</span>
-                                    </SidebarMenuButton>
-                                </Link>
-                            </SidebarMenuItem>
-                            <SidebarMenuItem>
-                                <SidebarMenuButton tooltip="Search">
-                                    <IconSearch className="size-4" />
-                                    <span>Search</span>
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
-                        </SidebarMenu>
-                    </SidebarGroupContent>
-                </SidebarGroup>
-                <SidebarSeparator />
-            </SidebarHeader>
+            <SidebarHeader className="pt-1" />
 
             <SidebarContent className="overflow-x-hidden px-2">
                 <DndContext
@@ -436,11 +406,6 @@ export function AppSidebar() {
                         </SidebarMenu>
                     </SidebarGroupContent>
                 </SidebarGroup>
-                <SidebarMenu>
-                    <SidebarMenuItem>
-                        <SettingsTrigger />
-                    </SidebarMenuItem>
-                </SidebarMenu>
             </SidebarFooter>
 
             <SidebarRail />
