@@ -125,7 +125,7 @@ function NotesPage() {
     }
 
     return (
-        <main className="flex-1 min-h-0 overflow-y-auto">
+        <main className="flex-1 min-h-0 overflow-y-auto scrollbar-custom">
             <div className="max-w-3xl mx-auto py-16" style={editorPaddingStyle}>
                 <div className="flex justify-start mb-4">
                     <button className="text-7xl hover:bg-muted/50 rounded-lg p-2 -m-2 transition-colors">

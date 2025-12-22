@@ -28,6 +28,7 @@ import {
     SidebarGroupAction,
     SidebarGroupContent,
     SidebarGroupLabel,
+    SidebarHeader,
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
@@ -346,8 +347,7 @@ export function AppSidebar() {
                 height: `calc(100vh - ${layout.titlebarHeight}px)`,
             }}
         >
-            <SidebarContent
-                className="overflow-x-hidden"
+            <SidebarHeader
                 style={{ paddingTop: !open && layout.isMac && !layout.isFullscreen ? layout.titlebarHeight / 2 : undefined }}
             >
                 <SidebarGroup className="py-2">
@@ -370,49 +370,50 @@ export function AppSidebar() {
                         </SidebarMenu>
                     </SidebarGroupContent>
                 </SidebarGroup>
-
                 <SidebarSeparator />
+            </SidebarHeader>
 
-                <div className="flex-1 min-h-0 overflow-y-auto no-scrollbar overscroll-contain">
-                    <DndContext
-                        sensors={sensors}
-                        autoScroll={false}
-                        collisionDetection={collisionDetection}
-                        modifiers={[restrictToVerticalAxis]}
-                        onDragStart={handleDragStart}
-                        onDragEnd={handleDragEnd}
+            <SidebarContent className="overflow-x-hidden px-2">
+                <DndContext
+                    sensors={sensors}
+                    autoScroll={false}
+                    collisionDetection={collisionDetection}
+                    modifiers={[restrictToVerticalAxis]}
+                    onDragStart={handleDragStart}
+                    onDragEnd={handleDragEnd}
+                >
+                    <SortableContext
+                        items={groups.map((g) => g.id)}
+                        strategy={verticalListSortingStrategy}
                     >
-                        <SortableContext
-                            items={groups.map((g) => g.id)}
-                            strategy={verticalListSortingStrategy}
-                        >
-                            {groups.map((group) => {
-                                const groupNotes = group.noteIds
-                                    .map((id) => notes.get(id))
-                                    .filter((n): n is Note => n !== undefined);
+                        {groups.map((group) => {
+                            const groupNotes = group.noteIds
+                                .map((id) => notes.get(id))
+                                .filter((n): n is Note => n !== undefined);
 
-                                return (
-                                    <SortableGroup
-                                        key={group.id}
-                                        group={group}
-                                        notes={groupNotes}
-                                        activeNoteId={activeTabId}
-                                        isDragSelected={draggingGroupId === group.id}
-                                        showDropBackground={!isDraggingGroup}
-                                        onNoteSelect={openTab}
-                                        onToggleCollapse={() => toggleGroupCollapse(group.id)}
-                                        onAddNote={() => addNote(group.id)}
-                                    />
-                                );
-                            })}
-                        </SortableContext>
+                            return (
+                                <SortableGroup
+                                    key={group.id}
+                                    group={group}
+                                    notes={groupNotes}
+                                    activeNoteId={activeTabId}
+                                    isDragSelected={draggingGroupId === group.id}
+                                    showDropBackground={!isDraggingGroup}
+                                    onNoteSelect={openTab}
+                                    onToggleCollapse={() => toggleGroupCollapse(group.id)}
+                                    onAddNote={() => addNote(group.id)}
+                                />
+                            );
+                        })}
+                    </SortableContext>
 
-                        <DragOverlay dropAnimation={null}>
-                            {getDragOverlayContent()}
-                        </DragOverlay>
-                    </DndContext>
-                </div>
+                    <DragOverlay dropAnimation={null}>
+                        {getDragOverlayContent()}
+                    </DragOverlay>
+                </DndContext>
+            </SidebarContent>
 
+            <SidebarFooter className="pb-2">
                 <SidebarGroup>
                     <SidebarGroupContent>
                         <SidebarMenu>
@@ -435,9 +436,6 @@ export function AppSidebar() {
                         </SidebarMenu>
                     </SidebarGroupContent>
                 </SidebarGroup>
-            </SidebarContent>
-
-            <SidebarFooter className="pb-2">
                 <SidebarMenu>
                     <SidebarMenuItem>
                         <SettingsTrigger />
