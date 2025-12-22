@@ -1,6 +1,7 @@
 import { type as osType } from "@tauri-apps/plugin-os";
+import { getCurrentWindow } from "@tauri-apps/api/window";
 
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 
 import { useIsTauri } from "~/hooks/use-tauri";
 
@@ -26,6 +27,7 @@ type LayoutTokens = {
     titlebarHeight: number;
     leftInset: number;
     rightInset: number;
+    isFullscreen: boolean;
 };
 
 function normalizePlatform(osTypeValue: string): Platform {
@@ -41,7 +43,7 @@ function normalizePlatform(osTypeValue: string): Platform {
     }
 }
 
-function getLayout(platform: Platform, isTauri: boolean): LayoutTokens {
+function getLayout(platform: Platform, isTauri: boolean, isFullscreen: boolean): LayoutTokens {
     const isMac = platform === MACOS;
     const isWindows = platform === WINDOWS;
     const isLinux = platform === LINUX;
@@ -57,6 +59,7 @@ function getLayout(platform: Platform, isTauri: boolean): LayoutTokens {
             titlebarHeight: TITLEBAR_HEIGHT,
             leftInset: BASE_LEFT_INSET,
             rightInset: BASE_RIGHT_INSET,
+            isFullscreen: false,
         };
     }
 
@@ -68,8 +71,9 @@ function getLayout(platform: Platform, isTauri: boolean): LayoutTokens {
         isLinux,
         isTauri: true,
         titlebarHeight: TITLEBAR_HEIGHT,
-        leftInset: isMac ? MAC_LEFT_INSET : BASE_LEFT_INSET,
+        leftInset: isMac && !isFullscreen ? MAC_LEFT_INSET : BASE_LEFT_INSET,
         rightInset: isMac ? BASE_RIGHT_INSET : WIN_LINUX_RIGHT_INSET,
+        isFullscreen,
     };
 }
 
@@ -99,5 +103,35 @@ function getPlatformSafe(): Platform {
 export function usePlatformLayout(): LayoutTokens {
     const isTauri = useIsTauri();
     const platform = useMemo(() => getPlatformSafe(), []);
-    return useMemo(() => getLayout(platform, isTauri), [platform, isTauri]);
+    const [isFullscreen, setIsFullscreen] = useState(false);
+
+    useEffect(() => {
+        if (!isTauri) return;
+
+        const checkFullscreen = async () => {
+            const win = getCurrentWindow();
+            const full = await win.isFullscreen();
+            setIsFullscreen(full);
+        };
+
+        checkFullscreen();
+
+        let unlisten: (() => void) | undefined;
+
+        const setup = async () => {
+            const win = getCurrentWindow();
+            // Listen for resize which happens on fullscreen toggle
+            unlisten = await win.onResized(() => {
+                checkFullscreen();
+            });
+        };
+
+        setup();
+
+        return () => {
+            if (unlisten) unlisten();
+        };
+    }, [isTauri]);
+
+    return useMemo(() => getLayout(platform, isTauri, isFullscreen), [platform, isTauri, isFullscreen]);
 }

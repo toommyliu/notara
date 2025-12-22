@@ -349,7 +349,7 @@ export function AppSidebar() {
         >
             <SidebarContent
                 className="overflow-x-hidden"
-                style={{ paddingTop: !open && layout.isMac ? layout.titlebarHeight / 2 : undefined }}
+                style={{ paddingTop: !open && layout.isMac && !layout.isFullscreen ? layout.titlebarHeight / 2 : undefined }}
             >
                 <SidebarGroup className="py-2">
                     <SidebarGroupContent>
