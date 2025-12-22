@@ -98,6 +98,7 @@ pub fn run() {
         })
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_os::init())
+        .plugin(notara_mac_window::init())
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

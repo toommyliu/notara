@@ -1,5 +1,5 @@
 import { createContext, useEffect, useState, type PropsWithChildren } from "react"
-import { getCurrentWindow } from "@tauri-apps/api/window"
+import { invoke } from "@tauri-apps/api/core"
 
 import { useIsTauri } from "~/hooks/use-tauri"
 
@@ -56,14 +56,14 @@ export function ThemeProvider({
 
         const applyNativeTheme = async () => {
             try {
-                const target: "light" | "dark" | null = theme === "dark" ? "dark" : theme === "light" ? "light" : null
-                await getCurrentWindow().setTheme(target)
+                const bgColor = theme === "dark" ? "#1a1a1a" : "#ffffff"
+                await invoke('plugin:notara-mac-window|set_theme', { bgColor })
             } catch {
             }
         }
 
         applyNativeTheme()
-    }, [theme])
+    }, [theme, isTauri])
 
     const value = {
         theme,
