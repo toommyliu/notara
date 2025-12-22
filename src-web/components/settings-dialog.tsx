@@ -37,37 +37,44 @@ function TabLayoutOption({ orientation, isActive, onClick }: TabLayoutOptionProp
             {/* Visual Preview */}
             <div
                 className={cn(
-                    "w-24 h-16 rounded-lg overflow-hidden",
+                    "w-28 h-20 rounded-lg overflow-hidden",
                     "bg-background border border-border/50",
-                    "flex",
-                    isVertical ? "flex-row" : "flex-col"
+                    "flex flex-row"
                 )}
             >
-                {/* Sidebar mock */}
-                <div className="w-5 h-full bg-muted/60 border-r border-border/30 shrink-0" />
+                {/* Sidebar mock (common for both) */}
+                <div className="w-[18px] h-full bg-muted/40 border-r border-border/40 shrink-0" />
 
-                {/* Tab bar mock */}
-                <div
-                    className={cn(
-                        "bg-muted/40",
-                        isVertical
-                            ? "w-4 h-full border-r border-border/30"
-                            : "h-2.5 w-full border-b border-border/30"
-                    )}
-                >
-                    <div
-                        className={cn(
-                            "bg-foreground/20 rounded-sm",
-                            isVertical ? "w-2.5 h-2 mt-1 mx-auto" : "w-4 h-1.5 ml-1 mt-0.5"
-                        )}
-                    />
-                </div>
+                {isVertical ? (
+                    <>
+                        {/* Vertical Tab bar mock */}
+                        <div className="w-[32px] h-full bg-background/50 border-r border-border/40 flex flex-col items-center pt-2 gap-1.5">
+                            <div className="bg-foreground/20 rounded-[2px] h-1 w-4" />
+                            <div className="bg-foreground/10 rounded-[2px] h-1 w-4" />
+                        </div>
 
-                {/* Content area mock */}
-                <div className="flex-1 p-1">
-                    <div className="w-full h-1 bg-muted/50 rounded-full mb-0.5" />
-                    <div className="w-3/4 h-1 bg-muted/30 rounded-full" />
-                </div>
+                        {/* Content area mock */}
+                        <div className="flex-1 p-2 space-y-1.5">
+                            <div className="w-8 h-1 bg-foreground/10 rounded-full" />
+                            <div className="w-full h-1 bg-foreground/5 rounded-full" />
+                            <div className="w-3/4 h-1 bg-foreground/5 rounded-full" />
+                        </div>
+                    </>
+                ) : (
+                    <div className="flex-1 flex flex-col min-w-0">
+                        {/* Horizontal Tab bar mock */}
+                        <div className="h-[18px] w-full border-b border-border/40 flex items-center px-1.5 gap-1.5 bg-background/50">
+                            <div className="h-1 w-6 rounded-full bg-foreground/20" />
+                            <div className="h-1 w-4 rounded-full bg-foreground/5" />
+                        </div>
+                        {/* Content area mock */}
+                        <div className="flex-1 p-2 space-y-1.5">
+                            <div className="w-8 h-1 bg-foreground/10 rounded-full" />
+                            <div className="w-full h-1 bg-foreground/5 rounded-full" />
+                            <div className="w-3/4 h-1 bg-foreground/5 rounded-full" />
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Label */}
@@ -88,10 +95,12 @@ function TabLayoutOption({ orientation, isActive, onClick }: TabLayoutOptionProp
             </div>
 
             {/* Active indicator */}
-            {isActive && (
-                <div className="absolute -top-px left-1/2 -translate-x-1/2 w-8 h-0.5 bg-foreground rounded-full" />
-            )}
-        </button>
+            {
+                isActive && (
+                    <div className="absolute -top-px left-1/2 -translate-x-1/2 w-8 h-0.5 bg-foreground rounded-full" />
+                )
+            }
+        </button >
     );
 }
 
