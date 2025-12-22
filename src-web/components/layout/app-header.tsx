@@ -24,7 +24,7 @@ export function AppHeader() {
 
                 <Separator
                     orientation="vertical"
-                    className="mx-2 h-4 self-center"
+                    className="mx-2 h-3.5! self-center! bg-linear-to-b from-transparent via-border/60 to-transparent"
                 />
 
                 <div className="flex items-center h-full min-w-0 overflow-hidden flex-1">

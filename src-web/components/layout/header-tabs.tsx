@@ -204,7 +204,7 @@ export function HeaderTabs() {
                     ))}
 
                     {pinnedTabs.length > 0 && openTabs.length > 0 && (
-                        <div className="w-px h-4 bg-border/40 mx-1 shrink-0" />
+                        <div className="w-px h-3.5 mx-1 shrink-0" />
                     )}
 
                     {openTabs.map((noteId) => (
