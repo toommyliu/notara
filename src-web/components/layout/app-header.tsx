@@ -1,11 +1,12 @@
-import { usePageHeaderContext } from "~/hooks/use-page-header";
-import { useTabs } from "~/hooks/use-tabs";
 import { AppTitlebar } from "./app-titlebar";
 import { HeaderTabs } from "./header-tabs";
 import { SidebarTrigger } from "~/ui/sidebar";
 import { Separator } from "~/ui/separator";
 
 import IconLock from "~icons/lucide/lock";
+
+import { usePageHeaderContext } from "~/hooks/use-page-header";
+import { useTabs } from "~/hooks/use-tabs";
 
 export function AppHeader() {
     const { config } = usePageHeaderContext();
@@ -18,7 +19,7 @@ export function AppHeader() {
         <AppTitlebar className="border-b border-border/40 overscroll-none">
             <div className="flex items-center w-full h-full gap-1 overflow-hidden">
                 <div className="flex items-center shrink-0">
-                    <SidebarTrigger className="size-7 text-muted-foreground hover:text-foreground transition-colors" />
+                    <SidebarTrigger className="text-muted-foreground hover:text-foreground transition-colors" />
                 </div>
 
                 <Separator

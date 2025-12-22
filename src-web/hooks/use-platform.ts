@@ -5,8 +5,8 @@ import { useMemo, useState, useEffect } from "react";
 
 import { useIsTauri } from "~/hooks/use-tauri";
 
-const TITLEBAR_HEIGHT = 29;
-const MAC_LEFT_INSET = 64;
+const TITLEBAR_HEIGHT = 40;
+const MAC_LEFT_INSET = 72;
 const BASE_LEFT_INSET = 8;
 const WIN_LINUX_RIGHT_INSET = 138;
 const BASE_RIGHT_INSET = 8;
