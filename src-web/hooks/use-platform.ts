@@ -2,6 +2,8 @@ import { type as osType } from "@tauri-apps/plugin-os";
 
 import { useMemo } from "react";
 
+import { useIsTauri } from "~/hooks/use-tauri";
+
 const TITLEBAR_HEIGHT = 29;
 const MAC_LEFT_INSET = 64;
 const BASE_LEFT_INSET = 8;
@@ -39,10 +41,6 @@ function normalizePlatform(osTypeValue: string): Platform {
     }
 }
 
-function isTauriEnvironment(): boolean {
-    return typeof window !== "undefined" && "__TAURI_INTERNALS__" in window;
-}
-
 function getLayout(platform: Platform, isTauri: boolean): LayoutTokens {
     const isMac = platform === MACOS;
     const isWindows = platform === WINDOWS;
@@ -76,7 +74,7 @@ function getLayout(platform: Platform, isTauri: boolean): LayoutTokens {
 }
 
 function getPlatformSafe(): Platform {
-    if (isTauriEnvironment()) {
+    if (typeof window !== "undefined" && "__TAURI_INTERNALS__" in window) {
         try {
             return normalizePlatform(osType());
         } catch {
@@ -99,7 +97,7 @@ function getPlatformSafe(): Platform {
 }
 
 export function usePlatformLayout(): LayoutTokens {
-    const isTauri = useMemo(() => isTauriEnvironment(), []);
+    const isTauri = useIsTauri();
     const platform = useMemo(() => getPlatformSafe(), []);
     return useMemo(() => getLayout(platform, isTauri), [platform, isTauri]);
 }

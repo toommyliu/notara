@@ -10,6 +10,7 @@ type TabsState = {
     openTabs: string[];
     activeTabId: string | null;
     orientation: TabOrientation;
+    isTabBarVisible: boolean;
 };
 
 type TabsContextValue = TabsState & {
@@ -20,6 +21,7 @@ type TabsContextValue = TabsState & {
     reorderTabs: (activeId: string, overId: string, section: "pinned" | "open") => void;
     setOrientation: (orientation: TabOrientation) => void;
     setActiveTab: (noteId: string) => void;
+    toggleTabBar: () => void;
 };
 
 export const TabsContext = createContext<TabsContextValue | null>(null);
@@ -29,6 +31,7 @@ const DEFAULT_STATE: TabsState = {
     openTabs: [],
     activeTabId: null,
     orientation: "vertical",
+    isTabBarVisible: true,
 };
 
 function loadTabsState(): TabsState {
@@ -41,6 +44,7 @@ function loadTabsState(): TabsState {
                 openTabs: Array.isArray(parsed.openTabs) ? parsed.openTabs : [],
                 activeTabId: parsed.activeTabId ?? null,
                 orientation: parsed.orientation === "horizontal" ? "horizontal" : "vertical",
+                isTabBarVisible: typeof parsed.isTabBarVisible === "boolean" ? parsed.isTabBarVisible : true,
             };
         }
     } catch {
@@ -170,6 +174,10 @@ export function TabsProvider({ children }: PropsWithChildren) {
         updateState((prev) => ({ ...prev, activeTabId: noteId }));
     }, [updateState]);
 
+    const toggleTabBar = useCallback(() => {
+        updateState((prev) => ({ ...prev, isTabBarVisible: !prev.isTabBarVisible }));
+    }, [updateState]);
+
     return (
         <TabsContext.Provider
             value={{
@@ -181,6 +189,7 @@ export function TabsProvider({ children }: PropsWithChildren) {
                 reorderTabs,
                 setOrientation,
                 setActiveTab,
+                toggleTabBar,
             }}
         >
             {children}
