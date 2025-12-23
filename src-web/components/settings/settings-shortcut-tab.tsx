@@ -80,20 +80,28 @@ function ShortcutRow({ id, binding, isRecording, onStartRecording, onCancelRecor
         return () => window.removeEventListener("keydown", handleKeyDown, true);
     }, [isRecording, id, setBinding, onCancelRecording]);
 
+    const label = SHORTCUT_LABELS[id];
+    const displayText = isRecording ? "Press shortcut... (Esc to cancel)" : formatBindingForDisplay(binding);
+
     return (
         <div className="flex items-center justify-between py-2">
-            <span className="text-sm text-foreground">{SHORTCUT_LABELS[id]}</span>
+            <span id={`shortcut-label-${id}`} className="text-sm text-foreground">
+                {label}
+            </span>
             <button
+                aria-labelledby={`shortcut-label-${id}`}
+                aria-pressed={isRecording}
                 onClick={isRecording ? onCancelRecording : onStartRecording}
                 className={cn(
                     "px-3 py-1.5 rounded-lg text-xs font-medium transition-all",
                     "border shadow-sm",
+                    "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
                     isRecording
                         ? "bg-accent border-foreground/20 text-foreground animate-pulse"
                         : "bg-muted/60 border-border/50 text-muted-foreground hover:bg-muted hover:text-foreground"
                 )}
             >
-                {isRecording ? "Press shortcut..." : formatBindingForDisplay(binding)}
+                {displayText}
             </button>
         </div>
     );
@@ -134,7 +142,11 @@ export function ShortcutsTab() {
                         resetToDefaults();
                         setRecordingId(null);
                     }}
-                    className="mt-3 w-full flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
+                    className={cn(
+                        "mt-3 w-full flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-medium",
+                        "text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors",
+                        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                    )}
                 >
                     <IconRotateCcw className="size-3.5" />
                     Reset to Defaults

@@ -7,21 +7,24 @@ import { useTheme } from "~/hooks/use-theme";
 import { cn } from "~/lib/utils";
 
 type ThemeOptionProps = {
-    theme: "light" | "dark" | "system";
+    value: "light" | "dark" | "system";
     isActive: boolean;
     onClick: () => void;
 };
 
-function ThemeOption({ theme, isActive, onClick }: ThemeOptionProps) {
-    const Icon = theme === "light" ? IconSun : theme === "dark" ? IconMoon : IconMonitor;
-    const label = theme === "light" ? "Light" : theme === "dark" ? "Dark" : "System";
+function ThemeOption({ value, isActive, onClick }: ThemeOptionProps) {
+    const Icon = value === "light" ? IconSun : value === "dark" ? IconMoon : IconMonitor;
+    const label = value === "light" ? "Light" : value === "dark" ? "Dark" : "System";
 
     return (
         <button
+            type="button"
+            aria-pressed={isActive}
             onClick={onClick}
             className={cn(
                 "group relative flex flex-col items-center gap-2.5 p-3 rounded-xl transition-all duration-200",
                 "border-2",
+                "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
                 isActive
                     ? "border-foreground bg-accent shadow-sm"
                     : "border-transparent bg-muted/40 hover:bg-muted/70"
@@ -59,19 +62,23 @@ export function GeneralTab() {
                     </p>
                 </div>
 
-                <div className="grid grid-cols-3 gap-2">
+                <div
+                    role="group"
+                    aria-label="Theme selection"
+                    className="grid grid-cols-3 gap-2"
+                >
                     <ThemeOption
-                        theme="light"
+                        value="light"
                         isActive={theme === "light"}
                         onClick={() => setTheme("light")}
                     />
                     <ThemeOption
-                        theme="dark"
+                        value="dark"
                         isActive={theme === "dark"}
                         onClick={() => setTheme("dark")}
                     />
                     <ThemeOption
-                        theme="system"
+                        value="system"
                         isActive={theme === "system"}
                         onClick={() => setTheme("system")}
                     />
