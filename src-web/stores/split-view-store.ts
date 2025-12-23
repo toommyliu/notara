@@ -26,6 +26,10 @@ type SplitViewActions = {
     resetToSinglePane: () => void;
     /** Swap the contents of the two panes */
     swapPanes: () => void;
+    /** Set all panes at once */
+    setPanes: (panes: Pane[], activePaneId?: string) => void;
+    /** Set to a single pane with a specific note */
+    setSinglePane: (noteId: string) => void;
 };
 
 const createDefaultPane = (): Pane => ({
@@ -120,6 +124,20 @@ export const useSplitViewStore = create<SplitViewState & SplitViewActions>()((se
                 activePaneId: s.activePaneId,
             };
         }),
+
+    setPanes: (panes, activePaneId) => set({
+        panes,
+        activePaneId: activePaneId ?? panes[0]?.id ?? ""
+    }),
+
+    setSinglePane: (noteId) => {
+        const pane = createDefaultPane();
+        pane.noteId = noteId;
+        set({
+            panes: [pane],
+            activePaneId: pane.id
+        });
+    }
 }));
 
 export const useActivePaneNoteId = () =>

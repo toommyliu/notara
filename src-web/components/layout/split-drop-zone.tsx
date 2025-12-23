@@ -1,15 +1,13 @@
 import { useEffect, useRef, useState } from "react";
-
 import { useDragContext } from "~/contexts/drag-context";
 import { useSplitViewStore } from "~/stores/split-view-store";
-
+import { useTabsStore } from "~/stores/tabs-store";
 import { cn } from "~/lib/utils";
-// import IconColumns from "~icons/lucide/columns-2";
-// import IconMaximize from "~icons/lucide/maximize-2";
 
 type SplitDropZoneProps = {
     position: "left" | "right" | "center";
     paneId?: string; // Required for position === "center"
+    anchorNoteId?: string; // The note to group with if creating a new split
     onHoverChange?: (isHovering: boolean) => void;
     contentPadding?: number; // px
     contentWidth?: number; // max-width px (e.g. 768 for max-w-3xl)
@@ -18,12 +16,14 @@ type SplitDropZoneProps = {
 export function SplitDropZone({
     position,
     paneId,
+    anchorNoteId,
     onHoverChange,
     contentPadding = 48,
     contentWidth = 768
 }: SplitDropZoneProps) {
     const dragContext = useDragContext();
     const { panes, addPane, openInPane } = useSplitViewStore();
+    const { addToGroup } = useTabsStore();
 
     const zoneRef = useRef<HTMLDivElement>(null);
     const [isHovering, setIsHovering] = useState(false);
@@ -75,6 +75,9 @@ export function SplitDropZone({
                 if (position === "center" && paneId) {
                     openInPane(paneId, noteId);
                 } else if (position !== "center") {
+                    if (anchorNoteId) {
+                        addToGroup(noteId, anchorNoteId);
+                    }
                     addPane(position, noteId);
                 }
             }
@@ -82,7 +85,7 @@ export function SplitDropZone({
 
         window.addEventListener("pointerup", handlePointerUp, { capture: true });
         return () => window.removeEventListener("pointerup", handlePointerUp, { capture: true });
-    }, [shouldShow, isHovering, position, addPane, openInPane, paneId, dragContext?.isDragging]);
+    }, [shouldShow, isHovering, position, addPane, openInPane, paneId, dragContext?.isDragging, anchorNoteId, addToGroup]);
 
     useEffect(() => {
         if (!dragContext?.isDragging) {

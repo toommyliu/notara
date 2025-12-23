@@ -8,6 +8,7 @@ import { useSplitViewStore, type Pane } from "~/stores/split-view-store";
 import { useHaptics, HapticFeedbackPattern } from "~/hooks/use-haptics";
 import { useDragContext } from "~/contexts/drag-context";
 import { useNotesStore, type Note } from "~/stores/notes-store";
+import { useTabsStore } from "~/stores/tabs-store";
 
 import { cn } from "~/lib/utils";
 
@@ -21,6 +22,7 @@ const SNAP_THRESHOLD = 5; // Snap when within 5% of 50%
 const ESCAPE_THRESHOLD = 8; // Must drag past 8% to escape snap
 
 export function SplitViewContainer({ renderPane, renderPreview, contentPadding }: SplitViewContainerProps) {
+    const { activeTabId } = useTabsStore();
     const { panes, activePaneId, setActivePane } = useSplitViewStore();
     const [hoverSide, setHoverSide] = useState<"left" | "right" | null>(null);
     const groupRef = useRef<GroupImperativeHandle>(null);
@@ -115,11 +117,13 @@ export function SplitViewContainer({ renderPane, renderPreview, contentPadding }
             <SplitDropZone
                 position="left"
                 contentPadding={contentPadding}
+                anchorNoteId={activeTabId || undefined}
                 onHoverChange={(isHovering) => setHoverSide(isHovering ? "left" : null)}
             />
             <SplitDropZone
                 position="right"
                 contentPadding={contentPadding}
+                anchorNoteId={activeTabId || undefined}
                 onHoverChange={(isHovering) => setHoverSide(isHovering ? "right" : null)}
             />
         </div>

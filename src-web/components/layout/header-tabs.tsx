@@ -35,7 +35,7 @@ import IconArrowLeftRight from "~icons/lucide/arrow-left-right";
 
 import { useTabsStore } from "~/stores/tabs-store";
 import { useNotesStore } from "~/stores/notes-store";
-import { useSplitViewStore, useIsSplitView, type Pane } from "~/stores/split-view-store";
+import { useSplitViewStore, useIsSplitView } from "~/stores/split-view-store";
 import { useDragContext } from "~/contexts/drag-context";
 
 import { cn } from "~/lib/utils";
@@ -155,18 +155,15 @@ const HeaderTabItem = forwardRef<HeaderTabItemHandle, HeaderTabItemProps>(
 );
 
 type SplitTabItemProps = HeaderTabItemProps & {
-    panes: Pane[];
-    activePaneId: string;
-    onSwap: () => void;
-    onCloseSplit: () => void;
-    onActivatePane: (paneId: string) => void;
+    noteIds: string[];
+    onActivatePane: (noteId: string) => void;
 };
 
 const SplitTabItem = forwardRef<HeaderTabItemHandle, SplitTabItemProps>(
-    function SplitTabItem({ noteId, isActive, isPinned, panes, activePaneId, onActivatePane }, ref) {
+    function SplitTabItem({ noteId, isActive, isPinned, noteIds, onActivatePane }, ref) {
         const { notes } = useNotesStore();
         const tabRef = useRef<HTMLDivElement>(null);
-        const navigate = useNavigate();
+        const { activeTabId } = useTabsStore();
 
         useImperativeHandle(ref, () => ({
             focus: () => {
@@ -175,12 +172,12 @@ const SplitTabItem = forwardRef<HeaderTabItemHandle, SplitTabItemProps>(
         }));
 
         const {
-            attributes,
-            listeners,
             setNodeRef,
             transform,
             transition,
             isDragging,
+            attributes,
+            listeners,
         } = useSortable({
             id: noteId,
             data: { section: isPinned ? "pinned" : "open" },
@@ -212,27 +209,26 @@ const SplitTabItem = forwardRef<HeaderTabItemHandle, SplitTabItemProps>(
                 {...attributes}
                 {...listeners}
             >
-                {panes.map((pane, index) => {
-                    const note = pane.noteId ? notes.get(pane.noteId) : null;
-                    const isPaneActive = pane.id === activePaneId;
+                {noteIds.map((id, index) => {
+                    const note = notes.get(id);
+                    const isPaneActive = id === activeTabId;
 
                     return (
-                        <div key={pane.id} className="flex items-center">
-                            {index > 0 && <div className="w-px h-3 bg-border" />}
+                        <div key={id} className="flex items-center">
+                            {index > 0 && <div className="w-px h-3 bg-border/40" />}
 
                             <button
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    onActivatePane(pane.id);
-                                    navigate({ to: "/notes" });
+                                    onActivatePane(id);
                                 }}
                                 className={cn(
-                                    "flex items-center gap-1.5 px-2 py-1 transition-colors hover:bg-muted/50",
-                                    isPaneActive && "bg-muted/30 font-medium"
+                                    "flex items-center gap-1.5 px-2 py-1 transition-colors hover:bg-muted/40",
+                                    isPaneActive ? "bg-background shadow-sm text-foreground" : "text-muted-foreground/70"
                                 )}
                             >
                                 <span className="text-sm shrink-0">{note?.emoji}</span>
-                                <span className="text-[13px] truncate max-w-[80px]">{note?.title}</span>
+                                <span className="text-[13px] font-medium truncate max-w-[80px]">{note?.title}</span>
                             </button>
                         </div>
                     );
@@ -243,9 +239,9 @@ const SplitTabItem = forwardRef<HeaderTabItemHandle, SplitTabItemProps>(
 );
 
 export function HeaderTabs() {
-    const { pinnedTabs, openTabs, activeTabId, setActiveTab, closeTab, reorderTabs, isTabBarVisible } = useTabsStore();
+    const { pinnedTabs, openTabs, activeTabId, setActiveTab, closeTab, reorderTabs, isTabBarVisible, tabGroups, removeFromGroup } = useTabsStore();
     const { notes, groups, addNote } = useNotesStore();
-    const { panes, activePaneId, setActivePane, removePane, swapPanes } = useSplitViewStore();
+    const { panes, swapPanes } = useSplitViewStore();
     const isSplitView = useIsSplitView();
     const dragContext = useDragContext();
     const navigate = useNavigate();
@@ -254,20 +250,20 @@ export function HeaderTabs() {
 
     const tabRefs = useRef<Map<string, HeaderTabItemHandle>>(new Map());
 
-    const splitNoteIds = isSplitView ? new Set(panes.map(p => p.noteId).filter(Boolean) as string[]) : new Set<string>();
+    const getGroupForTab = (noteId: string) => tabGroups.find(g => g.includes(noteId));
 
     const processTabs = (tabIds: string[]) => {
-        if (!isSplitView) return tabIds;
-
         const processed: string[] = [];
-        let splitFound = false;
+        const seenInGroup = new Set<string>();
 
         for (const id of tabIds) {
-            if (splitNoteIds.has(id)) {
-                if (!splitFound) {
-                    processed.push(id);
-                    splitFound = true;
-                }
+            if (seenInGroup.has(id)) continue;
+
+            const group = getGroupForTab(id);
+            if (group) {
+                // If this is the representative (first appearing tab of the group in this list)
+                processed.push(id);
+                group.forEach(gid => seenInGroup.add(gid));
             } else {
                 processed.push(id);
             }
@@ -276,15 +272,20 @@ export function HeaderTabs() {
     };
 
     const visiblePinned = processTabs(pinnedTabs);
-    const splitInPinned = visiblePinned.some(id => splitNoteIds.has(id));
 
-    const visibleOpen = openTabs.filter(id => {
-        if (splitInPinned && splitNoteIds.has(id)) return false;
-        return true;
+    // For open tabs, we also need to avoid repeating tabs already processed in pinned (if that ever happens)
+    const processedInPinned = new Set<string>();
+    visiblePinned.forEach(id => {
+        const group = getGroupForTab(id);
+        if (group) {
+            group.forEach(gid => processedInPinned.add(gid));
+        } else {
+            processedInPinned.add(id);
+        }
     });
 
-    const finalVisibleOpen = splitInPinned ? visibleOpen : processTabs(visibleOpen);
-    const allVisibleTabs = [...visiblePinned, ...finalVisibleOpen];
+    const visibleOpen = processTabs(openTabs.filter(id => !processedInPinned.has(id)));
+    const allVisibleTabs = [...visiblePinned, ...visibleOpen];
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -362,10 +363,10 @@ export function HeaderTabs() {
     };
 
     const handleCloseSplit = () => {
-        // Close the non-active pane
-        const toKeep = panes.find(p => p.id === activePaneId) || panes[0];
-        const others = panes.filter(p => p.id !== toKeep.id);
-        others.forEach(p => removePane(p.id));
+        if (!activeTabId)
+            return;
+
+        removeFromGroup(activeTabId);
     };
 
     if (!isTabBarVisible) return null;
@@ -411,20 +412,21 @@ export function HeaderTabs() {
                 >
                     <SortableContext items={allVisibleTabs} strategy={horizontalListSortingStrategy}>
                         {visiblePinned.map((noteId) => {
-                            if (isSplitView && splitNoteIds.has(noteId)) {
+                            const group = getGroupForTab(noteId);
+                            if (group) {
                                 return (
                                     <SplitTabItem
                                         key={noteId}
                                         noteId={noteId}
-                                        isActive={splitNoteIds.has(activeTabId || "")}
+                                        isActive={group.includes(activeTabId || "")}
                                         isPinned={true}
-                                        panes={panes}
-                                        activePaneId={activePaneId}
+                                        noteIds={group}
+                                        onActivatePane={(id) => {
+                                            setActiveTab(id);
+                                            navigate({ to: "/notes" });
+                                        }}
                                         onActivate={() => setActiveTab(noteId)}
                                         onClose={() => closeTab(noteId)}
-                                        onSwap={swapPanes}
-                                        onCloseSplit={handleCloseSplit}
-                                        onActivatePane={setActivePane}
                                     />
                                 );
                             }
@@ -450,25 +452,26 @@ export function HeaderTabs() {
                             );
                         })}
 
-                        {visiblePinned.length > 0 && finalVisibleOpen.length > 0 && (
+                        {visiblePinned.length > 0 && visibleOpen.length > 0 && (
                             <div className="w-px h-3.5 mx-1 shrink-0 bg-border/60" />
                         )}
 
-                        {finalVisibleOpen.map((noteId) => {
-                            if (isSplitView && splitNoteIds.has(noteId)) {
+                        {visibleOpen.map((noteId) => {
+                            const group = getGroupForTab(noteId);
+                            if (group) {
                                 return (
                                     <SplitTabItem
                                         key={noteId}
                                         noteId={noteId}
-                                        isActive={splitNoteIds.has(activeTabId || "")}
+                                        isActive={group.includes(activeTabId || "")}
                                         isPinned={false}
-                                        panes={panes}
-                                        activePaneId={activePaneId}
+                                        noteIds={group}
+                                        onActivatePane={(id) => {
+                                            setActiveTab(id);
+                                            navigate({ to: "/notes" });
+                                        }}
                                         onActivate={() => setActiveTab(noteId)}
                                         onClose={() => closeTab(noteId)}
-                                        onSwap={swapPanes}
-                                        onCloseSplit={handleCloseSplit}
-                                        onActivatePane={setActivePane}
                                     />
                                 );
                             }

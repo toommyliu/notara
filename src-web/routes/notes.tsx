@@ -49,21 +49,46 @@ function isPaddingPresetKey(value: string): value is PaddingPresetKey {
 
 function NotesPage() {
     const { notes, updateNote } = useNotesStore();
-    const { activeTabId } = useTabsStore();
-    const { panes, activePaneId, openInPane } = useSplitViewStore();
-    const isSplitView = useIsSplitView();
+    const { activeTabId, tabGroups } = useTabsStore();
+    const { panes, activePaneId, setActivePane, setPanes, setSinglePane } = useSplitViewStore();
     const { state: sidebarState } = useSidebar();
     const [paddingPrefs, setPaddingPrefs] = useState<PaddingPrefs>(DEFAULT_PADDING_PREFS);
 
-    // For single-pane mode, sync activeTabId to the pane
+    // Sync activeTabId to panes, restoring or collapsing split view based on groups
     useEffect(() => {
-        if (!isSplitView && activeTabId) {
-            const singlePane = panes[0];
-            if (singlePane && singlePane.noteId !== activeTabId) {
-                openInPane(singlePane.id, activeTabId);
+        if (!activeTabId) return;
+
+        // Find if this tab belongs to a group
+        const group = tabGroups.find(g => g.includes(activeTabId));
+
+        if (group) {
+            // It's a split view group.
+            // Check if current panes match the group
+            const paneNoteIds = panes.map(p => p.noteId).filter(Boolean);
+            const isMatch = group.length === paneNoteIds.length && group.every(id => paneNoteIds.includes(id));
+
+            if (!isMatch) {
+                // Restore split view for this group
+                const newPanes = group.map(noteId => ({
+                    id: Math.random().toString(36).slice(2, 10),
+                    noteId
+                }));
+                const activePane = newPanes.find(p => p.noteId === activeTabId);
+                setPanes(newPanes, activePane?.id);
+            } else {
+                // Panes already match, just ensure the correct one is active
+                const targetPane = panes.find(p => p.noteId === activeTabId);
+                if (targetPane && activePaneId !== targetPane.id) {
+                    setActivePane(targetPane.id);
+                }
+            }
+        } else {
+            // It's a single tab. Collapse split view if active or if note is wrong.
+            if (panes.length > 1 || (panes[0] && panes[0].noteId !== activeTabId)) {
+                setSinglePane(activeTabId);
             }
         }
-    }, [activeTabId, isSplitView, panes, openInPane]);
+    }, [activeTabId, panes, setActivePane, activePaneId, tabGroups, setPanes, setSinglePane]);
 
     useEffect(() => {
         try {
