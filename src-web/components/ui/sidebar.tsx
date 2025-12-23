@@ -292,52 +292,51 @@ function SidebarRail({ className, ...props }: React.ComponentProps<"button">) {
   const startWidthRef = React.useRef(0)
   const hasDraggedRef = React.useRef(false)
 
-  const handleMouseDown = React.useCallback((e: React.MouseEvent) => {
+  const handlePointerDown = React.useCallback((e: React.PointerEvent<HTMLButtonElement>) => {
     e.preventDefault()
+    e.currentTarget.setPointerCapture(e.pointerId)
     setIsDragging(true)
     startXRef.current = e.clientX
     hasDraggedRef.current = false
 
+    const wrapper = document.querySelector('[data-slot="sidebar-wrapper"]') as HTMLElement
     const sidebarGap = document.querySelector('[data-slot="sidebar-gap"]') as HTMLElement
-    if (sidebarGap) {
-      startWidthRef.current = sidebarGap.getBoundingClientRect().width || 256
+    if (wrapper && sidebarGap) {
+      const ribbonWidth = parseInt(getComputedStyle(wrapper).getPropertyValue('--sidebar-ribbon-width') || '0', 10)
+      const totalWidth = sidebarGap.getBoundingClientRect().width
+      startWidthRef.current = totalWidth - ribbonWidth
+    } else {
+      startWidthRef.current = 256
     }
     setResizing(true)
+    document.body.style.cursor = 'ew-resize'
   }, [setResizing])
 
-  React.useEffect(() => {
+  const handlePointerMove = React.useCallback((e: React.PointerEvent) => {
     if (!isDragging) return
 
-    const handleMouseMove = (e: MouseEvent) => {
-      const delta = e.clientX - startXRef.current
-      if (Math.abs(delta) > 5) {
-        hasDraggedRef.current = true
-      }
-
-      const newWidth = Math.max(180, Math.min(480, startWidthRef.current + delta))
-      const sidebar = document.querySelector('[data-slot="sidebar-wrapper"]') as HTMLElement
-      if (sidebar) {
-        sidebar.style.setProperty('--sidebar-width', `${newWidth}px`)
-      }
+    const delta = e.clientX - startXRef.current
+    if (Math.abs(delta) > 5) {
+      hasDraggedRef.current = true
     }
 
-    const handleMouseUp = () => {
-      setIsDragging(false)
-
-      if (!hasDraggedRef.current) {
-        toggleSidebar()
-      }
-      setResizing(false)
+    const newWidth = Math.max(180, Math.min(480, startWidthRef.current + delta))
+    const sidebar = document.querySelector('[data-slot="sidebar-wrapper"]') as HTMLElement
+    if (sidebar) {
+      sidebar.style.setProperty('--sidebar-width', `${newWidth}px`)
     }
+  }, [isDragging])
 
-    document.addEventListener('mousemove', handleMouseMove)
-    document.addEventListener('mouseup', handleMouseUp)
+  const handlePointerUp = React.useCallback(() => {
+    if (!isDragging) return
+    setIsDragging(false)
+    setResizing(false)
+    document.body.style.cursor = ''
 
-    return () => {
-      document.removeEventListener('mousemove', handleMouseMove)
-      document.removeEventListener('mouseup', handleMouseUp)
+    if (!hasDraggedRef.current) {
+      toggleSidebar()
     }
-  }, [isDragging, toggleSidebar])
+  }, [isDragging, toggleSidebar, setResizing])
 
   return (
     <button
@@ -345,7 +344,9 @@ function SidebarRail({ className, ...props }: React.ComponentProps<"button">) {
       data-slot="sidebar-rail"
       aria-label="Toggle Sidebar"
       tabIndex={-1}
-      onMouseDown={handleMouseDown}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
       title="Toggle Sidebar"
       className={cn(
         "hover:after:bg-sidebar-border absolute inset-y-0 z-20 hidden w-4 -translate-x-1/2 transition-all ease-linear group-data-[side=left]:-right-4 group-data-[side=right]:left-0 after:absolute after:inset-y-0 after:left-1/2 after:w-[2px] sm:flex",
