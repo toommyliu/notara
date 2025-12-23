@@ -144,7 +144,7 @@ function SortableBlock({
         >
             <div
                 className={cn(
-                    "flex items-center gap-0.5 py-2 opacity-0 group-hover:opacity-100 transition-opacity -ml-12 w-10"
+                    "flex items-center gap-0.5 py-2 opacity-0 group-hover:opacity-100 transition-opacity -ml-14 w-12"
                 )}
             >
                 <button
