@@ -22,7 +22,7 @@ const SNAP_THRESHOLD = 5; // Snap when within 5% of 50%
 const ESCAPE_THRESHOLD = 8; // Must drag past 8% to escape snap
 
 export function SplitViewContainer({ renderPane, renderPreview, contentPadding }: SplitViewContainerProps) {
-    const { activeTabId } = useTabsStore();
+    const { activeTabId, setActiveTab } = useTabsStore();
     const { panes, activePaneId, setActivePane } = useSplitViewStore();
     const [hoverSide, setHoverSide] = useState<"left" | "right" | null>(null);
     const groupRef = useRef<GroupImperativeHandle>(null);
@@ -94,7 +94,15 @@ export function SplitViewContainer({ renderPane, renderPreview, contentPadding }
                             isFirst={index === 0}
                             paneCount={panes.length}
                             isPreviewingSplit={hoverSide !== null}
-                            onActivate={() => setActivePane(pane.id)}
+                            onActivate={() => {
+                                if (activePaneId !== pane.id) {
+                                    setActivePane(pane.id);
+                                }
+
+                                if (pane.noteId && activeTabId !== pane.noteId) {
+                                    setActiveTab(pane.noteId);
+                                }
+                            }}
                         >
                             {renderPane(pane, pane.id === activePaneId)}
                         </SplitPane>
