@@ -75,7 +75,8 @@ export function IconRibbon() {
                 "fixed left-0 bottom-0 z-50",
                 "flex flex-col items-center w-12 shrink-0",
                 "bg-sidebar border-r border-border/40",
-                "gap-1"
+                "gap-1",
+                "select-none"
             )}
             style={{
                 top: layout.titlebarHeight,

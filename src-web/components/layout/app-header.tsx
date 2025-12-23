@@ -16,7 +16,7 @@ export function AppHeader() {
     const showTabs = isTabBarVisible && (pinnedTabs.length > 0 || openTabs.length > 0);
 
     return (
-        <AppTitlebar className="border-b border-border/40 overscroll-none">
+        <AppTitlebar className="border-b border-border/40 overscroll-none select-none">
             <div className="flex items-center w-full h-full gap-0.5">
                 <div className="flex items-center shrink-0 pl-1">
                     <SidebarTrigger className="text-muted-foreground hover:text-foreground transition-colors" />
