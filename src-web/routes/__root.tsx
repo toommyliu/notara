@@ -27,7 +27,7 @@ function MainContent() {
 
 function AppShell() {
     const { toggleSidebar } = useSidebar();
-    const { toggleTabBar } = useTabsStore();
+    const { toggleTabBar, cycleTab } = useTabsStore();
     const isTauri = useIsTauri();
 
     useEffect(() => {
@@ -55,6 +55,12 @@ function AppShell() {
         const handleKeyDown = (ev: KeyboardEvent) => {
             if (!(ev.metaKey || ev.ctrlKey)) return;
 
+            if (ev.key === "Tab") {
+                ev.preventDefault();
+                cycleTab(ev.shiftKey ? -1 : 1);
+                return;
+            }
+
             if (ev.key === "\\") {
                 ev.preventDefault();
                 toggleSidebar();
@@ -69,7 +75,7 @@ function AppShell() {
 
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
-    }, [isTauri, toggleSidebar, toggleTabBar]);
+    }, [isTauri, toggleSidebar, toggleTabBar, cycleTab]);
 
     return (
         <>

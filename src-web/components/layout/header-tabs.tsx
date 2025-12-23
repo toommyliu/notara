@@ -163,11 +163,16 @@ const SplitTabItem = forwardRef<HeaderTabItemHandle, SplitTabItemProps>(
     function SplitTabItem({ noteId, isActive, isPinned, noteIds, onActivatePane }, ref) {
         const { notes } = useNotesStore();
         const tabRef = useRef<HTMLDivElement>(null);
+        const buttonRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
         const { activeTabId } = useTabsStore();
 
         useImperativeHandle(ref, () => ({
             focus: () => {
-                tabRef.current?.focus();
+                if (activeTabId && buttonRefs.current.has(activeTabId)) {
+                    buttonRefs.current.get(activeTabId)?.focus();
+                } else if (noteIds.length > 0) {
+                    buttonRefs.current.get(noteIds[0])?.focus();
+                }
             },
         }));
 
@@ -202,8 +207,11 @@ const SplitTabItem = forwardRef<HeaderTabItemHandle, SplitTabItemProps>(
                 }}
                 style={style}
                 className={cn(
-                    "group relative flex items-center select-none shrink-0 rounded-md outline-none border border-border/50",
-                    "transition-all duration-150 ease-out bg-background/50",
+                    "group relative flex items-center select-none shrink-0 rounded-md outline-none p-0.5",
+                    "transition-all duration-150 ease-out",
+                    isActive
+                        ? "bg-muted/30 ring-1 ring-border/50"
+                        : "bg-muted/15",
                     isDragging && "opacity-50"
                 )}
                 {...attributes}
@@ -214,17 +222,29 @@ const SplitTabItem = forwardRef<HeaderTabItemHandle, SplitTabItemProps>(
                     const isPaneActive = id === activeTabId;
 
                     return (
-                        <div key={id} className="flex items-center">
-                            {index > 0 && <div className="w-px h-3 bg-border/40" />}
+                        <div key={id} className="flex items-center h-full">
+                            {index > 0 && (
+                                <div className={cn(
+                                    "w-px h-3 bg-border/20 mx-0.5 transition-opacity duration-150",
+                                    (isPaneActive || noteIds[index - 1] === activeTabId) ? "opacity-0" : "opacity-100"
+                                )} />
+                            )}
 
                             <button
+                                ref={(el) => {
+                                    if (el) buttonRefs.current.set(id, el);
+                                    else buttonRefs.current.delete(id);
+                                }}
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     onActivatePane(id);
                                 }}
                                 className={cn(
-                                    "flex items-center gap-1.5 px-2 py-1 transition-colors hover:bg-muted/40",
-                                    isPaneActive ? "bg-background shadow-sm text-foreground" : "text-muted-foreground/70"
+                                    "flex items-center gap-1.5 px-2.5 py-0.5 rounded-[calc(var(--radius-md)-2px)] transition-all h-full outline-none",
+                                    "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset",
+                                    isPaneActive
+                                        ? "bg-background text-foreground shadow-[0_1px_2px_rgba(0,0,0,0.05),0_0_1px_rgba(0,0,0,0.1)]"
+                                        : "text-muted-foreground/70 hover:text-foreground hover:bg-background/20"
                                 )}
                             >
                                 <span className="text-sm shrink-0">{note?.emoji}</span>
@@ -392,7 +412,7 @@ export function HeaderTabs() {
             >
                 <div
                     ref={scrollContainerRef}
-                    className="flex items-center gap-0.5 min-w-0 overflow-x-auto overflow-y-hidden scrollbar-none pb-2 -mb-2 pl-1.5"
+                    className="flex items-center gap-1 min-w-0 overflow-x-auto overflow-y-hidden scrollbar-none pb-2 -mb-2 pl-1.5"
                     style={{
                         WebkitAppRegion: "no-drag",
                         overscrollBehavior: "contain",
@@ -417,6 +437,13 @@ export function HeaderTabs() {
                                 return (
                                     <SplitTabItem
                                         key={noteId}
+                                        ref={(handle) => {
+                                            if (handle) {
+                                                tabRefs.current.set(noteId, handle);
+                                            } else {
+                                                tabRefs.current.delete(noteId);
+                                            }
+                                        }}
                                         noteId={noteId}
                                         isActive={group.includes(activeTabId || "")}
                                         isPinned={true}
@@ -462,6 +489,13 @@ export function HeaderTabs() {
                                 return (
                                     <SplitTabItem
                                         key={noteId}
+                                        ref={(handle) => {
+                                            if (handle) {
+                                                tabRefs.current.set(noteId, handle);
+                                            } else {
+                                                tabRefs.current.delete(noteId);
+                                            }
+                                        }}
                                         noteId={noteId}
                                         isActive={group.includes(activeTabId || "")}
                                         isPinned={false}

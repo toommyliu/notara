@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { arrayMove } from "@dnd-kit/sortable";
+import { useNotesStore } from "./notes-store";
 
 type TabsState = {
     pinnedTabs: string[];
@@ -17,6 +18,7 @@ type TabsActions = {
     unpinTab: (noteId: string) => void;
     reorderTabs: (activeId: string, overId: string, section: "pinned" | "open") => void;
     setActiveTab: (noteId: string) => void;
+    cycleTab: (direction: 1 | -1) => void;
     toggleTabBar: () => void;
     addToGroup: (targetId: string, anchorId: string) => void;
     removeFromGroup: (id: string) => void;
@@ -99,20 +101,62 @@ export const useTabsStore = create<TabsState & TabsActions>()(
 
             setActiveTab: (noteId) => set({ activeTabId: noteId }),
 
+            cycleTab: (direction) => set((s) => {
+                const { notes } = useNotesStore.getState();
+
+                const seen = new Set<string>();
+                const orderedIds: string[] = [];
+
+                const append = (noteId: string) => {
+                    if (seen.has(noteId)) return;
+                    if (!notes.has(noteId)) return;
+
+                    const group = s.tabGroups.find(g => g.includes(noteId));
+                    const ids = group ? group.filter(id => notes.has(id)) : [noteId];
+                    ids.forEach(id => {
+                        if (!seen.has(id)) {
+                            seen.add(id);
+                            orderedIds.push(id);
+                        }
+                    });
+                };
+
+                s.pinnedTabs.forEach(append);
+                s.openTabs.forEach(append);
+
+                if (orderedIds.length === 0)
+                    return s;
+
+                if (!s.activeTabId || !notes.has(s.activeTabId)) {
+                    const nextActiveId = direction === 1 ? orderedIds[0] : orderedIds[orderedIds.length - 1];
+                    return nextActiveId ? { activeTabId: nextActiveId } : s;
+                }
+
+                if (!seen.has(s.activeTabId))
+                    orderedIds.push(s.activeTabId);
+
+                const currentIndex = orderedIds.indexOf(s.activeTabId);
+                const safeIndex = currentIndex === -1 ? 0 : currentIndex;
+
+                const nextIndex = (safeIndex + direction + orderedIds.length) % orderedIds.length;
+                const nextActiveId = orderedIds[nextIndex];
+
+                if (!nextActiveId || nextActiveId === s.activeTabId)
+                    return s;
+
+                return { activeTabId: nextActiveId };
+            }),
+
             toggleTabBar: () => set((s) => ({ isTabBarVisible: !s.isTabBarVisible })),
 
             addToGroup: (targetId, anchorId) => set((s) => {
-                // If target or anchor are already in groups, handle merging or adding
                 const otherGroups = s.tabGroups.filter(g => !g.includes(targetId) && !g.includes(anchorId));
                 let newGroup = [targetId, anchorId];
 
-                // If anchor was already in a group, merge into it
                 const existingAnchorGroup = s.tabGroups.find(g => g.includes(anchorId));
-                if (existingAnchorGroup) {
+                if (existingAnchorGroup)
                     newGroup = [...new Set([...existingAnchorGroup, targetId])];
-                }
 
-                // If target was in another group, it should be removed from it first (which we already did via filtering)
                 return { tabGroups: [...otherGroups, newGroup] };
             }),
 
