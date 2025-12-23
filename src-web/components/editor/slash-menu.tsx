@@ -104,7 +104,7 @@ export function SlashMenu({
         <div
             ref={menuRef}
             className={cn(
-                "fixed z-100 w-72 max-h-80 overflow-y-auto",
+                "fixed z-100 w-72 max-h-80 overflow-y-auto scrollbar-custom",
                 "bg-popover border border-border rounded-lg shadow-xl",
                 "animate-in fade-in zoom-in-95 duration-150"
             )}
