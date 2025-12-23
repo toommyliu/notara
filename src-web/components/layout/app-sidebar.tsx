@@ -46,6 +46,7 @@ import IconSort from "~icons/lucide/arrow-down-a-z";
 import { type Group, type Note, useNotesStore } from "~/stores/notes-store";
 import { useTabsStore } from "~/stores/tabs-store";
 import { usePlatformLayout } from "~/hooks/use-platform";
+import { useDragContext } from "~/contexts/drag-context";
 
 import { cn } from "~/lib/utils";
 
@@ -279,6 +280,7 @@ export function AppSidebar() {
         reorderNotesInGroup,
     } = useNotesStore();
     const { openTab, activeTabId } = useTabsStore();
+    const dragContext = useDragContext();
 
     const [activeDragId, setActiveDragId] = useState<string | null>(null);
     const [activeDragType, setActiveDragType] = useState<"note" | "group" | null>(null);
@@ -294,6 +296,15 @@ export function AppSidebar() {
             },
         })
     );
+
+    // Only restrict to vertical axis when dragging groups, not notes
+    const conditionalVerticalRestriction = (args: Parameters<typeof restrictToVerticalAxis>[0]) => {
+        if (activeDragTypeRef.current === "group") {
+            return restrictToVerticalAxis(args);
+        }
+
+        return args.transform;
+    };
 
     const collisionDetection: CollisionDetection = (args) => {
         const activeType = args.active.data.current?.type ?? activeDragTypeRef.current;
@@ -314,6 +325,18 @@ export function AppSidebar() {
         const type = active.data.current?.type ?? null;
         setActiveDragType(type);
         activeDragTypeRef.current = type;
+
+        // Broadcast to split view if dragging a note
+        if (type === "note" && dragContext) {
+            dragContext.startDrag(active.id as string, "sidebar");
+        }
+    };
+
+    const handleDragCancel = () => {
+        setActiveDragId(null);
+        setActiveDragType(null);
+        activeDragTypeRef.current = null;
+        dragContext?.endDrag();
     };
 
     const handleDragEnd = (event: DragEndEvent) => {
@@ -321,6 +344,8 @@ export function AppSidebar() {
         setActiveDragId(null);
         setActiveDragType(null);
         activeDragTypeRef.current = null;
+
+        dragContext?.endDrag();
 
         if (!over || active.id === over.id) return;
 
@@ -393,9 +418,10 @@ export function AppSidebar() {
                     sensors={sensors}
                     autoScroll={false}
                     collisionDetection={collisionDetection}
-                    modifiers={[restrictToVerticalAxis]}
+                    modifiers={[conditionalVerticalRestriction]}
                     onDragStart={handleDragStart}
                     onDragEnd={handleDragEnd}
+                    onDragCancel={handleDragCancel}
                 >
 
 

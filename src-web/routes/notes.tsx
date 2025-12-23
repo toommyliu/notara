@@ -1,17 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef, useState, type CSSProperties, type Dispatch, type SetStateAction } from "react";
+import { useEffect, useMemo, useRef, useState, useCallback, type CSSProperties, type Dispatch, type SetStateAction } from "react";
 
 import { BlockEditor } from "~/components/editor/block-editor";
 import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/popover";
 import { useSidebar } from "~/components/ui/sidebar";
+import { SplitViewContainer } from "~/components/layout/split-view-container";
 import { Button } from "~/ui/button";
 
 import IconMoreHorizontal from "~icons/lucide/more-horizontal";
 import IconStar from "~icons/lucide/star";
 import IconArrowLeftRight from "~icons/lucide/arrow-left-right";
+import IconX from "~icons/lucide/x";
 
-import { useNotesStore } from "~/stores/notes-store";
+import { useNotesStore, type Block } from "~/stores/notes-store";
 import { useTabsStore } from "~/stores/tabs-store";
+import { useSplitViewStore, useIsSplitView } from "~/stores/split-view-store";
 import { usePageHeaderStore } from "~/stores/page-header-store";
 
 import { cn } from "~/lib/utils";
@@ -47,17 +50,20 @@ function isPaddingPresetKey(value: string): value is PaddingPresetKey {
 function NotesPage() {
     const { notes, updateNote } = useNotesStore();
     const { activeTabId } = useTabsStore();
-    const activeNote = activeTabId ? notes.get(activeTabId) ?? null : null;
-    const titleRef = useRef<HTMLHeadingElement>(null);
+    const { panes, activePaneId, openInPane } = useSplitViewStore();
+    const isSplitView = useIsSplitView();
     const { state: sidebarState } = useSidebar();
     const [paddingPrefs, setPaddingPrefs] = useState<PaddingPrefs>(DEFAULT_PADDING_PREFS);
 
-    // Update the displayed title when the active note changes
+    // For single-pane mode, sync activeTabId to the pane
     useEffect(() => {
-        if (titleRef.current && activeNote) {
-            titleRef.current.textContent = activeNote.title;
+        if (!isSplitView && activeTabId) {
+            const singlePane = panes[0];
+            if (singlePane && singlePane.noteId !== activeTabId) {
+                openInPane(singlePane.id, activeTabId);
+            }
         }
-    }, [activeNote?.id]);
+    }, [activeTabId, isSplitView, panes, openInPane]);
 
     useEffect(() => {
         try {
@@ -78,11 +84,9 @@ function NotesPage() {
         localStorage.setItem(EDITOR_PADDING_STORAGE_KEY, JSON.stringify(paddingPrefs));
     }, [paddingPrefs]);
 
-    const handleTitleChange = (newTitle: string) => {
-        if (activeNote) {
-            updateNote(activeNote.id, { title: newTitle });
-        }
-    };
+    // Get note for the active pane (for header)
+    const activePane = panes.find(p => p.id === activePaneId);
+    const activePaneNote = activePane?.noteId ? notes.get(activePane.noteId) ?? null : null;
 
     const actions = useMemo(() => (
         <>
@@ -105,14 +109,14 @@ function NotesPage() {
     // Set page header config
     useEffect(() => {
         setConfig({
-            title: activeNote?.title ?? "Untitled",
-            emoji: activeNote?.emoji ?? "📝",
+            title: activePaneNote?.title ?? "Untitled",
+            emoji: activePaneNote?.emoji ?? "📝",
             isPrivate: true,
             actions,
         });
 
         return () => setConfig({});
-    }, [activeNote?.title, activeNote?.emoji, actions, setConfig]);
+    }, [activePaneNote?.title, activePaneNote?.emoji, actions, setConfig]);
 
     const activePadding = PADDING_PRESETS[paddingPrefs[sidebarState]] ?? PADDING_PRESETS.default;
     const editorPaddingStyle = {
@@ -120,32 +124,90 @@ function NotesPage() {
         paddingRight: `${activePadding.px}px`,
     } satisfies CSSProperties;
 
-    if (!activeNote) {
+    const handleTitleChange = (noteId: string, newTitle: string) => {
+        updateNote(noteId, { title: newTitle });
+    };
+
+    return (
+        <SplitViewContainer
+            contentPadding={activePadding.px}
+            renderPane={(pane, isActive) => (
+                <NoteView
+                    key={pane.id}
+                    paneId={pane.id}
+                    noteId={pane.noteId}
+                    isActive={isActive}
+                    editorPaddingStyle={editorPaddingStyle}
+                    onTitleChange={handleTitleChange}
+                />
+            )}
+        />
+    );
+}
+
+type NoteViewProps = {
+    paneId: string;
+    noteId: string | null;
+    isActive: boolean;
+    editorPaddingStyle: CSSProperties;
+    onTitleChange: (noteId: string, title: string) => void;
+};
+
+function NoteView({ paneId, noteId, editorPaddingStyle, onTitleChange }: NoteViewProps) {
+    const { notes, updateNote } = useNotesStore();
+    const { removePane } = useSplitViewStore();
+    const isSplitView = useIsSplitView();
+    const note = noteId ? notes.get(noteId) ?? null : null;
+    const titleRef = useRef<HTMLHeadingElement>(null);
+
+    // Update the displayed title when the note changes
+    useEffect(() => {
+        if (titleRef.current && note) {
+            titleRef.current.textContent = note.title;
+        }
+    }, [note?.id, note?.title]);
+
+    const handleContentChange = useCallback((blocks: Block[]) => {
+        if (note) {
+            updateNote(note.id, { content: blocks });
+        }
+    }, [note?.id, updateNote]);
+
+    if (!note) {
         return (
-            <main className="flex-1 min-h-0 overflow-hidden flex items-center justify-center">
+            <div className="h-full flex items-center justify-center">
                 <div className="text-center text-muted-foreground">
                     <p className="text-lg">No note selected</p>
                     <p className="text-sm mt-1">Select a note from the sidebar or create a new one</p>
+                    {isSplitView && (
+                        <button
+                            onClick={() => removePane(paneId)}
+                            className="mt-4 text-xs flex items-center gap-1 mx-auto text-muted-foreground/60 hover:text-foreground transition-colors"
+                        >
+                            <IconX className="size-3" />
+                            Close pane
+                        </button>
+                    )}
                 </div>
-            </main>
+            </div>
         );
     }
 
     return (
-        <main className="flex-1 min-h-0 overflow-y-auto scrollbar-custom">
-            <div className="max-w-3xl mx-auto py-16" style={editorPaddingStyle}>
+        <main className="flex-1 h-full min-h-0 overflow-y-auto scrollbar-custom flex flex-col items-center">
+            <div className="w-full max-w-3xl py-16 transition-all duration-500 ease-in-out" style={editorPaddingStyle}>
                 <div className="flex justify-start mb-4">
                     <button className="text-7xl hover:bg-muted/50 rounded-lg p-2 -m-2 transition-colors">
-                        {activeNote.emoji}
+                        {note.emoji}
                     </button>
                 </div>
 
                 <h1
-                    key={activeNote.id}
+                    key={note.id}
                     ref={titleRef}
                     contentEditable
                     suppressContentEditableWarning
-                    onInput={(ev) => handleTitleChange(ev.currentTarget.textContent || "")}
+                    onInput={(ev) => onTitleChange(note.id, ev.currentTarget.textContent || "")}
                     onKeyDown={(ev) => {
                         if (ev.key === "Enter" || ev.key === "Tab") {
                             ev.preventDefault();
@@ -166,7 +228,11 @@ function NotesPage() {
                 />
 
                 <div className="mt-4" data-block-editor>
-                    <BlockEditor />
+                    <BlockEditor
+                        key={note.id}
+                        initialBlocks={note.content}
+                        onChange={handleContentChange}
+                    />
                 </div>
             </div>
         </main>

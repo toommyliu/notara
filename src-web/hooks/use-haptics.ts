@@ -1,0 +1,31 @@
+import { useEffect, useState, useCallback } from "react";
+import {
+    isSupported as checkSupported,
+    perform as performHaptic,
+    HapticFeedbackPattern,
+    PerformanceTime,
+} from "~/lib/haptics";
+
+export { HapticFeedbackPattern, PerformanceTime };
+
+export function useHaptics() {
+    const [supported, setSupported] = useState(false);
+
+    useEffect(() => {
+        checkSupported().then(setSupported).catch(() => setSupported(false));
+    }, []);
+
+    const perform = useCallback(
+        (
+            pattern: HapticFeedbackPattern = HapticFeedbackPattern.Generic,
+            performanceTime: PerformanceTime = PerformanceTime.Default
+        ) => {
+            if (supported) {
+                performHaptic(pattern, performanceTime);
+            }
+        },
+        [supported]
+    );
+
+    return { perform, supported };
+}

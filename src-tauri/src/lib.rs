@@ -5,7 +5,17 @@ use tauri::{
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    tauri::Builder::default()
+    let mut builder = tauri::Builder::default();
+
+    #[cfg(target_os = "macos")]
+    {
+        builder = builder.plugin(notara_mac_haptics::init());
+    }
+
+    builder
+        .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_os::init())
+        .plugin(notara_mac_window::init())
         .setup(|app| {
             let settings_item = MenuItemBuilder::with_id("settings", "Settings...")
                 .accelerator("CmdOrCtrl+,")
@@ -91,14 +101,12 @@ pub fn run() {
             #[cfg(debug_assertions)]
             {
                 let window = app.get_webview_window("main").unwrap();
+                let _ = window.center();
                 window.open_devtools();
             }
 
             Ok(())
         })
-        .plugin(tauri_plugin_opener::init())
-        .plugin(tauri_plugin_os::init())
-        .plugin(notara_mac_window::init())
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

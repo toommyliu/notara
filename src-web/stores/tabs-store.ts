@@ -77,7 +77,9 @@ export const useTabsStore = create<TabsState & TabsActions>()(
                     const list = section === "pinned" ? s.pinnedTabs : s.openTabs;
                     const oldIndex = list.indexOf(activeId);
                     const newIndex = list.indexOf(overId);
-                    if (oldIndex === -1 || newIndex === -1) return s;
+
+                    if (oldIndex === -1 || newIndex === -1)
+                        return s;
 
                     const reordered = arrayMove(list, oldIndex, newIndex);
                     return section === "pinned" ? { pinnedTabs: reordered } : { openTabs: reordered };

@@ -9,6 +9,7 @@
     "core:default",
     "core:window:allow-start-dragging",
     "opener:default",
-    "notara-mac-window:default"
+    "notara-mac-window:default",
+    "notara-mac-haptics:default"
   ]
 }

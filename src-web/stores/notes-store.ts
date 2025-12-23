@@ -1,10 +1,18 @@
 import { create } from "zustand";
 import { arrayMove } from "@dnd-kit/sortable";
 
+export type Block = {
+    id: string;
+    type: string;
+    content: string;
+    indent?: number;
+};
+
 export type Note = {
     id: string;
     title: string;
     emoji: string;
+    content?: Block[];
 };
 
 export type Group = {
@@ -37,7 +45,7 @@ type NotesStore = NotesState & NotesActions & {
 };
 
 const INITIAL_NOTES: Note[] = [
-    { id: "note-1", title: "My First Note", emoji: "📝" },
+    { id: "note-1", title: "My First Note", emoji: "📝", content: [{ id: "b1", type: "text", content: "Welcome to Notara!" }] },
     { id: "note-2", title: "Project Ideas", emoji: "💡" },
     { id: "note-3", title: "Meeting Notes", emoji: "📋" },
     { id: "note-4", title: "Reading List", emoji: "📚" },

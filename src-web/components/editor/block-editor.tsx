@@ -1,4 +1,4 @@
-import { KeyboardEvent, useRef, useState, useCallback } from "react";
+import { KeyboardEvent, useRef, useState, useCallback, useEffect } from "react";
 import {
     DndContext,
     closestCenter,
@@ -28,12 +28,8 @@ import { usePlatformLayout } from "~/hooks/use-platform";
 
 import { cn } from "~/lib/utils";
 
-type Block = {
-    id: string;
-    type: string;
-    content: string;
-    indent?: number;
-};
+import { type Block } from "~/stores/notes-store";
+
 
 type BlockEditorProps = {
     initialBlocks?: Block[];
@@ -203,10 +199,11 @@ function SortableBlock({
     );
 }
 
-export function BlockEditor({ initialBlocks }: BlockEditorProps) {
+export function BlockEditor({ initialBlocks, onChange }: BlockEditorProps) {
     const [blocks, setBlocks] = useState<Block[]>(
         initialBlocks || [CREATE_BLOCK("text", "")]
     );
+
     const [_activeBlockId, setActiveBlockId] = useState<string | null>(null);
     const [activeDragId, setActiveDragId] = useState<string | null>(null);
     const [slashMenu, setSlashMenu] = useState<{
@@ -651,6 +648,10 @@ export function BlockEditor({ initialBlocks }: BlockEditorProps) {
             blockRefs.current.get(slashMenu.blockId)?.focus();
         }, 0);
     };
+
+    useEffect(() => {
+        onChange?.(blocks);
+    }, [blocks, onChange]);
 
     return (
         <DndContext
