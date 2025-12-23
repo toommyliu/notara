@@ -1,3 +1,3 @@
 export { AppHeader } from "./app-header";
-export { AppSidebar } from "./app-sidebar";
+export { AppSidebar } from "./sidebar";
 export { AppTitlebar, TitlebarSpacer } from "./app-titlebar";

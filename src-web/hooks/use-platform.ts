@@ -101,6 +101,10 @@ function getPlatformSafe(): Platform {
     return UNKNOWN;
 }
 
+export function useIsMacOS(): boolean {
+    return useMemo(() => getPlatformSafe() === MACOS, []);
+}
+
 export function usePlatformLayout(): LayoutTokens {
     const isTauri = useIsTauri();
     const platform = useMemo(() => getPlatformSafe(), []);

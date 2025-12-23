@@ -4,10 +4,10 @@ import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { listen } from "@tauri-apps/api/event";
 
 import { AppHeader } from "~/components/layout/app-header";
-import { AppSidebar } from "~/components/layout/app-sidebar";
+import { AppSidebar } from "~/components/layout/sidebar";
 import { TitlebarSpacer } from "~/components/layout/app-titlebar";
-import { IconRibbon } from "~/components/layout/icon-ribbon";
-import { SettingsDialogContent } from "~/components/settings-dialog";
+import { IconRibbon } from "~/components/layout/sidebar";
+import { SettingsDialogContent } from "~/components/settings";
 import { SidebarInset, SidebarProvider, useSidebar } from "~/ui/sidebar";
 
 import { useTabsStore } from "~/stores/tabs-store";

@@ -1,6 +1,6 @@
-import { useState, useRef, useEffect, useCallback, forwardRef, useImperativeHandle } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import type { WheelEvent, RefObject, CSSProperties } from "react";
+import type { WheelEvent, CSSProperties } from "react";
 import {
     DndContext,
     DragOverlay,
@@ -12,12 +12,7 @@ import {
     type DragStartEvent,
 } from "@dnd-kit/core";
 import { restrictToHorizontalAxis } from "@dnd-kit/modifiers";
-import {
-    SortableContext,
-    useSortable,
-    horizontalListSortingStrategy,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+import { SortableContext, horizontalListSortingStrategy } from "@dnd-kit/sortable";
 
 import {
     DropdownMenu,
@@ -25,7 +20,9 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
     DropdownMenuSeparator,
-} from "~/components/ui/dropdown-menu";
+} from "~/ui/dropdown-menu";
+import { HeaderTabItem } from "./header-tab-item";
+import { SplitTabItem } from "./split-tab-item";
 
 import IconX from "~icons/lucide/x";
 import IconPlus from "~icons/lucide/plus";
@@ -40,223 +37,7 @@ import { useDragContext } from "~/contexts/drag-context";
 
 import { cn } from "~/lib/utils";
 
-export type HeaderTabItemHandle = {
-    focus: () => void;
-};
-
-type HeaderTabItemProps = {
-    noteId: string;
-    isActive: boolean;
-    isPinned: boolean;
-    onActivate: () => void;
-    onClose: () => void;
-    compact?: boolean;
-};
-
-const HeaderTabItem = forwardRef<HeaderTabItemHandle, HeaderTabItemProps>(
-    function HeaderTabItem({ noteId, isActive, isPinned, onActivate, onClose, compact }, ref) {
-        const { notes } = useNotesStore();
-        const note = notes.get(noteId);
-        const tabRef = useRef<HTMLDivElement>(null);
-        const buttonRef = useRef<HTMLButtonElement>(null);
-
-        useImperativeHandle(ref, () => ({
-            focus: () => buttonRef.current?.focus(),
-        }));
-
-        const {
-            attributes,
-            listeners,
-            setNodeRef,
-            transform,
-            transition,
-            isDragging,
-        } = useSortable({
-            id: noteId,
-            data: { section: isPinned ? "pinned" : "open" },
-        });
-
-        const style = {
-            transform: CSS.Transform.toString(transform),
-            transition,
-        };
-
-        useEffect(() => {
-            if (isActive && tabRef.current) {
-                tabRef.current.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
-            }
-        }, [isActive]);
-
-        if (!note) return null;
-
-        return (
-            <div
-                ref={(node) => {
-                    setNodeRef(node);
-                    (tabRef as RefObject<HTMLDivElement | null>).current = node;
-                }}
-                style={style}
-                aria-selected={isActive}
-                className={cn(
-                    "group relative flex items-center gap-1.5 px-3 py-1 select-none shrink-0 rounded-md outline-none",
-                    "transition-all duration-150 ease-out cursor-pointer",
-                    compact && "px-2",
-                    isActive
-                        ? "text-foreground bg-background ring-1 ring-border/50"
-                        : "text-muted-foreground/70 hover:text-foreground hover:bg-muted/40",
-                    isDragging && "opacity-50",
-                )}
-                {...attributes}
-                {...listeners}
-                role="tab"
-                tabIndex={-1}
-            >
-                <button
-                    ref={buttonRef}
-                    onClick={onActivate}
-                    tabIndex={0}
-                    className={cn(
-                        "absolute inset-0 z-0 rounded-md",
-                        "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
-                    )}
-                    aria-label={`Open ${note.title}`}
-                />
-
-                <span className="text-sm shrink-0 relative z-10 pointer-events-none">
-                    {note.emoji}
-                </span>
-
-                <span className={cn(
-                    "text-[13px] font-medium relative z-10 pointer-events-none truncate",
-                    compact ? "max-w-[60px]" : "max-w-[100px]"
-                )}>
-                    {note.title}
-                </span>
-
-                <button
-                    onClick={(ev) => {
-                        ev.stopPropagation();
-                        onClose();
-                    }}
-                    tabIndex={-1}
-                    className={cn(
-                        "relative z-10 p-0.5 rounded-sm transition-all",
-                        "opacity-0 group-hover:opacity-100",
-                        "text-muted-foreground/60 hover:text-foreground hover:bg-background/80",
-                        "focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:outline-none"
-                    )}
-                    aria-label="Close tab"
-                >
-                    <IconX className="size-3" />
-                </button>
-            </div>
-        );
-    }
-);
-
-type SplitTabItemProps = HeaderTabItemProps & {
-    noteIds: string[];
-    onActivatePane: (noteId: string) => void;
-};
-
-const SplitTabItem = forwardRef<HeaderTabItemHandle, SplitTabItemProps>(
-    function SplitTabItem({ noteId, isActive, isPinned, noteIds, onActivatePane }, ref) {
-        const { notes } = useNotesStore();
-        const tabRef = useRef<HTMLDivElement>(null);
-        const buttonRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
-        const { activeTabId } = useTabsStore();
-
-        useImperativeHandle(ref, () => ({
-            focus: () => {
-                if (activeTabId && buttonRefs.current.has(activeTabId)) {
-                    buttonRefs.current.get(activeTabId)?.focus();
-                } else if (noteIds.length > 0) {
-                    buttonRefs.current.get(noteIds[0])?.focus();
-                }
-            },
-        }));
-
-        const {
-            setNodeRef,
-            transform,
-            transition,
-            isDragging,
-            attributes,
-            listeners,
-        } = useSortable({
-            id: noteId,
-            data: { section: isPinned ? "pinned" : "open" },
-        });
-
-        const style = {
-            transform: CSS.Transform.toString(transform),
-            transition,
-        };
-
-        useEffect(() => {
-            if (isActive && tabRef.current) {
-                tabRef.current.scrollIntoView({ behavior: "smooth", block: "nearest", inline: "center" });
-            }
-        }, [isActive]);
-
-        return (
-            <div
-                ref={(node) => {
-                    setNodeRef(node);
-                    (tabRef as RefObject<HTMLDivElement | null>).current = node;
-                }}
-                style={style}
-                className={cn(
-                    "group relative flex items-center select-none shrink-0 rounded-md outline-none p-0.5",
-                    "transition-all duration-150 ease-out",
-                    isActive
-                        ? "bg-muted/30 ring-1 ring-border/50"
-                        : "bg-muted/15",
-                    isDragging && "opacity-50"
-                )}
-                {...attributes}
-                {...listeners}
-            >
-                {noteIds.map((id, index) => {
-                    const note = notes.get(id);
-                    const isPaneActive = id === activeTabId;
-
-                    return (
-                        <div key={id} className="flex items-center h-full">
-                            {index > 0 && (
-                                <div className={cn(
-                                    "w-px h-3 bg-border/20 mx-0.5 transition-opacity duration-150",
-                                    (isPaneActive || noteIds[index - 1] === activeTabId) ? "opacity-0" : "opacity-100"
-                                )} />
-                            )}
-
-                            <button
-                                ref={(el) => {
-                                    if (el) buttonRefs.current.set(id, el);
-                                    else buttonRefs.current.delete(id);
-                                }}
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    onActivatePane(id);
-                                }}
-                                className={cn(
-                                    "flex items-center gap-1.5 px-2.5 py-0.5 rounded-[calc(var(--radius-md)-2px)] transition-all h-full outline-none",
-                                    "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset",
-                                    isPaneActive
-                                        ? "bg-background text-foreground shadow-[0_1px_2px_rgba(0,0,0,0.05),0_0_1px_rgba(0,0,0,0.1)]"
-                                        : "text-muted-foreground/70 hover:text-foreground hover:bg-background/20"
-                                )}
-                            >
-                                <span className="text-sm shrink-0">{note?.emoji}</span>
-                                <span className="text-[13px] font-medium truncate max-w-[80px]">{note?.title}</span>
-                            </button>
-                        </div>
-                    );
-                })}
-            </div>
-        );
-    }
-);
+import type { HeaderTabItemHandle } from "./types";
 
 export function HeaderTabs() {
     const { pinnedTabs, openTabs, activeTabId, setActiveTab, closeTab, reorderTabs, isTabBarVisible, tabGroups, removeFromGroup } = useTabsStore();
@@ -281,7 +62,6 @@ export function HeaderTabs() {
 
             const group = getGroupForTab(id);
             if (group) {
-                // If this is the representative (first appearing tab of the group in this list)
                 processed.push(id);
                 group.forEach(gid => seenInGroup.add(gid));
             } else {
@@ -293,7 +73,6 @@ export function HeaderTabs() {
 
     const visiblePinned = processTabs(pinnedTabs);
 
-    // For open tabs, we also need to avoid repeating tabs already processed in pinned (if that ever happens)
     const processedInPinned = new Set<string>();
     visiblePinned.forEach(id => {
         const group = getGroupForTab(id);

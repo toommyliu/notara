@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState, useCallback, type CSSProperties, 
 import { BlockEditor } from "~/components/editor/block-editor";
 import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/popover";
 import { useSidebar } from "~/components/ui/sidebar";
-import { SplitViewContainer } from "~/components/layout/split-view-container";
+import { SplitViewContainer } from "~/components/layout/split-view";
 import { Button } from "~/ui/button";
 
 import IconMoreHorizontal from "~icons/lucide/more-horizontal";

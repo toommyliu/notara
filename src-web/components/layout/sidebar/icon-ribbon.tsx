@@ -1,11 +1,11 @@
 import { Link, useLocation } from "@tanstack/react-router";
 import type { ReactNode } from 'react';
+
 import {
     Tooltip,
     TooltipContent,
     TooltipTrigger,
 } from "~/components/ui/tooltip";
-import { usePlatformLayout } from "~/hooks/use-platform";
 
 import IconSettings from "~icons/lucide/settings";
 import IconHome from "~icons/lucide/home";
@@ -14,6 +14,7 @@ import IconFiles from "~icons/lucide/folder-open";
 import IconStar from "~icons/lucide/star";
 
 import { useSettingsStore } from "~/stores/settings-store";
+import { usePlatformLayout } from "~/hooks/use-platform";
 
 import { cn } from "~/lib/utils";
 
