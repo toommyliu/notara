@@ -135,7 +135,7 @@ function SortableBlock({
             ref={setNodeRef}
             style={style}
             className={cn(
-                "group relative flex items-start gap-1 -mx-2 px-2 rounded-sm transition-all",
+                "group relative flex items-start -mx-2 px-2 rounded-sm transition-all",
                 isDragging && "opacity-30",
                 isSelected
                     ? "bg-amber/10"
@@ -144,7 +144,7 @@ function SortableBlock({
         >
             <div
                 className={cn(
-                    "flex items-center gap-0.5 py-2 opacity-0 group-hover:opacity-100 transition-opacity -ml-14 w-12"
+                    "absolute left-0 -translate-x-full flex items-center gap-0.5 py-1.5 pr-2 opacity-0 group-hover:opacity-100 transition-opacity"
                 )}
             >
                 <button
