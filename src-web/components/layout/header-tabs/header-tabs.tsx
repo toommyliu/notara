@@ -233,6 +233,7 @@ export function HeaderTabs() {
                                         }}
                                         onActivate={() => setActiveTab(noteId)}
                                         onClose={() => closeTab(noteId)}
+                                        onClosePane={(id) => removeFromGroup(id)}
                                     />
                                 );
                             }
@@ -285,6 +286,7 @@ export function HeaderTabs() {
                                         }}
                                         onActivate={() => setActiveTab(noteId)}
                                         onClose={() => closeTab(noteId)}
+                                        onClosePane={(id) => removeFromGroup(id)}
                                     />
                                 );
                             }

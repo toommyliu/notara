@@ -14,4 +14,5 @@ export type HeaderTabItemProps = {
 export type SplitTabItemProps = HeaderTabItemProps & {
     noteIds: string[];
     onActivatePane: (noteId: string) => void;
+    onClosePane: (noteId: string) => void;
 };

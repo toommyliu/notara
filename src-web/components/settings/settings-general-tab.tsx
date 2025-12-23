@@ -27,42 +27,6 @@ function ThemeOption({ theme, isActive, onClick }: ThemeOptionProps) {
                     : "border-transparent bg-muted/40 hover:bg-muted/70"
             )}
         >
-            <div
-                className={cn(
-                    "w-16 h-12 rounded-lg overflow-hidden flex items-center justify-center",
-                    "border border-border/50 transition-colors",
-                    theme === "dark"
-                        ? "bg-zinc-900"
-                        : theme === "light"
-                            ? "bg-white"
-                            : "bg-linear-to-br from-white via-white to-zinc-900"
-                )}
-            >
-                {theme === "light" && (
-                    <div className="relative">
-                        <div className="size-5 rounded-full bg-amber-400 shadow-lg shadow-amber-400/50" />
-                        <div className="absolute -inset-1 rounded-full bg-amber-300/30 blur-sm" />
-                    </div>
-                )}
-                {theme === "dark" && (
-                    <div className="relative">
-                        <div className="size-4 rounded-full bg-slate-200 shadow-lg shadow-slate-200/40" />
-                        <div className="absolute top-0.5 left-1 size-3 rounded-full bg-zinc-900" />
-                    </div>
-                )}
-                {theme === "system" && (
-                    <div className="flex w-full h-full">
-                        <div className="flex-1 flex items-center justify-center">
-                            <div className="size-3 rounded-full bg-amber-400" />
-                        </div>
-                        <div className="w-px bg-border/60" />
-                        <div className="flex-1 bg-zinc-900 flex items-center justify-center">
-                            <div className="size-2.5 rounded-full bg-slate-300" />
-                        </div>
-                    </div>
-                )}
-            </div>
-
             <div className="flex items-center gap-1.5">
                 <Icon className="size-3.5 text-muted-foreground" />
                 <span

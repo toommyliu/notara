@@ -3,13 +3,15 @@ import type { RefObject } from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
+import IconX from "~icons/lucide/x";
+
 import { useNotesStore } from "~/stores/notes-store";
 import { useTabsStore } from "~/stores/tabs-store";
 import { cn } from "~/lib/utils";
 import type { HeaderTabItemHandle, SplitTabItemProps } from "./types";
 
 export const SplitTabItem = forwardRef<HeaderTabItemHandle, SplitTabItemProps>(
-    function SplitTabItem({ noteId, isActive, isPinned, noteIds, onActivatePane }, ref) {
+    function SplitTabItem({ noteId, isActive, isPinned, noteIds, onActivatePane, onClosePane }, ref) {
         const { notes } = useNotesStore();
         const tabRef = useRef<HTMLDivElement>(null);
         const buttonRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
@@ -56,7 +58,7 @@ export const SplitTabItem = forwardRef<HeaderTabItemHandle, SplitTabItemProps>(
                 }}
                 style={style}
                 className={cn(
-                    "group relative flex items-center select-none shrink-0 rounded-md outline-none p-0.5",
+                    "group relative flex items-center select-none shrink-0 rounded-md outline-none",
                     "transition-all duration-150 ease-out",
                     isActive
                         ? "bg-muted/30 ring-1 ring-border/50"
@@ -71,7 +73,7 @@ export const SplitTabItem = forwardRef<HeaderTabItemHandle, SplitTabItemProps>(
                     const isPaneActive = id === activeTabId;
 
                     return (
-                        <div key={id} className="flex items-center h-full">
+                        <div key={id} className="group/pane relative flex items-center h-full">
                             {index > 0 && (
                                 <div className={cn(
                                     "w-px h-3 bg-border/20 mx-0.5 transition-opacity duration-150",
@@ -84,12 +86,12 @@ export const SplitTabItem = forwardRef<HeaderTabItemHandle, SplitTabItemProps>(
                                     if (el) buttonRefs.current.set(id, el);
                                     else buttonRefs.current.delete(id);
                                 }}
-                                onClick={(e) => {
-                                    e.stopPropagation();
+                                onClick={(ev) => {
+                                    ev.stopPropagation();
                                     onActivatePane(id);
                                 }}
                                 className={cn(
-                                    "flex items-center gap-1.5 px-2.5 py-0.5 rounded-[calc(var(--radius-md)-2px)] transition-all h-full outline-none",
+                                    "flex items-center gap-1.5 px-2 py-1 rounded-[calc(var(--radius-md)-2px)] transition-all h-full outline-none",
                                     "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset",
                                     isPaneActive
                                         ? "bg-background text-foreground shadow-[0_1px_2px_rgba(0,0,0,0.05),0_0_1px_rgba(0,0,0,0.1)]"
@@ -98,6 +100,23 @@ export const SplitTabItem = forwardRef<HeaderTabItemHandle, SplitTabItemProps>(
                             >
                                 <span className="text-sm shrink-0">{note?.emoji}</span>
                                 <span className="text-[13px] font-medium truncate max-w-[80px]">{note?.title}</span>
+                            </button>
+
+                            <button
+                                onClick={(ev) => {
+                                    ev.stopPropagation();
+                                    onClosePane(id);
+                                }}
+                                tabIndex={-1}
+                                className={cn(
+                                    "absolute right-0.5 top-1/2 -translate-y-1/2 z-10 p-0.5 rounded-sm transition-all",
+                                    "opacity-0 group-hover/pane:opacity-100",
+                                    "text-muted-foreground/60 hover:text-foreground hover:bg-muted/60",
+                                    "focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:outline-none"
+                                )}
+                                aria-label="Close pane"
+                            >
+                                <IconX className="size-3" />
                             </button>
                         </div>
                     );
