@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback, forwardRef, useImperativeHandle } from "react";
+import { useNavigate } from "@tanstack/react-router";
 import type { WheelEvent, RefObject, CSSProperties } from "react";
 import {
     DndContext,
@@ -165,6 +166,7 @@ const SplitTabItem = forwardRef<HeaderTabItemHandle, SplitTabItemProps>(
     function SplitTabItem({ noteId, isActive, isPinned, panes, activePaneId, onActivatePane }, ref) {
         const { notes } = useNotesStore();
         const tabRef = useRef<HTMLDivElement>(null);
+        const navigate = useNavigate();
 
         useImperativeHandle(ref, () => ({
             focus: () => {
@@ -222,6 +224,7 @@ const SplitTabItem = forwardRef<HeaderTabItemHandle, SplitTabItemProps>(
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     onActivatePane(pane.id);
+                                    navigate({ to: "/notes" });
                                 }}
                                 className={cn(
                                     "flex items-center gap-1.5 px-2 py-1 transition-colors hover:bg-muted/50",
@@ -245,6 +248,7 @@ export function HeaderTabs() {
     const { panes, activePaneId, setActivePane, removePane, swapPanes } = useSplitViewStore();
     const isSplitView = useIsSplitView();
     const dragContext = useDragContext();
+    const navigate = useNavigate();
 
     const [activeDragId, setActiveDragId] = useState<string | null>(null);
 
@@ -341,6 +345,7 @@ export function HeaderTabs() {
         if (firstGroup) {
             const newNoteId = addNote(firstGroup.id, "Untitled", "📄");
             setActiveTab(newNoteId);
+            navigate({ to: "/notes" });
         }
     };
 
@@ -436,7 +441,10 @@ export function HeaderTabs() {
                                     noteId={noteId}
                                     isActive={activeTabId === noteId}
                                     isPinned={true}
-                                    onActivate={() => setActiveTab(noteId)}
+                                    onActivate={() => {
+                                        setActiveTab(noteId);
+                                        navigate({ to: "/notes" });
+                                    }}
                                     onClose={() => closeTab(noteId)}
                                 />
                             );
@@ -474,7 +482,10 @@ export function HeaderTabs() {
                                     noteId={noteId}
                                     isActive={activeTabId === noteId}
                                     isPinned={false}
-                                    onActivate={() => setActiveTab(noteId)}
+                                    onActivate={() => {
+                                        setActiveTab(noteId);
+                                        navigate({ to: "/notes" });
+                                    }}
                                     onClose={() => closeTab(noteId)}
                                 />
                             );
@@ -525,7 +536,10 @@ export function HeaderTabs() {
                                 const note = notes.get(noteId);
                                 if (!note) return null;
                                 return (
-                                    <DropdownMenuItem key={noteId} onClick={() => setActiveTab(noteId)}>
+                                    <DropdownMenuItem key={noteId} onClick={() => {
+                                        setActiveTab(noteId);
+                                        navigate({ to: "/notes" });
+                                    }}>
                                         <span className="mr-2 text-xs">{note.emoji}</span>
                                         <span className="truncate">{note.title}</span>
                                     </DropdownMenuItem>

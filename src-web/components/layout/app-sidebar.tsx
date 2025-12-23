@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 import {
     Tooltip,
@@ -78,12 +78,20 @@ function GroupDropZone({ groupId }: GroupDropZoneProps) {
 
 function SidebarActionStrip() {
     const { addNote, addGroup, sortData } = useNotesStore();
+    const { openTab } = useTabsStore();
+    const navigate = useNavigate();
+
+    const handleAddNote = () => {
+        const id = addNote();
+        openTab(id);
+        navigate({ to: "/notes" });
+    };
 
     return (
         <div className="flex items-center justify-center gap-1 py-1">
             <Tooltip>
                 <TooltipTrigger
-                    onClick={() => addNote()}
+                    onClick={handleAddNote}
                     className="flex items-center justify-center p-1 text-muted-foreground hover:text-foreground rounded-md transition-colors duration-200 cursor-pointer"
                 >
                     <IconAdd className="size-4" />
@@ -124,6 +132,7 @@ type SortableNoteProps = {
     onSelect: () => void;
 };
 function SortableNote({ note, groupId, isActive, onSelect }: SortableNoteProps) {
+    const navigate = useNavigate();
     const {
         attributes,
         listeners,
@@ -144,6 +153,7 @@ function SortableNote({ note, groupId, isActive, onSelect }: SortableNoteProps) 
 
     const handleClick = () => {
         onSelect();
+        navigate({ to: "/notes" });
     };
 
     return (
@@ -271,6 +281,7 @@ function SortableGroup({
 
 export function AppSidebar() {
     const layout = usePlatformLayout();
+    const navigate = useNavigate();
     const {
         groups,
         notes,
@@ -465,7 +476,11 @@ export function AppSidebar() {
                                         showDropBackground={!isDraggingGroup}
                                         onNoteSelect={openTab}
                                         onToggleCollapse={() => toggleGroupCollapse(group.id)}
-                                        onAddNote={() => addNote(group.id)}
+                                        onAddNote={() => {
+                                            const id = addNote(group.id);
+                                            openTab(id);
+                                            navigate({ to: "/notes" });
+                                        }}
                                     />
                                 );
                             })}
