@@ -11,7 +11,7 @@ export function AppTitlebar({ children, className }: AppTitlebarProps) {
 
     return (
         <div
-            className={cn("fixed inset-x-0 top-0 z-50 flex items-center select-none", className)}
+            className={cn("fixed inset-x-0 top-0 z-50 flex items-center select-none bg-sidebar", className)}
             style={{
                 height: layout.titlebarHeight,
                 paddingLeft: layout.leftInset,
