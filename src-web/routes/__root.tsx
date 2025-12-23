@@ -10,12 +10,8 @@ import { IconRibbon } from "~/components/layout/icon-ribbon";
 import { SettingsDialogContent } from "~/components/settings-dialog";
 import { SidebarInset, SidebarProvider, useSidebar } from "~/ui/sidebar";
 
-import { NotesProvider } from "~/contexts/notes-context";
-import { PageHeaderProvider } from "~/contexts/page-header";
-import { SettingsProvider } from "~/contexts/settings-context";
-import { TabsProvider } from "~/contexts/tabs-context";
 
-import { useTabs } from "~/hooks/use-tabs";
+import { useTabsStore } from "~/stores/tabs-store";
 import { useIsTauri } from "~/hooks/use-tauri";
 
 function MainContent() {
@@ -31,7 +27,7 @@ function MainContent() {
 
 function AppShell() {
     const { toggleSidebar } = useSidebar();
-    const { toggleTabBar } = useTabs();
+    const { toggleTabBar } = useTabsStore();
     const isTauri = useIsTauri();
 
     useEffect(() => {
@@ -89,16 +85,9 @@ function AppShell() {
 
 export const Route = createRootRoute({
     component: () => (
-        <NotesProvider>
-            <TabsProvider>
-                <SettingsProvider>
-                    <PageHeaderProvider>
-                        <SidebarProvider>
-                            <AppShell />
-                        </SidebarProvider>
-                    </PageHeaderProvider>
-                </SettingsProvider>
-            </TabsProvider>
-        </NotesProvider>
+        <SidebarProvider>
+            <AppShell />
+        </SidebarProvider>
     ),
 });
+

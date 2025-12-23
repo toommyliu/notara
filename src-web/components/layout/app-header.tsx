@@ -5,13 +5,13 @@ import { Separator } from "~/ui/separator";
 
 import IconLock from "~icons/lucide/lock";
 
-import { usePageHeaderContext } from "~/hooks/use-page-header";
-import { useTabs } from "~/hooks/use-tabs";
+import { usePageHeaderStore } from "~/stores/page-header-store";
+import { useTabsStore } from "~/stores/tabs-store";
 
 export function AppHeader() {
-    const { config } = usePageHeaderContext();
+    const { config } = usePageHeaderStore();
     const { title, emoji, isPrivate, actions } = config;
-    const { isTabBarVisible, pinnedTabs, openTabs } = useTabs();
+    const { isTabBarVisible, pinnedTabs, openTabs } = useTabsStore();
 
     const showTabs = isTabBarVisible && (pinnedTabs.length > 0 || openTabs.length > 0);
 

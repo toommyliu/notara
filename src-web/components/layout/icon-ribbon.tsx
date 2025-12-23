@@ -13,7 +13,7 @@ import IconSearch from "~icons/lucide/search";
 import IconFiles from "~icons/lucide/folder-open";
 import IconStar from "~icons/lucide/star";
 
-import { useSettings } from "~/hooks/use-settings";
+import { useSettingsStore } from "~/stores/settings-store";
 
 import { cn } from "~/lib/utils";
 
@@ -65,7 +65,7 @@ function RibbonIcon({ icon, label, isActive, onClick, to }: RibbonIconProps) {
 export function IconRibbon() {
     const layout = usePlatformLayout();
     const location = useLocation();
-    const { open } = useSettings();
+    const { open } = useSettingsStore();
 
     const isHome = location.pathname === "/";
 

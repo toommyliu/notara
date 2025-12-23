@@ -10,9 +10,9 @@ import IconMoreHorizontal from "~icons/lucide/more-horizontal";
 import IconStar from "~icons/lucide/star";
 import IconArrowLeftRight from "~icons/lucide/arrow-left-right";
 
-import { useNotes } from "~/hooks/use-notes";
-import { useTabs } from "~/hooks/use-tabs";
-import { usePageHeader } from "~/hooks/use-page-header";
+import { useNotesStore } from "~/stores/notes-store";
+import { useTabsStore } from "~/stores/tabs-store";
+import { usePageHeaderStore } from "~/stores/page-header-store";
 
 import { cn } from "~/lib/utils";
 
@@ -45,8 +45,8 @@ function isPaddingPresetKey(value: string): value is PaddingPresetKey {
 }
 
 function NotesPage() {
-    const { notes, updateNote } = useNotes();
-    const { activeTabId } = useTabs();
+    const { notes, updateNote } = useNotesStore();
+    const { activeTabId } = useTabsStore();
     const activeNote = activeTabId ? notes.get(activeTabId) ?? null : null;
     const titleRef = useRef<HTMLHeadingElement>(null);
     const { state: sidebarState } = useSidebar();
@@ -100,12 +100,19 @@ function NotesPage() {
         </>
     ), [paddingPrefs]);
 
-    usePageHeader({
-        title: activeNote?.title ?? "Untitled",
-        emoji: activeNote?.emoji ?? "📝",
-        isPrivate: true,
-        actions,
-    });
+    const setConfig = usePageHeaderStore((s) => s.setConfig);
+
+    // Set page header config
+    useEffect(() => {
+        setConfig({
+            title: activeNote?.title ?? "Untitled",
+            emoji: activeNote?.emoji ?? "📝",
+            isPrivate: true,
+            actions,
+        });
+
+        return () => setConfig({});
+    }, [activeNote?.title, activeNote?.emoji, actions, setConfig]);
 
     const activePadding = PADDING_PRESETS[paddingPrefs[sidebarState]] ?? PADDING_PRESETS.default;
     const editorPaddingStyle = {

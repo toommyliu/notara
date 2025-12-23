@@ -29,8 +29,8 @@ import IconX from "~icons/lucide/x";
 import IconPlus from "~icons/lucide/plus";
 import IconChevronDown from "~icons/lucide/chevron-down";
 
-import { useTabs } from "~/hooks/use-tabs";
-import { useNotes } from "~/hooks/use-notes";
+import { useTabsStore } from "~/stores/tabs-store";
+import { useNotesStore } from "~/stores/notes-store";
 
 import { cn } from "~/lib/utils";
 
@@ -48,7 +48,7 @@ type HeaderTabItemProps = {
 
 const HeaderTabItem = forwardRef<HeaderTabItemHandle, HeaderTabItemProps>(
     function HeaderTabItem({ noteId, isActive, isPinned, onActivate, onClose }, ref) {
-        const { notes } = useNotes();
+        const { notes } = useNotesStore();
         const note = notes.get(noteId);
         const tabRef = useRef<HTMLDivElement>(null);
         const buttonRef = useRef<HTMLButtonElement>(null);
@@ -90,7 +90,6 @@ const HeaderTabItem = forwardRef<HeaderTabItemHandle, HeaderTabItemProps>(
                     (tabRef as RefObject<HTMLDivElement | null>).current = node;
                 }}
                 style={style}
-                role="tab"
                 aria-selected={isActive}
                 className={cn(
                     "group relative flex items-center gap-1.5 px-3 py-1 select-none shrink-0 rounded-md outline-none",
@@ -102,6 +101,7 @@ const HeaderTabItem = forwardRef<HeaderTabItemHandle, HeaderTabItemProps>(
                 )}
                 {...attributes}
                 {...listeners}
+                role="tab"
                 tabIndex={-1}
             >
                 <button
@@ -145,8 +145,8 @@ const HeaderTabItem = forwardRef<HeaderTabItemHandle, HeaderTabItemProps>(
 );
 
 export function HeaderTabs() {
-    const { pinnedTabs, openTabs, activeTabId, setActiveTab, closeTab, reorderTabs, isTabBarVisible } = useTabs();
-    const { notes, groups, addNote } = useNotes();
+    const { pinnedTabs, openTabs, activeTabId, setActiveTab, closeTab, reorderTabs, isTabBarVisible } = useTabsStore();
+    const { notes, groups, addNote } = useNotesStore();
     const [activeDragId, setActiveDragId] = useState<string | null>(null);
 
     const tabRefs = useRef<Map<string, HeaderTabItemHandle>>(new Map());

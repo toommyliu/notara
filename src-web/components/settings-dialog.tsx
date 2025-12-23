@@ -12,7 +12,7 @@ import IconSun from "~icons/lucide/sun";
 import IconMoon from "~icons/lucide/moon";
 import IconMonitor from "~icons/lucide/monitor";
 
-import { useSettings } from "~/hooks/use-settings";
+import { useSettingsStore } from "~/stores/settings-store";
 import { useTheme } from "~/hooks/use-theme";
 
 import { cn } from "~/lib/utils";
@@ -98,7 +98,7 @@ function ThemeOption({ theme, isActive, onClick }: ThemeOptionProps) {
 
 /** Button trigger for sidebar - opens settings dialog */
 export function SettingsTrigger() {
-    const { open } = useSettings();
+    const { open } = useSettingsStore();
 
     return (
         <SidebarMenuButton tooltip="Settings (⌘,)" onClick={open}>
@@ -111,7 +111,7 @@ export function SettingsTrigger() {
 /** Dialog content - render at root level so it shows even when sidebar is closed */
 export function SettingsDialogContent() {
     const { theme, setTheme } = useTheme();
-    const { isOpen, setOpen } = useSettings();
+    const { isOpen, setOpen } = useSettingsStore();
 
     return (
         <Dialog open={isOpen} onOpenChange={setOpen}>

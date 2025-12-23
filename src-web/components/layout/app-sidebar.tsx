@@ -39,9 +39,8 @@ import IconAdd from "~icons/lucide/plus";
 import IconDelete from "~icons/lucide/trash";
 import IconFolderPlus from "~icons/lucide/folder-plus";
 
-import { type Group, type Note } from "~/contexts/notes-context";
-import { useNotes } from "~/hooks/use-notes";
-import { useTabs } from "~/hooks/use-tabs";
+import { type Group, type Note, useNotesStore } from "~/stores/notes-store";
+import { useTabsStore } from "~/stores/tabs-store";
 import { usePlatformLayout } from "~/hooks/use-platform";
 
 import { cn } from "~/lib/utils";
@@ -233,8 +232,8 @@ export function AppSidebar() {
         reorderGroups,
         moveNote,
         reorderNotesInGroup,
-    } = useNotes();
-    const { openTab, activeTabId } = useTabs();
+    } = useNotesStore();
+    const { openTab, activeTabId } = useTabsStore();
 
     const [activeDragId, setActiveDragId] = useState<string | null>(null);
     const [activeDragType, setActiveDragType] = useState<"note" | "group" | null>(null);
