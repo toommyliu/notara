@@ -146,7 +146,7 @@ type NotePreviewProps = {
 function NotePreview({ note, renderPreview }: NotePreviewProps) {
     if (renderPreview) {
         return (
-            <div className="h-full w-full p-1">
+            <div className="h-full w-full p-0.5">
                 <div
                     className={cn(
                         "h-full w-full overflow-hidden",
@@ -162,7 +162,7 @@ function NotePreview({ note, renderPreview }: NotePreviewProps) {
     }
 
     return (
-        <div className="h-full w-full p-1">
+        <div className="h-full w-full p-0.5">
             <div
                 className={cn(
                     "h-full w-full overflow-hidden",
@@ -219,7 +219,7 @@ function SplitPane({ pane, isActive, isFirst, paneCount, isPreviewingSplit, onAc
     return (
         <>
             {!isFirst && (
-                <Separator className="split-divider group w-1.5 z-10">
+                <Separator className="split-divider group w-1 z-10">
                     <div className="w-full h-full flex items-center justify-center">
                         <div className="w-0.5 h-8 rounded-full bg-border/50 group-hover:bg-border group-data-[resize-handle-state=drag]:bg-primary transition-colors" />
                     </div>
@@ -231,7 +231,7 @@ function SplitPane({ pane, isActive, isFirst, paneCount, isPreviewingSplit, onAc
                 defaultSize={100 / paneCount}
                 className={cn(
                     "relative flex flex-col",
-                    showFrame && "py-1 first:pl-1 last:pr-1"
+                    showFrame && "py-0.5 first:pl-0.5 last:pr-0.5"
                 )}
             >
                 <div
