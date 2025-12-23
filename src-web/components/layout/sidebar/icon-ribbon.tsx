@@ -80,8 +80,8 @@ export function IconRibbon() {
                 "select-none"
             )}
             style={{
-                top: layout.titlebarHeight,
-                paddingTop: 8,
+                top: 0,
+                paddingTop: layout.titlebarHeight + 8,
                 paddingBottom: 8,
             }}
             data-tauri-drag-region

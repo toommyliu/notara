@@ -436,11 +436,14 @@ export function AppSidebar() {
             collapsible="offcanvas"
             className="border-r-0"
             style={{
-                top: layout.titlebarHeight,
-                height: `calc(100vh - ${layout.titlebarHeight}px)`,
+                top: 0,
+                height: "100vh",
             }}
         >
-            <SidebarHeader className="pt-2 px-3 pb-0">
+            <SidebarHeader
+                className="px-3 pb-0"
+                style={{ paddingTop: `calc(${layout.titlebarHeight}px + 0.5rem)` }}
+            >
                 <SidebarActionStrip />
             </SidebarHeader>
 
