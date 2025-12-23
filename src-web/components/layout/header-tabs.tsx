@@ -96,8 +96,8 @@ const HeaderTabItem = forwardRef<HeaderTabItemHandle, HeaderTabItemProps>(
                     "group relative flex items-center gap-1.5 px-3 py-1 select-none shrink-0 rounded-md outline-none",
                     "transition-all duration-150 ease-out cursor-pointer",
                     isActive
-                        ? "text-foreground bg-muted/60"
-                        : "text-muted-foreground/70 hover:text-foreground hover:bg-muted/30",
+                        ? "text-foreground bg-background ring-1 ring-border/50"
+                        : "text-muted-foreground/70 hover:text-foreground hover:bg-muted/40",
                     isDragging && "opacity-50",
                 )}
                 {...attributes}
@@ -242,7 +242,7 @@ export function HeaderTabs() {
             >
                 <div
                     ref={scrollContainerRef}
-                    className="flex items-center gap-0.5 min-w-0 overflow-x-auto overflow-y-hidden scrollbar-none pb-2 -mb-2"
+                    className="flex items-center gap-0.5 min-w-0 overflow-x-auto overflow-y-hidden scrollbar-none pb-2 -mb-2 pl-1.5"
                     style={{
                         WebkitAppRegion: "no-drag",
                         overscrollBehavior: "contain",
