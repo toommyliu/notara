@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { useRef, useState, useCallback } from "react";
+import { useRef, useState } from "react";
 import {
     Tooltip,
     TooltipContent,
@@ -16,7 +16,6 @@ import {
     type CollisionDetection,
     type DragEndEvent,
     type DragStartEvent,
-    type DragMoveEvent,
 } from "@dnd-kit/core";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import {
@@ -59,9 +58,8 @@ function DropIndicator() {
 
 type GroupDropZoneProps = {
     groupId: string;
-    isPointerInSidebar: boolean;
 };
-function GroupDropZone({ groupId, isPointerInSidebar }: GroupDropZoneProps) {
+function GroupDropZone({ groupId }: GroupDropZoneProps) {
     const { isOver, setNodeRef } = useDroppable({
         id: `${groupId}-end`,
         data: { type: "group-end", groupId },
@@ -72,7 +70,7 @@ function GroupDropZone({ groupId, isPointerInSidebar }: GroupDropZoneProps) {
             ref={setNodeRef}
             className={cn(
                 "h-1.5 mt-0.5 mx-2 rounded-full transition-colors",
-                isOver && isPointerInSidebar && "bg-blue-500/50"
+                isOver && "bg-blue-500/50"
             )}
         />
     );
@@ -123,10 +121,9 @@ type SortableNoteProps = {
     note: Note;
     groupId: string | null;
     isActive: boolean;
-    isPointerInSidebar: boolean;
     onSelect: () => void;
 };
-function SortableNote({ note, groupId, isActive, isPointerInSidebar, onSelect }: SortableNoteProps) {
+function SortableNote({ note, groupId, isActive, onSelect }: SortableNoteProps) {
     const {
         attributes,
         listeners,
@@ -151,7 +148,7 @@ function SortableNote({ note, groupId, isActive, isPointerInSidebar, onSelect }:
 
     return (
         <SidebarMenuItem ref={setNodeRef} style={style} className="relative">
-            {isOver && isPointerInSidebar && <DropIndicator />}
+            {isOver && <DropIndicator />}
             <Link to="/notes" onClick={handleClick}>
                 <SidebarMenuButton
                     isActive={isActive}
@@ -178,7 +175,6 @@ type SortableGroupProps = {
     activeNoteId: string | null;
     isDragSelected: boolean;
     showDropBackground: boolean;
-    isPointerInSidebar: boolean;
     onNoteSelect: (noteId: string) => void;
     onToggleCollapse: () => void;
     onAddNote: () => void;
@@ -189,7 +185,6 @@ function SortableGroup({
     activeNoteId,
     isDragSelected,
     showDropBackground,
-    isPointerInSidebar,
     onNoteSelect,
     onToggleCollapse,
     onAddNote,
@@ -220,10 +215,10 @@ function SortableGroup({
                 "group/sidebar-group relative rounded-md px-2 py-1 transition-colors duration-200",
                 isDragSelected && "bg-sidebar-accent/30 ring-1 ring-sidebar-border",
                 isDragging && "opacity-30",
-                showDropBackground && isOver && isPointerInSidebar && !isDragging && "bg-blue-500/10"
+                showDropBackground && isOver && !isDragging && "bg-blue-500/10"
             )}
         >
-            {isOver && isPointerInSidebar && <DropIndicator />}
+            {isOver && <DropIndicator />}
 
             <SidebarGroupLabel
                 className="w-full min-w-0 text-sm text-muted-foreground cursor-grab active:cursor-grabbing"
@@ -262,13 +257,12 @@ function SortableGroup({
                                     note={note}
                                     groupId={group.id}
                                     isActive={activeNoteId === note.id}
-                                    isPointerInSidebar={isPointerInSidebar}
                                     onSelect={() => onNoteSelect(note.id)}
                                 />
                             ))}
                         </SidebarMenu>
                     </SortableContext>
-                    <GroupDropZone groupId={group.id} isPointerInSidebar={isPointerInSidebar} />
+                    <GroupDropZone groupId={group.id} />
                 </SidebarGroupContent>
             )}
         </SidebarGroup>
@@ -291,9 +285,7 @@ export function AppSidebar() {
 
     const [activeDragId, setActiveDragId] = useState<string | null>(null);
     const [activeDragType, setActiveDragType] = useState<"note" | "group" | null>(null);
-    const [isPointerInSidebar, setIsPointerInSidebar] = useState(false);
     const activeDragTypeRef = useRef<"note" | "group" | null>(null);
-    const isPointerInSidebarRef = useRef(false);
     const sidebarContentRef = useRef<HTMLDivElement>(null);
 
     const draggingGroupId = activeDragType === "group" ? activeDragId : null;
@@ -319,6 +311,21 @@ export function AppSidebar() {
     const collisionDetection: CollisionDetection = (args) => {
         const activeType = args.active.data.current?.type ?? activeDragTypeRef.current;
 
+        // Check if pointer is within sidebar
+        if (sidebarContentRef.current && args.pointerCoordinates) {
+            const rect = sidebarContentRef.current.getBoundingClientRect();
+            const { x, y } = args.pointerCoordinates;
+
+            const isInside = (
+                x >= rect.left &&
+                x <= rect.right &&
+                y >= rect.top &&
+                y <= rect.bottom
+            );
+
+            if (!isInside) return [];
+        }
+
         const droppableContainers =
             activeType === "group"
                 ? args.droppableContainers.filter(
@@ -342,47 +349,22 @@ export function AppSidebar() {
         }
     };
 
-    const handleDragMove = useCallback((event: DragMoveEvent) => {
-        if (!sidebarContentRef.current) return;
-
-        const rect = sidebarContentRef.current.getBoundingClientRect();
-        const pointerX = (event.activatorEvent as PointerEvent).clientX + event.delta.x;
-        const pointerY = (event.activatorEvent as PointerEvent).clientY + event.delta.y;
-
-        const isInside = (
-            pointerX >= rect.left &&
-            pointerX <= rect.right &&
-            pointerY >= rect.top &&
-            pointerY <= rect.bottom
-        );
-
-        isPointerInSidebarRef.current = isInside;
-        setIsPointerInSidebar(isInside);
-    }, []);
-
     const handleDragCancel = () => {
         setActiveDragId(null);
         setActiveDragType(null);
-        setIsPointerInSidebar(false);
-        isPointerInSidebarRef.current = false;
         activeDragTypeRef.current = null;
         dragContext?.endDrag();
     };
 
     const handleDragEnd = (event: DragEndEvent) => {
         const { active, over } = event;
-        const wasPointerInSidebar = isPointerInSidebarRef.current;
 
         setActiveDragId(null);
         setActiveDragType(null);
-        setIsPointerInSidebar(false);
-        isPointerInSidebarRef.current = false;
         activeDragTypeRef.current = null;
 
         dragContext?.endDrag();
 
-        // Only process reorder if pointer was inside sidebar when drag ended
-        if (!wasPointerInSidebar) return;
         if (!over || active.id === over.id) return;
 
         const activeType = active.data.current?.type;
@@ -459,7 +441,6 @@ export function AppSidebar() {
                         collisionDetection={collisionDetection}
                         modifiers={[conditionalVerticalRestriction]}
                         onDragStart={handleDragStart}
-                        onDragMove={handleDragMove}
                         onDragEnd={handleDragEnd}
                         onDragCancel={handleDragCancel}
                     >
@@ -482,7 +463,6 @@ export function AppSidebar() {
                                         activeNoteId={activeTabId}
                                         isDragSelected={draggingGroupId === group.id}
                                         showDropBackground={!isDraggingGroup}
-                                        isPointerInSidebar={isPointerInSidebar}
                                         onNoteSelect={openTab}
                                         onToggleCollapse={() => toggleGroupCollapse(group.id)}
                                         onAddNote={() => addNote(group.id)}
