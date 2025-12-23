@@ -6,23 +6,33 @@ import { SplitDropZone } from "./split-drop-zone";
 
 import { useSplitViewStore, type Pane } from "~/stores/split-view-store";
 import { useHaptics, HapticFeedbackPattern } from "~/hooks/use-haptics";
+import { useDragContext } from "~/contexts/drag-context";
+import { useNotesStore, type Note } from "~/stores/notes-store";
 
 import { cn } from "~/lib/utils";
 
 type SplitViewContainerProps = {
     renderPane: (pane: Pane, isActive: boolean) => ReactNode;
+    renderPreview?: (note: Note) => ReactNode;
     contentPadding?: number;
 };
 
 const SNAP_THRESHOLD = 5; // Snap when within 5% of 50%
 const ESCAPE_THRESHOLD = 8; // Must drag past 8% to escape snap
 
-export function SplitViewContainer({ renderPane, contentPadding }: SplitViewContainerProps) {
+export function SplitViewContainer({ renderPane, renderPreview, contentPadding }: SplitViewContainerProps) {
     const { panes, activePaneId, setActivePane } = useSplitViewStore();
     const [hoverSide, setHoverSide] = useState<"left" | "right" | null>(null);
     const groupRef = useRef<GroupImperativeHandle>(null);
     const isSnappedRef = useRef(false);
     const { perform } = useHaptics();
+
+    const dragContext = useDragContext();
+    const { notes } = useNotesStore();
+
+    const draggedNote = dragContext?.isDragging && dragContext.draggedNoteId
+        ? notes.get(dragContext.draggedNoteId) ?? null
+        : null;
 
     const triggerHaptic = useCallback(() => {
         perform(HapticFeedbackPattern.Generic);
@@ -61,7 +71,11 @@ export function SplitViewContainer({ renderPane, contentPadding }: SplitViewCont
                     "transition-[width] duration-300 ease-out bg-transparent shrink-0 overflow-hidden",
                     hoverSide === "left" ? "w-1/2" : "w-0"
                 )}
-            />
+            >
+                {hoverSide === "left" && draggedNote && (
+                    <NotePreview note={draggedNote} renderPreview={renderPreview} />
+                )}
+            </div>
 
             <div className="flex-1 flex min-w-0">
                 <Group
@@ -86,12 +100,17 @@ export function SplitViewContainer({ renderPane, contentPadding }: SplitViewCont
                 </Group>
             </div>
 
+            {/* Right preview area */}
             <div
                 className={cn(
                     "transition-[width] duration-300 ease-out bg-transparent shrink-0 overflow-hidden",
                     hoverSide === "right" ? "w-1/2" : "w-0"
                 )}
-            />
+            >
+                {hoverSide === "right" && draggedNote && (
+                    <NotePreview note={draggedNote} renderPreview={renderPreview} />
+                )}
+            </div>
 
             <SplitDropZone
                 position="left"
@@ -103,6 +122,70 @@ export function SplitViewContainer({ renderPane, contentPadding }: SplitViewCont
                 contentPadding={contentPadding}
                 onHoverChange={(isHovering) => setHoverSide(isHovering ? "right" : null)}
             />
+        </div>
+    );
+}
+
+type NotePreviewProps = {
+    note: Note;
+    renderPreview?: (note: Note) => ReactNode;
+};
+
+function NotePreview({ note, renderPreview }: NotePreviewProps) {
+    if (renderPreview) {
+        return (
+            <div className="h-full w-full p-1">
+                <div
+                    className={cn(
+                        "h-full w-full overflow-hidden",
+                        "rounded-xl border shadow-sm bg-background",
+                        "opacity-70 pointer-events-none",
+                        "animate-in fade-in-0 duration-200"
+                    )}
+                >
+                    {renderPreview(note)}
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="h-full w-full p-1">
+            <div
+                className={cn(
+                    "h-full w-full overflow-hidden",
+                    "rounded-xl border shadow-sm bg-background",
+                    "animate-in fade-in-0 duration-200"
+                )}
+            >
+                <div className="absolute inset-0 bg-background/30 z-10 rounded-xl pointer-events-none" />
+
+                <div className="relative h-full flex flex-col items-center overflow-y-auto scrollbar-custom">
+                    <div className="w-full max-w-3xl py-16 px-12">
+                        <div className="flex justify-start mb-4">
+                            <span className="text-7xl opacity-80">{note.emoji}</span>
+                        </div>
+
+                        <h1 className="text-4xl font-bold mb-4 leading-tight text-foreground/70">
+                            {note.title || "Untitled"}
+                        </h1>
+                        {note.content && note.content.length > 0 && (
+                            <div className="space-y-2 text-muted-foreground/60">
+                                {note.content.slice(0, 5).map((block) => (
+                                    <p key={block.id} className="text-base leading-relaxed">
+                                        {block.content || "\u00A0"}
+                                    </p>
+                                ))}
+                                {note.content.length > 5 && (
+                                    <p className="text-sm italic">
+                                        +{note.content.length - 5} more blocks...
+                                    </p>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }
