@@ -17,17 +17,17 @@ export function AppHeader() {
 
     return (
         <AppTitlebar className="border-b border-border/40 overscroll-none">
-            <div className="flex items-center w-full h-full gap-1 overflow-hidden">
-                <div className="flex items-center shrink-0">
+            <div className="flex items-center w-full h-full gap-0.5">
+                <div className="flex items-center shrink-0 pl-1">
                     <SidebarTrigger className="text-muted-foreground hover:text-foreground transition-colors" />
                 </div>
 
                 <Separator
                     orientation="vertical"
-                    className="mx-2 h-3.5! self-center! bg-linear-to-b from-transparent via-border/60 to-transparent"
+                    className="mx-1 h-3.5! self-center! bg-linear-to-b from-transparent via-border/60 to-transparent"
                 />
 
-                <div className="flex items-center h-full min-w-0 overflow-hidden flex-1">
+                <div className="flex items-center h-full min-w-0 flex-1">
                     <HeaderTabs />
                 </div>
 
