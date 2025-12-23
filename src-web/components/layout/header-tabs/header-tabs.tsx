@@ -8,10 +8,10 @@ import {
     PointerSensor,
     useSensor,
     useSensors,
+    type CollisionDetection,
     type DragEndEvent,
     type DragStartEvent,
 } from "@dnd-kit/core";
-import { restrictToHorizontalAxis } from "@dnd-kit/modifiers";
 import { SortableContext, horizontalListSortingStrategy } from "@dnd-kit/sortable";
 
 import {
@@ -93,6 +93,25 @@ export function HeaderTabs() {
             activationConstraint: { distance: 5 },
         })
     );
+
+    const collisionDetection: CollisionDetection = (args) => {
+        // Check if pointer is within scroll container
+        if (scrollContainerRef.current && args.pointerCoordinates) {
+            const rect = scrollContainerRef.current.getBoundingClientRect();
+            const { x, y } = args.pointerCoordinates;
+
+            const isInside = (
+                x >= rect.left &&
+                x <= rect.right &&
+                y >= rect.top &&
+                y <= rect.bottom
+            );
+
+            if (!isInside) return []; // Allow drag to escape for split-view
+        }
+
+        return closestCenter(args);
+    };
 
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const [showLeftFade, setShowLeftFade] = useState(false);
@@ -180,8 +199,7 @@ export function HeaderTabs() {
     return (
         <DndContext
             sensors={sensors}
-            collisionDetection={closestCenter}
-            modifiers={[restrictToHorizontalAxis]}
+            collisionDetection={collisionDetection}
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
             onDragCancel={handleDragCancel}
@@ -401,7 +419,7 @@ export function HeaderTabs() {
 
             <DragOverlay dropAnimation={null}>
                 {draggedNote && (
-                    <div className="flex items-center gap-1.5 px-2.5 py-1 bg-background border rounded-md shadow-lg text-sm">
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 bg-background border rounded-md shadow-lg text-sm whitespace-nowrap">
                         <span>{draggedNote.emoji}</span>
                         <span className="font-medium">{draggedNote.title}</span>
                     </div>
