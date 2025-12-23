@@ -98,6 +98,7 @@ export function IconRibbon() {
                 <RibbonIcon
                     icon={<IconFiles className="size-[18px]" />}
                     label="Files"
+                    to="/notes"
                     isActive={!isHome}
                 />
                 <RibbonIcon
