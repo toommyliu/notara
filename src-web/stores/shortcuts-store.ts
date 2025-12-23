@@ -18,10 +18,6 @@ type ShortcutsActions = {
     resetToDefaults: () => void;
 };
 
-/**
- * Convert a ShortcutBinding to Tauri accelerator format
- * Note: On macOS, Cmd and Ctrl are distinct keys - we preserve this distinction
- */
 export function bindingToAccelerator(binding: ShortcutBinding): string {
     const parts: string[] = [];
 
@@ -50,9 +46,6 @@ export function bindingToAccelerator(binding: ShortcutBinding): string {
     return parts.join("+");
 }
 
-/**
- * Format binding for display in UI
- */
 export function formatBindingForDisplay(binding: ShortcutBinding): string {
     const symbols: string[] = [];
 
@@ -72,57 +65,13 @@ export function formatBindingForDisplay(binding: ShortcutBinding): string {
     else if (key === "Backspace") key = "⌫";
     else if (key === "Escape") key = "⎋";
     else if (key === "\\") key = "\\";
-    else if (key === "Dead") key = "?"; // Show placeholder for dead keys
+    else if (key === "Dead") key = "?";
     else key = key.toUpperCase();
 
     symbols.push(key);
     return symbols.join(" ");
 }
 
-/**
- * Extract actual key from keyboard event
- */
-function getKeyFromEvent(event: KeyboardEvent): string {
-    if (event.key === "Dead" && event.code) {
-        // event.code is like "KeyI" or "KeyA" - extract the letter
-        const match = event.code.match(/^Key([A-Z])$/);
-        if (match) {
-            return match[1].toLowerCase();
-        }
-
-        // Handle digit keys
-        const digitMatch = event.code.match(/^Digit([0-9])$/);
-        if (digitMatch) {
-            return digitMatch[1];
-        }
-    }
-    return event.key;
-}
-
-/**
- * Check if a keyboard event matches a binding
- */
-export function eventMatchesBinding(event: KeyboardEvent, binding: ShortcutBinding): boolean {
-    const wantsMeta = binding.modifiers.includes("meta");
-    const wantsCtrl = binding.modifiers.includes("ctrl");
-    const wantsShift = binding.modifiers.includes("shift");
-    const wantsAlt = binding.modifiers.includes("alt");
-
-    const modifiersMatch =
-        (wantsMeta ? event.metaKey : !event.metaKey) &&
-        (wantsCtrl ? event.ctrlKey : !event.ctrlKey) &&
-        (wantsShift ? event.shiftKey : !event.shiftKey) &&
-        (wantsAlt ? event.altKey : !event.altKey);
-
-    const eventKey = getKeyFromEvent(event);
-    const keyMatches = eventKey.toLowerCase() === binding.key.toLowerCase();
-
-    return modifiersMatch && keyMatches;
-}
-
-/**
- * Sync all bindings to Tauri menu accelerators
- */
 async function syncMenuAccelerators(bindings: Record<ShortcutId, ShortcutBinding>) {
     if (typeof window === "undefined" || !("__TAURI_INTERNALS__" in window)) {
         return;
@@ -138,9 +87,7 @@ async function syncMenuAccelerators(bindings: Record<ShortcutId, ShortcutBinding
             }
         }
 
-        console.log("[shortcuts] Syncing menu accelerators:", accelerators);
         await invoke("update_menu_accelerators", { accelerators });
-        console.log("[shortcuts] Menu accelerators synced successfully");
     } catch (err) {
         console.error("[shortcuts] Failed to sync menu accelerators:", err);
     }
@@ -162,11 +109,22 @@ export const useShortcutsStore = create<ShortcutsState & ShortcutsActions>()(
                 syncMenuAccelerators(DEFAULT_BINDINGS);
             },
         }),
-        { name: "notara:shortcuts" }
+        {
+            name: "notara:shortcuts",
+            merge: (persistedState, currentState) => {
+                const persisted = persistedState as Partial<ShortcutsState> | undefined;
+                return {
+                    ...currentState,
+                    bindings: {
+                        ...DEFAULT_BINDINGS,
+                        ...(persisted?.bindings ?? {}),
+                    },
+                };
+            },
+        }
     )
 );
 
-// Sync menu accelerators on initial load
 if (typeof window !== "undefined") {
     setTimeout(() => {
         syncMenuAccelerators(useShortcutsStore.getState().bindings);

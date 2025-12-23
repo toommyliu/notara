@@ -33,6 +33,8 @@ type SplitViewActions = {
     setPanes: (panes: Pane[], activePaneId?: string) => void;
     /** Set to a single pane with a specific note */
     setSinglePane: (noteId: string) => void;
+    /** Cycle focus to the next/previous pane. direction: 1 = forward, -1 = backward */
+    cyclePane: (direction: 1 | -1) => void;
 };
 
 const createDefaultPane = (): Pane => ({
@@ -145,6 +147,15 @@ export const useSplitViewStore = create<SplitViewState & SplitViewActions>()((se
             panes: [pane],
             activePaneId: pane.id
         });
+    },
+
+    cyclePane: (direction) => {
+        const { panes, activePaneId } = get();
+        if (panes.length <= 1) return;
+
+        const currentIndex = panes.findIndex(p => p.id === activePaneId);
+        const nextIndex = (currentIndex + direction + panes.length) % panes.length;
+        set({ activePaneId: panes[nextIndex].id });
     }
 }));
 

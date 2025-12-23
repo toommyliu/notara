@@ -61,6 +61,28 @@ const SHORTCUT_DEFINITIONS: ShortcutDefinition[] = [
     "is_menu": false
   },
   {
+    "id": "cycle-pane-forward",
+    "label": "Next Pane",
+    "default_binding": {
+      "key": "]",
+      "modifiers": [
+        "alt"
+      ]
+    },
+    "is_menu": false
+  },
+  {
+    "id": "cycle-pane-backward",
+    "label": "Previous Pane",
+    "default_binding": {
+      "key": "[",
+      "modifiers": [
+        "alt"
+      ]
+    },
+    "is_menu": false
+  },
+  {
     "id": "new-note",
     "label": "New Note",
     "default_binding": {

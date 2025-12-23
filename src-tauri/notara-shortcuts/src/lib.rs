@@ -9,6 +9,8 @@ pub enum ShortcutId {
     ToggleTabBar,
     CycleTabForward,
     CycleTabBackward,
+    CyclePaneForward,
+    CyclePaneBackward,
     NewNote,
     OpenSettings,
 }
@@ -72,6 +74,8 @@ define_shortcuts! {
     ToggleTabBar => { label: "Toggle Tab Bar", key: "b", mods: [Meta], menu: false },
     CycleTabForward => { label: "Next Tab", key: "Tab", mods: [Ctrl], menu: false },
     CycleTabBackward => { label: "Previous Tab", key: "Tab", mods: [Ctrl, Shift], menu: false },
+    CyclePaneForward => { label: "Next Pane", key: "]", mods: [Alt], menu: false },
+    CyclePaneBackward => { label: "Previous Pane", key: "[", mods: [Alt], menu: false },
     NewNote => { label: "New Note", key: "n", mods: [Meta], menu: true },
     OpenSettings => { label: "Settings", key: ",", mods: [Meta], menu: true },
 }

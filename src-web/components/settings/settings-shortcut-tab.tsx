@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import IconRotateCcw from "~icons/lucide/rotate-ccw";
 
 import { useShortcutsStore, formatBindingForDisplay } from "~/stores/shortcuts-store";
+import { getKeyFromEvent } from "~/lib/keyboard";
 import {
     SHORTCUT_LABELS,
     type ShortcutId,
@@ -52,28 +53,15 @@ function ShortcutRow({ id, binding, isRecording, onStartRecording, onCancelRecor
                 return;
             }
 
-            // TODO:
+            const key = getKeyFromEvent(ev);
 
-            // let key = ev.key;
-            // if (key === "Dead" && ev.code) {
-            //     const letterMatch = ev.code.match(/^Key([A-Z])$/);
-            //     if (letterMatch) {
-            //         key = letterMatch[1].toLowerCase();
-            //     } else {
-            //         const digitMatch = ev.code.match(/^Digit([0-9])$/);
-            //         if (digitMatch) {
-            //             key = digitMatch[1];
-            //         }
-            //     }
-            // }
+            // Skip if still a modifier or invalid
+            if (["Meta", "Control", "Shift", "Alt", "Dead"].includes(key)) {
+                return;
+            }
 
-            // // Still "Dead" after processing? Skip it
-            // if (key === "Dead") {
-            //     return;
-            // }
-
-            // setBinding(id, { key, modifiers });
-            // onCancelRecording();
+            setBinding(id, { key, modifiers });
+            onCancelRecording();
         };
 
         window.addEventListener("keydown", handleKeyDown, true);
