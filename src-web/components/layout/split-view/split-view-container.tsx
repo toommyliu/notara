@@ -299,10 +299,14 @@ function SplitPane({ pane, isActive, isFirst, paneCount, orientation, isPreviewi
                 defaultSize={100 / paneCount}
                 className={cn(
                     "relative flex flex-col",
-                    showFrame && (orientation === "horizontal"
-                        ? "py-0.5 first:pl-0.5 last:pr-0.5"
-                        : "px-0.5 first:pt-0.5 last:pb-0.5"
-                    )
+                    // Horizontal split: vertical padding always
+                    showFrame && orientation === "horizontal" && "py-0.5",
+                    showFrame && orientation === "horizontal" && isFirst && "pl-0.5",
+                    showFrame && orientation === "horizontal" && !isFirst && paneCount === 2 && "pr-0.5",
+                    // Vertical split: horizontal padding always
+                    showFrame && orientation === "vertical" && "px-0.5",
+                    showFrame && orientation === "vertical" && isFirst && "pt-0.5",
+                    showFrame && orientation === "vertical" && !isFirst && paneCount === 2 && "pb-0.5"
                 )}
             >
                 <div
