@@ -90,22 +90,23 @@ export const HeaderTabItem = forwardRef<HeaderTabItemHandle, HeaderTabItemProps>
                     {note.title}
                 </span>
 
-                <button
-                    onClick={(ev) => {
-                        ev.stopPropagation();
-                        onClose();
-                    }}
-                    tabIndex={-1}
-                    className={cn(
-                        "relative z-10 p-0.5 rounded-sm transition-all",
-                        "opacity-0 group-hover:opacity-100",
-                        "text-muted-foreground/60 hover:text-foreground hover:bg-background/80",
-                        "focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:outline-none"
-                    )}
-                    aria-label="Close tab"
-                >
-                    <IconX className="size-3" />
-                </button>
+                {isActive && (
+                    <button
+                        onClick={(ev) => {
+                            ev.stopPropagation();
+                            onClose();
+                        }}
+                        tabIndex={-1}
+                        className={cn(
+                            "relative z-10 p-0.5 rounded-sm transition-colors",
+                            "text-muted-foreground/50 hover:text-foreground hover:bg-background/80",
+                            "focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:outline-none"
+                        )}
+                        aria-label="Close tab"
+                    >
+                        <IconX className="size-3" />
+                    </button>
+                )}
             </div>
         );
     }
