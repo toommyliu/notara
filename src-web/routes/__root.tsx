@@ -10,8 +10,10 @@ import { IconRibbon } from "~/components/layout/icon-ribbon";
 import { SettingsDialogContent } from "~/components/settings-dialog";
 import { SidebarInset, SidebarProvider, useSidebar } from "~/ui/sidebar";
 
-
 import { useTabsStore } from "~/stores/tabs-store";
+import { useNotesStore } from "~/stores/notes-store";
+import { useSettingsStore } from "~/stores/settings-store";
+import { useShortcutsStore, eventMatchesBinding, type ShortcutId } from "~/stores/shortcuts-store";
 import { useIsTauri } from "~/hooks/use-tauri";
 
 function MainContent() {
@@ -28,54 +30,86 @@ function MainContent() {
 function AppShell() {
     const { toggleSidebar } = useSidebar();
     const { toggleTabBar, cycleTab } = useTabsStore();
+    const { addNote } = useNotesStore();
+    const { open: openSettings } = useSettingsStore();
+    const { bindings } = useShortcutsStore();
     const isTauri = useIsTauri();
 
     useEffect(() => {
-        if (typeof window === "undefined") return;
+        if (typeof window === "undefined" || !isTauri) return;
 
-        let unlisten: (() => void) | undefined;
+        const unlisteners: (() => void)[] = [];
 
-        if (isTauri) {
-            listen("toggle-sidebar", () => toggleSidebar())
-                .then((fn) => {
-                    unlisten = fn;
-                })
-                .catch(() => {
-                });
-        }
+        listen("toggle-sidebar", () => toggleSidebar())
+            .then((fn) => unlisteners.push(fn))
+            .catch(() => { });
+
+        listen("open-settings", () => openSettings())
+            .then((fn) => unlisteners.push(fn))
+            .catch(() => { });
+
+        listen("new-note", () => addNote())
+            .then((fn) => unlisteners.push(fn))
+            .catch(() => { });
 
         return () => {
-            unlisten?.();
+            unlisteners.forEach((fn) => fn());
         };
-    }, [isTauri, toggleSidebar]);
+    }, [isTauri, toggleSidebar, openSettings, addNote]);
 
+    // Keyboard shortcut handler
     useEffect(() => {
         if (typeof window === "undefined") return;
 
+        const executeShortcut = (id: ShortcutId) => {
+            switch (id) {
+                case "toggle-sidebar":
+                    toggleSidebar();
+                    break;
+                case "toggle-tab-bar":
+                    toggleTabBar();
+                    break;
+                case "cycle-tab-forward":
+                    cycleTab(1);
+                    break;
+                case "cycle-tab-backward":
+                    cycleTab(-1);
+                    break;
+                case "new-note":
+                    addNote();
+                    break;
+                case "open-settings":
+                    openSettings();
+                    break;
+            }
+        };
+
         const handleKeyDown = (ev: KeyboardEvent) => {
-            if (!(ev.metaKey || ev.ctrlKey)) return;
-
-            if (ev.key === "Tab") {
-                ev.preventDefault();
-                cycleTab(ev.shiftKey ? -1 : 1);
+            const target = ev.target as HTMLElement;
+            if (
+                target.tagName === "INPUT" ||
+                target.tagName === "TEXTAREA" ||
+                target.isContentEditable
+            ) {
+                if (eventMatchesBinding(ev, bindings["open-settings"])) {
+                    ev.preventDefault();
+                    executeShortcut("open-settings");
+                }
                 return;
             }
 
-            if (ev.key === "\\") {
-                ev.preventDefault();
-                toggleSidebar();
-                return;
-            }
-
-            if (ev.key.toLowerCase() === "b") {
-                ev.preventDefault();
-                toggleTabBar();
+            for (const [id, binding] of Object.entries(bindings)) {
+                if (eventMatchesBinding(ev, binding)) {
+                    ev.preventDefault();
+                    executeShortcut(id as ShortcutId);
+                    return;
+                }
             }
         };
 
         window.addEventListener("keydown", handleKeyDown);
         return () => window.removeEventListener("keydown", handleKeyDown);
-    }, [isTauri, toggleSidebar, toggleTabBar, cycleTab]);
+    }, [bindings, toggleSidebar, toggleTabBar, cycleTab, addNote, openSettings]);
 
     return (
         <>
@@ -96,4 +130,3 @@ export const Route = createRootRoute({
         </SidebarProvider>
     ),
 });
-

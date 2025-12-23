@@ -1,7 +1,46 @@
+use std::collections::HashMap;
+use std::sync::Mutex;
+
 use tauri::{
-    menu::{MenuBuilder, MenuItemBuilder, SubmenuBuilder},
-    Emitter, Manager,
+    menu::{MenuBuilder, MenuItem, MenuItemBuilder, SubmenuBuilder},
+    AppHandle, Emitter, Manager, State,
 };
+
+struct MenuState {
+    toggle_sidebar: MenuItem<tauri::Wry>,
+    new_note: MenuItem<tauri::Wry>,
+    open_settings: MenuItem<tauri::Wry>,
+}
+
+struct AppMenuState(Mutex<Option<MenuState>>);
+
+#[tauri::command]
+fn update_menu_accelerators(
+    app: AppHandle,
+    accelerators: HashMap<String, String>,
+) -> Result<(), String> {
+    let state: State<AppMenuState> = app.state();
+    let guard = state.0.lock().map_err(|e| e.to_string())?;
+
+    if let Some(menu_state) = guard.as_ref() {
+        for (id, accelerator) in accelerators {
+            let result = match id.as_str() {
+                "toggle-sidebar" => menu_state
+                    .toggle_sidebar
+                    .set_accelerator(Some(&accelerator)),
+                "new-note" => menu_state.new_note.set_accelerator(Some(&accelerator)),
+                "open-settings" => menu_state.open_settings.set_accelerator(Some(&accelerator)),
+                _ => continue,
+            };
+
+            if let Err(e) = result {
+                eprintln!("Failed to set accelerator for {}: {}", id, e);
+            }
+        }
+    }
+
+    Ok(())
+}
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -16,15 +55,17 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_os::init())
         .plugin(notara_mac_window::init())
+        .manage(AppMenuState(Mutex::new(None)))
+        .invoke_handler(tauri::generate_handler![update_menu_accelerators])
         .setup(|app| {
-            let settings_item = MenuItemBuilder::with_id("settings", "Settings...")
+            let open_settings_item = MenuItemBuilder::with_id("open-settings", "Settings...")
                 .accelerator("CmdOrCtrl+,")
                 .build(app)?;
 
             let app_submenu = SubmenuBuilder::new(app, "Notara")
                 .about(None)
                 .separator()
-                .item(&settings_item)
+                .item(&open_settings_item)
                 .separator()
                 .services()
                 .separator()
@@ -82,8 +123,17 @@ pub fn run() {
 
             app.set_menu(menu)?;
 
+            let menu_state = MenuState {
+                toggle_sidebar: toggle_sidebar_item.clone(),
+                new_note: new_note_item.clone(),
+                open_settings: open_settings_item.clone(),
+            };
+
+            let state: State<AppMenuState> = app.state();
+            *state.0.lock().unwrap() = Some(menu_state);
+
             app.on_menu_event(move |app, event| {
-                if event.id().as_ref() == "settings" {
+                if event.id().as_ref() == "open-settings" {
                     if let Some(window) = app.get_webview_window("main") {
                         let _ = window.emit("open-settings", ());
                     }

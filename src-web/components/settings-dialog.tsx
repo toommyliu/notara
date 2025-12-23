@@ -1,3 +1,4 @@
+import { useState, useEffect, useCallback } from "react";
 import {
     Dialog,
     DialogContent,
@@ -11,11 +12,24 @@ import IconSettings from "~icons/lucide/settings";
 import IconSun from "~icons/lucide/sun";
 import IconMoon from "~icons/lucide/moon";
 import IconMonitor from "~icons/lucide/monitor";
+import IconKeyboard from "~icons/lucide/keyboard";
+import IconRotateCcw from "~icons/lucide/rotate-ccw";
+import IconPalette from "~icons/lucide/palette";
 
 import { useSettingsStore } from "~/stores/settings-store";
 import { useTheme } from "~/hooks/use-theme";
+import {
+    useShortcutsStore,
+    formatBindingForDisplay,
+    SHORTCUT_LABELS,
+    type ShortcutId,
+    type ShortcutBinding,
+    type Modifier,
+} from "~/stores/shortcuts-store";
 
 import { cn } from "~/lib/utils";
+
+type SettingsTab = "general" | "shortcuts";
 
 type ThemeOptionProps = {
     theme: "light" | "dark" | "system";
@@ -38,7 +52,6 @@ function ThemeOption({ theme, isActive, onClick }: ThemeOptionProps) {
                     : "border-transparent bg-muted/40 hover:bg-muted/70"
             )}
         >
-            {/* Visual Preview */}
             <div
                 className={cn(
                     "w-16 h-12 rounded-lg overflow-hidden flex items-center justify-center",
@@ -47,7 +60,7 @@ function ThemeOption({ theme, isActive, onClick }: ThemeOptionProps) {
                         ? "bg-zinc-900"
                         : theme === "light"
                             ? "bg-white"
-                            : "bg-gradient-to-br from-white via-white to-zinc-900"
+                            : "bg-linear-to-br from-white via-white to-zinc-900"
                 )}
             >
                 {theme === "light" && (
@@ -75,7 +88,6 @@ function ThemeOption({ theme, isActive, onClick }: ThemeOptionProps) {
                 )}
             </div>
 
-            {/* Label */}
             <div className="flex items-center gap-1.5">
                 <Icon className="size-3.5 text-muted-foreground" />
                 <span
@@ -88,11 +100,177 @@ function ThemeOption({ theme, isActive, onClick }: ThemeOptionProps) {
                 </span>
             </div>
 
-            {/* Active indicator */}
             {isActive && (
                 <div className="absolute -top-px left-1/2 -translate-x-1/2 w-6 h-0.5 bg-foreground rounded-full" />
             )}
         </button>
+    );
+}
+
+type ShortcutRowProps = {
+    id: ShortcutId;
+    binding: ShortcutBinding;
+    isRecording: boolean;
+    onStartRecording: () => void;
+    onCancelRecording: () => void;
+};
+
+function ShortcutRow({ id, binding, isRecording, onStartRecording, onCancelRecording }: ShortcutRowProps) {
+    const { setBinding } = useShortcutsStore();
+
+    useEffect(() => {
+        if (!isRecording) return;
+
+        const handleKeyDown = (ev: KeyboardEvent) => {
+            ev.preventDefault();
+            ev.stopPropagation();
+
+            // Escape cancels recording
+            if (ev.key === "Escape") {
+                onCancelRecording();
+                return;
+            }
+
+            // Ignore modifier-only presses
+            if (["Meta", "Control", "Shift", "Alt"].includes(ev.key)) {
+                return;
+            }
+
+            const modifiers: Modifier[] = [];
+            if (ev.metaKey) modifiers.push("meta");
+            if (ev.ctrlKey) modifiers.push("ctrl");
+            if (ev.shiftKey) modifiers.push("shift");
+            if (ev.altKey) modifiers.push("alt");
+
+            // Require at least one modifier for most keys
+            const isFunctionKey = /^F([1-9]|1[0-2])$/.test(ev.key);
+            if (modifiers.length === 0 && !isFunctionKey) {
+                return;
+            }
+
+            // Handle "Dead" keys from Option+letter on macOS
+            let key = ev.key;
+            if (key === "Dead" && ev.code) {
+                const letterMatch = ev.code.match(/^Key([A-Z])$/);
+                if (letterMatch) {
+                    key = letterMatch[1].toLowerCase();
+                } else {
+                    const digitMatch = ev.code.match(/^Digit([0-9])$/);
+                    if (digitMatch) {
+                        key = digitMatch[1];
+                    }
+                }
+            }
+
+            // Still "Dead" after processing? Skip it
+            if (key === "Dead") {
+                return;
+            }
+
+            setBinding(id, { key, modifiers });
+            onCancelRecording();
+        };
+
+        window.addEventListener("keydown", handleKeyDown, true);
+        return () => window.removeEventListener("keydown", handleKeyDown, true);
+    }, [isRecording, id, setBinding, onCancelRecording]);
+
+    return (
+        <div className="flex items-center justify-between py-2">
+            <span className="text-sm text-foreground">{SHORTCUT_LABELS[id]}</span>
+            <button
+                onClick={isRecording ? onCancelRecording : onStartRecording}
+                className={cn(
+                    "px-3 py-1.5 rounded-lg text-xs font-medium transition-all",
+                    "border shadow-sm",
+                    isRecording
+                        ? "bg-accent border-foreground/20 text-foreground animate-pulse"
+                        : "bg-muted/60 border-border/50 text-muted-foreground hover:bg-muted hover:text-foreground"
+                )}
+            >
+                {isRecording ? "Press shortcut..." : formatBindingForDisplay(binding)}
+            </button>
+        </div>
+    );
+}
+
+function GeneralTab() {
+    const { theme, setTheme } = useTheme();
+
+    return (
+        <div className="space-y-4">
+            <div className="space-y-3">
+                <div>
+                    <h3 className="text-sm font-medium">Theme</h3>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                        Choose your preferred appearance
+                    </p>
+                </div>
+
+                <div className="grid grid-cols-3 gap-2">
+                    <ThemeOption
+                        theme="light"
+                        isActive={theme === "light"}
+                        onClick={() => setTheme("light")}
+                    />
+                    <ThemeOption
+                        theme="dark"
+                        isActive={theme === "dark"}
+                        onClick={() => setTheme("dark")}
+                    />
+                    <ThemeOption
+                        theme="system"
+                        isActive={theme === "system"}
+                        onClick={() => setTheme("system")}
+                    />
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function ShortcutsTab() {
+    const { bindings, resetToDefaults } = useShortcutsStore();
+    const [recordingId, setRecordingId] = useState<ShortcutId | null>(null);
+
+    const handleStartRecording = useCallback((id: ShortcutId) => {
+        setRecordingId(id);
+    }, []);
+
+    const handleCancelRecording = useCallback(() => {
+        setRecordingId(null);
+    }, []);
+
+    const shortcutIds = Object.keys(bindings) as ShortcutId[];
+
+    return (
+        <div className="space-y-3">
+            <div className="bg-muted/30 rounded-xl p-3 border border-border/40">
+                <div className="divide-y divide-border/40">
+                    {shortcutIds.map((id) => (
+                        <ShortcutRow
+                            key={id}
+                            id={id}
+                            binding={bindings[id]}
+                            isRecording={recordingId === id}
+                            onStartRecording={() => handleStartRecording(id)}
+                            onCancelRecording={handleCancelRecording}
+                        />
+                    ))}
+                </div>
+
+                <button
+                    onClick={() => {
+                        resetToDefaults();
+                        setRecordingId(null);
+                    }}
+                    className="mt-3 w-full flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-colors"
+                >
+                    <IconRotateCcw className="size-3.5" />
+                    Reset to Defaults
+                </button>
+            </div>
+        </div>
     );
 }
 
@@ -110,12 +288,17 @@ export function SettingsTrigger() {
 
 /** Dialog content - render at root level so it shows even when sidebar is closed */
 export function SettingsDialogContent() {
-    const { theme, setTheme } = useTheme();
     const { isOpen, setOpen } = useSettingsStore();
+    const [activeTab, setActiveTab] = useState<SettingsTab>("general");
+
+    const tabs: { id: SettingsTab; label: string; icon: typeof IconPalette }[] = [
+        { id: "general", label: "General", icon: IconPalette },
+        { id: "shortcuts", label: "Shortcuts", icon: IconKeyboard },
+    ];
 
     return (
         <Dialog open={isOpen} onOpenChange={setOpen}>
-            <DialogContent className="sm:max-w-md">
+            <DialogContent className="sm:max-w-md max-h-[85vh] overflow-hidden flex flex-col">
                 <DialogHeader>
                     <DialogTitle className="text-base">Settings</DialogTitle>
                     <DialogDescription>
@@ -123,34 +306,32 @@ export function SettingsDialogContent() {
                     </DialogDescription>
                 </DialogHeader>
 
-                {/* Theme Section */}
-                <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <h3 className="text-sm font-medium">Theme</h3>
-                            <p className="text-xs text-muted-foreground mt-0.5">
-                                Choose your preferred appearance
-                            </p>
-                        </div>
-                    </div>
+                {/* Tab Bar */}
+                <div className="flex gap-1 p-1 bg-muted/50 rounded-lg">
+                    {tabs.map((tab) => {
+                        const Icon = tab.icon;
+                        return (
+                            <button
+                                key={tab.id}
+                                onClick={() => setActiveTab(tab.id)}
+                                className={cn(
+                                    "flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-md text-sm font-medium transition-all",
+                                    activeTab === tab.id
+                                        ? "bg-background text-foreground shadow-sm"
+                                        : "text-muted-foreground hover:text-foreground"
+                                )}
+                            >
+                                <Icon className="size-4" />
+                                {tab.label}
+                            </button>
+                        );
+                    })}
+                </div>
 
-                    <div className="grid grid-cols-3 gap-2">
-                        <ThemeOption
-                            theme="light"
-                            isActive={theme === "light"}
-                            onClick={() => setTheme("light")}
-                        />
-                        <ThemeOption
-                            theme="dark"
-                            isActive={theme === "dark"}
-                            onClick={() => setTheme("dark")}
-                        />
-                        <ThemeOption
-                            theme="system"
-                            isActive={theme === "system"}
-                            onClick={() => setTheme("system")}
-                        />
-                    </div>
+                {/* Tab Content */}
+                <div className="flex-1 overflow-y-auto py-2">
+                    {activeTab === "general" && <GeneralTab />}
+                    {activeTab === "shortcuts" && <ShortcutsTab />}
                 </div>
             </DialogContent>
         </Dialog>
