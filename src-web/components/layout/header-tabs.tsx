@@ -303,7 +303,7 @@ export function HeaderTabs() {
                     </SortableContext>
                 </div>
 
-                <div className="flex items-center gap-0.5 ml-1 shrink-0 px-1 py-0.5 bg-background/80 backdrop-blur-sm relative z-20">
+                <div className="flex items-center gap-0.5 ml-1 shrink-0 px-1 py-0.5 relative z-20">
                     <DropdownMenu>
                         <DropdownMenuTrigger
                             className={cn(
