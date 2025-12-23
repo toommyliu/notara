@@ -109,7 +109,6 @@ function NotesPage() {
         localStorage.setItem(EDITOR_PADDING_STORAGE_KEY, JSON.stringify(paddingPrefs));
     }, [paddingPrefs]);
 
-    // Get note for the active pane (for header)
     const activePane = panes.find(p => p.id === activePaneId);
     const activePaneNote = activePane?.noteId ? notes.get(activePane.noteId) ?? null : null;
 
@@ -131,7 +130,6 @@ function NotesPage() {
 
     const setConfig = usePageHeaderStore((s) => s.setConfig);
 
-    // Set page header config
     useEffect(() => {
         setConfig({
             title: activePaneNote?.title ?? "Untitled",
@@ -185,7 +183,6 @@ function NoteView({ paneId, noteId, editorPaddingStyle, onTitleChange }: NoteVie
     const note = noteId ? notes.get(noteId) ?? null : null;
     const titleRef = useRef<HTMLHeadingElement>(null);
 
-    // Update the displayed title when the note changes
     useEffect(() => {
         if (titleRef.current && note) {
             titleRef.current.textContent = note.title;
@@ -282,22 +279,23 @@ function NotePaddingControl({ presets, prefs, onChange }: NotePaddingControlProp
 
     return (
         <Popover>
-            <PopoverTrigger>
-                <Button
-                    variant="ghost"
-                    size="icon-sm"
-                    className="text-muted-foreground hover:text-foreground size-7"
-                >
-                    <IconArrowLeftRight className="size-3.5" />
-                    <span className="sr-only">Page width</span>
-                </Button>
-            </PopoverTrigger>
+            <PopoverTrigger
+                render={
+                    <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        className="text-muted-foreground hover:text-foreground size-7"
+                    >
+                        <IconArrowLeftRight className="size-3.5" />
+                        <span className="sr-only">Page width</span>
+                    </Button>
+                }
+            />
             <PopoverContent align="end" sideOffset={8} className="w-48 p-2 gap-1">
                 <p className="text-[11px] text-muted-foreground px-2 pb-1.5">
                     Page width
                 </p>
 
-                {/* Visual Width Presets - horizontal bars showing content width */}
                 <div className="space-y-0.5">
                     {presetEntries.map(([key, preset]) => {
                         const isActive = currentValue === key;
@@ -315,7 +313,6 @@ function NotePaddingControl({ presets, prefs, onChange }: NotePaddingControlProp
                                     isActive && "bg-muted"
                                 )}
                             >
-                                {/* Visual page width bar */}
                                 <div className="flex-1 h-4 rounded-sm bg-muted/50 flex items-center justify-center overflow-hidden">
                                     <div
                                         className={cn(
@@ -327,7 +324,7 @@ function NotePaddingControl({ presets, prefs, onChange }: NotePaddingControlProp
                                         style={{ width: `${widthPercent}%` }}
                                     />
                                 </div>
-                                {/* Label */}
+
                                 <span
                                     className={cn(
                                         "text-xs min-w-[70px] text-right transition-colors duration-150",
@@ -338,6 +335,7 @@ function NotePaddingControl({ presets, prefs, onChange }: NotePaddingControlProp
                                 >
                                     {preset.label}
                                 </span>
+
                             </button>
                         );
                     })}
