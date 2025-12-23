@@ -154,6 +154,7 @@ function SortableNote({ note, groupId, isActive, onSelect }: SortableNoteProps) 
                     tooltip={note.title}
                     className={cn(
                         "cursor-grab active:cursor-grabbing",
+                        "data-[active=true]:bg-background data-[active=true]:ring-1 data-[active=true]:ring-border/50 data-[active=true]:text-foreground data-[active=true]:shadow-sm",
                         isDragging && "opacity-30"
                     )}
                     {...attributes}
@@ -247,7 +248,7 @@ function SortableGroup({
                         items={group.noteIds}
                         strategy={verticalListSortingStrategy}
                     >
-                        <SidebarMenu>
+                        <SidebarMenu className="gap-1">
                             {notes.map((note) => (
                                 <SortableNote
                                     key={note.id}
