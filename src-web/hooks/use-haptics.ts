@@ -12,13 +12,13 @@ export function useHaptics() {
     const [supported, setSupported] = useState(false);
 
     useEffect(() => {
-        checkSupported().then(setSupported).catch(() => setSupported(false));
+        checkSupported().then(supported => setSupported(supported)).catch(() => setSupported(false));
     }, []);
 
     const perform = useCallback(
         (
             pattern: HapticFeedbackPattern = HapticFeedbackPattern.Generic,
-            performanceTime: PerformanceTime = PerformanceTime.Default
+            performanceTime: PerformanceTime = PerformanceTime.Now
         ) => {
             if (supported) {
                 performHaptic(pattern, performanceTime);
