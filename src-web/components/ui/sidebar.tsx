@@ -40,6 +40,8 @@ type SidebarContextProps = {
   setOpenMobile: (open: boolean) => void
   isMobile: boolean
   toggleSidebar: () => void
+  resizing: boolean
+  setResizing: (resizing: boolean) => void
 }
 
 const SidebarContext = React.createContext<SidebarContextProps | null>(null)
@@ -97,6 +99,8 @@ function SidebarProvider({
   // This makes it easier to style the sidebar with Tailwind classes.
   const state = open ? "expanded" : "collapsed"
 
+  const [resizing, setResizing] = React.useState(false)
+
   const contextValue = React.useMemo<SidebarContextProps>(
     () => ({
       state,
@@ -106,14 +110,17 @@ function SidebarProvider({
       openMobile,
       setOpenMobile,
       toggleSidebar,
+      resizing,
+      setResizing,
     }),
-    [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar]
+    [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar, resizing]
   )
 
   return (
     <SidebarContext.Provider value={contextValue}>
       <div
         data-slot="sidebar-wrapper"
+        data-resizing={resizing}
         style={
           {
             "--sidebar-width": SIDEBAR_WIDTH,
@@ -230,8 +237,8 @@ function Sidebar({
         className={cn(
           "fixed bottom-0 z-10 hidden w-(--sidebar-width) md:flex",
           side === "left"
-            ? "left-[var(--sidebar-ribbon-width,0px)] group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)] group-data-[collapsible=offcanvas]:hover:left-[var(--sidebar-ribbon-width,0px)]"
-            : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)] group-data-[collapsible=offcanvas]:hover:right-0",
+            ? "left-[var(--sidebar-ribbon-width,0px)] group-data-[collapsible=offcanvas]:-translate-x-full"
+            : "right-0 group-data-[collapsible=offcanvas]:translate-x-full",
           // Adjust the padding for floating and inset variants.
           variant === "floating" || variant === "inset"
             ? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+2px)]"
@@ -279,7 +286,7 @@ function SidebarTrigger({
 }
 
 function SidebarRail({ className, ...props }: React.ComponentProps<"button">) {
-  const { toggleSidebar } = useSidebar()
+  const { toggleSidebar, setResizing } = useSidebar()
   const [isDragging, setIsDragging] = React.useState(false)
   const startXRef = React.useRef(0)
   const startWidthRef = React.useRef(0)
@@ -292,14 +299,11 @@ function SidebarRail({ className, ...props }: React.ComponentProps<"button">) {
     hasDraggedRef.current = false
 
     const sidebarGap = document.querySelector('[data-slot="sidebar-gap"]') as HTMLElement
-    const sidebarContainer = document.querySelector('[data-slot="sidebar-container"]') as HTMLElement
     if (sidebarGap) {
       startWidthRef.current = sidebarGap.getBoundingClientRect().width || 256
-      // Disable transitions during drag for smooth resizing
-      sidebarGap.style.transition = 'none'
     }
-    if (sidebarContainer) sidebarContainer.style.transition = 'none'
-  }, [])
+    setResizing(true)
+  }, [setResizing])
 
   React.useEffect(() => {
     if (!isDragging) return
@@ -320,15 +324,10 @@ function SidebarRail({ className, ...props }: React.ComponentProps<"button">) {
     const handleMouseUp = () => {
       setIsDragging(false)
 
-      // Restore transitions after drag
-      const sidebarGap = document.querySelector('[data-slot="sidebar-gap"]') as HTMLElement
-      const sidebarContainer = document.querySelector('[data-slot="sidebar-container"]') as HTMLElement
-      if (sidebarGap) sidebarGap.style.transition = ''
-      if (sidebarContainer) sidebarContainer.style.transition = ''
-
       if (!hasDraggedRef.current) {
         toggleSidebar()
       }
+      setResizing(false)
     }
 
     document.addEventListener('mousemove', handleMouseMove)
