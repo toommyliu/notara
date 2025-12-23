@@ -5,7 +5,7 @@ import { useTabsStore } from "~/stores/tabs-store";
 import { cn } from "~/lib/utils";
 
 type SplitDropZoneProps = {
-    position: "left" | "right" | "center";
+    position: "left" | "right" | "top" | "bottom" | "center";
     paneId?: string; // Required for position === "center"
     anchorNoteId?: string; // The note to group with if creating a new split
     onHoverChange?: (isHovering: boolean) => void;
@@ -102,20 +102,29 @@ export function SplitDropZone({
     const halfContentWidth = contentWidth / 2;
     const triggerWidth = position === "center"
         ? "100%"
-        : `calc(50vw - min(50vw, ${halfContentWidth}px) + ${contentPadding}px)`;
+        : (position === "left" || position === "right")
+            ? `calc(50vw - min(50vw, ${halfContentWidth}px) + ${contentPadding}px)`
+            : `calc(50vh - min(50vh, ${halfContentWidth}px) + ${contentPadding}px)`;
 
     return (
         <>
             <div
                 ref={zoneRef}
                 className={cn(
-                    "absolute top-0 bottom-0 z-10 transition-all duration-200",
-                    position === "left" && "left-0",
-                    position === "right" && "right-0",
+                    "absolute z-10 transition-all duration-200",
+                    position === "left" && "left-0 top-0 bottom-0",
+                    position === "right" && "right-0 top-0 bottom-0",
+                    position === "top" && "top-0 left-0 right-0",
+                    position === "bottom" && "bottom-0 left-0 right-0",
                     position === "center" && "inset-0",
                     position !== "center" && "z-50" // edges take priority 
                 )}
-                style={{ width: triggerWidth }}
+                style={position === "left" || position === "right"
+                    ? { width: triggerWidth }
+                    : position === "top" || position === "bottom"
+                        ? { height: triggerWidth }
+                        : undefined
+                }
             />
 
             {/* <div

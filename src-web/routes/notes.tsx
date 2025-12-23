@@ -58,14 +58,15 @@ function NotesPage() {
     useEffect(() => {
         if (!activeTabId) return;
 
-        // Find if this tab belongs to a group
         const group = tabGroups.find(g => g.includes(activeTabId));
+        const currentPanes = useSplitViewStore.getState().panes;
+        const currentPaneNoteIds = new Set(currentPanes.map(p => p.noteId).filter(Boolean));
 
         if (group) {
-            // It's a split view group.
-            // Check if current panes match the group
-            const paneNoteIds = panes.map(p => p.noteId).filter(Boolean);
-            const isMatch = group.length === paneNoteIds.length && group.every(id => paneNoteIds.includes(id));
+            // It's a split view group - check if current panes match the group
+            const groupSet = new Set(group);
+            const isMatch = groupSet.size === currentPaneNoteIds.size &&
+                group.every(id => currentPaneNoteIds.has(id));
 
             if (!isMatch) {
                 // Restore split view for this group
@@ -77,18 +78,32 @@ function NotesPage() {
                 setPanes(newPanes, activePane?.id);
             } else {
                 // Panes already match, just ensure the correct one is active
-                const targetPane = panes.find(p => p.noteId === activeTabId);
-                if (targetPane && activePaneId !== targetPane.id) {
+                const targetPane = currentPanes.find(p => p.noteId === activeTabId);
+                const currentActivePaneId = useSplitViewStore.getState().activePaneId;
+                if (targetPane && currentActivePaneId !== targetPane.id) {
                     setActivePane(targetPane.id);
                 }
             }
         } else {
-            // It's a single tab. Collapse split view if active or if note is wrong.
-            if (panes.length > 1 || (panes[0] && panes[0].noteId !== activeTabId)) {
+            // Single tab - only collapse if we're in split view AND other panes aren't in any group
+            if (currentPanes.length > 1) {
+                const otherPaneNoteIds = currentPanes
+                    .filter(p => p.noteId !== activeTabId)
+                    .map(p => p.noteId)
+                    .filter(Boolean);
+
+                const otherPanesInGroups = otherPaneNoteIds.some(noteId =>
+                    tabGroups.some(g => g.includes(noteId as string))
+                );
+
+                if (!otherPanesInGroups) {
+                    setSinglePane(activeTabId);
+                }
+            } else if (currentPanes[0] && currentPanes[0].noteId !== activeTabId) {
                 setSinglePane(activeTabId);
             }
         }
-    }, [activeTabId, panes, setActivePane, activePaneId, tabGroups, setPanes, setSinglePane]);
+    }, [activeTabId, tabGroups, setPanes, setSinglePane, setActivePane]);
 
     useEffect(() => {
         try {

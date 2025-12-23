@@ -9,17 +9,20 @@ export type Pane = {
 type SplitViewState = {
     panes: Pane[];
     activePaneId: string;
+    orientation: "horizontal" | "vertical";
 };
 
 type SplitViewActions = {
     /** Open a note in a specific pane */
     openInPane: (paneId: string, noteId: string) => void;
     /** Add a new pane at position with optional note */
-    addPane: (position: "left" | "right", noteId?: string) => void;
+    addPane: (position: "left" | "right" | "top" | "bottom", noteId?: string) => void;
     /** Remove a pane by ID, collapsing split if only one remains */
     removePane: (paneId: string) => void;
     /** Set which pane is currently active/focused */
     setActivePane: (paneId: string) => void;
+    /** Set the layout orientation */
+    setOrientation: (orientation: "horizontal" | "vertical") => void;
     /** Open note in the currently active pane */
     openInActivePane: (noteId: string) => void;
     /** Reset to single-pane view */
@@ -42,6 +45,7 @@ const initialPane = createDefaultPane();
 export const useSplitViewStore = create<SplitViewState & SplitViewActions>()((set, get) => ({
     panes: [initialPane],
     activePaneId: initialPane.id,
+    orientation: "vertical",
 
     openInPane: (paneId, noteId) =>
         set((s) => ({
@@ -61,14 +65,16 @@ export const useSplitViewStore = create<SplitViewState & SplitViewActions>()((se
                 noteId: noteId ?? null,
             };
 
+            const isVertical = position === "top" || position === "bottom";
             const newPanes =
-                position === "left"
+                (position === "left" || position === "top")
                     ? [newPane, ...s.panes]
                     : [...s.panes, newPane];
 
             return {
                 panes: newPanes,
                 activePaneId: newPane.id,
+                orientation: isVertical ? "vertical" : "horizontal",
             };
         }),
 
@@ -89,6 +95,8 @@ export const useSplitViewStore = create<SplitViewState & SplitViewActions>()((se
         }),
 
     setActivePane: (paneId) => set({ activePaneId: paneId }),
+
+    setOrientation: (orientation) => set({ orientation }),
 
     openInActivePane: (noteId) => {
         const { activePaneId } = get();

@@ -455,8 +455,6 @@ export function AppSidebar() {
                         onDragEnd={handleDragEnd}
                         onDragCancel={handleDragCancel}
                     >
-
-
                         <SortableContext
                             items={groups.map((g) => g.id)}
                             strategy={verticalListSortingStrategy}

@@ -28,7 +28,9 @@ import IconX from "~icons/lucide/x";
 import IconPlus from "~icons/lucide/plus";
 import IconChevronDown from "~icons/lucide/chevron-down";
 import IconColumns from "~icons/lucide/columns-2";
+import IconRows from "~icons/lucide/rows-2";
 import IconArrowLeftRight from "~icons/lucide/arrow-left-right";
+import IconArrowUpDown from "~icons/lucide/arrow-up-down";
 
 import { useTabsStore } from "~/stores/tabs-store";
 import { useNotesStore } from "~/stores/notes-store";
@@ -42,7 +44,7 @@ import type { HeaderTabItemHandle } from "./types";
 export function HeaderTabs() {
     const { pinnedTabs, openTabs, activeTabId, setActiveTab, closeTab, reorderTabs, isTabBarVisible, tabGroups, removeFromGroup } = useTabsStore();
     const { notes, groups, addNote } = useNotesStore();
-    const { swapPanes } = useSplitViewStore();
+    const { swapPanes, orientation, setOrientation } = useSplitViewStore();
     const isSplitView = useIsSplitView();
     const dragContext = useDragContext();
     const navigate = useNavigate();
@@ -326,8 +328,25 @@ export function HeaderTabs() {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" sideOffset={8} className="w-48">
                                 <DropdownMenuItem onClick={() => swapPanes()}>
-                                    <IconArrowLeftRight className="size-3.5 mr-2" />
+                                    {orientation === "horizontal" ? (
+                                        <IconArrowLeftRight className="size-3.5 mr-2" />
+                                    ) : (
+                                        <IconArrowUpDown className="size-3.5 mr-2" />
+                                    )}
                                     Swap Panes
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => setOrientation(orientation === "horizontal" ? "vertical" : "horizontal")}>
+                                    {orientation === "horizontal" ? (
+                                        <>
+                                            <IconRows className="size-3.5 mr-2" />
+                                            Split Horizontally
+                                        </>
+                                    ) : (
+                                        <>
+                                            <IconColumns className="size-3.5 mr-2" />
+                                            Split Vertically
+                                        </>
+                                    )}
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem onClick={handleCloseSplit}>
