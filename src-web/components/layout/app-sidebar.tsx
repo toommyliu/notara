@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { useRef, useState } from "react";
+import { useRef, useState, useCallback } from "react";
 import {
     Tooltip,
     TooltipContent,
@@ -16,6 +16,7 @@ import {
     type CollisionDetection,
     type DragEndEvent,
     type DragStartEvent,
+    type DragMoveEvent,
 } from "@dnd-kit/core";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import {
@@ -58,8 +59,9 @@ function DropIndicator() {
 
 type GroupDropZoneProps = {
     groupId: string;
+    isPointerInSidebar: boolean;
 };
-function GroupDropZone({ groupId }: GroupDropZoneProps) {
+function GroupDropZone({ groupId, isPointerInSidebar }: GroupDropZoneProps) {
     const { isOver, setNodeRef } = useDroppable({
         id: `${groupId}-end`,
         data: { type: "group-end", groupId },
@@ -70,7 +72,7 @@ function GroupDropZone({ groupId }: GroupDropZoneProps) {
             ref={setNodeRef}
             className={cn(
                 "h-1.5 mt-0.5 mx-2 rounded-full transition-colors",
-                isOver && "bg-blue-500/50"
+                isOver && isPointerInSidebar && "bg-blue-500/50"
             )}
         />
     );
@@ -121,9 +123,10 @@ type SortableNoteProps = {
     note: Note;
     groupId: string | null;
     isActive: boolean;
+    isPointerInSidebar: boolean;
     onSelect: () => void;
 };
-function SortableNote({ note, groupId, isActive, onSelect }: SortableNoteProps) {
+function SortableNote({ note, groupId, isActive, isPointerInSidebar, onSelect }: SortableNoteProps) {
     const {
         attributes,
         listeners,
@@ -148,7 +151,7 @@ function SortableNote({ note, groupId, isActive, onSelect }: SortableNoteProps) 
 
     return (
         <SidebarMenuItem ref={setNodeRef} style={style} className="relative">
-            {isOver && <DropIndicator />}
+            {isOver && isPointerInSidebar && <DropIndicator />}
             <Link to="/notes" onClick={handleClick}>
                 <SidebarMenuButton
                     isActive={isActive}
@@ -175,6 +178,7 @@ type SortableGroupProps = {
     activeNoteId: string | null;
     isDragSelected: boolean;
     showDropBackground: boolean;
+    isPointerInSidebar: boolean;
     onNoteSelect: (noteId: string) => void;
     onToggleCollapse: () => void;
     onAddNote: () => void;
@@ -185,6 +189,7 @@ function SortableGroup({
     activeNoteId,
     isDragSelected,
     showDropBackground,
+    isPointerInSidebar,
     onNoteSelect,
     onToggleCollapse,
     onAddNote,
@@ -215,10 +220,11 @@ function SortableGroup({
                 "group/sidebar-group relative rounded-md px-2 py-1 transition-colors duration-200",
                 isDragSelected && "bg-sidebar-accent/30 ring-1 ring-sidebar-border",
                 isDragging && "opacity-30",
-                showDropBackground && isOver && !isDragging && "bg-blue-500/10"
+                showDropBackground && isOver && isPointerInSidebar && !isDragging && "bg-blue-500/10"
             )}
         >
-            {isOver && <DropIndicator />}
+            {isOver && isPointerInSidebar && <DropIndicator />}
+
             <SidebarGroupLabel
                 className="w-full min-w-0 text-sm text-muted-foreground cursor-grab active:cursor-grabbing"
                 {...attributes}
@@ -256,12 +262,13 @@ function SortableGroup({
                                     note={note}
                                     groupId={group.id}
                                     isActive={activeNoteId === note.id}
+                                    isPointerInSidebar={isPointerInSidebar}
                                     onSelect={() => onNoteSelect(note.id)}
                                 />
                             ))}
                         </SidebarMenu>
                     </SortableContext>
-                    <GroupDropZone groupId={group.id} />
+                    <GroupDropZone groupId={group.id} isPointerInSidebar={isPointerInSidebar} />
                 </SidebarGroupContent>
             )}
         </SidebarGroup>
@@ -284,7 +291,10 @@ export function AppSidebar() {
 
     const [activeDragId, setActiveDragId] = useState<string | null>(null);
     const [activeDragType, setActiveDragType] = useState<"note" | "group" | null>(null);
+    const [isPointerInSidebar, setIsPointerInSidebar] = useState(false);
     const activeDragTypeRef = useRef<"note" | "group" | null>(null);
+    const isPointerInSidebarRef = useRef(false);
+    const sidebarContentRef = useRef<HTMLDivElement>(null);
 
     const draggingGroupId = activeDragType === "group" ? activeDragId : null;
     const isDraggingGroup = activeDragType === "group";
@@ -332,21 +342,47 @@ export function AppSidebar() {
         }
     };
 
+    const handleDragMove = useCallback((event: DragMoveEvent) => {
+        if (!sidebarContentRef.current) return;
+
+        const rect = sidebarContentRef.current.getBoundingClientRect();
+        const pointerX = (event.activatorEvent as PointerEvent).clientX + event.delta.x;
+        const pointerY = (event.activatorEvent as PointerEvent).clientY + event.delta.y;
+
+        const isInside = (
+            pointerX >= rect.left &&
+            pointerX <= rect.right &&
+            pointerY >= rect.top &&
+            pointerY <= rect.bottom
+        );
+
+        isPointerInSidebarRef.current = isInside;
+        setIsPointerInSidebar(isInside);
+    }, []);
+
     const handleDragCancel = () => {
         setActiveDragId(null);
         setActiveDragType(null);
+        setIsPointerInSidebar(false);
+        isPointerInSidebarRef.current = false;
         activeDragTypeRef.current = null;
         dragContext?.endDrag();
     };
 
     const handleDragEnd = (event: DragEndEvent) => {
         const { active, over } = event;
+        const wasPointerInSidebar = isPointerInSidebarRef.current;
+
         setActiveDragId(null);
         setActiveDragType(null);
+        setIsPointerInSidebar(false);
+        isPointerInSidebarRef.current = false;
         activeDragTypeRef.current = null;
 
         dragContext?.endDrag();
 
+        // Only process reorder if pointer was inside sidebar when drag ended
+        if (!wasPointerInSidebar) return;
         if (!over || active.id === over.id) return;
 
         const activeType = active.data.current?.type;
@@ -391,7 +427,9 @@ export function AppSidebar() {
         if (!activeDragId || activeDragType !== "note") return null;
 
         const note = notes.get(activeDragId);
-        if (!note) return null;
+        if (!note)
+            return null;
+
         return (
             <div className="flex items-center gap-2 px-3 py-1.5 bg-background border rounded-md shadow-lg text-sm">
                 <span>{note.emoji}</span>
@@ -414,49 +452,51 @@ export function AppSidebar() {
             </SidebarHeader>
 
             <SidebarContent className="overflow-x-hidden px-2 pb-4">
-                <DndContext
-                    sensors={sensors}
-                    autoScroll={false}
-                    collisionDetection={collisionDetection}
-                    modifiers={[conditionalVerticalRestriction]}
-                    onDragStart={handleDragStart}
-                    onDragEnd={handleDragEnd}
-                    onDragCancel={handleDragCancel}
-                >
-
-
-                    <SortableContext
-                        items={groups.map((g) => g.id)}
-                        strategy={verticalListSortingStrategy}
+                <div ref={sidebarContentRef} className="flex flex-col">
+                    <DndContext
+                        sensors={sensors}
+                        autoScroll={false}
+                        collisionDetection={collisionDetection}
+                        modifiers={[conditionalVerticalRestriction]}
+                        onDragStart={handleDragStart}
+                        onDragMove={handleDragMove}
+                        onDragEnd={handleDragEnd}
+                        onDragCancel={handleDragCancel}
                     >
-                        {groups.map((group) => {
-                            const groupNotes = group.noteIds
-                                .map((id) => notes.get(id))
-                                .filter((n): n is Note => n !== undefined);
 
-                            return (
-                                <SortableGroup
-                                    key={group.id}
-                                    group={group}
-                                    notes={groupNotes}
-                                    activeNoteId={activeTabId}
-                                    isDragSelected={draggingGroupId === group.id}
-                                    showDropBackground={!isDraggingGroup}
-                                    onNoteSelect={openTab}
-                                    onToggleCollapse={() => toggleGroupCollapse(group.id)}
-                                    onAddNote={() => addNote(group.id)}
-                                />
-                            );
-                        })}
-                    </SortableContext>
 
-                    <DragOverlay dropAnimation={null}>
-                        {getDragOverlayContent()}
-                    </DragOverlay>
-                </DndContext>
+                        <SortableContext
+                            items={groups.map((g) => g.id)}
+                            strategy={verticalListSortingStrategy}
+                        >
+                            {groups.map((group) => {
+                                const groupNotes = group.noteIds
+                                    .map((id) => notes.get(id))
+                                    .filter((n): n is Note => n !== undefined);
+
+                                return (
+                                    <SortableGroup
+                                        key={group.id}
+                                        group={group}
+                                        notes={groupNotes}
+                                        activeNoteId={activeTabId}
+                                        isDragSelected={draggingGroupId === group.id}
+                                        showDropBackground={!isDraggingGroup}
+                                        isPointerInSidebar={isPointerInSidebar}
+                                        onNoteSelect={openTab}
+                                        onToggleCollapse={() => toggleGroupCollapse(group.id)}
+                                        onAddNote={() => addNote(group.id)}
+                                    />
+                                );
+                            })}
+                        </SortableContext>
+
+                        <DragOverlay dropAnimation={null}>
+                            {getDragOverlayContent()}
+                        </DragOverlay>
+                    </DndContext>
+                </div>
             </SidebarContent>
-
-
 
             <SidebarRail />
         </Sidebar>
