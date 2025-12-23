@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::sync::Mutex;
 
+use notara_shortcuts::ShortcutId;
 use tauri::{
     menu::{MenuBuilder, MenuItem, MenuItemBuilder, SubmenuBuilder},
     AppHandle, Emitter, Manager, State,
@@ -17,24 +18,26 @@ struct AppMenuState(Mutex<Option<MenuState>>);
 #[tauri::command]
 fn update_menu_accelerators(
     app: AppHandle,
-    accelerators: HashMap<String, String>,
+    accelerators: HashMap<ShortcutId, String>,
 ) -> Result<(), String> {
     let state: State<AppMenuState> = app.state();
     let guard = state.0.lock().map_err(|e| e.to_string())?;
 
     if let Some(menu_state) = guard.as_ref() {
         for (id, accelerator) in accelerators {
-            let result = match id.as_str() {
-                "toggle-sidebar" => menu_state
+            let result = match id {
+                ShortcutId::ToggleSidebar => menu_state
                     .toggle_sidebar
                     .set_accelerator(Some(&accelerator)),
-                "new-note" => menu_state.new_note.set_accelerator(Some(&accelerator)),
-                "open-settings" => menu_state.open_settings.set_accelerator(Some(&accelerator)),
+                ShortcutId::NewNote => menu_state.new_note.set_accelerator(Some(&accelerator)),
+                ShortcutId::OpenSettings => {
+                    menu_state.open_settings.set_accelerator(Some(&accelerator))
+                }
                 _ => continue,
             };
 
             if let Err(e) = result {
-                eprintln!("Failed to set accelerator for {}: {}", id, e);
+                eprintln!("Failed to set accelerator for {:?}: {}", id, e);
             }
         }
     }

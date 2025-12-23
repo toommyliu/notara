@@ -2,41 +2,12 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { invoke } from "@tauri-apps/api/core";
 
-export type ShortcutId =
-    | "toggle-sidebar"
-    | "toggle-tab-bar"
-    | "cycle-tab-forward"
-    | "cycle-tab-backward"
-    | "new-note"
-    | "open-settings";
-
-export type Modifier = "meta" | "ctrl" | "shift" | "alt";
-
-export type ShortcutBinding = {
-    key: string;
-    modifiers: Modifier[];
-};
-
-export const SHORTCUT_LABELS: Record<ShortcutId, string> = {
-    "toggle-sidebar": "Toggle Sidebar",
-    "toggle-tab-bar": "Toggle Tab Bar",
-    "cycle-tab-forward": "Next Tab",
-    "cycle-tab-backward": "Previous Tab",
-    "new-note": "New Note",
-    "open-settings": "Settings",
-};
-
-const DEFAULT_BINDINGS: Record<ShortcutId, ShortcutBinding> = {
-    "toggle-sidebar": { key: "\\", modifiers: ["meta"] },
-    "toggle-tab-bar": { key: "b", modifiers: ["meta"] },
-    "cycle-tab-forward": { key: "Tab", modifiers: ["ctrl"] },
-    "cycle-tab-backward": { key: "Tab", modifiers: ["ctrl", "shift"] },
-    "new-note": { key: "n", modifiers: ["meta"] },
-    "open-settings": { key: ",", modifiers: ["meta"] },
-};
-
-// shortcuts that get synced to the menu
-const MENU_SHORTCUTS: ShortcutId[] = ["toggle-sidebar", "new-note", "open-settings"];
+import {
+    type ShortcutId,
+    type ShortcutBinding,
+    DEFAULT_BINDINGS,
+    MENU_SHORTCUTS,
+} from "@notara/shortcuts";
 
 type ShortcutsState = {
     bindings: Record<ShortcutId, ShortcutBinding>;

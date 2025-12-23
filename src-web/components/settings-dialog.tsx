@@ -18,14 +18,13 @@ import IconPalette from "~icons/lucide/palette";
 
 import { useSettingsStore } from "~/stores/settings-store";
 import { useTheme } from "~/hooks/use-theme";
+import { useShortcutsStore, formatBindingForDisplay } from "~/stores/shortcuts-store";
 import {
-    useShortcutsStore,
-    formatBindingForDisplay,
     SHORTCUT_LABELS,
     type ShortcutId,
     type ShortcutBinding,
     type Modifier,
-} from "~/stores/shortcuts-store";
+} from "@notara/shortcuts";
 
 import { cn } from "~/lib/utils";
 

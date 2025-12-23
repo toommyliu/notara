@@ -261,7 +261,7 @@ const SplitTabItem = forwardRef<HeaderTabItemHandle, SplitTabItemProps>(
 export function HeaderTabs() {
     const { pinnedTabs, openTabs, activeTabId, setActiveTab, closeTab, reorderTabs, isTabBarVisible, tabGroups, removeFromGroup } = useTabsStore();
     const { notes, groups, addNote } = useNotesStore();
-    const { panes, swapPanes } = useSplitViewStore();
+    const { swapPanes } = useSplitViewStore();
     const isSplitView = useIsSplitView();
     const dragContext = useDragContext();
     const navigate = useNavigate();

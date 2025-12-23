@@ -13,7 +13,8 @@ import { SidebarInset, SidebarProvider, useSidebar } from "~/ui/sidebar";
 import { useTabsStore } from "~/stores/tabs-store";
 import { useNotesStore } from "~/stores/notes-store";
 import { useSettingsStore } from "~/stores/settings-store";
-import { useShortcutsStore, eventMatchesBinding, type ShortcutId } from "~/stores/shortcuts-store";
+import { useShortcutsStore, eventMatchesBinding } from "~/stores/shortcuts-store";
+import type { ShortcutId } from "@notara/shortcuts";
 import { useIsTauri } from "~/hooks/use-tauri";
 
 function MainContent() {

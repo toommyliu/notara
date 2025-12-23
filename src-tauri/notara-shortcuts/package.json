@@ -1,0 +1,13 @@
+{
+    "name": "@notara/shortcuts",
+    "private": true,
+    "version": "0.1.0",
+    "type": "module",
+    "main": "index.ts",
+    "scripts": {
+        "postinstall": "cargo test -p notara-shortcuts -- --nocapture",
+        "build": "cargo test -p notara-shortcuts",
+        "test": "cargo test -p notara-shortcuts",
+        "bindings": "cargo test -p notara-shortcuts export_bindings"
+    }
+}
