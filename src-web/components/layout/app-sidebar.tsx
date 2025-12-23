@@ -1,6 +1,11 @@
 import { Link } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 import {
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+} from "~/components/ui/tooltip";
+import {
     DndContext,
     DragOverlay,
     closestCenter,
@@ -23,7 +28,6 @@ import { CSS } from "@dnd-kit/utilities";
 import {
     Sidebar,
     SidebarContent,
-    SidebarFooter,
     SidebarGroup,
     SidebarGroupAction,
     SidebarGroupContent,
@@ -36,8 +40,8 @@ import {
 } from "~/ui/sidebar";
 
 import IconAdd from "~icons/lucide/plus";
-import IconDelete from "~icons/lucide/trash";
 import IconFolderPlus from "~icons/lucide/folder-plus";
+import IconSort from "~icons/lucide/arrow-down-a-z";
 
 import { type Group, type Note, useNotesStore } from "~/stores/notes-store";
 import { useTabsStore } from "~/stores/tabs-store";
@@ -71,9 +75,50 @@ function GroupDropZone({ groupId }: GroupDropZoneProps) {
     );
 }
 
+function SidebarActionStrip() {
+    const { addNote, addGroup, sortData } = useNotesStore();
+
+    return (
+        <div className="flex items-center justify-center gap-1 py-1">
+            <Tooltip>
+                <TooltipTrigger
+                    onClick={() => addNote()}
+                    className="flex items-center justify-center p-1 text-muted-foreground hover:text-foreground rounded-md transition-colors duration-200 cursor-pointer"
+                >
+                    <IconAdd className="size-4" />
+                    <span className="sr-only">New Page</span>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="text-xs">New Page</TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+                <TooltipTrigger
+                    onClick={() => addGroup()}
+                    className="flex items-center justify-center p-1 text-muted-foreground hover:text-foreground rounded-md transition-colors duration-200 cursor-pointer"
+                >
+                    <IconFolderPlus className="size-4" />
+                    <span className="sr-only">New Group</span>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="text-xs">New Group</TooltipContent>
+            </Tooltip>
+
+            <Tooltip>
+                <TooltipTrigger
+                    onClick={sortData}
+                    className="flex items-center justify-center p-1 text-muted-foreground hover:text-foreground rounded-md transition-colors duration-200 cursor-pointer"
+                >
+                    <IconSort className="size-4" />
+                    <span className="sr-only">Sort</span>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="text-xs">Sort Alphabetically</TooltipContent>
+            </Tooltip>
+        </div>
+    );
+}
+
 type SortableNoteProps = {
     note: Note;
-    groupId: string;
+    groupId: string | null;
     isActive: boolean;
     onSelect: () => void;
 };
@@ -182,7 +227,7 @@ function SortableGroup({
                         e.stopPropagation();
                         onToggleCollapse();
                     }}
-                    className="flex-1 min-w-0 text-left"
+                    className="flex-1 min-w-0 text-left cursor-grab active:cursor-grabbing"
                 >
                     <span className="truncate">{group.title}</span>
                 </button>
@@ -227,7 +272,6 @@ export function AppSidebar() {
         groups,
         notes,
         addNote,
-        addGroup,
         toggleGroupCollapse,
         reorderGroups,
         moveNote,
@@ -317,7 +361,6 @@ export function AppSidebar() {
         }
     };
 
-    // Get the currently dragged item for the overlay
     const getDragOverlayContent = () => {
         if (!activeDragId || activeDragType !== "note") return null;
 
@@ -340,9 +383,11 @@ export function AppSidebar() {
                 height: `calc(100vh - ${layout.titlebarHeight}px)`,
             }}
         >
-            <SidebarHeader className="pt-1" />
+            <SidebarHeader className="pt-2 px-3 pb-0">
+                <SidebarActionStrip />
+            </SidebarHeader>
 
-            <SidebarContent className="overflow-x-hidden px-2">
+            <SidebarContent className="overflow-x-hidden px-2 pb-4">
                 <DndContext
                     sensors={sensors}
                     autoScroll={false}
@@ -351,6 +396,8 @@ export function AppSidebar() {
                     onDragStart={handleDragStart}
                     onDragEnd={handleDragEnd}
                 >
+
+
                     <SortableContext
                         items={groups.map((g) => g.id)}
                         strategy={verticalListSortingStrategy}
@@ -382,30 +429,7 @@ export function AppSidebar() {
                 </DndContext>
             </SidebarContent>
 
-            <SidebarFooter className="pb-2">
-                <SidebarGroup>
-                    <SidebarGroupContent>
-                        <SidebarMenu>
-                            <SidebarMenuItem>
-                                <SidebarMenuButton
-                                    tooltip="New Group"
-                                    className="text-muted-foreground"
-                                    onClick={() => addGroup()}
-                                >
-                                    <IconFolderPlus className="size-4" />
-                                    <span>New Group</span>
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
-                            <SidebarMenuItem>
-                                <SidebarMenuButton tooltip="Trash" className="text-muted-foreground">
-                                    <IconDelete className="size-4" />
-                                    <span>Trash</span>
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
-                        </SidebarMenu>
-                    </SidebarGroupContent>
-                </SidebarGroup>
-            </SidebarFooter>
+
 
             <SidebarRail />
         </Sidebar>
