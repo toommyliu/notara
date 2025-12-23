@@ -234,6 +234,7 @@ function Sidebar({
       )}
       <div
         data-slot="sidebar-container"
+        inert={state === "collapsed" && collapsible === "offcanvas" ? true : undefined}
         className={cn(
           "fixed bottom-0 z-10 hidden w-(--sidebar-width) md:flex",
           side === "left"
