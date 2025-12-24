@@ -231,8 +231,8 @@ function NoteView({ paneId, noteId, editorPaddingStyle, onTitleChange }: NoteVie
     }
 
     return (
-        <main className="flex-1 h-full min-h-0 overflow-y-auto scrollbar-custom flex flex-col items-center">
-            <div className="w-full max-w-3xl py-16 transition-all duration-500 ease-in-out" style={editorPaddingStyle}>
+        <main className="flex-1 h-full min-h-0 overflow-y-auto scrollbar-custom flex flex-col items-center select-none">
+            <div className="w-full max-w-3xl pt-16 transition-all duration-500 ease-in-out" style={{ paddingLeft: editorPaddingStyle.paddingLeft, paddingRight: editorPaddingStyle.paddingRight }}>
                 <div className="flex justify-start mb-4">
                     <button className="text-7xl hover:bg-muted/50 rounded-lg p-2 -m-2 transition-colors">
                         {note.emoji}
@@ -259,14 +259,14 @@ function NoteView({ paneId, noteId, editorPaddingStyle, onTitleChange }: NoteVie
                     }}
                     data-placeholder="Untitled"
                     className={cn(
-                        "text-4xl font-bold mb-1 leading-tight",
+                        "text-4xl font-bold mb-1 leading-tight select-text",
                         "outline-none",
                         "empty:before:content-[attr(data-placeholder)]",
                         "empty:before:text-muted-foreground/40"
                     )}
                 />
 
-                <div className="mt-4" data-block-editor>
+                <div className="mt-4 pb-16 select-text" data-block-editor>
                     <BlockEditor
                         key={note.id}
                         initialBlocks={note.content}

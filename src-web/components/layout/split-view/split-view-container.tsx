@@ -224,41 +224,39 @@ function NotePreview({ note, orientation, renderPreview }: NotePreviewProps) {
                         "w-full max-w-3xl px-12 opacity-40",
                         orientation === "vertical" ? "pt-8" : "pt-16"
                     )}>
-                        <div className="select-text pb-16">
-                            <div className={cn(
-                                "flex justify-start",
-                                orientation === "vertical" ? "mb-2" : "mb-4"
-                            )}>
-                                <span className={cn(
-                                    "opacity-80",
-                                    orientation === "vertical" ? "text-5xl" : "text-7xl"
-                                )}>{note.emoji}</span>
-                            </div>
-
-                            <h1 className={cn(
-                                "font-bold mb-4 leading-tight text-foreground/70",
-                                orientation === "vertical" ? "text-2xl" : "text-4xl"
-                            )}>
-                                {note.title || "Untitled"}
-                            </h1>
-                            {note.content && note.content.length > 0 && (
-                                <div className="space-y-2 text-muted-foreground/60">
-                                    {note.content.slice(0, orientation === "vertical" ? 3 : 5).map((block) => (
-                                        <p key={block.id} className={cn(
-                                            "leading-relaxed",
-                                            orientation === "vertical" ? "text-sm" : "text-base"
-                                        )}>
-                                            {block.content || "\u00A0"}
-                                        </p>
-                                    ))}
-                                    {note.content.length > (orientation === "vertical" ? 3 : 5) && (
-                                        <p className="text-sm italic">
-                                            +{note.content.length - (orientation === "vertical" ? 3 : 5)} more blocks...
-                                        </p>
-                                    )}
-                                </div>
-                            )}
+                        <div className={cn(
+                            "flex justify-start",
+                            orientation === "vertical" ? "mb-2" : "mb-4"
+                        )}>
+                            <span className={cn(
+                                "opacity-80",
+                                orientation === "vertical" ? "text-5xl" : "text-7xl"
+                            )}>{note.emoji}</span>
                         </div>
+
+                        <h1 className={cn(
+                            "font-bold mb-4 leading-tight text-foreground/70 select-text",
+                            orientation === "vertical" ? "text-2xl" : "text-4xl"
+                        )}>
+                            {note.title || "Untitled"}
+                        </h1>
+                        {note.content && note.content.length > 0 && (
+                            <div className="space-y-2 text-muted-foreground/60 select-text pb-16">
+                                {note.content.slice(0, orientation === "vertical" ? 3 : 5).map((block) => (
+                                    <p key={block.id} className={cn(
+                                        "leading-relaxed",
+                                        orientation === "vertical" ? "text-sm" : "text-base"
+                                    )}>
+                                        {block.content || "\u00A0"}
+                                    </p>
+                                ))}
+                                {note.content.length > (orientation === "vertical" ? 3 : 5) && (
+                                    <p className="text-sm italic">
+                                        +{note.content.length - (orientation === "vertical" ? 3 : 5)} more blocks...
+                                    </p>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
