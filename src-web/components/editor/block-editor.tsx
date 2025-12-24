@@ -169,6 +169,7 @@ function SortableBlock({
                 <hr className="flex-1 my-4 border-border" />
             ) : (
                 <div
+                    id={block.id}
                     ref={blockRef}
                     contentEditable
                     suppressContentEditableWarning

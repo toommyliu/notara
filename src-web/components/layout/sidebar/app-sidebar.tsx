@@ -56,6 +56,9 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
+    SidebarMenuSub,
+    SidebarMenuSubButton,
+    SidebarMenuSubItem,
     SidebarRail,
 } from "~/ui/sidebar";
 import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/popover";
@@ -79,7 +82,7 @@ import IconListOrdered from "~icons/lucide/list-ordered";
 import IconCheck from "~icons/lucide/check";
 import IconInfinity from "~icons/lucide/infinity";
 
-import { type Group, type Note, type SortOrder, useNotesStore } from "~/stores/notes-store";
+import { type Block, type Group, type Note, type SortOrder, useNotesStore } from "~/stores/notes-store";
 import { useTabsStore } from "~/stores/tabs-store";
 import { useSplitViewStore } from "~/stores/split-view-store";
 import { usePlatformLayout } from "~/hooks/use-platform";
@@ -455,6 +458,54 @@ function HiddenNotesPopover({
     );
 }
 
+type NoteHeadingsProps = {
+    blocks: Block[];
+};
+function NoteHeadings({ blocks }: NoteHeadingsProps) {
+    const headings = blocks.filter(b => b.type === "h1" || b.type === "h2" || b.type === "h3");
+
+    if (headings.length === 0) return null;
+
+    const handleHeadingClick = (id: string) => {
+        const element = document.getElementById(id);
+        if (element) {
+            element.scrollIntoView({ behavior: "smooth", block: "center" });
+            element as HTMLElement).focus();
+        }
+    };
+
+    return (
+        <SidebarMenuSub className="mt-1 gap-0.5">
+            {headings.map((heading) => (
+                <SidebarMenuSubItem key={heading.id}>
+                    <SidebarMenuSubButton
+                        onClick={(ev) => {
+                            ev.preventDefault();
+                            ev.stopPropagation();
+                            handleHeadingClick(heading.id);
+                        }}
+                        className={cn(
+                            "cursor-pointer text-muted-foreground/60 hover:text-foreground hover:bg-sidebar-accent/50",
+                            "h-7 py-0"
+                        )}
+                    >
+                        <span
+                            className={cn(
+                                "truncate text-[11px]",
+                                heading.type === "h1" && "pl-0 font-medium text-muted-foreground/80",
+                                heading.type === "h2" && "pl-3",
+                                heading.type === "h3" && "pl-6"
+                            )}
+                        >
+                            {heading.content || "Untitled"}
+                        </span>
+                    </SidebarMenuSubButton>
+                </SidebarMenuSubItem>
+            ))}
+        </SidebarMenuSub>
+    );
+}
+
 type SortableNoteProps = {
     note: Note;
     groupId: string | null;
@@ -507,54 +558,60 @@ function SortableNote({ note, groupId, isActive, onSelect, activeDragType }: Sor
                 }
             >
                 {showIndicator && <DropIndicator position="top" />}
-                <SidebarMenuButton
-                    isActive={isActive}
-                    tooltip={note.title}
-                    className={cn(
-                        "cursor-grab active:cursor-grabbing pr-8",
-                        "data-[active=true]:bg-background data-[active=true]:ring-1 data-[active=true]:ring-border/50 data-[active=true]:text-foreground data-[active=true]:shadow-sm",
-                        isDragging && "opacity-30"
-                    )}
-                    {...attributes}
-                    {...listeners}
-                    render={
-                        <Link
-                            to="/notes"
-                            onClick={handleClick}
-                            draggable={false}
-                            onDragStart={(ev) => {
-                                ev.preventDefault();
-                            }}
-                        />
-                    }
-                >
-                    <span>{note.emoji}</span>
-                    <span className="flex-1 truncate">{note.title}</span>
-                </SidebarMenuButton>
-
-                <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
-                    <DropdownMenuTrigger
+                <div className="relative">
+                    <SidebarMenuButton
+                        isActive={isActive}
+                        tooltip={note.title}
+                        className={cn(
+                            "cursor-grab active:cursor-grabbing pr-8",
+                            "data-[active=true]:bg-background data-[active=true]:ring-1 data-[active=true]:ring-border/50 data-[active=true]:text-foreground data-[active=true]:shadow-sm",
+                            isDragging && "opacity-30"
+                        )}
+                        {...attributes}
+                        {...listeners}
                         render={
-                            <button
-                                className={cn(
-                                    "absolute right-1 top-1/2 -translate-y-1/2 p-1 rounded-sm",
-                                    "text-muted-foreground hover:text-foreground",
-                                    "transition-all duration-150",
-                                    showDotsButton ? "opacity-100" : "opacity-0",
-                                    "focus-visible:opacity-100 focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none",
-                                    isActive
-                                        ? "hover:bg-border/40 hover:ring-1 hover:ring-border/50"
-                                        : "hover:bg-accent"
-                                )}
-                            >
-                                <IconMoreHorizontal className="size-4" />
-                            </button>
+                            <Link
+                                to="/notes"
+                                onClick={handleClick}
+                                draggable={false}
+                                onDragStart={(ev) => {
+                                    ev.preventDefault();
+                                }}
+                            />
                         }
-                    />
-                    <DropdownMenuContent side="right" align="start" className="min-w-48">
-                        <NoteMenuContent note={note} groupId={groupId} variant="dropdown" />
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                    >
+                        <span>{note.emoji}</span>
+                        <span className="flex-1 truncate">{note.title}</span>
+                    </SidebarMenuButton>
+
+                    <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
+                        <DropdownMenuTrigger
+                            render={
+                                <button
+                                    className={cn(
+                                        "absolute right-1 top-1/2 -translate-y-1/2 p-1 rounded-sm",
+                                        "text-muted-foreground hover:text-foreground",
+                                        "transition-all duration-150",
+                                        showDotsButton ? "opacity-100" : "opacity-0",
+                                        "focus-visible:opacity-100 focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none",
+                                        isActive
+                                            ? "hover:bg-border/40 hover:ring-1 hover:ring-border/50"
+                                            : "hover:bg-accent"
+                                    )}
+                                >
+                                    <IconMoreHorizontal className="size-4" />
+                                </button>
+                            }
+                        />
+                        <DropdownMenuContent side="right" align="start" className="min-w-48">
+                            <NoteMenuContent note={note} groupId={groupId} variant="dropdown" />
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
+
+                {isActive && note.content && (
+                    <NoteHeadings blocks={note.content} />
+                )}
             </ContextMenuTrigger>
 
             <ContextMenuContent>
