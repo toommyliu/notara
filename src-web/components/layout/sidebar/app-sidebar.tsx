@@ -507,29 +507,30 @@ function SortableNote({ note, groupId, isActive, onSelect, activeDragType }: Sor
                 }
             >
                 {showIndicator && <DropIndicator position="top" />}
-                <Link
-                    to="/notes"
-                    onClick={handleClick}
-                    draggable={false}
-                    onDragStart={(ev) => {
-                        ev.preventDefault();
-                    }}
+                <SidebarMenuButton
+                    isActive={isActive}
+                    tooltip={note.title}
+                    className={cn(
+                        "cursor-grab active:cursor-grabbing pr-8",
+                        "data-[active=true]:bg-background data-[active=true]:ring-1 data-[active=true]:ring-border/50 data-[active=true]:text-foreground data-[active=true]:shadow-sm",
+                        isDragging && "opacity-30"
+                    )}
+                    {...attributes}
+                    {...listeners}
+                    render={
+                        <Link
+                            to="/notes"
+                            onClick={handleClick}
+                            draggable={false}
+                            onDragStart={(ev) => {
+                                ev.preventDefault();
+                            }}
+                        />
+                    }
                 >
-                    <SidebarMenuButton
-                        isActive={isActive}
-                        tooltip={note.title}
-                        className={cn(
-                            "cursor-grab active:cursor-grabbing pr-8",
-                            "data-[active=true]:bg-background data-[active=true]:ring-1 data-[active=true]:ring-border/50 data-[active=true]:text-foreground data-[active=true]:shadow-sm",
-                            isDragging && "opacity-30"
-                        )}
-                        {...attributes}
-                        {...listeners}
-                    >
-                        <span>{note.emoji}</span>
-                        <span className="flex-1 truncate">{note.title}</span>
-                    </SidebarMenuButton>
-                </Link>
+                    <span>{note.emoji}</span>
+                    <span className="flex-1 truncate">{note.title}</span>
+                </SidebarMenuButton>
 
                 <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
                     <DropdownMenuTrigger
@@ -540,6 +541,7 @@ function SortableNote({ note, groupId, isActive, onSelect, activeDragType }: Sor
                                     "text-muted-foreground hover:text-foreground",
                                     "transition-all duration-150",
                                     showDotsButton ? "opacity-100" : "opacity-0",
+                                    "focus-visible:opacity-100 focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none",
                                     isActive
                                         ? "hover:bg-border/40 hover:ring-1 hover:ring-border/50"
                                         : "hover:bg-accent"
@@ -624,20 +626,20 @@ function SortableGroup({
                 >
                     <SidebarGroupLabel
                         className={cn(
-                            "w-full min-w-0 cursor-grab active:cursor-grabbing transition-colors duration-150",
+                            "w-full min-w-0 cursor-grab active:cursor-grabbing transition-colors duration-150 p-0",
                             "group-hover/header:bg-sidebar-accent group-hover/header:text-sidebar-accent-foreground"
                         )}
-                        {...attributes}
-                        {...listeners}
                     >
                         <button
                             onClick={(e) => {
                                 e.stopPropagation();
                                 onToggleCollapse();
                             }}
-                            className="flex-1 min-w-0 text-left cursor-grab active:cursor-grabbing"
+                            className="flex-1 min-w-0 h-full px-2 flex items-center text-left cursor-grab active:cursor-grabbing outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring rounded-md"
+                            {...attributes}
+                            {...listeners}
                         >
-                            <span className="truncate">{group.title}</span>
+                            <span className="truncate text-xs font-medium">{group.title}</span>
                         </button>
                     </SidebarGroupLabel>
                     <DropdownMenu>
@@ -645,7 +647,7 @@ function SortableGroup({
                             render={
                                 <SidebarGroupAction
                                     title="More options"
-                                    className="top-1/2 -translate-y-1/2 right-8 rounded-sm opacity-0 group-hover/header:opacity-100 transition-opacity"
+                                    className="top-1/2 -translate-y-1/2 right-8 rounded-sm opacity-0 group-hover/header:opacity-100 focus-visible:opacity-100 transition-opacity"
                                 >
                                     <IconMoreHorizontal className="size-4" />
                                     <span className="sr-only">More options</span>
@@ -659,7 +661,7 @@ function SortableGroup({
                     <SidebarGroupAction
                         title="New Page"
                         onClick={onAddNote}
-                        className="top-1/2 -translate-y-1/2 rounded-sm opacity-0 group-hover/header:opacity-100 transition-opacity"
+                        className="top-1/2 -translate-y-1/2 rounded-sm opacity-0 group-hover/header:opacity-100 focus-visible:opacity-100 transition-opacity"
                     >
                         <IconAdd className="size-4" />
                         <span className="sr-only">New Page</span>
