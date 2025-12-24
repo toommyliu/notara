@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import {
     DndContext,
     DragOverlay,
@@ -26,6 +26,26 @@ import {
     TooltipTrigger,
 } from "~/components/ui/tooltip";
 import {
+    ContextMenu,
+    ContextMenuContent,
+    ContextMenuItem,
+    ContextMenuSeparator,
+    ContextMenuSub,
+    ContextMenuSubContent,
+    ContextMenuSubTrigger,
+    ContextMenuTrigger,
+} from "~/components/ui/context-menu";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuSub,
+    DropdownMenuSubContent,
+    DropdownMenuSubTrigger,
+    DropdownMenuTrigger,
+} from "~/components/ui/dropdown-menu";
+import {
     Sidebar,
     SidebarContent,
     SidebarGroup,
@@ -38,14 +58,30 @@ import {
     SidebarMenuItem,
     SidebarRail,
 } from "~/ui/sidebar";
+import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/popover";
 
 import IconAdd from "~icons/lucide/plus";
 import IconFolderPlus from "~icons/lucide/folder-plus";
 import IconSort from "~icons/lucide/arrow-down-a-z";
 import IconMoreHorizontal from "~icons/lucide/more-horizontal";
+import IconStar from "~icons/lucide/star";
+import IconCopy from "~icons/lucide/copy";
+import IconPencil from "~icons/lucide/pencil";
+import IconFolderInput from "~icons/lucide/folder-input";
+import IconTrash from "~icons/lucide/trash-2";
+import IconExternalLink from "~icons/lucide/external-link";
+import IconAppWindow from "~icons/lucide/app-window";
+import IconColumns from "~icons/lucide/columns-2";
+import IconPanelRight from "~icons/lucide/panel-right";
+import IconArrowDownAZ from "~icons/lucide/arrow-down-a-z";
+import IconArrowUpZA from "~icons/lucide/arrow-up-z-a";
+import IconListOrdered from "~icons/lucide/list-ordered";
+import IconCheck from "~icons/lucide/check";
+import IconInfinity from "~icons/lucide/infinity";
 
-import { type Group, type Note, useNotesStore } from "~/stores/notes-store";
+import { type Group, type Note, type SortOrder, useNotesStore } from "~/stores/notes-store";
 import { useTabsStore } from "~/stores/tabs-store";
+import { useSplitViewStore } from "~/stores/split-view-store";
 import { usePlatformLayout } from "~/hooks/use-platform";
 import { useDragContext } from "~/contexts/drag-context";
 
@@ -54,7 +90,6 @@ import { cn } from "~/lib/utils";
 type DropIndicatorProps = {
     position?: "top" | "bottom";
 };
-
 function DropIndicator({ position = "top" }: DropIndicatorProps) {
     return (
         <div
@@ -73,7 +108,6 @@ type GroupDropZoneProps = {
     groupId: string;
     isVisible: boolean;
 };
-
 function GroupDropZone({ groupId, isVisible }: GroupDropZoneProps) {
     const { isOver, setNodeRef } = useDroppable({
         id: `${groupId}-end`,
@@ -164,6 +198,263 @@ function SidebarActionStrip() {
     );
 }
 
+type NoteMenuContentProps = {
+    note: Note;
+    groupId: string | null;
+    variant: "context" | "dropdown";
+};
+function NoteMenuContent({ note, groupId, variant }: NoteMenuContentProps) {
+    const navigate = useNavigate();
+    const { groups, duplicateNote, deleteNote, moveNote } = useNotesStore();
+    const { openTab } = useTabsStore();
+    const { addPane } = useSplitViewStore();
+
+    const Item = variant === "context" ? ContextMenuItem : DropdownMenuItem;
+    const Separator = variant === "context" ? ContextMenuSeparator : DropdownMenuSeparator;
+    const Sub = variant === "context" ? ContextMenuSub : DropdownMenuSub;
+    const SubTrigger = variant === "context" ? ContextMenuSubTrigger : DropdownMenuSubTrigger;
+    const SubContent = variant === "context" ? ContextMenuSubContent : DropdownMenuSubContent;
+
+    const handleDuplicate = () => {
+        const newId = duplicateNote(note.id);
+        if (newId) {
+            openTab(newId);
+            navigate({ to: "/notes" });
+        }
+    };
+
+    const handleDelete = () => {
+        deleteNote(note.id);
+    };
+
+    const handleOpenInNewTab = () => {
+        openTab(note.id);
+        navigate({ to: "/notes" });
+    };
+
+    const handleOpenInSplitView = () => {
+        addPane("right", note.id);
+        navigate({ to: "/notes" });
+    };
+
+    const handleMoveToGroup = (targetGroupId: string) => {
+        if (groupId && groupId !== targetGroupId) {
+            moveNote(note.id, groupId, targetGroupId);
+        }
+    };
+
+    const availableGroups = groups.filter((g) => g.id !== groupId);
+
+    return (
+        <>
+            <Item disabled>
+                <IconStar className="size-4" />
+                Add to Favorites
+            </Item>
+            <Item onClick={handleDuplicate}>
+                <IconCopy className="size-4" />
+                Duplicate
+            </Item>
+            <Item disabled>
+                <IconPencil className="size-4" />
+                Rename
+            </Item>
+            <Separator />
+            <Sub>
+                <SubTrigger>
+                    <IconFolderInput className="size-4" />
+                    Move to
+                </SubTrigger>
+                <SubContent>
+                    {availableGroups.length > 0 ? (
+                        availableGroups.map((g) => (
+                            <Item key={g.id} onClick={() => handleMoveToGroup(g.id)}>
+                                {g.title}
+                            </Item>
+                        ))
+                    ) : (
+                        <Item disabled>No other groups</Item>
+                    )}
+                </SubContent>
+            </Sub>
+            <Item variant="destructive" onClick={handleDelete}>
+                <IconTrash className="size-4" />
+                Move to Trash
+            </Item>
+            <Separator />
+            <Item onClick={handleOpenInNewTab}>
+                <IconExternalLink className="size-4" />
+                Open in New Tab
+            </Item>
+            <Item disabled>
+                <IconAppWindow className="size-4" />
+                Open in New Window
+            </Item>
+            <Item onClick={handleOpenInSplitView}>
+                <IconColumns className="size-4" />
+                Open in Split View
+            </Item>
+            <Item disabled>
+                <IconPanelRight className="size-4" />
+                Open in Side Peek
+            </Item>
+        </>
+    );
+}
+
+const DISPLAY_LIMITS = [
+    { value: 5, label: "Show 5 items" },
+    { value: 10, label: "Show 10 items" },
+    { value: 20, label: "Show 20 items" },
+    { value: null, label: "Show all" },
+] as const;
+
+const SORT_OPTIONS: { value: SortOrder; label: string; icon: typeof IconArrowDownAZ }[] = [
+    { value: "manual", label: "Manual", icon: IconListOrdered },
+    { value: "a-z", label: "A → Z", icon: IconArrowDownAZ },
+    { value: "z-a", label: "Z → A", icon: IconArrowUpZA },
+];
+
+type GroupMenuContentProps = {
+    group: Group;
+    variant: "context" | "dropdown";
+};
+function GroupMenuContent({ group, variant }: GroupMenuContentProps) {
+    const { sortGroup, setGroupDisplayLimit } = useNotesStore();
+
+    const Item = variant === "context" ? ContextMenuItem : DropdownMenuItem;
+    const Separator = variant === "context" ? ContextMenuSeparator : DropdownMenuSeparator;
+    const Sub = variant === "context" ? ContextMenuSub : DropdownMenuSub;
+    const SubTrigger = variant === "context" ? ContextMenuSubTrigger : DropdownMenuSubTrigger;
+    const SubContent = variant === "context" ? ContextMenuSubContent : DropdownMenuSubContent;
+
+    return (
+        <>
+            <span className="text-muted-foreground px-2 py-1 text-xs font-medium select-none">
+                Sort by
+            </span>
+            {SORT_OPTIONS.map((option) => {
+                const Icon = option.icon;
+                const isActive = group.sortOrder === option.value;
+                return (
+                    <Item
+                        key={option.value}
+                        onClick={() => sortGroup(group.id, option.value)}
+                    >
+                        <Icon className="size-4" />
+                        {option.label}
+                        {isActive && <IconCheck className="size-3.5 ml-auto text-primary" />}
+                    </Item>
+                );
+            })}
+            <Separator />
+            <Sub>
+                <SubTrigger>
+                    <IconListOrdered className="size-4" />
+                    Display limit
+                </SubTrigger>
+                <SubContent>
+                    {DISPLAY_LIMITS.map((option) => {
+                        const isActive = group.displayLimit === option.value;
+                        return (
+                            <Item
+                                key={String(option.value)}
+                                onClick={() => setGroupDisplayLimit(group.id, option.value)}
+                            >
+                                {option.value === null ? (
+                                    <IconInfinity className="size-4" />
+                                ) : (
+                                    <span className="w-4 text-center text-xs font-medium text-muted-foreground">
+                                        {option.value}
+                                    </span>
+                                )}
+                                {option.label}
+                                {isActive && <IconCheck className="size-3.5 ml-auto text-primary" />}
+                            </Item>
+                        );
+                    })}
+                </SubContent>
+            </Sub>
+        </>
+    );
+}
+
+type HiddenNotesPopoverProps = {
+    notes: Note[];
+    activeNoteId: string | null;
+    onNoteSelect: (noteId: string) => void;
+};
+
+function HiddenNotesPopover({
+    notes,
+    activeNoteId,
+    onNoteSelect,
+}: HiddenNotesPopoverProps) {
+    const navigate = useNavigate();
+    const { openTab } = useTabsStore();
+
+    const handleNoteClick = (noteId: string) => {
+        onNoteSelect(noteId);
+        openTab(noteId);
+        navigate({ to: "/notes" });
+    };
+
+    return (
+        <li className="relative">
+            <Popover>
+                <PopoverTrigger
+                    render={
+                        <button
+                            className={cn(
+                                "w-full flex items-center gap-1.5 px-2 py-1.5 rounded-md text-xs",
+                                "text-muted-foreground/70 hover:text-muted-foreground",
+                                "hover:bg-sidebar-accent/40 transition-colors duration-150",
+                                "cursor-pointer select-none group/more"
+                            )}
+                        >
+                            <span className="text-muted-foreground/50">+{notes.length}</span>
+                            <span>more</span>
+                            <svg
+                                className="size-3 ml-auto opacity-50 group-hover/more:opacity-100 transition-opacity"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                                strokeWidth={2}
+                            >
+                                <path strokeLinecap="round" strokeLinejoin="round" d="m9 5 7 7-7 7" />
+                            </svg>
+                        </button>
+                    }
+                />
+                <PopoverContent
+                    side="right"
+                    align="start"
+                    sideOffset={8}
+                    className="w-56 p-1.5 max-h-64 overflow-y-auto scrollbar-custom"
+                >
+                    <div className="space-y-0.5">
+                        {notes.map((note) => (
+                            <button
+                                key={note.id}
+                                onClick={() => handleNoteClick(note.id)}
+                                className={cn(
+                                    "w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm",
+                                    "hover:bg-accent transition-colors duration-100",
+                                    "text-left cursor-pointer",
+                                    activeNoteId === note.id && "bg-accent/50 text-accent-foreground"
+                                )}
+                            >
+                                <span className="text-base leading-none">{note.emoji}</span>
+                                <span className="flex-1 truncate">{note.title}</span>
+                            </button>
+                        ))}
+                    </div>
+                </PopoverContent>
+            </Popover>
+        </li>
+    );
+}
+
 type SortableNoteProps = {
     note: Note;
     groupId: string | null;
@@ -173,6 +464,9 @@ type SortableNoteProps = {
 };
 function SortableNote({ note, groupId, isActive, onSelect, activeDragType }: SortableNoteProps) {
     const navigate = useNavigate();
+    const [isHovered, setIsHovered] = useState(false);
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+
     const {
         attributes,
         listeners,
@@ -197,34 +491,74 @@ function SortableNote({ note, groupId, isActive, onSelect, activeDragType }: Sor
     };
 
     const showIndicator = isOver && !isDragging && activeDragType === "note";
+    const showDotsButton = isHovered || dropdownOpen;
 
     return (
-        <SidebarMenuItem ref={setNodeRef} style={style} className="relative">
-            {showIndicator && <DropIndicator position="top" />}
-            <Link
-                to="/notes"
-                onClick={handleClick}
-                draggable={false}
-                onDragStart={(ev) => {
-                    ev.preventDefault();
-                }}
+        <ContextMenu>
+            <ContextMenuTrigger
+                render={
+                    <SidebarMenuItem
+                        ref={setNodeRef}
+                        style={style}
+                        className="relative group/note"
+                        onMouseEnter={() => setIsHovered(true)}
+                        onMouseLeave={() => setIsHovered(false)}
+                    />
+                }
             >
-                <SidebarMenuButton
-                    isActive={isActive}
-                    tooltip={note.title}
-                    className={cn(
-                        "cursor-grab active:cursor-grabbing",
-                        "data-[active=true]:bg-background data-[active=true]:ring-1 data-[active=true]:ring-border/50 data-[active=true]:text-foreground data-[active=true]:shadow-sm",
-                        isDragging && "opacity-30"
-                    )}
-                    {...attributes}
-                    {...listeners}
+                {showIndicator && <DropIndicator position="top" />}
+                <Link
+                    to="/notes"
+                    onClick={handleClick}
+                    draggable={false}
+                    onDragStart={(ev) => {
+                        ev.preventDefault();
+                    }}
                 >
-                    <span>{note.emoji}</span>
-                    <span className="flex-1 truncate">{note.title}</span>
-                </SidebarMenuButton>
-            </Link>
-        </SidebarMenuItem>
+                    <SidebarMenuButton
+                        isActive={isActive}
+                        tooltip={note.title}
+                        className={cn(
+                            "cursor-grab active:cursor-grabbing pr-8",
+                            "data-[active=true]:bg-background data-[active=true]:ring-1 data-[active=true]:ring-border/50 data-[active=true]:text-foreground data-[active=true]:shadow-sm",
+                            isDragging && "opacity-30"
+                        )}
+                        {...attributes}
+                        {...listeners}
+                    >
+                        <span>{note.emoji}</span>
+                        <span className="flex-1 truncate">{note.title}</span>
+                    </SidebarMenuButton>
+                </Link>
+
+                <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
+                    <DropdownMenuTrigger
+                        render={
+                            <button
+                                className={cn(
+                                    "absolute right-1 top-1/2 -translate-y-1/2 p-1 rounded-sm",
+                                    "text-muted-foreground hover:text-foreground",
+                                    "transition-all duration-150",
+                                    showDotsButton ? "opacity-100" : "opacity-0",
+                                    isActive
+                                        ? "hover:bg-border/40 hover:ring-1 hover:ring-border/50"
+                                        : "hover:bg-accent"
+                                )}
+                            >
+                                <IconMoreHorizontal className="size-4" />
+                            </button>
+                        }
+                    />
+                    <DropdownMenuContent side="right" align="start" className="min-w-48">
+                        <NoteMenuContent note={note} groupId={groupId} variant="dropdown" />
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            </ContextMenuTrigger>
+
+            <ContextMenuContent>
+                <NoteMenuContent note={note} groupId={groupId} variant="context" />
+            </ContextMenuContent>
+        </ContextMenu>
     );
 }
 
@@ -276,7 +610,7 @@ function SortableGroup({
             ref={setNodeRef}
             style={style}
             className={cn(
-                "group/sidebar-group relative rounded-md px-2 py-1 transition-colors duration-200",
+                "group/sidebar-group relative rounded-md pl-2 pr-1 py-1 transition-colors duration-200",
                 isDragSelected && "bg-sidebar-accent/30 ring-1 ring-sidebar-border",
                 isDragging && "opacity-30",
                 showDropBackground && isOver && !isDragging && activeDragType === "note" && "bg-primary/5 ring-1 ring-primary/20 shadow-[0_0_15px_rgba(var(--primary),0.05)]"
@@ -284,41 +618,57 @@ function SortableGroup({
         >
             {showTopIndicator && <DropIndicator position="top" />}
 
-            <div className="group/header relative">
-                <SidebarGroupLabel
-                    className={cn(
-                        "w-full min-w-0 text-sm text-muted-foreground cursor-grab active:cursor-grabbing rounded-sm transition-all duration-200",
-                        "group-hover/header:bg-background group-hover/header:ring-1 group-hover/header:ring-border/50 group-hover/header:shadow-sm"
-                    )}
-                    {...attributes}
-                    {...listeners}
+            <ContextMenu>
+                <ContextMenuTrigger
+                    render={<div className="group/header relative" />}
                 >
-                    <button
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            onToggleCollapse();
-                        }}
-                        className="flex-1 min-w-0 text-left cursor-grab active:cursor-grabbing"
+                    <SidebarGroupLabel
+                        className={cn(
+                            "w-full min-w-0 cursor-grab active:cursor-grabbing transition-colors duration-150",
+                            "group-hover/header:bg-sidebar-accent group-hover/header:text-sidebar-accent-foreground"
+                        )}
+                        {...attributes}
+                        {...listeners}
                     >
-                        <span className="truncate">{group.title}</span>
-                    </button>
-                </SidebarGroupLabel>
-                <SidebarGroupAction
-                    title="More options"
-                    className="top-1/2 -translate-y-1/2 right-8 rounded-sm opacity-0 group-hover/header:opacity-100 transition-opacity"
-                >
-                    <IconMoreHorizontal className="size-4" />
-                    <span className="sr-only">More options</span>
-                </SidebarGroupAction>
-                <SidebarGroupAction
-                    title="New Page"
-                    onClick={onAddNote}
-                    className="top-1/2 -translate-y-1/2 rounded-sm opacity-0 group-hover/header:opacity-100 transition-opacity"
-                >
-                    <IconAdd className="size-4" />
-                    <span className="sr-only">New Page</span>
-                </SidebarGroupAction>
-            </div>
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onToggleCollapse();
+                            }}
+                            className="flex-1 min-w-0 text-left cursor-grab active:cursor-grabbing"
+                        >
+                            <span className="truncate">{group.title}</span>
+                        </button>
+                    </SidebarGroupLabel>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger
+                            render={
+                                <SidebarGroupAction
+                                    title="More options"
+                                    className="top-1/2 -translate-y-1/2 right-8 rounded-sm opacity-0 group-hover/header:opacity-100 transition-opacity"
+                                >
+                                    <IconMoreHorizontal className="size-4" />
+                                    <span className="sr-only">More options</span>
+                                </SidebarGroupAction>
+                            }
+                        />
+                        <DropdownMenuContent side="right" align="start" className="min-w-48">
+                            <GroupMenuContent group={group} variant="dropdown" />
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                    <SidebarGroupAction
+                        title="New Page"
+                        onClick={onAddNote}
+                        className="top-1/2 -translate-y-1/2 rounded-sm opacity-0 group-hover/header:opacity-100 transition-opacity"
+                    >
+                        <IconAdd className="size-4" />
+                        <span className="sr-only">New Page</span>
+                    </SidebarGroupAction>
+                </ContextMenuTrigger>
+                <ContextMenuContent className="min-w-48">
+                    <GroupMenuContent group={group} variant="context" />
+                </ContextMenuContent>
+            </ContextMenu>
 
             {!group.isCollapsed && (
                 <SidebarGroupContent className="mt-1">
@@ -327,7 +677,7 @@ function SortableGroup({
                         strategy={verticalListSortingStrategy}
                     >
                         <SidebarMenu className="gap-1">
-                            {notes.map((note) => (
+                            {(group.displayLimit ? notes.slice(0, group.displayLimit) : notes).map((note) => (
                                 <SortableNote
                                     key={note.id}
                                     note={note}
@@ -337,6 +687,13 @@ function SortableGroup({
                                     activeDragType={activeDragType}
                                 />
                             ))}
+                            {group.displayLimit && notes.length > group.displayLimit && (
+                                <HiddenNotesPopover
+                                    notes={notes.slice(group.displayLimit)}
+                                    activeNoteId={activeNoteId}
+                                    onNoteSelect={onNoteSelect}
+                                />
+                            )}
                         </SidebarMenu>
                     </SortableContext>
                     <GroupDropZone groupId={group.id} isVisible={activeDragType === "note"} />
@@ -521,7 +878,7 @@ export function AppSidebar() {
                 <SidebarActionStrip />
             </SidebarHeader>
 
-            <SidebarContent className="overflow-x-hidden px-2 pb-4">
+            <SidebarContent className="overflow-x-hidden pl-2 pr-1 pb-4" style={{ scrollbarGutter: "stable" }}>
                 <div ref={sidebarContentRef} className="flex flex-col">
                     <DndContext
                         sensors={sensors}
