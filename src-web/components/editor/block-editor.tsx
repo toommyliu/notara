@@ -693,7 +693,7 @@ export function BlockEditor({ initialBlocks, onChange }: BlockEditorProps) {
             <DragOverlay dropAnimation={null}>
                 {activeDragId ? (
                     <div className="max-w-prose px-3 py-1.5 text-lg leading-relaxed wrap-anywhere opacity-70">
-                        {blocks.find((b) => b.id === activeDragId)?.content || "Block"}
+                        {blocks.find((b) => b.id === activeDragId)?.content}
                     </div>
                 ) : null}
             </DragOverlay>
