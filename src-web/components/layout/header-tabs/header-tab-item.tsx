@@ -55,11 +55,11 @@ export const HeaderTabItem = forwardRef<HeaderTabItemHandle, HeaderTabItemProps>
                 style={style}
                 aria-selected={isActive}
                 className={cn(
-                    "group relative flex items-center gap-1.5 px-3 py-1 select-none shrink-0 rounded-md outline-none",
-                    "transition-all duration-150 ease-out cursor-grab active:cursor-grabbing",
+                    "group relative flex items-center gap-2 px-3 py-1 select-none shrink-0 rounded-md outline-none",
+                    "transition-all duration-200 ease-out cursor-grab active:cursor-grabbing",
                     compact && "px-2",
                     isActive
-                        ? "text-foreground bg-background ring-1 ring-border/50"
+                        ? "text-foreground bg-background ring-1 ring-border/50 shadow-[0_1px_2px_rgba(0,0,0,0.05)]"
                         : "text-muted-foreground/70 hover:text-foreground hover:bg-muted/40",
                     isDragging && "opacity-50",
                 )}
@@ -80,34 +80,33 @@ export const HeaderTabItem = forwardRef<HeaderTabItemHandle, HeaderTabItemProps>
                     aria-label={`Open ${note.title}`}
                 />
 
-                <span className="text-sm shrink-0 relative z-10 pointer-events-none">
+                <span className="text-[14px] shrink-0 relative z-10 pointer-events-none">
                     {note.emoji}
                 </span>
 
                 <span className={cn(
                     "text-[13px] font-medium relative z-10 pointer-events-none truncate",
-                    compact ? "max-w-[60px]" : "max-w-[100px]"
+                    compact ? "max-w-[70px]" : "max-w-[140px]"
                 )}>
                     {note.title}
                 </span>
 
-                {isActive && (
-                    <button
-                        onClick={(ev) => {
-                            ev.stopPropagation();
-                            onClose();
-                        }}
-                        tabIndex={-1}
-                        className={cn(
-                            "relative z-10 p-0.5 rounded-sm transition-colors",
-                            "text-muted-foreground/50 hover:text-foreground hover:bg-background/80",
-                            "focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:outline-none"
-                        )}
-                        aria-label="Close tab"
-                    >
-                        <IconX className="size-3" />
-                    </button>
-                )}
+                <button
+                    onClick={(ev) => {
+                        ev.stopPropagation();
+                        onClose();
+                    }}
+                    tabIndex={-1}
+                    className={cn(
+                        "relative z-10 p-0.5 rounded-sm transition-all duration-200",
+                        "text-muted-foreground/50 hover:text-foreground hover:bg-background/80",
+                        "focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:outline-none",
+                        isActive ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                    )}
+                    aria-label="Close tab"
+                >
+                    <IconX className="size-3" />
+                </button>
             </div>
         );
     }

@@ -214,7 +214,7 @@ export function HeaderTabs() {
                 >
                     <div
                         ref={scrollContainerRef}
-                        className="flex items-center gap-1 min-w-0 overflow-x-auto overflow-y-hidden scrollbar-none pb-2 -mb-2 pl-1.5"
+                        className="flex items-center gap-1.5 min-w-0 overflow-x-auto overflow-y-hidden scrollbar-none pb-2 -mb-2 pl-2"
                         style={{
                             overscrollBehavior: "contain",
                             maskImage: `linear-gradient(to right, 
@@ -334,12 +334,12 @@ export function HeaderTabs() {
                     </div>
                 </div>
 
-                <div className="flex items-center gap-0.5 ml-1 shrink-0 px-1 py-0.5 relative z-20">
+                <div className="flex items-center gap-1 ml-1 shrink-0 px-1 py-0.5 relative z-20">
                     {isSplitView && (
                         <DropdownMenu>
                             <DropdownMenuTrigger
                                 className={cn(
-                                    "p-1 rounded-md transition-colors outline-none mr-1",
+                                    "p-1.5 rounded-md transition-colors outline-none mr-0.5",
                                     "text-muted-foreground/60 hover:text-foreground hover:bg-muted/40",
                                     "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
                                 )}
@@ -381,7 +381,7 @@ export function HeaderTabs() {
                     <DropdownMenu>
                         <DropdownMenuTrigger
                             className={cn(
-                                "p-1 rounded-sm transition-colors outline-none",
+                                "p-1.5 rounded-md transition-colors outline-none",
                                 "text-muted-foreground/60 hover:text-foreground hover:bg-muted/40",
                                 "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
                             )}
@@ -409,7 +409,7 @@ export function HeaderTabs() {
                     <button
                         onClick={handleNewTab}
                         className={cn(
-                            "p-1 rounded-md transition-colors outline-none",
+                            "p-1.5 rounded-md transition-colors outline-none",
                             "text-muted-foreground/60 hover:text-foreground hover:bg-muted/40",
                             "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
                         )}

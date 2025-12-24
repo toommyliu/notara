@@ -58,10 +58,10 @@ export const SplitTabItem = forwardRef<HeaderTabItemHandle, SplitTabItemProps>(
                 }}
                 style={style}
                 className={cn(
-                    "group relative flex items-center select-none shrink-0 rounded-md outline-none",
-                    "transition-all duration-150 ease-out cursor-grab active:cursor-grabbing",
+                    "group relative flex items-center select-none shrink-0 rounded-md outline-none px-1.5 py-0.5",
+                    "transition-all duration-200 ease-out cursor-grab active:cursor-grabbing",
                     isActive
-                        ? "bg-muted/30 ring-1 ring-border/50"
+                        ? "bg-muted/30 ring-1 ring-border/50 shadow-[0_1px_2px_rgba(0,0,0,0.05)]"
                         : "bg-muted/15",
                     isDragging && "opacity-50"
                 )}
@@ -78,7 +78,7 @@ export const SplitTabItem = forwardRef<HeaderTabItemHandle, SplitTabItemProps>(
                         <div key={id} className="group/pane relative flex items-center h-full">
                             {index > 0 && (
                                 <div className={cn(
-                                    "w-px h-3 bg-border/20 mx-0.5 transition-opacity duration-150",
+                                    "w-px h-3.5 bg-border/20 mx-1 transition-opacity duration-150",
                                     (isPaneActive || noteIds[index - 1] === activeTabId) ? "opacity-0" : "opacity-100"
                                 )} />
                             )}
@@ -93,34 +93,33 @@ export const SplitTabItem = forwardRef<HeaderTabItemHandle, SplitTabItemProps>(
                                     onActivatePane(id);
                                 }}
                                 className={cn(
-                                    "flex items-center gap-1.5 pl-2 pr-5 py-1 rounded-[calc(var(--radius-md)-2px)] transition-all h-full outline-none",
+                                    "flex items-center gap-2 pl-2 pr-6 py-1 rounded-[calc(var(--radius-md)-2px)] transition-all h-full outline-none",
                                     "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset",
                                     isPaneActive
                                         ? "bg-background text-foreground shadow-[0_1px_2px_rgba(0,0,0,0.05),0_0_1px_rgba(0,0,0,0.1)]"
                                         : "text-muted-foreground/70 hover:text-foreground hover:bg-background/20"
                                 )}
                             >
-                                <span className="text-sm shrink-0">{note?.emoji}</span>
-                                <span className="text-[13px] font-medium truncate max-w-[80px]">{note?.title}</span>
+                                <span className="text-[14px] shrink-0">{note?.emoji}</span>
+                                <span className="text-[13px] font-medium truncate max-w-[110px]">{note?.title}</span>
                             </button>
 
-                            {isActive && (
-                                <button
-                                    onClick={(ev) => {
-                                        ev.stopPropagation();
-                                        onClosePane(id);
-                                    }}
-                                    tabIndex={-1}
-                                    className={cn(
-                                        "absolute right-0.5 top-1/2 -translate-y-1/2 z-10 p-0.5 rounded-sm transition-colors",
-                                        "text-muted-foreground/50 hover:text-foreground hover:bg-muted/60",
-                                        "focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:outline-none"
-                                    )}
-                                    aria-label="Close pane"
-                                >
-                                    <IconX className="size-3" />
-                                </button>
-                            )}
+                            <button
+                                onClick={(ev) => {
+                                    ev.stopPropagation();
+                                    onClosePane(id);
+                                }}
+                                tabIndex={-1}
+                                className={cn(
+                                    "absolute right-1 top-1/2 -translate-y-1/2 z-10 p-0.5 rounded-sm transition-all duration-200",
+                                    "text-muted-foreground/50 hover:text-foreground hover:bg-muted/60",
+                                    "focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:outline-none",
+                                    (isActive && isPaneActive) ? "opacity-100" : "opacity-0 group-hover/pane:opacity-100"
+                                )}
+                                aria-label="Close pane"
+                            >
+                                <IconX className="size-3" />
+                            </button>
                         </div>
                     );
                 })}

@@ -586,7 +586,6 @@ function SortableNote({ note, groupId, isActive, onSelect, activeDragType }: Sor
                 <div className="relative">
                     <SidebarMenuButton
                         isActive={isActive}
-                        tooltip={note.title}
                         className={cn(
                             "cursor-grab active:cursor-grabbing pr-8",
                             "data-[active=true]:bg-background data-[active=true]:ring-1 data-[active=true]:ring-border/50 data-[active=true]:text-foreground data-[active=true]:shadow-sm",
