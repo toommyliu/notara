@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
     DndContext,
     DragOverlay,
@@ -201,7 +201,14 @@ function SortableNote({ note, groupId, isActive, onSelect, activeDragType }: Sor
     return (
         <SidebarMenuItem ref={setNodeRef} style={style} className="relative">
             {showIndicator && <DropIndicator position="top" />}
-            <Link to="/notes" onClick={handleClick}>
+            <Link
+                to="/notes"
+                onClick={handleClick}
+                draggable={false}
+                onDragStart={(ev) => {
+                    ev.preventDefault();
+                }}
+            >
                 <SidebarMenuButton
                     isActive={isActive}
                     tooltip={note.title}
