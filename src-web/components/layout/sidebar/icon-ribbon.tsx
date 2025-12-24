@@ -8,7 +8,6 @@ import {
 } from "~/components/ui/tooltip";
 
 import IconSettings from "~icons/lucide/settings";
-import IconHome from "~icons/lucide/home";
 import IconSearch from "~icons/lucide/search";
 import IconFiles from "~icons/lucide/folder-open";
 import IconStar from "~icons/lucide/star";
@@ -68,8 +67,6 @@ export function IconRibbon() {
     const location = useLocation();
     const { open } = useSettingsStore();
 
-    const isHome = location.pathname === "/";
-
     return (
         <div
             className={cn(
@@ -88,20 +85,14 @@ export function IconRibbon() {
         >
             <div className="flex flex-col items-center gap-0.5">
                 <RibbonIcon
-                    icon={<IconHome className="size-[18px]" />}
-                    label="Home"
-                    to="/"
-                    isActive={isHome}
+                    icon={<IconFiles className="size-[18px]" />}
+                    label="Files"
+                    to="/notes"
+                    isActive={location.pathname.startsWith("/notes")}
                 />
                 <RibbonIcon
                     icon={<IconSearch className="size-[18px]" />}
                     label="Search"
-                />
-                <RibbonIcon
-                    icon={<IconFiles className="size-[18px]" />}
-                    label="Files"
-                    to="/notes"
-                    isActive={!isHome}
                 />
                 <RibbonIcon
                     icon={<IconStar className="size-[18px]" />}
