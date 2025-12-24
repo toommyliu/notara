@@ -81,7 +81,7 @@ export function IconRibbon() {
             )}
             style={{
                 top: 0,
-                paddingTop: layout.titlebarHeight + 8,
+                paddingTop: layout.titlebarHeight + (layout.isMac && !layout.isFullscreen ? 8 : 2),
                 paddingBottom: 8,
             }}
             data-tauri-drag-region

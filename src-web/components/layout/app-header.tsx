@@ -7,18 +7,25 @@ import IconLock from "~icons/lucide/lock";
 
 import { usePageHeaderStore } from "~/stores/page-header-store";
 import { useTabsStore } from "~/stores/tabs-store";
+import { usePlatformLayout } from "~/hooks/use-platform";
 
 export function AppHeader() {
+    const layout = usePlatformLayout();
     const { config } = usePageHeaderStore();
     const { title, emoji, isPrivate, actions } = config;
     const { isTabBarVisible, pinnedTabs, openTabs } = useTabsStore();
 
     const showTabs = isTabBarVisible && (pinnedTabs.length > 0 || openTabs.length > 0);
 
+    const hasTrafficLights = layout.isMac && !layout.isFullscreen;
+
     return (
-        <AppTitlebar className="border-b border-border/40 overscroll-none select-none">
+        <AppTitlebar className="border-b border-border/40 overscroll-none select-none" noLeftInset={!hasTrafficLights}>
             <div className="flex items-center w-full h-full gap-0.5">
-                <div className="flex items-center shrink-0 pl-1">
+                <div
+                    className="flex items-center justify-center shrink-0"
+                    style={{ width: hasTrafficLights ? undefined : layout.ribbonWidth }}
+                >
                     <SidebarTrigger className="text-muted-foreground hover:text-foreground transition-colors" />
                 </div>
 

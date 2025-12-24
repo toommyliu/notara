@@ -4,9 +4,9 @@ import { cn } from "~/lib/utils";
 
 import { usePlatformLayout } from "~/hooks/use-platform";
 
-type AppTitlebarProps = PropsWithChildren<{ className?: string }>;
+type AppTitlebarProps = PropsWithChildren<{ className?: string; noLeftInset?: boolean }>;
 
-export function AppTitlebar({ children, className }: AppTitlebarProps) {
+export function AppTitlebar({ children, className, noLeftInset }: AppTitlebarProps) {
     const layout = usePlatformLayout();
 
     return (
@@ -14,7 +14,7 @@ export function AppTitlebar({ children, className }: AppTitlebarProps) {
             className={cn("fixed inset-x-0 top-0 z-50 flex items-center select-none bg-sidebar", className)}
             style={{
                 height: layout.titlebarHeight,
-                paddingLeft: layout.leftInset,
+                paddingLeft: noLeftInset ? 0 : layout.leftInset,
                 paddingRight: layout.rightInset,
             }}
             data-tauri-drag-region
