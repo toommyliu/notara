@@ -35,6 +35,7 @@ type HotKeyOptions = {
     enabled?: boolean;
     allowDefault?: boolean;
     allowInInput?: boolean;
+    debounceMs?: number;
 };
 
 export function useHotKeys(
@@ -42,10 +43,17 @@ export function useHotKeys(
     options: HotKeyOptions = {}
 ) {
     const { bindings } = useShortcutsStore();
-    const { enabled = true, allowDefault = false, allowInInput = false } = options;
+    const {
+        enabled = true,
+        allowDefault = false,
+        allowInInput = false,
+        debounceMs = 150
+    } = options;
 
     const handlersRef = useRef(handlers);
     handlersRef.current = handlers;
+
+    const lastFiredRef = useRef<number>(0);
 
     useEffect(() => {
         if (!enabled) return;
@@ -73,6 +81,13 @@ export function useHotKeys(
                         ev.preventDefault();
                         ev.stopPropagation();
                     }
+
+                    const now = Date.now();
+                    if (now - lastFiredRef.current < debounceMs)
+                        return;
+
+                    lastFiredRef.current = now;
+
                     callback();
                     return;
                 }
@@ -81,7 +96,7 @@ export function useHotKeys(
 
         window.addEventListener("keydown", handleKeyDown, { capture: true });
         return () => window.removeEventListener("keydown", handleKeyDown, { capture: true });
-    }, [bindings, enabled, allowDefault, allowInInput]);
+    }, [bindings, enabled, allowDefault, allowInInput, debounceMs]);
 }
 
 export { eventMatchesBinding };
