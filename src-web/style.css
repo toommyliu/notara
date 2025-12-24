@@ -166,9 +166,19 @@
   [data-tauri-drag-region] a,
   [data-tauri-drag-region] input,
   [data-tauri-drag-region] [contenteditable],
-  [data-tauri-drag-region] [role="button"] {
+  [data-tauri-drag-region] [role="button"],
+  [data-tauri-drag-region] [role="tab"],
+  [data-tauri-drag-region] [role="tablist"] {
     -webkit-app-region: no-drag;
     pointer-events: auto;
+  }
+
+  /* Explicit no-drag regions - applies to element and ALL descendants */
+  [data-no-drag],
+  [data-no-drag] *,
+  [data-tauri-drag-region] [data-no-drag],
+  [data-tauri-drag-region] [data-no-drag] * {
+    -webkit-app-region: no-drag !important;
   }
 
   /* Sidebar hover-to-reveal for offcanvas mode */

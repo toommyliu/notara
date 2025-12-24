@@ -59,7 +59,7 @@ export const SplitTabItem = forwardRef<HeaderTabItemHandle, SplitTabItemProps>(
                 style={style}
                 className={cn(
                     "group relative flex items-center select-none shrink-0 rounded-md outline-none",
-                    "transition-all duration-150 ease-out",
+                    "transition-all duration-150 ease-out cursor-grab active:cursor-grabbing",
                     isActive
                         ? "bg-muted/30 ring-1 ring-border/50"
                         : "bg-muted/15",
@@ -67,6 +67,8 @@ export const SplitTabItem = forwardRef<HeaderTabItemHandle, SplitTabItemProps>(
                 )}
                 {...attributes}
                 {...listeners}
+                data-no-drag
+                role="tab"
             >
                 {noteIds.map((id, index) => {
                     const note = notes.get(id);

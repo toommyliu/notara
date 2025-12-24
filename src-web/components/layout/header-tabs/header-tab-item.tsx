@@ -56,7 +56,7 @@ export const HeaderTabItem = forwardRef<HeaderTabItemHandle, HeaderTabItemProps>
                 aria-selected={isActive}
                 className={cn(
                     "group relative flex items-center gap-1.5 px-3 py-1 select-none shrink-0 rounded-md outline-none",
-                    "transition-all duration-150 ease-out cursor-pointer",
+                    "transition-all duration-150 ease-out cursor-grab active:cursor-grabbing",
                     compact && "px-2",
                     isActive
                         ? "text-foreground bg-background ring-1 ring-border/50"
@@ -65,6 +65,7 @@ export const HeaderTabItem = forwardRef<HeaderTabItemHandle, HeaderTabItemProps>
                 )}
                 {...attributes}
                 {...listeners}
+                data-no-drag
                 role="tab"
                 tabIndex={-1}
             >

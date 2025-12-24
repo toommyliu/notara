@@ -94,17 +94,18 @@ export function HeaderTabs() {
         })
     );
 
+    const tabListRef = useRef<HTMLDivElement>(null);
     const collisionDetection: CollisionDetection = (args) => {
-        // Check if pointer is within scroll container
-        if (scrollContainerRef.current && args.pointerCoordinates) {
-            const rect = scrollContainerRef.current.getBoundingClientRect();
+        // Check if pointer is within tab bar area with some vertical buffer (20px)
+        if (tabListRef.current && args.pointerCoordinates) {
+            const rect = tabListRef.current.getBoundingClientRect();
             const { x, y } = args.pointerCoordinates;
 
             const isInside = (
                 x >= rect.left &&
                 x <= rect.right &&
-                y >= rect.top &&
-                y <= rect.bottom
+                y >= rect.top - 20 &&
+                y <= rect.bottom + 20
             );
 
             if (!isInside) return []; // Allow drag to escape for split-view
@@ -204,37 +205,64 @@ export function HeaderTabs() {
             onDragEnd={handleDragEnd}
             onDragCancel={handleDragCancel}
         >
-            <div
-                className="relative flex items-center min-w-0 flex-1 group/tabs outline-none"
-                role="tablist"
-                aria-orientation="horizontal"
-            >
+            <>
                 <div
-                    ref={scrollContainerRef}
-                    className="flex items-center gap-1 min-w-0 overflow-x-auto overflow-y-hidden scrollbar-none pb-2 -mb-2 pl-1.5"
-                    style={{
-                        WebkitAppRegion: "no-drag",
-                        overscrollBehavior: "contain",
-                        maskImage: `linear-gradient(to right, 
+                    ref={tabListRef}
+                    className="relative flex items-center min-w-0 group/tabs outline-none pointer-events-auto"
+                    data-no-drag
+                    role="tablist"
+                    aria-orientation="horizontal"
+                >
+                    <div
+                        ref={scrollContainerRef}
+                        className="flex items-center gap-1 min-w-0 overflow-x-auto overflow-y-hidden scrollbar-none pb-2 -mb-2 pl-1.5 pointer-events-auto"
+                        data-no-drag
+                        style={{
+                            overscrollBehavior: "contain",
+                            maskImage: `linear-gradient(to right, 
                             ${showLeftFade ? 'transparent' : 'black'} 0px, 
                             black 40px, 
                             black calc(100% - 40px), 
                             ${showRightFade ? 'transparent' : 'black'} 100%)`,
-                        WebkitMaskImage: `linear-gradient(to right, 
+                            WebkitMaskImage: `linear-gradient(to right, 
                             ${showLeftFade ? 'transparent' : 'black'} 0px, 
                             black 40px, 
                             black calc(100% - 40px), 
                             ${showRightFade ? 'transparent' : 'black'} 100%)`
-                    } as CSSProperties}
-                    onWheel={handleWheel}
-                    onScroll={handleScroll}
-                >
-                    <SortableContext items={allVisibleTabs} strategy={horizontalListSortingStrategy}>
-                        {visiblePinned.map((noteId) => {
-                            const group = getGroupForTab(noteId);
-                            if (group) {
+                        } as CSSProperties}
+                        onWheel={handleWheel}
+                        onScroll={handleScroll}
+                    >
+                        <SortableContext items={allVisibleTabs} strategy={horizontalListSortingStrategy}>
+                            {visiblePinned.map((noteId) => {
+                                const group = getGroupForTab(noteId);
+                                if (group) {
+                                    return (
+                                        <SplitTabItem
+                                            key={noteId}
+                                            ref={(handle) => {
+                                                if (handle) {
+                                                    tabRefs.current.set(noteId, handle);
+                                                } else {
+                                                    tabRefs.current.delete(noteId);
+                                                }
+                                            }}
+                                            noteId={noteId}
+                                            isActive={group.includes(activeTabId || "")}
+                                            isPinned={true}
+                                            noteIds={group}
+                                            onActivatePane={(id) => {
+                                                setActiveTab(id);
+                                                navigate({ to: "/notes" });
+                                            }}
+                                            onActivate={() => setActiveTab(noteId)}
+                                            onClose={() => closeTab(noteId)}
+                                            onClosePane={(id) => removeFromGroup(id)}
+                                        />
+                                    );
+                                }
                                 return (
-                                    <SplitTabItem
+                                    <HeaderTabItem
                                         key={noteId}
                                         ref={(handle) => {
                                             if (handle) {
@@ -244,94 +272,71 @@ export function HeaderTabs() {
                                             }
                                         }}
                                         noteId={noteId}
-                                        isActive={group.includes(activeTabId || "")}
+                                        isActive={activeTabId === noteId}
                                         isPinned={true}
-                                        noteIds={group}
-                                        onActivatePane={(id) => {
-                                            setActiveTab(id);
+                                        onActivate={() => {
+                                            setActiveTab(noteId);
                                             navigate({ to: "/notes" });
                                         }}
-                                        onActivate={() => setActiveTab(noteId)}
                                         onClose={() => closeTab(noteId)}
-                                        onClosePane={(id) => removeFromGroup(id)}
                                     />
                                 );
-                            }
-                            return (
-                                <HeaderTabItem
-                                    key={noteId}
-                                    ref={(handle) => {
-                                        if (handle) {
-                                            tabRefs.current.set(noteId, handle);
-                                        } else {
-                                            tabRefs.current.delete(noteId);
-                                        }
-                                    }}
-                                    noteId={noteId}
-                                    isActive={activeTabId === noteId}
-                                    isPinned={true}
-                                    onActivate={() => {
-                                        setActiveTab(noteId);
-                                        navigate({ to: "/notes" });
-                                    }}
-                                    onClose={() => closeTab(noteId)}
-                                />
-                            );
-                        })}
+                            })}
 
-                        {visiblePinned.length > 0 && visibleOpen.length > 0 && (
-                            <div className="w-px h-3.5 mx-1 shrink-0 bg-border/60" />
-                        )}
+                            {visiblePinned.length > 0 && visibleOpen.length > 0 && (
+                                <div className="w-px h-3.5 mx-1 shrink-0 bg-border/60" />
+                            )}
 
-                        {visibleOpen.map((noteId) => {
-                            const group = getGroupForTab(noteId);
-                            if (group) {
+                            {visibleOpen.map((noteId) => {
+                                const group = getGroupForTab(noteId);
+                                if (group) {
+                                    return (
+                                        <SplitTabItem
+                                            key={noteId}
+                                            ref={(handle) => {
+                                                if (handle) {
+                                                    tabRefs.current.set(noteId, handle);
+                                                } else {
+                                                    tabRefs.current.delete(noteId);
+                                                }
+                                            }}
+                                            noteId={noteId}
+                                            isActive={group.includes(activeTabId || "")}
+                                            isPinned={false}
+                                            noteIds={group}
+                                            onActivatePane={(id) => {
+                                                setActiveTab(id);
+                                                navigate({ to: "/notes" });
+                                            }}
+                                            onActivate={() => setActiveTab(noteId)}
+                                            onClose={() => closeTab(noteId)}
+                                            onClosePane={(id) => removeFromGroup(id)}
+                                        />
+                                    );
+                                }
                                 return (
-                                    <SplitTabItem
+                                    <HeaderTabItem
                                         key={noteId}
                                         ref={(handle) => {
-                                            if (handle) {
-                                                tabRefs.current.set(noteId, handle);
-                                            } else {
-                                                tabRefs.current.delete(noteId);
-                                            }
+                                            if (handle) tabRefs.current.set(noteId, handle);
+                                            else tabRefs.current.delete(noteId);
                                         }}
                                         noteId={noteId}
-                                        isActive={group.includes(activeTabId || "")}
+                                        isActive={activeTabId === noteId}
                                         isPinned={false}
-                                        noteIds={group}
-                                        onActivatePane={(id) => {
-                                            setActiveTab(id);
+                                        onActivate={() => {
+                                            setActiveTab(noteId);
                                             navigate({ to: "/notes" });
                                         }}
-                                        onActivate={() => setActiveTab(noteId)}
                                         onClose={() => closeTab(noteId)}
-                                        onClosePane={(id) => removeFromGroup(id)}
                                     />
                                 );
-                            }
-                            return (
-                                <HeaderTabItem
-                                    key={noteId}
-                                    ref={(handle) => {
-                                        if (handle) tabRefs.current.set(noteId, handle);
-                                        else tabRefs.current.delete(noteId);
-                                    }}
-                                    noteId={noteId}
-                                    isActive={activeTabId === noteId}
-                                    isPinned={false}
-                                    onActivate={() => {
-                                        setActiveTab(noteId);
-                                        navigate({ to: "/notes" });
-                                    }}
-                                    onClose={() => closeTab(noteId)}
-                                />
-                            );
-                        })}
-                    </SortableContext>
+                            })}
+                        </SortableContext>
+                    </div>
                 </div>
 
-                <div className="flex items-center gap-0.5 ml-1 shrink-0 px-1 py-0.5 relative z-20">
+                <div className="flex items-center gap-0.5 ml-1 shrink-0 px-1 py-0.5 relative z-20 pointer-events-auto">
                     {isSplitView && (
                         <DropdownMenu>
                             <DropdownMenuTrigger
@@ -415,11 +420,14 @@ export function HeaderTabs() {
                         <IconPlus className="size-3.5" />
                     </button>
                 </div>
-            </div>
+            </>
 
             <DragOverlay dropAnimation={null}>
                 {draggedNote && (
-                    <div className="flex items-center gap-1.5 px-2.5 py-1 bg-background border rounded-md shadow-lg text-sm whitespace-nowrap">
+                    <div
+                        className="flex items-center gap-1.5 px-2.5 py-1 bg-background border rounded-md shadow-lg text-sm whitespace-nowrap"
+                        data-no-drag
+                    >
                         <span>{draggedNote.emoji}</span>
                         <span className="font-medium">{draggedNote.title}</span>
                     </div>
