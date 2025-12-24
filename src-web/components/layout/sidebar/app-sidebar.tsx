@@ -470,7 +470,7 @@ function NoteHeadings({ blocks }: NoteHeadingsProps) {
         const element = document.getElementById(id);
         if (element) {
             element.scrollIntoView({ behavior: "smooth", block: "center" });
-            element as HTMLElement).focus();
+            (element as HTMLElement).focus();
         }
     };
 
