@@ -10,7 +10,7 @@ const router = createRouter({ routeTree });
 
 createRoot(document.getElementById("root") as HTMLElement).render(
   <StrictMode>
-    <ThemeProvider defaultTheme="light">
+    <ThemeProvider>
       <DragProvider>
         <RouterProvider router={router} />
       </DragProvider>

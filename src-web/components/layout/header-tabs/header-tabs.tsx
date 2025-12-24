@@ -425,7 +425,7 @@ export function HeaderTabs() {
             <DragOverlay dropAnimation={null}>
                 {draggedNote && (
                     <div
-                        className="flex items-center gap-1.5 px-2.5 py-1 bg-background border rounded-md shadow-lg text-sm whitespace-nowrap"
+                        className="flex items-center gap-1.5 px-2.5 py-1 bg-background border rounded-md shadow-lg text-sm whitespace-nowrap z-50 pointer-events-none"
                         data-no-drag
                     >
                         <span>{draggedNote.emoji}</span>
