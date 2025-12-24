@@ -42,6 +42,7 @@ import {
 import IconAdd from "~icons/lucide/plus";
 import IconFolderPlus from "~icons/lucide/folder-plus";
 import IconSort from "~icons/lucide/arrow-down-a-z";
+import IconMoreHorizontal from "~icons/lucide/more-horizontal";
 
 import { type Group, type Note, useNotesStore } from "~/stores/notes-store";
 import { useTabsStore } from "~/stores/tabs-store";
@@ -50,29 +51,67 @@ import { useDragContext } from "~/contexts/drag-context";
 
 import { cn } from "~/lib/utils";
 
-function DropIndicator() {
+type DropIndicatorProps = {
+    position?: "top" | "bottom";
+};
+
+function DropIndicator({ position = "top" }: DropIndicatorProps) {
     return (
-        <div className="absolute -top-0.5 left-2 right-2 h-0.5 bg-blue-500/50 rounded-full z-10" />
+        <div
+            className={cn(
+                "absolute left-2 right-2 h-[2px] z-20 pointer-events-none",
+                position === "top" ? "-top-px" : "-bottom-px"
+            )}
+        >
+            <div className="w-full h-full bg-primary shadow-[0_0_8px_rgba(var(--primary),0.4)] rounded-full animate-in fade-in zoom-in-95 duration-200" />
+            <div className="absolute -left-1 -top-1 size-2 rounded-full bg-primary shadow-[0_0_8px_rgba(var(--primary),0.4)]" />
+        </div>
     );
 }
 
 type GroupDropZoneProps = {
     groupId: string;
+    isVisible: boolean;
 };
-function GroupDropZone({ groupId }: GroupDropZoneProps) {
+
+function GroupDropZone({ groupId, isVisible }: GroupDropZoneProps) {
     const { isOver, setNodeRef } = useDroppable({
         id: `${groupId}-end`,
         data: { type: "group-end", groupId },
     });
 
+    if (!isVisible) return null;
+
     return (
         <div
             ref={setNodeRef}
-            className={cn(
-                "h-1.5 mt-0.5 mx-2 rounded-full transition-colors",
-                isOver && "bg-blue-500/50"
+            className="relative h-4 mt-2 -mx-2 flex items-center"
+        >
+            <div
+                className={cn(
+                    "absolute left-4 right-4 h-px transition-all duration-200",
+                    isOver ? "bg-primary shadow-[0_0_8px_rgba(var(--primary),0.4)] h-[2px]" : "bg-border/20"
+                )}
+            />
+            {isOver && (
+                <div className="absolute left-3 size-1.5 rounded-full bg-primary shadow-[0_0_8px_rgba(var(--primary),0.4)]" />
             )}
-        />
+        </div>
+    );
+}
+
+function GroupsEndDropZone({ isVisible }: { isVisible: boolean }) {
+    const { isOver, setNodeRef } = useDroppable({
+        id: "groups-end-list",
+        data: { type: "group-end-list" },
+    });
+
+    if (!isVisible) return null;
+
+    return (
+        <div ref={setNodeRef} className="h-6 relative mt-1 flex items-center">
+            {isOver && <DropIndicator position="top" />}
+        </div>
     );
 }
 
@@ -130,8 +169,9 @@ type SortableNoteProps = {
     groupId: string | null;
     isActive: boolean;
     onSelect: () => void;
+    activeDragType: "note" | "group" | null;
 };
-function SortableNote({ note, groupId, isActive, onSelect }: SortableNoteProps) {
+function SortableNote({ note, groupId, isActive, onSelect, activeDragType }: SortableNoteProps) {
     const navigate = useNavigate();
     const {
         attributes,
@@ -156,9 +196,11 @@ function SortableNote({ note, groupId, isActive, onSelect }: SortableNoteProps) 
         navigate({ to: "/notes" });
     };
 
+    const showIndicator = isOver && !isDragging && activeDragType === "note";
+
     return (
         <SidebarMenuItem ref={setNodeRef} style={style} className="relative">
-            {isOver && <DropIndicator />}
+            {showIndicator && <DropIndicator position="top" />}
             <Link to="/notes" onClick={handleClick}>
                 <SidebarMenuButton
                     isActive={isActive}
@@ -188,6 +230,8 @@ type SortableGroupProps = {
     onNoteSelect: (noteId: string) => void;
     onToggleCollapse: () => void;
     onAddNote: () => void;
+    activeDragType: "note" | "group" | null;
+    isLast: boolean;
 };
 function SortableGroup({
     group,
@@ -198,6 +242,7 @@ function SortableGroup({
     onNoteSelect,
     onToggleCollapse,
     onAddNote,
+    activeDragType,
 }: SortableGroupProps) {
     const {
         attributes,
@@ -217,6 +262,8 @@ function SortableGroup({
         transition,
     };
 
+    const showTopIndicator = isOver && !isDragging && activeDragType === "group";
+
     return (
         <SidebarGroup
             ref={setNodeRef}
@@ -225,37 +272,49 @@ function SortableGroup({
                 "group/sidebar-group relative rounded-md px-2 py-1 transition-colors duration-200",
                 isDragSelected && "bg-sidebar-accent/30 ring-1 ring-sidebar-border",
                 isDragging && "opacity-30",
-                showDropBackground && isOver && !isDragging && "bg-blue-500/10"
+                showDropBackground && isOver && !isDragging && activeDragType === "note" && "bg-primary/5 ring-1 ring-primary/20 shadow-[0_0_15px_rgba(var(--primary),0.05)]"
             )}
         >
-            {isOver && <DropIndicator />}
+            {showTopIndicator && <DropIndicator position="top" />}
 
-            <SidebarGroupLabel
-                className="w-full min-w-0 text-sm text-muted-foreground cursor-grab active:cursor-grabbing"
-                {...attributes}
-                {...listeners}
-            >
-                <button
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        onToggleCollapse();
-                    }}
-                    className="flex-1 min-w-0 text-left cursor-grab active:cursor-grabbing"
+            <div className="group/header relative">
+                <SidebarGroupLabel
+                    className={cn(
+                        "w-full min-w-0 text-sm text-muted-foreground cursor-grab active:cursor-grabbing rounded-md transition-all duration-200",
+                        "group-hover/header:bg-background group-hover/header:ring-1 group-hover/header:ring-border/50 group-hover/header:shadow-sm"
+                    )}
+                    {...attributes}
+                    {...listeners}
                 >
-                    <span className="truncate">{group.title}</span>
-                </button>
-            </SidebarGroupLabel>
-            <SidebarGroupAction
-                title="New Page"
-                onClick={onAddNote}
-                className="top-2 rounded-sm opacity-0 group-hover/sidebar-group:opacity-100 transition-opacity"
-            >
-                <IconAdd className="size-4" />
-                <span className="sr-only">New Page</span>
-            </SidebarGroupAction>
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onToggleCollapse();
+                        }}
+                        className="flex-1 min-w-0 text-left cursor-grab active:cursor-grabbing"
+                    >
+                        <span className="truncate">{group.title}</span>
+                    </button>
+                </SidebarGroupLabel>
+                <SidebarGroupAction
+                    title="More options"
+                    className="top-2 right-8 rounded-sm opacity-0 group-hover/header:opacity-100 transition-opacity"
+                >
+                    <IconMoreHorizontal className="size-4" />
+                    <span className="sr-only">More options</span>
+                </SidebarGroupAction>
+                <SidebarGroupAction
+                    title="New Page"
+                    onClick={onAddNote}
+                    className="top-2 rounded-sm opacity-0 group-hover/header:opacity-100 transition-opacity"
+                >
+                    <IconAdd className="size-4" />
+                    <span className="sr-only">New Page</span>
+                </SidebarGroupAction>
+            </div>
 
             {!group.isCollapsed && (
-                <SidebarGroupContent>
+                <SidebarGroupContent className="mt-1">
                     <SortableContext
                         items={group.noteIds}
                         strategy={verticalListSortingStrategy}
@@ -268,11 +327,12 @@ function SortableGroup({
                                     groupId={group.id}
                                     isActive={activeNoteId === note.id}
                                     onSelect={() => onNoteSelect(note.id)}
+                                    activeDragType={activeDragType}
                                 />
                             ))}
                         </SidebarMenu>
                     </SortableContext>
-                    <GroupDropZone groupId={group.id} />
+                    <GroupDropZone groupId={group.id} isVisible={activeDragType === "note"} />
                 </SidebarGroupContent>
             )}
         </SidebarGroup>
@@ -382,8 +442,15 @@ export function AppSidebar() {
         const overType = over.data.current?.type;
 
         // Reorder groups
-        if (activeType === "group" && overType === "group") {
-            reorderGroups(active.id as string, over.id as string);
+        if (activeType === "group") {
+            if (overType === "group") {
+                reorderGroups(active.id as string, over.id as string);
+            } else if (overType === "group-end-list") {
+                const lastGroup = groups[groups.length - 1];
+                if (lastGroup && active.id !== lastGroup.id) {
+                    reorderGroups(active.id as string, lastGroup.id);
+                }
+            }
             return;
         }
 
@@ -462,7 +529,7 @@ export function AppSidebar() {
                             items={groups.map((g) => g.id)}
                             strategy={verticalListSortingStrategy}
                         >
-                            {groups.map((group) => {
+                            {groups.map((group, index) => {
                                 const groupNotes = group.noteIds
                                     .map((id) => notes.get(id))
                                     .filter((n): n is Note => n !== undefined);
@@ -482,10 +549,13 @@ export function AppSidebar() {
                                             openTab(id);
                                             navigate({ to: "/notes" });
                                         }}
+                                        activeDragType={activeDragType}
+                                        isLast={index === groups.length - 1}
                                     />
                                 );
                             })}
                         </SortableContext>
+                        <GroupsEndDropZone isVisible={activeDragType === "group"} />
 
                         <DragOverlay dropAnimation={null}>
                             {getDragOverlayContent()}
