@@ -381,7 +381,7 @@ export function HeaderTabs() {
                     <DropdownMenu>
                         <DropdownMenuTrigger
                             className={cn(
-                                "p-1 rounded-md transition-colors outline-none",
+                                "p-1 rounded-sm transition-colors outline-none",
                                 "text-muted-foreground/60 hover:text-foreground hover:bg-muted/40",
                                 "focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset"
                             )}

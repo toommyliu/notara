@@ -131,7 +131,7 @@ function SidebarActionStrip() {
             <Tooltip>
                 <TooltipTrigger
                     onClick={handleAddNote}
-                    className="flex items-center justify-center p-1 text-muted-foreground hover:text-foreground rounded-md transition-colors duration-200 cursor-pointer"
+                    className="flex items-center justify-center p-1 text-muted-foreground hover:text-foreground rounded-sm transition-colors duration-200 cursor-pointer"
                 >
                     <IconAdd className="size-4" />
                     <span className="sr-only">New Page</span>
@@ -142,7 +142,7 @@ function SidebarActionStrip() {
             <Tooltip>
                 <TooltipTrigger
                     onClick={() => addGroup()}
-                    className="flex items-center justify-center p-1 text-muted-foreground hover:text-foreground rounded-md transition-colors duration-200 cursor-pointer"
+                    className="flex items-center justify-center p-1 text-muted-foreground hover:text-foreground rounded-sm transition-colors duration-200 cursor-pointer"
                 >
                     <IconFolderPlus className="size-4" />
                     <span className="sr-only">New Group</span>
@@ -153,7 +153,7 @@ function SidebarActionStrip() {
             <Tooltip>
                 <TooltipTrigger
                     onClick={sortData}
-                    className="flex items-center justify-center p-1 text-muted-foreground hover:text-foreground rounded-md transition-colors duration-200 cursor-pointer"
+                    className="flex items-center justify-center p-1 text-muted-foreground hover:text-foreground rounded-sm transition-colors duration-200 cursor-pointer"
                 >
                     <IconSort className="size-4" />
                     <span className="sr-only">Sort</span>
@@ -287,7 +287,7 @@ function SortableGroup({
             <div className="group/header relative">
                 <SidebarGroupLabel
                     className={cn(
-                        "w-full min-w-0 text-sm text-muted-foreground cursor-grab active:cursor-grabbing rounded-md transition-all duration-200",
+                        "w-full min-w-0 text-sm text-muted-foreground cursor-grab active:cursor-grabbing rounded-sm transition-all duration-200",
                         "group-hover/header:bg-background group-hover/header:ring-1 group-hover/header:ring-border/50 group-hover/header:shadow-sm"
                     )}
                     {...attributes}

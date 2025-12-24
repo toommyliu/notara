@@ -31,7 +31,7 @@ function RibbonIcon({ icon, label, isActive, onClick, to }: RibbonIconProps) {
         <button
             onClick={onClick}
             className={cn(
-                "relative flex items-center justify-center size-9 rounded-md",
+                "relative flex items-center justify-center size-8 rounded-sm",
                 "text-muted-foreground/70 hover:text-foreground",
                 "transition-all duration-150 ease-out",
                 "hover:bg-muted/50",
