@@ -1,5 +1,6 @@
 import { createContext, useEffect, useState, type PropsWithChildren } from "react"
 import { invoke } from "@tauri-apps/api/core"
+import { getCurrentWindow } from "@tauri-apps/api/window"
 
 import { useIsTauri } from "~/hooks/use-tauri"
 
@@ -35,34 +36,41 @@ export function ThemeProvider({
 
     useEffect(() => {
         const root = window.document.documentElement
+        const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)")
+        let unlisten: (() => void) | undefined
 
-        root.classList.remove("light", "dark")
+        const applyTheme = (override?: "light" | "dark") => {
+            root.classList.remove("light", "dark")
 
-        if (theme === "system") {
-            const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
-                .matches
-                ? "dark"
-                : "light"
+            const effectiveTheme = override || (theme === "system"
+                ? (mediaQuery.matches ? "dark" : "light")
+                : theme)
 
-            root.classList.add(systemTheme)
-            return
-        }
+            root.classList.add(effectiveTheme)
 
-        root.classList.add(theme)
-    }, [theme])
-
-    useEffect(() => {
-        if (!isTauri) return
-
-        const applyNativeTheme = async () => {
-            try {
-                const bgColor = theme === "dark" ? "#1a1a1a" : "#ffffff"
-                await invoke('plugin:notara-mac-window|set_theme', { bgColor })
-            } catch {
+            if (isTauri) {
+                const bgColor = effectiveTheme === "dark" ? "#1a1a1a" : "#ffffff"
+                invoke('plugin:notara-mac-window|set_theme', { bgColor }).catch(() => { })
             }
         }
 
-        applyNativeTheme()
+        applyTheme()
+
+        if (theme === "system") {
+            const handleMediaChange = () => applyTheme()
+            mediaQuery.addEventListener("change", handleMediaChange)
+
+            if (isTauri) {
+                getCurrentWindow().onThemeChanged(({ payload: systemTheme }) => {
+                    applyTheme(systemTheme)
+                }).then(fn => unlisten = fn)
+            }
+
+            return () => {
+                mediaQuery.removeEventListener("change", handleMediaChange)
+                unlisten?.()
+            }
+        }
     }, [theme, isTauri])
 
     const value = {
