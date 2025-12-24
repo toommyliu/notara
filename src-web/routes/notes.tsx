@@ -253,6 +253,8 @@ function NoteView({ paneId, noteId, editorPaddingStyle, onTitleChange }: NoteVie
                             const editorContainer = document.querySelector('[data-block-editor]');
                             const firstBlock = editorContainer?.querySelector('[contenteditable="true"]') as HTMLElement;
                             firstBlock?.focus();
+                        } else if (ev.key === "Escape") {
+                            ev.currentTarget.blur();
                         }
                     }}
                     data-placeholder="Untitled"
