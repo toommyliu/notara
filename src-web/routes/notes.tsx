@@ -294,8 +294,9 @@ function NoteView({ paneId, noteId, editorPaddingStyle, onTitleChange }: NoteVie
                     }}
                     data-placeholder="Untitled"
                     className={cn(
-                        "text-4xl font-bold mb-1 leading-tight select-text",
-                        "outline-none",
+                        "text-4xl font-bold font-sans mb-1 leading-tight select-text",
+                        "outline-none transition-all duration-300 rounded-xl p-2 -mx-2",
+                        "hover:bg-accent/30 focus-visible:bg-accent/30",
                         "empty:before:content-[attr(data-placeholder)]",
                         "empty:before:text-muted-foreground/40"
                     )}
