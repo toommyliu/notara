@@ -589,6 +589,7 @@ function SortableNote({ note, groupId, isActive, onSelect, activeDragType }: Sor
                         className={cn(
                             "cursor-grab active:cursor-grabbing pr-8",
                             "data-[active=true]:bg-background data-[active=true]:ring-1 data-[active=true]:ring-border/50 data-[active=true]:text-foreground data-[active=true]:shadow-sm",
+                            "group-hover/note:bg-sidebar-accent",
                             isDragging && "opacity-30"
                         )}
                         {...attributes}
@@ -620,10 +621,10 @@ function SortableNote({ note, groupId, isActive, onSelect, activeDragType }: Sor
                                         }}
                                         className={cn(
                                             "p-1 rounded-sm cursor-pointer",
-                                            "text-muted-foreground hover:text-foreground hover:bg-accent",
+                                            "text-sidebar-foreground/90 hover:text-sidebar-foreground hover:bg-sidebar-accent-foreground/5",
                                             "transition-all duration-150",
                                             showDotsButton ? "opacity-100" : "opacity-0",
-                                            note.showTOC !== false ? "text-primary opacity-100" : "text-muted-foreground/60"
+                                            note.showTOC !== false ? "text-primary opacity-100" : "text-sidebar-foreground/60"
                                         )}
                                     >
                                         <IconListOrdered className="size-3.5" />
@@ -643,13 +644,13 @@ function SortableNote({ note, groupId, isActive, onSelect, activeDragType }: Sor
                                                 <button
                                                     className={cn(
                                                         "p-1 rounded-sm",
-                                                        "text-muted-foreground hover:text-foreground",
+                                                        "text-sidebar-foreground/90 hover:text-sidebar-foreground",
                                                         "transition-all duration-150",
                                                         showDotsButton ? "opacity-100" : "opacity-0",
                                                         "focus-visible:opacity-100 focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none",
                                                         isActive
                                                             ? "hover:bg-border/40 hover:ring-1 hover:ring-border/50"
-                                                            : "hover:bg-accent"
+                                                            : "hover:bg-sidebar-accent-foreground/5"
                                                     )}
                                                 >
                                                     <IconMoreHorizontal className="size-4" />
@@ -763,7 +764,7 @@ function SortableGroup({
                                 render={
                                     <DropdownMenuTrigger
                                         render={
-                                            <SidebarGroupAction className="top-1/2 -translate-y-1/2 right-8 rounded-sm opacity-0 group-hover/header:opacity-100 focus-visible:opacity-100 transition-opacity">
+                                            <SidebarGroupAction className="top-1/2 -translate-y-1/2 right-8 rounded-sm opacity-0 group-hover/header:opacity-100 focus-visible:opacity-100 transition-opacity hover:bg-sidebar-accent-foreground/5 text-sidebar-foreground/90">
                                                 <IconMoreHorizontal className="size-4" />
                                                 <span className="sr-only">More options</span>
                                             </SidebarGroupAction>
@@ -781,7 +782,7 @@ function SortableGroup({
                         <TooltipTrigger render={
                             <SidebarGroupAction
                                 onClick={onAddNote}
-                                className="top-1/2 -translate-y-1/2 rounded-sm opacity-0 group-hover/header:opacity-100 focus-visible:opacity-100 transition-opacity"
+                                className="top-1/2 -translate-y-1/2 rounded-sm opacity-0 group-hover/header:opacity-100 focus-visible:opacity-100 transition-opacity hover:bg-sidebar-accent-foreground/5 text-sidebar-foreground/90"
                             >
                                 <IconAdd className="size-4" />
                                 <span className="sr-only">New Page</span>
