@@ -538,6 +538,7 @@ type SortableNoteProps = {
 };
 function SortableNote({ note, groupId, isActive, onSelect, activeDragType }: SortableNoteProps) {
     const navigate = useNavigate();
+    const { updateNote } = useNotesStore();
     const [isHovered, setIsHovered] = useState(false);
     const [dropdownOpen, setDropdownOpen] = useState(false);
 
@@ -564,6 +565,7 @@ function SortableNote({ note, groupId, isActive, onSelect, activeDragType }: Sor
         navigate({ to: "/notes" });
     };
 
+    const hasHeadings = note.content?.some(b => b.type === "h1" || b.type === "h2" || b.type === "h3");
     const showIndicator = isOver && !isDragging && activeDragType === "note";
     const showDotsButton = isHovered || dropdownOpen;
 
@@ -607,32 +609,64 @@ function SortableNote({ note, groupId, isActive, onSelect, activeDragType }: Sor
                         <span className="flex-1 truncate">{note.title}</span>
                     </SidebarMenuButton>
 
-                    <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
-                        <DropdownMenuTrigger
-                            render={
-                                <button
-                                    className={cn(
-                                        "absolute right-1 top-1/2 -translate-y-1/2 p-1 rounded-sm",
-                                        "text-muted-foreground hover:text-foreground",
-                                        "transition-all duration-150",
-                                        showDotsButton ? "opacity-100" : "opacity-0",
-                                        "focus-visible:opacity-100 focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none",
-                                        isActive
-                                            ? "hover:bg-border/40 hover:ring-1 hover:ring-border/50"
-                                            : "hover:bg-accent"
-                                    )}
-                                >
-                                    <IconMoreHorizontal className="size-4" />
-                                </button>
-                            }
-                        />
-                        <DropdownMenuContent side="right" align="start" className="min-w-48">
-                            <NoteMenuContent note={note} groupId={groupId} variant="dropdown" />
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                    <div className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-0.5">
+                        {hasHeadings && (
+                            <Tooltip>
+                                <TooltipTrigger render={
+                                    <button
+                                        onClick={(ev) => {
+                                            ev.preventDefault();
+                                            ev.stopPropagation();
+                                            updateNote(note.id, { showTOC: !note.showTOC });
+                                        }}
+                                        className={cn(
+                                            "p-1 rounded-sm cursor-pointer",
+                                            "text-muted-foreground hover:text-foreground hover:bg-accent",
+                                            "transition-all duration-150",
+                                            showDotsButton ? "opacity-100" : "opacity-0",
+                                            note.showTOC !== false ? "text-primary opacity-100" : "text-muted-foreground/60"
+                                        )}
+                                    >
+                                        <IconListOrdered className="size-3.5" />
+                                    </button>
+                                } />
+                                <TooltipContent side="top">
+                                    {note.showTOC === false ? "Show Table of Contents" : "Hide Table of Contents"}
+                                </TooltipContent>
+                            </Tooltip>
+                        )}
+                        <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
+                            <DropdownMenuTrigger
+                                render={
+                                    <Tooltip>
+                                        <TooltipTrigger render={
+                                            <button
+                                                className={cn(
+                                                    "p-1 rounded-sm",
+                                                    "text-muted-foreground hover:text-foreground",
+                                                    "transition-all duration-150",
+                                                    showDotsButton ? "opacity-100" : "opacity-0",
+                                                    "focus-visible:opacity-100 focus-visible:ring-1 focus-visible:ring-ring focus-visible:outline-none",
+                                                    isActive
+                                                        ? "hover:bg-border/40 hover:ring-1 hover:ring-border/50"
+                                                        : "hover:bg-accent"
+                                                )}
+                                            >
+                                                <IconMoreHorizontal className="size-4" />
+                                            </button>
+                                        } />
+                                        <TooltipContent side="top">More actions</TooltipContent>
+                                    </Tooltip>
+                                }
+                            />
+                            <DropdownMenuContent side="right" align="start" className="min-w-48">
+                                <NoteMenuContent note={note} groupId={groupId} variant="dropdown" />
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
                 </div>
 
-                {isActive && note.content && (
+                {isActive && note.content && note.showTOC !== false && (
                     <NoteHeadings blocks={note.content} />
                 )}
             </ContextMenuTrigger>
@@ -725,27 +759,35 @@ function SortableGroup({
                     <DropdownMenu>
                         <DropdownMenuTrigger
                             render={
-                                <SidebarGroupAction
-                                    title="More options"
-                                    className="top-1/2 -translate-y-1/2 right-8 rounded-sm opacity-0 group-hover/header:opacity-100 focus-visible:opacity-100 transition-opacity"
-                                >
-                                    <IconMoreHorizontal className="size-4" />
-                                    <span className="sr-only">More options</span>
-                                </SidebarGroupAction>
+                                <Tooltip>
+                                    <TooltipTrigger render={
+                                        <SidebarGroupAction
+                                            className="top-1/2 -translate-y-1/2 right-8 rounded-sm opacity-0 group-hover/header:opacity-100 focus-visible:opacity-100 transition-opacity"
+                                        >
+                                            <IconMoreHorizontal className="size-4" />
+                                            <span className="sr-only">More options</span>
+                                        </SidebarGroupAction>
+                                    } />
+                                    <TooltipContent side="top">More options</TooltipContent>
+                                </Tooltip>
                             }
                         />
                         <DropdownMenuContent side="right" align="start" className="min-w-48">
                             <GroupMenuContent group={group} variant="dropdown" />
                         </DropdownMenuContent>
                     </DropdownMenu>
-                    <SidebarGroupAction
-                        title="New Page"
-                        onClick={onAddNote}
-                        className="top-1/2 -translate-y-1/2 rounded-sm opacity-0 group-hover/header:opacity-100 focus-visible:opacity-100 transition-opacity"
-                    >
-                        <IconAdd className="size-4" />
-                        <span className="sr-only">New Page</span>
-                    </SidebarGroupAction>
+                    <Tooltip>
+                        <TooltipTrigger render={
+                            <SidebarGroupAction
+                                onClick={onAddNote}
+                                className="top-1/2 -translate-y-1/2 rounded-sm opacity-0 group-hover/header:opacity-100 focus-visible:opacity-100 transition-opacity"
+                            >
+                                <IconAdd className="size-4" />
+                                <span className="sr-only">New Page</span>
+                            </SidebarGroupAction>
+                        } />
+                        <TooltipContent side="top">New Page</TooltipContent>
+                    </Tooltip>
                 </ContextMenuTrigger>
                 <ContextMenuContent className="min-w-48">
                     <GroupMenuContent group={group} variant="context" />

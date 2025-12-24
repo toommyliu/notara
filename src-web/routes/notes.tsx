@@ -6,11 +6,17 @@ import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/popover
 import { useSidebar } from "~/components/ui/sidebar";
 import { SplitViewContainer } from "~/components/layout/split-view";
 import { Button } from "~/ui/button";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
+} from "~/components/ui/tooltip";
 
 import IconMoreHorizontal from "~icons/lucide/more-horizontal";
 import IconStar from "~icons/lucide/star";
 import IconArrowLeftRight from "~icons/lucide/arrow-left-right";
 import IconX from "~icons/lucide/x";
+import IconListOrdered from "~icons/lucide/list-ordered";
 
 import { useNotesStore, type Block } from "~/stores/notes-store";
 import { useTabsStore } from "~/stores/tabs-store";
@@ -134,14 +140,44 @@ function NotesPage() {
                 prefs={paddingPrefs}
                 onChange={setPaddingPrefs}
             />
-            <Button variant="ghost" size="icon-sm" className="text-muted-foreground hover:text-foreground size-7">
-                <IconStar className="size-3.5" />
-            </Button>
-            <Button variant="ghost" size="icon-sm" className="text-muted-foreground hover:text-foreground size-7">
-                <IconMoreHorizontal className="size-3.5" />
-            </Button>
+            {activePaneNote && (
+                <Tooltip>
+                    <TooltipTrigger render={
+                        <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            onClick={() => updateNote(activePaneNote.id, { showTOC: !activePaneNote.showTOC })}
+                            className={cn(
+                                "size-7 transition-colors",
+                                activePaneNote.showTOC === false ? "text-muted-foreground/40" : "text-primary"
+                            )}
+                        >
+                            <IconListOrdered className="size-3.5" />
+                        </Button>
+                    } />
+                    <TooltipContent side="bottom">
+                        {activePaneNote.showTOC === false ? "Show Table of Contents" : "Hide Table of Contents"}
+                    </TooltipContent>
+                </Tooltip>
+            )}
+            <Tooltip>
+                <TooltipTrigger render={
+                    <Button variant="ghost" size="icon-sm" className="text-muted-foreground hover:text-foreground size-7">
+                        <IconStar className="size-3.5" />
+                    </Button>
+                } />
+                <TooltipContent side="bottom">Favorite</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+                <TooltipTrigger render={
+                    <Button variant="ghost" size="icon-sm" className="text-muted-foreground hover:text-foreground size-7">
+                        <IconMoreHorizontal className="size-3.5" />
+                    </Button>
+                } />
+                <TooltipContent side="bottom">More actions</TooltipContent>
+            </Tooltip>
         </>
-    ), [paddingPrefs]);
+    ), [paddingPrefs, activePaneNote, updateNote]);
 
     const setConfig = usePageHeaderStore((s) => s.setConfig);
 
@@ -190,7 +226,6 @@ type NoteViewProps = {
     editorPaddingStyle: CSSProperties;
     onTitleChange: (noteId: string, title: string) => void;
 };
-
 function NoteView({ paneId, noteId, editorPaddingStyle, onTitleChange }: NoteViewProps) {
     const { notes, updateNote } = useNotesStore();
     const { removePane } = useSplitViewStore();
@@ -283,7 +318,6 @@ type NotePaddingControlProps = {
     prefs: PaddingPrefs;
     onChange: Dispatch<SetStateAction<PaddingPrefs>>;
 };
-
 function NotePaddingControl({ presets, prefs, onChange }: NotePaddingControlProps) {
     const { state: sidebarState } = useSidebar();
     const presetEntries = Object.entries(presets) as [PaddingPresetKey, { label: string; px: number }][];

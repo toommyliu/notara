@@ -13,6 +13,7 @@ export type Note = {
     title: string;
     emoji: string;
     content?: Block[];
+    showTOC?: boolean;
 };
 
 export type SortOrder = "manual" | "a-z" | "z-a" | "newest" | "oldest";
