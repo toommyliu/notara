@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useLayoutEffect } from "react";
 
 import IconCheckSquare from "~icons/lucide/check-square";
 import IconCode from "~icons/lucide/code-2";
@@ -42,7 +42,9 @@ export function SlashMenu({
     searchQuery,
 }: SlashMenuProps) {
     const [selectedIndex, setSelectedIndex] = useState(0);
+    const [adjustedPosition, setAdjustedPosition] = useState(position);
     const menuRef = useRef<HTMLDivElement>(null);
+    const itemRefs = useRef<Map<number, HTMLButtonElement>>(new Map());
 
     const filteredItems = MENU_ITEMS.filter(
         (item) =>
@@ -50,9 +52,45 @@ export function SlashMenu({
             item.description.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
+    useLayoutEffect(() => {
+        if (!isOpen || !menuRef.current) return;
+
+        const rect = menuRef.current.getBoundingClientRect();
+        const viewportHeight = window.innerHeight;
+        const viewportWidth = window.innerWidth;
+
+        let { top, left } = position;
+
+        // Vertical overflow check
+        if (top + rect.height > viewportHeight - 16) {
+            // Position above if it overflows the bottom
+            top = top - rect.height - 40;
+        }
+
+        // Horizontal overflow check
+        if (left + rect.width > viewportWidth - 16) {
+            left = viewportWidth - rect.width - 16;
+        }
+
+        // Ensure it doesn't go off the top or left
+        top = Math.max(16, top);
+        left = Math.max(16, left);
+
+        setAdjustedPosition({ top, left });
+    }, [isOpen, position, filteredItems.length]);
+
     useEffect(() => {
         setSelectedIndex(0);
     }, [searchQuery]);
+
+    useEffect(() => {
+        if (isOpen && itemRefs.current.get(selectedIndex)) {
+            itemRefs.current.get(selectedIndex)?.scrollIntoView({
+                block: "nearest",
+                behavior: "smooth",
+            });
+        }
+    }, [selectedIndex, isOpen]);
 
     useEffect(() => {
         const handleKeyDown = (ev: KeyboardEvent) => {
@@ -67,11 +105,18 @@ export function SlashMenu({
                     ev.preventDefault();
                     setSelectedIndex((idx) => (idx - 1 + filteredItems.length) % filteredItems.length);
                     break;
+                case "Tab":
+                    ev.preventDefault();
+                    if (ev.shiftKey) {
+                        setSelectedIndex((idx) => (idx - 1 + filteredItems.length) % filteredItems.length);
+                    } else {
+                        setSelectedIndex((idx) => (idx + 1) % filteredItems.length);
+                    }
+                    break;
                 case "Enter":
                     ev.preventDefault();
-                    if (filteredItems[selectedIndex]) {
+                    if (filteredItems[selectedIndex])
                         onSelect(filteredItems[selectedIndex].type);
-                    }
                     break;
                 case "Escape":
                 case "Backspace":
@@ -89,9 +134,8 @@ export function SlashMenu({
         if (!isOpen) return;
 
         const handleClickOutside = (ev: MouseEvent) => {
-            if (menuRef.current && !menuRef.current.contains(ev.target as Node)) {
+            if (menuRef.current && !menuRef.current.contains(ev.target as Node))
                 onClose();
-            }
         };
 
         document.addEventListener("mousedown", handleClickOutside);
@@ -108,7 +152,7 @@ export function SlashMenu({
                 "bg-popover border border-border rounded-lg shadow-xl",
                 "animate-in fade-in zoom-in-95 duration-150"
             )}
-            style={{ top: position.top, left: position.left }}
+            style={{ top: adjustedPosition.top, left: adjustedPosition.left }}
         >
             <div className="p-1">
                 <div className="px-2 py-1.5 text-[11px] font-sans font-medium text-muted-foreground uppercase tracking-wider">
@@ -117,6 +161,10 @@ export function SlashMenu({
                 {filteredItems.map((item, index) => (
                     <button
                         key={item.type}
+                        ref={(el) => {
+                            if (el) itemRefs.current.set(index, el);
+                            else itemRefs.current.delete(index);
+                        }}
                         onClick={() => onSelect(item.type)}
                         className={cn(
                             "w-full flex items-center gap-3 px-2 py-2 rounded-md",

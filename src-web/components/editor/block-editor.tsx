@@ -97,6 +97,7 @@ type SortableBlockProps = {
     onKeyDown: (ev: KeyboardEvent, block: Block) => void;
     onFocus: () => void;
     onBlur: () => void;
+    onUpdateSlashQuery?: (query: string) => void;
     isSelected: boolean;
     blockRef: (el: HTMLElement | null) => void;
 };
@@ -108,6 +109,7 @@ function SortableBlock({
     onKeyDown,
     onFocus,
     onBlur,
+    onUpdateSlashQuery,
     isSelected,
     blockRef,
 }: SortableBlockProps) {
@@ -175,11 +177,11 @@ function SortableBlock({
                     suppressContentEditableWarning
                     onFocus={onFocus}
                     onBlur={onBlur}
-                    onInput={(ev) =>
-                        onUpdateBlock({
-                            content: ev.currentTarget.textContent || "",
-                        })
-                    }
+                    onInput={(ev) => {
+                        const content = ev.currentTarget.textContent || "";
+                        onUpdateBlock({ content });
+                        onUpdateSlashQuery?.(content);
+                    }}
                     onKeyDown={(ev) => onKeyDown(ev, block)}
                     data-placeholder={GET_PLACEHOLDER(block.type)}
                     className={cn(
@@ -578,7 +580,7 @@ export function BlockEditor({ initialBlocks, onChange }: BlockEditorProps) {
         }
 
         // /: slash command menu
-        if (ev.key === "/" && element.textContent === "") {
+        if (ev.key === "/" && element.textContent === "" && !slashMenu.isOpen) {
             ev.preventDefault();
             const rect = element.getBoundingClientRect();
             setSlashMenu({
@@ -678,6 +680,10 @@ export function BlockEditor({ initialBlocks, onChange }: BlockEditorProps) {
                                 clearBlockSelection();
                             }}
                             onBlur={() => setActiveBlockId(null)}
+                            onUpdateSlashQuery={(query) => {
+                                if (slashMenu.isOpen && slashMenu.blockId === b.id)
+                                    setSlashMenu(prev => ({ ...prev, query }));
+                            }}
                             isSelected={selectedBlockIds.has(b.id)}
                             blockRef={(el) => {
                                 if (el) {
