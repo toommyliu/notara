@@ -87,6 +87,7 @@ import { useTabsStore } from "~/stores/tabs-store";
 import { useSplitViewStore } from "~/stores/split-view-store";
 import { usePlatformLayout } from "~/hooks/use-platform";
 import { useDragContext } from "~/contexts/drag-context";
+import { useActiveHeading } from "~/hooks/use-active-heading";
 
 import { cn } from "~/lib/utils";
 
@@ -462,6 +463,7 @@ type NoteHeadingsProps = {
     blocks: Block[];
 };
 function NoteHeadings({ blocks }: NoteHeadingsProps) {
+    const activeHeadingId = useActiveHeading(blocks);
     const headings = blocks.filter(b => b.type === "h1" || b.type === "h2" || b.type === "h3");
 
     if (headings.length === 0) return null;
@@ -474,35 +476,56 @@ function NoteHeadings({ blocks }: NoteHeadingsProps) {
         }
     };
 
+    const activeIndex = headings.findIndex(h => h.id === activeHeadingId);
+
     return (
-        <SidebarMenuSub className="mt-1 gap-0.5">
-            {headings.map((heading) => (
-                <SidebarMenuSubItem key={heading.id}>
-                    <SidebarMenuSubButton
-                        onClick={(ev) => {
-                            ev.preventDefault();
-                            ev.stopPropagation();
-                            handleHeadingClick(heading.id);
-                        }}
-                        className={cn(
-                            "cursor-pointer text-muted-foreground/60 hover:text-foreground hover:bg-sidebar-accent/50",
-                            "h-7 py-0"
-                        )}
-                    >
-                        <span
-                            className={cn(
-                                "truncate text-[11px]",
-                                heading.type === "h1" && "pl-0 font-medium text-muted-foreground/80",
-                                heading.type === "h2" && "pl-3",
-                                heading.type === "h3" && "pl-6"
-                            )}
-                        >
-                            {heading.content || "Untitled"}
-                        </span>
-                    </SidebarMenuSubButton>
-                </SidebarMenuSubItem>
-            ))}
-        </SidebarMenuSub>
+        <div className="relative">
+            {activeIndex !== -1 && (
+                <div
+                    className="absolute left-[14px] w-[2px] bg-primary/80 rounded-full transition-all duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] z-10 shadow-[0_0_10px_rgba(var(--primary),0.4)]"
+                    style={{
+                        top: `${activeIndex * 30 + 6}px`,
+                        height: "20px"
+                    }}
+                />
+            )}
+            <SidebarMenuSub className="mt-1 gap-0.5 border-l-[1.5px] border-border/30 ml-[13.5px] pl-0">
+                {headings.map((heading) => {
+                    const isActive = heading.id === activeHeadingId;
+                    return (
+                        <SidebarMenuSubItem key={heading.id}>
+                            <SidebarMenuSubButton
+                                onClick={(ev) => {
+                                    ev.preventDefault();
+                                    ev.stopPropagation();
+                                    handleHeadingClick(heading.id);
+                                }}
+                                className={cn(
+                                    "cursor-pointer transition-all duration-200",
+                                    "h-7 py-0 rounded-r-md rounded-l-none",
+                                    isActive
+                                        ? "text-foreground font-medium bg-primary/5"
+                                        : "text-muted-foreground/60 hover:text-foreground hover:bg-sidebar-accent/50"
+                                )}
+                            >
+                                <span
+                                    className={cn(
+                                        "truncate text-[11px] transition-all duration-300",
+                                        isActive && "translate-x-1 scale-[1.02]",
+                                        heading.type === "h1" && "pl-3 font-medium text-muted-foreground/80",
+                                        heading.type === "h2" && "pl-6",
+                                        heading.type === "h3" && "pl-9",
+                                        isActive && "text-foreground"
+                                    )}
+                                >
+                                    {heading.content || "Untitled"}
+                                </span>
+                            </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                    );
+                })}
+            </SidebarMenuSub>
+        </div>
     );
 }
 
