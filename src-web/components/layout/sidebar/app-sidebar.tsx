@@ -434,7 +434,7 @@ export function AppSidebar() {
     return (
         <Sidebar
             collapsible="offcanvas"
-            className="border-r-0"
+            className="border-r border-border/40"
             style={{
                 top: 0,
                 height: "100vh",
