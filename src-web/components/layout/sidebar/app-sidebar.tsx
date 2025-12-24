@@ -305,7 +305,7 @@ function SortableGroup({
                 </SidebarGroupLabel>
                 <SidebarGroupAction
                     title="More options"
-                    className="top-2 right-8 rounded-sm opacity-0 group-hover/header:opacity-100 transition-opacity"
+                    className="top-1/2 -translate-y-1/2 right-8 rounded-sm opacity-0 group-hover/header:opacity-100 transition-opacity"
                 >
                     <IconMoreHorizontal className="size-4" />
                     <span className="sr-only">More options</span>
@@ -313,7 +313,7 @@ function SortableGroup({
                 <SidebarGroupAction
                     title="New Page"
                     onClick={onAddNote}
-                    className="top-2 rounded-sm opacity-0 group-hover/header:opacity-100 transition-opacity"
+                    className="top-1/2 -translate-y-1/2 rounded-sm opacity-0 group-hover/header:opacity-100 transition-opacity"
                 >
                     <IconAdd className="size-4" />
                     <span className="sr-only">New Page</span>
