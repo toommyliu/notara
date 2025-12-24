@@ -205,18 +205,16 @@ export function HeaderTabs() {
             onDragEnd={handleDragEnd}
             onDragCancel={handleDragCancel}
         >
-            <>
+            <div className="flex items-center min-w-0 pointer-events-auto" data-no-drag>
                 <div
                     ref={tabListRef}
-                    className="relative flex items-center min-w-0 group/tabs outline-none pointer-events-auto"
-                    data-no-drag
+                    className="relative flex items-center min-w-0 group/tabs outline-none"
                     role="tablist"
                     aria-orientation="horizontal"
                 >
                     <div
                         ref={scrollContainerRef}
-                        className="flex items-center gap-1 min-w-0 overflow-x-auto overflow-y-hidden scrollbar-none pb-2 -mb-2 pl-1.5 pointer-events-auto"
-                        data-no-drag
+                        className="flex items-center gap-1 min-w-0 overflow-x-auto overflow-y-hidden scrollbar-none pb-2 -mb-2 pl-1.5"
                         style={{
                             overscrollBehavior: "contain",
                             maskImage: `linear-gradient(to right, 
@@ -336,7 +334,7 @@ export function HeaderTabs() {
                     </div>
                 </div>
 
-                <div className="flex items-center gap-0.5 ml-1 shrink-0 px-1 py-0.5 relative z-20 pointer-events-auto">
+                <div className="flex items-center gap-0.5 ml-1 shrink-0 px-1 py-0.5 relative z-20">
                     {isSplitView && (
                         <DropdownMenu>
                             <DropdownMenuTrigger
@@ -420,7 +418,7 @@ export function HeaderTabs() {
                         <IconPlus className="size-3.5" />
                     </button>
                 </div>
-            </>
+            </div>
 
             <DragOverlay dropAnimation={null}>
                 {draggedNote && (
