@@ -1,4 +1,5 @@
 import { memo } from "react";
+import type { LexicalBlockEditorRef } from "./lexical-editor";
 
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
@@ -21,7 +22,11 @@ export type SortableBlockProps = {
     onBlur: () => void;
     onUpdateSlashQuery?: (query: string) => void;
     onSlashMenu?: (position: { top: number; left: number }) => void;
+    onNavigatePrev?: (type: "up" | "left") => void;
+    onNavigateNext?: (type: "down" | "right") => void;
     isSelected: boolean;
+    innerRef?: (ref: LexicalBlockEditorRef | null) => void;
+    containerRef?: (el: HTMLDivElement | null) => void;
 };
 
 export const SortableBlock = memo(function SortableBlock({
@@ -32,7 +37,11 @@ export const SortableBlock = memo(function SortableBlock({
     onBlur,
     onUpdateSlashQuery,
     onSlashMenu,
+    onNavigatePrev,
+    onNavigateNext,
     isSelected,
+    innerRef,
+    containerRef,
 }: SortableBlockProps) {
     const {
         attributes,
@@ -51,7 +60,10 @@ export const SortableBlock = memo(function SortableBlock({
 
     return (
         <div
-            ref={setNodeRef}
+            ref={(node) => {
+                setNodeRef(node);
+                if (containerRef) containerRef(node as HTMLDivElement | null);
+            }}
             style={style}
             className={cn(
                 "group relative flex items-start -mx-2 px-2 rounded-sm transition-all",
@@ -92,6 +104,7 @@ export const SortableBlock = memo(function SortableBlock({
                 <hr className="flex-1 my-4 border-border" />
             ) : (
                 <LexicalBlockEditor
+                    ref={innerRef}
                     blockId={block.id}
                     content={block.content}
                     placeholder={getPlaceholder(block.type)}
@@ -102,6 +115,8 @@ export const SortableBlock = memo(function SortableBlock({
                     onFocus={onFocus}
                     onBlur={onBlur}
                     onEnter={onAddAfter}
+                    onNavigatePrev={onNavigatePrev}
+                    onNavigateNext={onNavigateNext}
                     onSlashMenu={onSlashMenu}
                     className={cn(
                         "py-1",

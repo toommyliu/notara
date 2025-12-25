@@ -1,8 +1,8 @@
 import { useEffect, useCallback, forwardRef, useImperativeHandle, useState } from "react";
 import type { RefObject } from "react";
 
-import { $getRoot, $createParagraphNode, $createTextNode, KEY_ENTER_COMMAND, COMMAND_PRIORITY_HIGH } from "lexical";
-import { PASTE_COMMAND, COMMAND_PRIORITY_LOW, $insertNodes, $getSelection, $isRangeSelection, TextNode } from "lexical";
+import { $getRoot, $createParagraphNode, $createTextNode, KEY_ENTER_COMMAND, KEY_ARROW_UP_COMMAND, KEY_ARROW_DOWN_COMMAND, KEY_ARROW_LEFT_COMMAND, KEY_ARROW_RIGHT_COMMAND, COMMAND_PRIORITY_HIGH, COMMAND_PRIORITY_LOW } from "lexical";
+import { PASTE_COMMAND, $insertNodes, $getSelection, $isRangeSelection, TextNode, RootNode } from "lexical";
 import type { EditorState, LexicalEditor, RangeSelection } from "lexical";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
@@ -32,12 +32,16 @@ type LexicalBlockEditorProps = {
     onFocus?: () => void;
     onBlur?: () => void;
     onEnter?: () => void;
+    onNavigatePrev?: (type: "up" | "left") => void;
+    onNavigateNext?: (type: "down" | "right") => void;
     onSlashMenu?: (position: { top: number; left: number }) => void;
     className?: string;
 };
 
 export type LexicalBlockEditorRef = {
     focus: () => void;
+    focusStart: () => void;
+    focusEnd: () => void;
     getText: () => string;
 };
 
@@ -95,6 +99,75 @@ function EnterKeyPlugin({ onEnter }: { onEnter?: () => void }) {
             COMMAND_PRIORITY_HIGH
         );
     }, [editor, onEnter]);
+
+    return null;
+}
+
+// Helper to check if selection is at the very start of the editor content
+function $isAtStart(selection: RangeSelection): boolean {
+    if (selection.anchor.offset !== 0) return false;
+    let curr = selection.anchor.getNode();
+    while (curr && !(curr instanceof RootNode)) {
+        if (curr.getPreviousSibling() !== null) return false;
+        curr = curr.getParentOrThrow();
+    }
+    return true;
+}
+
+// Helper to check if selection is at the very end of the editor content
+function $isAtEnd(selection: RangeSelection): boolean {
+    const node = selection.anchor.getNode();
+    if (selection.anchor.offset !== node.getTextContentSize()) return false;
+    let curr = node;
+    while (curr && !(curr instanceof RootNode)) {
+        if (curr.getNextSibling() !== null) return false;
+        curr = curr.getParentOrThrow();
+    }
+    return true;
+}
+
+// Plugin to handle arrow keys for navigation between blocks
+function ArrowKeyNavigationPlugin({
+    onNavigatePrev,
+    onNavigateNext,
+}: {
+    onNavigatePrev?: (type: "up" | "left") => void;
+    onNavigateNext?: (type: "down" | "right") => void;
+}) {
+    const [editor] = useLexicalComposerContext();
+
+    useEffect(() => {
+        const handlePrev = (ev: KeyboardEvent, type: "up" | "left") => {
+            const selection = $getSelection();
+            if ($isRangeSelection(selection) && selection.isCollapsed() && $isAtStart(selection)) {
+                ev.preventDefault();
+                onNavigatePrev?.(type);
+                return true;
+            }
+            return false;
+        };
+
+        const handleNext = (ev: KeyboardEvent, type: "down" | "right") => {
+            const selection = $getSelection();
+            if ($isRangeSelection(selection) && selection.isCollapsed() && $isAtEnd(selection)) {
+                ev.preventDefault();
+                onNavigateNext?.(type);
+                return true;
+            }
+            return false;
+        };
+
+        const listeners = [
+            editor.registerCommand(KEY_ARROW_UP_COMMAND, (ev) => handlePrev(ev, "up"), COMMAND_PRIORITY_LOW),
+            editor.registerCommand(KEY_ARROW_LEFT_COMMAND, (ev) => handlePrev(ev, "left"), COMMAND_PRIORITY_LOW),
+            editor.registerCommand(KEY_ARROW_DOWN_COMMAND, (ev) => handleNext(ev, "down"), COMMAND_PRIORITY_LOW),
+            editor.registerCommand(KEY_ARROW_RIGHT_COMMAND, (ev) => handleNext(ev, "right"), COMMAND_PRIORITY_LOW),
+        ];
+
+        return () => {
+            listeners.forEach(remove => remove());
+        };
+    }, [editor, onNavigatePrev, onNavigateNext]);
 
     return null;
 }
@@ -221,6 +294,26 @@ function EditorRefPlugin({ editorRef }: { editorRef: RefObject<LexicalBlockEdito
 
     useImperativeHandle(editorRef, () => ({
         focus: () => editor.focus(),
+        focusStart: () => {
+            editor.focus();
+            editor.update(() => {
+                const root = $getRoot();
+                const firstChild = root.getFirstChild();
+                if (firstChild) {
+                    firstChild.selectStart();
+                }
+            });
+        },
+        focusEnd: () => {
+            editor.focus();
+            editor.update(() => {
+                const root = $getRoot();
+                const lastChild = root.getLastChild();
+                if (lastChild) {
+                    lastChild.selectEnd();
+                }
+            });
+        },
         getText: () => {
             let text = "";
             editor.getEditorState().read(() => {
@@ -350,6 +443,8 @@ export const LexicalBlockEditor = forwardRef<LexicalBlockEditorRef, LexicalBlock
             onFocus,
             onBlur,
             onEnter,
+            onNavigatePrev,
+            onNavigateNext,
             onSlashMenu,
             className,
         },
@@ -415,6 +510,7 @@ export const LexicalBlockEditor = forwardRef<LexicalBlockEditorRef, LexicalBlock
                     <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
                     <OnChangePlugin onChange={handleChange} />
                     <EnterKeyPlugin onEnter={onEnter} />
+                    <ArrowKeyNavigationPlugin onNavigatePrev={onNavigatePrev} onNavigateNext={onNavigateNext} />
                     <SlashMenuPlugin onSlashMenu={onSlashMenu} />
                     <MarkdownPastePlugin />
                     <InitialContentPlugin content={content} />

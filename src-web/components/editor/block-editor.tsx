@@ -20,6 +20,7 @@ import {
 import { SlashMenu } from "./slash-menu";
 import { SortableBlock } from "./sortable-block";
 import { BlockType, createBlock, type BlockTypeValue } from "./utils/block-utils";
+import type { LexicalBlockEditorRef } from "./lexical-editor";
 
 import { useBlockClipboard } from "./hooks/use-block-clipboard";
 import { useBlockSelection } from "./hooks/use-block-selection";
@@ -53,6 +54,7 @@ export function BlockEditor({ initialBlocks, onChange }: BlockEditorProps) {
     });
 
     const blockRefs = useRef<Map<string, HTMLElement>>(new Map());
+    const editorRefs = useRef<Map<string, LexicalBlockEditorRef>>(new Map());
     const containerRef = useRef<HTMLDivElement>(null);
 
     const { isMac } = usePlatformLayout();
@@ -180,6 +182,36 @@ export function BlockEditor({ initialBlocks, onChange }: BlockEditorProps) {
         return newBlock.id;
     };
 
+    const navigatePrev = useCallback((id: string, type: "up" | "left") => {
+        const index = blocks.findIndex(b => b.id === id);
+        if (index > 0) {
+            const prevBlock = blocks[index - 1];
+            const editor = editorRefs.current.get(prevBlock.id);
+            if (editor) {
+                if (type === "left") editor.focusEnd();
+                else editor.focus();
+            } else {
+                const el = blockRefs.current.get(prevBlock.id) || document.getElementById(prevBlock.id);
+                el?.focus();
+            }
+        }
+    }, [blocks]);
+
+    const navigateNext = useCallback((id: string, type: "down" | "right") => {
+        const index = blocks.findIndex(b => b.id === id);
+        if (index < blocks.length - 1) {
+            const nextBlock = blocks[index + 1];
+            const editor = editorRefs.current.get(nextBlock.id);
+            if (editor) {
+                if (type === "right") editor.focusStart();
+                else editor.focus();
+            } else {
+                const el = blockRefs.current.get(nextBlock.id) || document.getElementById(nextBlock.id);
+                el?.focus();
+            }
+        }
+    }, [blocks]);
+
     const handleSlashSelect = (type: BlockTypeValue) => {
         updateBlock(slashMenu.blockId, { type });
         setSlashMenu((prev) => ({ ...prev, isOpen: false }));
@@ -229,7 +261,17 @@ export function BlockEditor({ initialBlocks, onChange }: BlockEditorProps) {
                                     query: "",
                                 });
                             }}
+                            onNavigatePrev={(type) => navigatePrev(b.id, type)}
+                            onNavigateNext={(type) => navigateNext(b.id, type)}
                             isSelected={selectedBlockIds.has(b.id)}
+                            innerRef={(ref) => {
+                                if (ref) editorRefs.current.set(b.id, ref);
+                                else editorRefs.current.delete(b.id);
+                            }}
+                            containerRef={(el) => {
+                                if (el) blockRefs.current.set(b.id, el);
+                                else blockRefs.current.delete(b.id);
+                            }}
                         />
                     ))}
                 </div>
