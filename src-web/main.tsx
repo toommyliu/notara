@@ -2,8 +2,9 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { createRouter, RouterProvider } from "@tanstack/react-router";
 
-import { ThemeProvider } from "~/contexts/theme";
-import { DragProvider } from "~/contexts/drag-context";
+import { ThemeProvider } from "~/providers/theme";
+import { DragProvider } from "~/providers/drag-context";
+
 import { routeTree } from "~/routeTree.gen";
 
 const router = createRouter({ routeTree });

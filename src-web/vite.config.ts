@@ -36,9 +36,11 @@ export default defineConfig(async () => ({
 
     resolve: {
         alias: {
-            "~/components": path.resolve(__dirname, "components/"),
-            "~/ui": path.resolve(__dirname, "components/ui/"),
+            "~/features": path.resolve(__dirname, "features/"),
+            "~/ui": path.resolve(__dirname, "ui/"),
             "~/hooks": path.resolve(__dirname, "hooks/"),
+            "~/lib": path.resolve(__dirname, "lib/"),
+            "~/providers": path.resolve(__dirname, "providers/"),
             "~": path.resolve(__dirname, "./"),
         },
     },

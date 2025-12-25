@@ -1,16 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, useCallback, type CSSProperties, type Dispatch, type SetStateAction } from "react";
 
-import { BlockEditor } from "~/components/editor/block-editor";
-import { Popover, PopoverContent, PopoverTrigger } from "~/components/ui/popover";
-import { useSidebar } from "~/components/ui/sidebar";
-import { SplitViewContainer } from "~/components/layout/split-view";
+import { BlockEditor } from "~/features/editor";
+import { Popover, PopoverContent, PopoverTrigger } from "~/ui/popover";
+import { useSidebar } from "~/ui/sidebar";
+import { SplitViewContainer } from "~/features/layout";
 import { Button } from "~/ui/button";
 import {
     Tooltip,
     TooltipContent,
     TooltipTrigger,
-} from "~/components/ui/tooltip";
+} from "~/ui/tooltip";
 
 import IconMoreHorizontal from "~icons/lucide/more-horizontal";
 import IconStar from "~icons/lucide/star";
@@ -18,10 +18,10 @@ import IconArrowLeftRight from "~icons/lucide/arrow-left-right";
 import IconX from "~icons/lucide/x";
 import IconListOrdered from "~icons/lucide/list-ordered";
 
-import { useNotesStore, type Block } from "~/stores/notes-store";
-import { useTabsStore } from "~/stores/tabs-store";
-import { useSplitViewStore, useIsSplitView } from "~/stores/split-view-store";
-import { usePageHeaderStore } from "~/stores/page-header-store";
+import { useNotesStore, type Block } from "~/features/notes/store";
+import { useTabsStore } from "~/features/layout/stores/tabs-store";
+import { useSplitViewStore, useIsSplitView } from "~/features/layout/stores/split-view-store";
+import { usePageHeaderStore } from "~/features/layout/stores/page-header-store";
 
 import { cn } from "~/lib/utils";
 

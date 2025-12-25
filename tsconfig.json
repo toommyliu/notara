@@ -26,14 +26,20 @@
       "~/*": [
         "src-web/*"
       ],
-      "~/components/*": [
-        "src-web/components/*"
+      "~/features/*": [
+        "src-web/features/*"
       ],
       "~/ui/*": [
-        "src-web/components/ui/*"
+        "src-web/ui/*"
       ],
       "~/hooks/*": [
         "src-web/hooks/*"
+      ],
+      "~/lib/*": [
+        "src-web/lib/*"
+      ],
+      "~/providers/*": [
+        "src-web/providers/*"
       ]
     }
   },

@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 
-import { useShortcutsStore } from "~/stores/shortcuts-store";
+import { useShortcutsStore } from "~/features/settings/stores/shortcuts-store";
 import { getKeyFromEvent } from "~/lib/keyboard";
 import type { ShortcutId, ShortcutBinding, Modifier } from "@notara/shortcuts";
 

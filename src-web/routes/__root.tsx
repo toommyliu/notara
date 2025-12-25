@@ -3,17 +3,14 @@ import { createRootRoute, Outlet } from "@tanstack/react-router";
 import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
 import { listen } from "@tauri-apps/api/event";
 
-import { AppHeader } from "~/components/layout/app-header";
-import { AppSidebar } from "~/components/layout/sidebar";
-import { TitlebarSpacer } from "~/components/layout/app-titlebar";
-import { IconRibbon } from "~/components/layout/sidebar";
-import { SettingsDialogContent } from "~/components/settings";
+import { AppHeader, AppSidebar, TitlebarSpacer, IconRibbon } from "~/features/layout";
+import { SettingsDialogContent } from "~/features/settings";
 import { SidebarInset, SidebarProvider, useSidebar } from "~/ui/sidebar";
 
-import { useTabsStore } from "~/stores/tabs-store";
-import { useNotesStore } from "~/stores/notes-store";
-import { useSplitViewStore } from "~/stores/split-view-store";
-import { useSettingsStore } from "~/stores/settings-store";
+import { useTabsStore } from "~/features/layout/stores/tabs-store";
+import { useNotesStore } from "~/features/notes/store";
+import { useSplitViewStore } from "~/features/layout/stores/split-view-store";
+import { useSettingsStore } from "~/features/settings/stores/settings-store";
 
 import { useHotKeys } from "~/hooks/use-hotkey";
 import { useIsTauri } from "~/hooks/use-tauri";

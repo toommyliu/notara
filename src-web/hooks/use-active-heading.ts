@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { type Block } from "~/stores/notes-store";
+import { type Block } from "~/features/notes/store";
 
 export function useActiveHeading(blocks: Block[]) {
     const [activeId, setActiveId] = useState<string | null>(null);
