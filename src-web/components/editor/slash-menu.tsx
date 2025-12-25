@@ -96,19 +96,22 @@ export function SlashMenu({
 
     useEffect(() => {
         const handleKeyDown = (ev: KeyboardEvent) => {
-            if (!isOpen) return;
+            if (!isOpen || filteredItems.length === 0) return;
+
+            const handledKeys = ["ArrowDown", "ArrowUp", "Tab", "Enter", "Escape", "Backspace"];
+            if (handledKeys.includes(ev.key)) {
+                ev.preventDefault();
+                ev.stopPropagation();
+            }
 
             switch (ev.key) {
                 case "ArrowDown":
-                    ev.preventDefault();
                     setSelectedIndex((idx) => (idx + 1) % filteredItems.length);
                     break;
                 case "ArrowUp":
-                    ev.preventDefault();
                     setSelectedIndex((idx) => (idx - 1 + filteredItems.length) % filteredItems.length);
                     break;
                 case "Tab":
-                    ev.preventDefault();
                     if (ev.shiftKey) {
                         setSelectedIndex((idx) => (idx - 1 + filteredItems.length) % filteredItems.length);
                     } else {
@@ -116,20 +119,18 @@ export function SlashMenu({
                     }
                     break;
                 case "Enter":
-                    ev.preventDefault();
                     if (filteredItems[selectedIndex])
                         onSelect(filteredItems[selectedIndex].type);
                     break;
                 case "Escape":
                 case "Backspace":
-                    ev.preventDefault();
                     onClose();
                     break;
             }
         };
 
-        document.addEventListener("keydown", handleKeyDown);
-        return () => document.removeEventListener("keydown", handleKeyDown);
+        document.addEventListener("keydown", handleKeyDown, true);
+        return () => document.removeEventListener("keydown", handleKeyDown, true);
     }, [isOpen, selectedIndex, filteredItems, onSelect, onClose]);
 
     useEffect(() => {
