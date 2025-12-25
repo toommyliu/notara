@@ -1,4 +1,4 @@
-import { useEffect, useCallback, forwardRef, useImperativeHandle } from "react";
+import { useEffect, useCallback, forwardRef, useImperativeHandle, useState } from "react";
 import type { RefObject } from "react";
 
 import { $getRoot, $createParagraphNode, $createTextNode, KEY_ENTER_COMMAND, COMMAND_PRIORITY_HIGH } from "lexical";
@@ -372,6 +372,18 @@ export const LexicalBlockEditor = forwardRef<LexicalBlockEditorRef, LexicalBlock
             [onChange]
         );
 
+        const [isFocused, setIsFocused] = useState(false);
+
+        const handleFocus = useCallback((_ev: React.FocusEvent) => {
+            setIsFocused(true);
+            onFocus?.();
+        }, [onFocus]);
+
+        const handleBlur = useCallback((_ev: React.FocusEvent) => {
+            setIsFocused(false);
+            onBlur?.();
+        }, [onBlur]);
+
         const internalRef = { current: null as LexicalBlockEditorRef | null };
 
         return (
@@ -386,14 +398,16 @@ export const LexicalBlockEditor = forwardRef<LexicalBlockEditorRef, LexicalBlock
                                     "outline-none min-h-[1.5em]",
                                     "text-lg leading-relaxed text-ink"
                                 )}
-                                onFocus={onFocus}
-                                onBlur={onBlur}
+                                onFocus={handleFocus}
+                                onBlur={handleBlur}
                             />
                         }
                         placeholder={
-                            <div className="absolute top-1 left-0 text-muted-foreground/40 pointer-events-none text-lg leading-relaxed">
-                                {placeholder}
-                            </div>
+                            isFocused ? (
+                                <div className="absolute top-1 left-0 text-muted-foreground/40 pointer-events-none text-lg leading-relaxed">
+                                    {placeholder}
+                                </div>
+                            ) : null
                         }
                         ErrorBoundary={LexicalErrorBoundary}
                     />
