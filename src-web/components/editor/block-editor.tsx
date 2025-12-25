@@ -227,10 +227,12 @@ export function BlockEditor({ initialBlocks, onChange }: BlockEditorProps) {
     }, [blocks]);
 
     const handleSlashSelect = (type: BlockTypeValue) => {
-        updateBlock(slashMenu.blockId, { type });
+        updateBlock(slashMenu.blockId, { type, content: "" });
         setSlashMenu((prev) => ({ ...prev, isOpen: false }));
         setTimeout(() => {
-            blockRefs.current.get(slashMenu.blockId)?.focus();
+            const editor = editorRefs.current.get(slashMenu.blockId);
+            editor?.clear();
+            editor?.focus();
         }, 0);
     };
 

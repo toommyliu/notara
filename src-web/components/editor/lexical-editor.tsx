@@ -43,6 +43,7 @@ export type LexicalBlockEditorRef = {
     focusStart: () => void;
     focusEnd: () => void;
     getText: () => string;
+    clear: () => void;
 };
 
 const LEXICAL_THEME = {
@@ -320,6 +321,15 @@ function EditorRefPlugin({ editorRef }: { editorRef: RefObject<LexicalBlockEdito
                 text = $getRoot().getTextContent();
             });
             return text;
+        },
+        clear: () => {
+            editor.update(() => {
+                const root = $getRoot();
+                root.clear();
+                const paragraph = $createParagraphNode();
+                root.append(paragraph);
+                paragraph.selectStart();
+            });
         },
     }));
 
