@@ -560,7 +560,11 @@ function SortableNote({ note, groupId, isActive, onSelect, activeDragType }: Sor
         transition,
     };
 
-    const handleClick = () => {
+    const handleClick = (ev: React.MouseEvent) => {
+        // prevent "open in new tab"
+        if (ev.metaKey || ev.ctrlKey)
+            ev.preventDefault();
+
         onSelect();
         navigate({ to: "/notes" });
     };
