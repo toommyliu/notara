@@ -19,7 +19,6 @@ import {
 
 import { SlashMenu } from "./slash-menu";
 import { SortableBlock } from "./sortable-block";
-import { BlockType, createBlock, type BlockTypeValue } from "./utils/block-utils";
 import type { LexicalBlockEditorRef } from "./lexical-editor";
 
 import { useBlockClipboard } from "./hooks/use-block-clipboard";
@@ -27,6 +26,7 @@ import { useBlockSelection } from "./hooks/use-block-selection";
 import { usePlatformLayout } from "~/hooks/use-platform";
 import type { Block } from "~/stores/notes-store";
 
+import { BlockType, createBlock, type BlockTypeValue } from "./utils/block-utils";
 import { cn } from "~/lib/utils";
 
 type BlockEditorProps = {
@@ -172,13 +172,27 @@ export function BlockEditor({ initialBlocks, onChange }: BlockEditorProps) {
             return newBlocks;
         });
 
-        setTimeout(() => {
-            const el = blockRefs.current.get(newBlock.id) || document.getElementById(newBlock.id);
-            if (el) {
-                el.focus();
-                requestAnimationFrame(() => scrollIntoComfortableView(el));
+        const focusNewBlock = () => {
+            const editor = editorRefs.current.get(newBlock.id);
+            if (editor) {
+                editor.focus();
+                const el = blockRefs.current.get(newBlock.id);
+                if (el)
+                    requestAnimationFrame(() => scrollIntoComfortableView(el));
+            } else {
+                requestAnimationFrame(() => {
+                    const editorRetry = editorRefs.current.get(newBlock.id);
+                    if (editorRetry) {
+                        editorRetry.focus();
+                        const el = blockRefs.current.get(newBlock.id);
+                        if (el)
+                            requestAnimationFrame(() => scrollIntoComfortableView(el));
+                    }
+                });
             }
-        }, 0);
+        };
+
+        setTimeout(focusNewBlock, 0);
         return newBlock.id;
     };
 
