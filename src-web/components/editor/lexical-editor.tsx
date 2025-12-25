@@ -509,7 +509,7 @@ export const LexicalBlockEditor = forwardRef<LexicalBlockEditorRef, LexicalBlock
                         }
                         placeholder={
                             isFocused ? (
-                                <div className="absolute top-1 left-0 text-muted-foreground/40 pointer-events-none text-lg leading-relaxed">
+                                <div className="absolute inset-0 p-[inherit] text-muted-foreground/40 pointer-events-none text-lg leading-relaxed">
                                     {placeholder}
                                 </div>
                             ) : null
