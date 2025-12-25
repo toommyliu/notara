@@ -1,7 +1,7 @@
 import {
-    useState, useEffect, useCallback, forwardRef, memo, useMemo, useRef,
+    useState, useEffect, useCallback, forwardRef, memo, useMemo, useRef, useImperativeHandle,
 } from "react";
-import type { ChangeEvent, KeyboardEvent, ClipboardEvent, RefObject, UIEvent } from "react";
+import type { ChangeEvent, KeyboardEvent, ClipboardEvent, UIEvent } from "react";
 import { codeToHtml, bundledLanguages } from "shiki";
 
 import IconCopy from "~icons/lucide/copy";
@@ -183,27 +183,23 @@ export const CodeBlock = memo(forwardRef<LexicalBlockEditorRef, CodeBlockProps>(
             }
         }, [editContent, onEnter, onNavigatePrev, onNavigateNext, onContentChange]);
 
-        useEffect(() => {
-            if (ref && typeof ref === "object") {
-                (ref as RefObject<LexicalBlockEditorRef | null>).current = {
-                    focus: () => textareaRef.current?.focus(),
-                    focusStart: () => {
-                        textareaRef.current?.focus();
-                        textareaRef.current?.setSelectionRange(0, 0);
-                    },
-                    focusEnd: () => {
-                        textareaRef.current?.focus();
-                        const len = textareaRef.current?.value.length || 0;
-                        textareaRef.current?.setSelectionRange(len, len);
-                    },
-                    getText: () => editContent,
-                    clear: () => {
-                        setEditContent("");
-                        onContentChange?.("");
-                    },
-                };
-            }
-        }, [ref, editContent, onContentChange]);
+        useImperativeHandle(ref, () => ({
+            focus: () => textareaRef.current?.focus(),
+            focusStart: () => {
+                textareaRef.current?.focus();
+                textareaRef.current?.setSelectionRange(0, 0);
+            },
+            focusEnd: () => {
+                textareaRef.current?.focus();
+                const len = textareaRef.current?.value.length || 0;
+                textareaRef.current?.setSelectionRange(len, len);
+            },
+            getText: () => editContent,
+            clear: () => {
+                setEditContent("");
+                onContentChange?.("");
+            },
+        }), [editContent, onContentChange]);
 
         const displayLanguage = language && languages.includes(language) ? language : "plaintext";
         const isDark = resolvedTheme === "dark";

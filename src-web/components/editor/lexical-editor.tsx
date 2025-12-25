@@ -35,6 +35,7 @@ type LexicalBlockEditorProps = {
     onNavigatePrev?: (type: "up" | "left") => void;
     onNavigateNext?: (type: "down" | "right") => void;
     onSlashMenu?: (position: { top: number; left: number }) => void;
+    onConvertToCode?: (language?: string) => void;
     className?: string;
     blockType?: string;
 };
@@ -225,6 +226,29 @@ function SlashMenuPlugin({
         rootElement.addEventListener("keydown", handleKeyDown);
         return () => rootElement.removeEventListener("keydown", handleKeyDown);
     }, [editor, onSlashMenu]);
+
+    return null;
+}
+
+// Plugin to detect ``` shortcut for code blocks
+function CodeBlockShortcutPlugin({
+    onConvertToCode
+}: {
+    onConvertToCode?: (language?: string) => void
+}) {
+    const [editor] = useLexicalComposerContext();
+
+    useEffect(() => {
+        if (!onConvertToCode) return;
+
+        return editor.registerTextContentListener((text) => {
+            const match = text.match(/^```(\w*)$/);
+            if (match) {
+                const language = match[1] || undefined;
+                onConvertToCode(language);
+            }
+        });
+    }, [editor, onConvertToCode]);
 
     return null;
 }
@@ -478,6 +502,7 @@ export const LexicalBlockEditor = forwardRef<LexicalBlockEditorRef, LexicalBlock
             onNavigatePrev,
             onNavigateNext,
             onSlashMenu,
+            onConvertToCode,
             className,
             blockType,
         },
@@ -545,6 +570,7 @@ export const LexicalBlockEditor = forwardRef<LexicalBlockEditorRef, LexicalBlock
                     <EnterKeyPlugin onEnter={onEnter} blockType={blockType} />
                     <ArrowKeyNavigationPlugin onNavigatePrev={onNavigatePrev} onNavigateNext={onNavigateNext} />
                     <SlashMenuPlugin onSlashMenu={onSlashMenu} />
+                    <CodeBlockShortcutPlugin onConvertToCode={onConvertToCode} />
                     <MarkdownPastePlugin />
                     <InitialContentPlugin content={content} />
                     <EditorRefPlugin editorRef={ref as React.RefObject<LexicalBlockEditorRef | null> ?? internalRef} />

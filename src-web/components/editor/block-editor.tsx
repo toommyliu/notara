@@ -258,6 +258,17 @@ export function BlockEditor({ initialBlocks, onChange }: BlockEditorProps) {
                             block={b}
                             onAddAfter={() => addBlockAfter(b.id)}
                             onUpdateBlock={(updates) => updateBlock(b.id, updates)}
+                            onConvertToCode={(language) => {
+                                updateBlock(b.id, {
+                                    type: "code",
+                                    content: "",
+                                    language: language || "plaintext",
+                                });
+                                setTimeout(() => {
+                                    const editor = editorRefs.current.get(b.id);
+                                    editor?.focus();
+                                }, 0);
+                            }}
                             onFocus={() => {
                                 setFocusedBlockId(b.id);
                                 clearBlockSelection();

@@ -19,6 +19,7 @@ export type SortableBlockProps = {
     block: Block;
     onAddAfter: () => void;
     onUpdateBlock: (updates: Partial<Block>) => void;
+    onConvertToCode: (language?: string) => void;
     onFocus: () => void;
     onBlur: () => void;
     onUpdateSlashQuery?: (query: string) => void;
@@ -34,6 +35,7 @@ export const SortableBlock = memo(function SortableBlock({
     block,
     onAddAfter,
     onUpdateBlock,
+    onConvertToCode,
     onFocus,
     onBlur,
     onUpdateSlashQuery,
@@ -130,6 +132,8 @@ export const SortableBlock = memo(function SortableBlock({
                     content={block.content}
                     placeholder={getPlaceholder(block.type)}
                     onChange={(text) => {
+                        if (/^```\w*$/.test(text)) return;
+
                         onUpdateBlock({ content: text });
                         onUpdateSlashQuery?.(text);
                     }}
@@ -139,6 +143,7 @@ export const SortableBlock = memo(function SortableBlock({
                     onNavigatePrev={onNavigatePrev}
                     onNavigateNext={onNavigateNext}
                     onSlashMenu={onSlashMenu}
+                    onConvertToCode={onConvertToCode}
                     className={cn(
                         "py-1",
                         getBlockStyles(block.type)
