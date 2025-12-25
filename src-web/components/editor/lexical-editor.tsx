@@ -36,6 +36,7 @@ type LexicalBlockEditorProps = {
     onNavigateNext?: (type: "down" | "right") => void;
     onSlashMenu?: (position: { top: number; left: number }) => void;
     className?: string;
+    blockType?: string;
 };
 
 export type LexicalBlockEditorRef = {
@@ -80,26 +81,37 @@ function onError(error: Error) {
 }
 
 // Plugin to handle Enter key for block creation
-function EnterKeyPlugin({ onEnter }: { onEnter?: () => void }) {
+function EnterKeyPlugin({ onEnter, blockType }: { onEnter?: () => void, blockType?: string }) {
     const [editor] = useLexicalComposerContext();
 
     useEffect(() => {
         return editor.registerCommand(
             KEY_ENTER_COMMAND,
             (ev) => {
-                // Shift+Enter: let Lexical handle (line break within block)
-                if (ev?.shiftKey) {
-                    return false;
-                }
+                const isCodeBlock = blockType === "code";
 
-                // Regular Enter: always create new block
-                ev?.preventDefault();
-                onEnter?.();
-                return true;
+                if (isCodeBlock) {
+                    // In code blocks: Shift+Enter creates new block, Enter inserts newline
+                    if (ev?.shiftKey) {
+                        ev?.preventDefault();
+                        onEnter?.();
+                        return true;
+                    }
+
+                    return false;
+                } else {
+                    // Regular blocks: Shift+Enter inserts newline, Enter creates new block
+                    if (ev?.shiftKey)
+                        return false;
+
+                    ev?.preventDefault();
+                    onEnter?.();
+                    return true;
+                }
             },
             COMMAND_PRIORITY_HIGH
         );
-    }, [editor, onEnter]);
+    }, [editor, onEnter, blockType]);
 
     return null;
 }
@@ -109,21 +121,29 @@ function $isAtStart(selection: RangeSelection): boolean {
     if (selection.anchor.offset !== 0) return false;
     let curr = selection.anchor.getNode();
     while (curr && !(curr instanceof RootNode)) {
-        if (curr.getPreviousSibling() !== null) return false;
+        if (curr.getPreviousSibling() !== null)
+            return false;
+
         curr = curr.getParentOrThrow();
     }
+
     return true;
 }
 
 // Helper to check if selection is at the very end of the editor content
 function $isAtEnd(selection: RangeSelection): boolean {
     const node = selection.anchor.getNode();
-    if (selection.anchor.offset !== node.getTextContentSize()) return false;
+    if (selection.anchor.offset !== node.getTextContentSize())
+        return false;
+
     let curr = node;
     while (curr && !(curr instanceof RootNode)) {
-        if (curr.getNextSibling() !== null) return false;
+        if (curr.getNextSibling() !== null)
+            return false;
+
         curr = curr.getParentOrThrow();
     }
+
     return true;
 }
 
@@ -145,6 +165,7 @@ function ArrowKeyNavigationPlugin({
                 onNavigatePrev?.(type);
                 return true;
             }
+
             return false;
         };
 
@@ -155,6 +176,7 @@ function ArrowKeyNavigationPlugin({
                 onNavigateNext?.(type);
                 return true;
             }
+
             return false;
         };
 
@@ -457,6 +479,7 @@ export const LexicalBlockEditor = forwardRef<LexicalBlockEditorRef, LexicalBlock
             onNavigateNext,
             onSlashMenu,
             className,
+            blockType,
         },
         ref
     ) {
@@ -519,7 +542,7 @@ export const LexicalBlockEditor = forwardRef<LexicalBlockEditorRef, LexicalBlock
                     <HistoryPlugin />
                     <MarkdownShortcutPlugin transformers={TRANSFORMERS} />
                     <OnChangePlugin onChange={handleChange} />
-                    <EnterKeyPlugin onEnter={onEnter} />
+                    <EnterKeyPlugin onEnter={onEnter} blockType={blockType} />
                     <ArrowKeyNavigationPlugin onNavigatePrev={onNavigatePrev} onNavigateNext={onNavigateNext} />
                     <SlashMenuPlugin onSlashMenu={onSlashMenu} />
                     <MarkdownPastePlugin />

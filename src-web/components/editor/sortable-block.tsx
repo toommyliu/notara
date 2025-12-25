@@ -106,6 +106,7 @@ export const SortableBlock = memo(function SortableBlock({
                 <LexicalBlockEditor
                     ref={innerRef}
                     blockId={block.id}
+                    blockType={block.type}
                     content={block.content}
                     placeholder={getPlaceholder(block.type)}
                     onChange={(text) => {
