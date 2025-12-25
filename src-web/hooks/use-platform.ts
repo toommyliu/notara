@@ -101,8 +101,21 @@ function getPlatformSafe(): Platform {
     return UNKNOWN;
 }
 
+export function getIsMacOS(): boolean {
+    return getPlatformSafe() === MACOS;
+}
+
 export function useIsMacOS(): boolean {
-    return useMemo(() => getPlatformSafe() === MACOS, []);
+    return useMemo(() => getIsMacOS(), []);
+}
+
+export function isModKey(ev: KeyboardEvent | React.KeyboardEvent): boolean {
+    const isMac = getIsMacOS();
+    return isMac ? ev.metaKey : ev.ctrlKey;
+}
+
+export function getModKeyLabel(): string {
+    return getIsMacOS() ? "⌘" : "Ctrl";
 }
 
 export function usePlatformLayout(): LayoutTokens {

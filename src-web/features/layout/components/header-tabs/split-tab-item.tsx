@@ -12,10 +12,10 @@ import type { HeaderTabItemHandle, SplitTabItemProps } from "./types";
 
 export const SplitTabItem = forwardRef<HeaderTabItemHandle, SplitTabItemProps>(
     function SplitTabItem({ noteId, isActive, isPinned, noteIds, onActivatePane, onClosePane }, ref) {
-        const { notes } = useNotesStore();
+        const notes = useNotesStore((s) => s.notes);
         const tabRef = useRef<HTMLDivElement>(null);
         const buttonRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
-        const { activeTabId } = useTabsStore();
+        const activeTabId = useTabsStore((s) => s.activeTabId);
 
         useImperativeHandle(ref, () => ({
             focus: () => {

@@ -2,7 +2,7 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { createRouter, RouterProvider } from "@tanstack/react-router";
 
-import { scan } from "react-scan";
+// import { scan } from "react-scan";
 
 import { ThemeProvider } from "~/providers/theme";
 import { DragProvider } from "~/providers/drag-context";
@@ -11,9 +11,9 @@ import { routeTree } from "~/routeTree.gen";
 
 const router = createRouter({ routeTree });
 
-scan({
-  enabled: import.meta.env.DEV,
-});
+// scan({
+//   enabled: import.meta.env.REACT_SCAN === "true",
+// });
 
 createRoot(document.getElementById("root") as HTMLElement).render(
   <StrictMode>

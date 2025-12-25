@@ -22,7 +22,8 @@ const SNAP_THRESHOLD = 5; // Snap when within 5% of 50%
 const ESCAPE_THRESHOLD = 8; // Must drag past 8% to escape snap
 
 export function SplitViewContainer({ renderPane, renderPreview, contentPadding }: SplitViewContainerProps) {
-    const { activeTabId, setActiveTab } = useTabsStore();
+    const activeTabId = useTabsStore((s) => s.activeTabId);
+    const setActiveTab = useTabsStore((s) => s.setActiveTab);
     const { panes, activePaneId, setActivePane, orientation } = useSplitViewStore();
     const [hoverSide, setHoverSide] = useState<"left" | "right" | "top" | "bottom" | null>(null);
     const groupRef = useRef<GroupImperativeHandle>(null);
@@ -30,7 +31,7 @@ export function SplitViewContainer({ renderPane, renderPreview, contentPadding }
     const { perform } = useHaptics();
 
     const dragContext = useDragContext();
-    const { notes } = useNotesStore();
+    const notes = useNotesStore((s) => s.notes);
 
     const draggedNote = dragContext?.isDragging && dragContext.draggedNoteId
         ? notes.get(dragContext.draggedNoteId) ?? null
@@ -240,23 +241,15 @@ function NotePreview({ note, orientation, renderPreview }: NotePreviewProps) {
                         )}>
                             {note.title || "Untitled"}
                         </h1>
-                        {note.content && note.content.length > 0 && (
-                            <div className="space-y-2 text-muted-foreground/60 select-text pb-16">
-                                {note.content.slice(0, orientation === "vertical" ? 3 : 5).map((block) => (
-                                    <p key={block.id} className={cn(
-                                        "leading-relaxed",
-                                        orientation === "vertical" ? "text-sm" : "text-base"
-                                    )}>
-                                        {block.content || "\u00A0"}
-                                    </p>
-                                ))}
-                                {note.content.length > (orientation === "vertical" ? 3 : 5) && (
-                                    <p className="text-sm italic">
-                                        +{note.content.length - (orientation === "vertical" ? 3 : 5)} more blocks...
-                                    </p>
-                                )}
-                            </div>
-                        )}
+                        {/* Content preview disabled - uses Lexical serialized state now */}
+                        <div className="space-y-2 text-muted-foreground/40 select-text pb-16">
+                            <p className={cn(
+                                "leading-relaxed italic",
+                                orientation === "vertical" ? "text-sm" : "text-base"
+                            )}>
+                                Start typing to add content...
+                            </p>
+                        </div>
                     </div>
                 </div>
             </div>

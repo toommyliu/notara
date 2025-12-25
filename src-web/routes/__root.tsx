@@ -29,7 +29,7 @@ function MainContent() {
 function AppShell() {
     const { toggleSidebar } = useSidebar();
     const { toggleTabBar, cycleTab } = useTabsStore();
-    const { addNote } = useNotesStore();
+    const addNote = useNotesStore((s) => s.addNote);
     const { cyclePane } = useSplitViewStore();
     const { open: openSettings } = useSettingsStore();
     const isTauri = useIsTauri();

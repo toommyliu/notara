@@ -13,7 +13,13 @@ import IconHash from "~icons/lucide/hash";
 import { useTheme } from "~/hooks/use-theme";
 import { cn } from "~/lib/utils";
 
-import type { LexicalBlockEditorRef } from "./lexical-editor";
+export type CodeBlockRef = {
+    focus: () => void;
+    focusStart: () => void;
+    focusEnd: () => void;
+    getText: () => string;
+    clear: () => void;
+};
 
 const POPULAR_LANGUAGES = [
     "typescript", "javascript", "python", "rust", "go", "html", "css",
@@ -35,7 +41,7 @@ type CodeBlockProps = {
     isSelected?: boolean;
 };
 
-export const CodeBlock = memo(forwardRef<LexicalBlockEditorRef, CodeBlockProps>(
+export const CodeBlock = memo(forwardRef<CodeBlockRef, CodeBlockProps>(
     function CodeBlock(
         {
             content,
@@ -448,6 +454,7 @@ export const CodeBlock = memo(forwardRef<LexicalBlockEditorRef, CodeBlockProps>(
                                 __html: highlightedHtml || `<pre style="margin:0"><code>${escapeHtml(editContent) || " "}</code></pre>`
                             }}
                         />
+
                         {/* interaction layer */}
                         <textarea
                             ref={textareaRef}

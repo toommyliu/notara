@@ -43,7 +43,9 @@ import type { HeaderTabItemHandle } from "./types";
 
 export function HeaderTabs() {
     const { pinnedTabs, openTabs, activeTabId, setActiveTab, closeTab, reorderTabs, isTabBarVisible, tabGroups, removeFromGroup } = useTabsStore();
-    const { notes, groups, addNote } = useNotesStore();
+    const notes = useNotesStore((s) => s.notes);
+    const groups = useNotesStore((s) => s.groups);
+    const addNote = useNotesStore((s) => s.addNote);
     const { swapPanes, orientation, setOrientation } = useSplitViewStore();
     const isSplitView = useIsSplitView();
     const dragContext = useDragContext();
@@ -108,7 +110,8 @@ export function HeaderTabs() {
                 y <= rect.bottom + 20
             );
 
-            if (!isInside) return []; // Allow drag to escape for split-view
+            if (!isInside)
+                return []; // Allow drag to escape for split-view
         }
 
         return closestCenter(args);
@@ -147,14 +150,14 @@ export function HeaderTabs() {
 
         dragContext?.endDrag();
 
-        if (!over || active.id === over.id) return;
+        if (!over || active.id === over.id)
+            return;
 
         const activeSection = active.data.current?.section as "pinned" | "open";
         const overSection = over.data.current?.section as "pinned" | "open";
 
-        if (activeSection === overSection) {
+        if (activeSection === overSection)
             reorderTabs(active.id as string, over.id as string, activeSection);
-        }
     };
 
     const handleDragCancel = () => {
@@ -190,10 +193,12 @@ export function HeaderTabs() {
         removeFromGroup(activeTabId);
     };
 
-    if (!isTabBarVisible) return null;
+    if (!isTabBarVisible)
+        return null;
 
     const hasTabs = pinnedTabs.length > 0 || openTabs.length > 0;
-    if (!hasTabs) return null;
+    if (!hasTabs)
+        return null;
 
     const draggedNote = activeDragId ? notes.get(activeDragId) : null;
 

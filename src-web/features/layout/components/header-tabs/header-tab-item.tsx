@@ -12,7 +12,7 @@ import type { HeaderTabItemHandle, HeaderTabItemProps } from "./types";
 
 export const HeaderTabItem = forwardRef<HeaderTabItemHandle, HeaderTabItemProps>(
     function HeaderTabItem({ noteId, isActive, isPinned, onActivate, onClose, compact }, ref) {
-        const { notes } = useNotesStore();
+        const notes = useNotesStore((s) => s.notes);
         const note = notes.get(noteId);
         const tabRef = useRef<HTMLDivElement>(null);
         const buttonRef = useRef<HTMLButtonElement>(null);

@@ -1,7 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, useCallback, type CSSProperties, type Dispatch, type SetStateAction } from "react";
+import type { SerializedEditorState } from "lexical";
 
-import { BlockEditor } from "~/features/editor";
+import { DocumentEditor } from "~/features/editor";
 import { Popover, PopoverContent, PopoverTrigger } from "~/ui/popover";
 import { useSidebar } from "~/ui/sidebar";
 import { SplitViewContainer } from "~/features/layout";
@@ -18,7 +19,7 @@ import IconArrowLeftRight from "~icons/lucide/arrow-left-right";
 import IconX from "~icons/lucide/x";
 import IconListOrdered from "~icons/lucide/list-ordered";
 
-import { useNotesStore, type Block } from "~/features/notes/store";
+import { useNotesStore } from "~/features/notes/store";
 import { useTabsStore } from "~/features/layout/stores/tabs-store";
 import { useSplitViewStore, useIsSplitView } from "~/features/layout/stores/split-view-store";
 import { usePageHeaderStore } from "~/features/layout/stores/page-header-store";
@@ -54,7 +55,8 @@ function isPaddingPresetKey(value: string): value is PaddingPresetKey {
 }
 
 function NotesPage() {
-    const { notes, updateNote } = useNotesStore();
+    const notes = useNotesStore((s) => s.notes);
+    const updateNote = useNotesStore((s) => s.updateNote);
     const { activeTabId, tabGroups } = useTabsStore();
     const { panes, activePaneId, setActivePane, setPanes, setSinglePane } = useSplitViewStore();
     const { state: sidebarState } = useSidebar();
@@ -227,7 +229,8 @@ type NoteViewProps = {
     onTitleChange: (noteId: string, title: string) => void;
 };
 function NoteView({ paneId, noteId, editorPaddingStyle, onTitleChange }: NoteViewProps) {
-    const { notes, updateNote } = useNotesStore();
+    const notes = useNotesStore((s) => s.notes);
+    const updateNote = useNotesStore((s) => s.updateNote);
     const { removePane } = useSplitViewStore();
     const isSplitView = useIsSplitView();
     const note = noteId ? notes.get(noteId) ?? null : null;
@@ -239,9 +242,9 @@ function NoteView({ paneId, noteId, editorPaddingStyle, onTitleChange }: NoteVie
         }
     }, [note?.id, note?.title]);
 
-    const handleContentChange = useCallback((blocks: Block[]) => {
+    const handleContentChange = useCallback((state: SerializedEditorState) => {
         if (note) {
-            updateNote(note.id, { content: blocks });
+            updateNote(note.id, { content: state });
         }
     }, [note?.id, updateNote]);
 
@@ -284,10 +287,10 @@ function NoteView({ paneId, noteId, editorPaddingStyle, onTitleChange }: NoteVie
                         if (ev.key === "Enter" || ev.key === "Tab") {
                             ev.preventDefault();
 
-                            // Focus the first editable block in the editor
-                            const editorContainer = document.querySelector('[data-block-editor]');
-                            const firstBlock = editorContainer?.querySelector('[contenteditable="true"]') as HTMLElement;
-                            firstBlock?.focus();
+                            // Focus the first editable content in the editor
+                            const editorContainer = document.querySelector('[data-document-editor]');
+                            const firstEditable = editorContainer?.querySelector('[contenteditable="true"]') as HTMLElement;
+                            firstEditable?.focus();
                         } else if (ev.key === "Escape") {
                             ev.currentTarget.blur();
                         }
@@ -302,10 +305,10 @@ function NoteView({ paneId, noteId, editorPaddingStyle, onTitleChange }: NoteVie
                     )}
                 />
 
-                <div className="mt-4 pb-48 select-text" data-block-editor>
-                    <BlockEditor
+                <div className="mt-4 pb-48 select-text" data-document-editor>
+                    <DocumentEditor
                         key={note.id}
-                        initialBlocks={note.content}
+                        initialState={note.content}
                         onChange={handleContentChange}
                     />
                 </div>

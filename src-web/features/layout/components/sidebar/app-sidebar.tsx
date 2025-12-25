@@ -56,9 +56,6 @@ import {
     SidebarMenu,
     SidebarMenuButton,
     SidebarMenuItem,
-    SidebarMenuSub,
-    SidebarMenuSubButton,
-    SidebarMenuSubItem,
     SidebarRail,
 } from "~/ui/sidebar";
 import { Popover, PopoverContent, PopoverTrigger } from "~/ui/popover";
@@ -82,12 +79,11 @@ import IconListOrdered from "~icons/lucide/list-ordered";
 import IconCheck from "~icons/lucide/check";
 import IconInfinity from "~icons/lucide/infinity";
 
-import { type Block, type Group, type Note, type SortOrder, useNotesStore } from "~/features/notes/store";
+import { type Group, type Note, type SortOrder, useNotesStore } from "~/features/notes/store";
 import { useTabsStore } from "~/features/layout/stores/tabs-store";
 import { useSplitViewStore } from "~/features/layout/stores/split-view-store";
 import { usePlatformLayout } from "~/hooks/use-platform";
 import { useDragContext } from "~/providers/drag-context";
-import { useActiveHeading } from "~/hooks/use-active-heading";
 
 import { cn } from "~/lib/utils";
 
@@ -154,7 +150,9 @@ function GroupsEndDropZone({ isVisible }: { isVisible: boolean }) {
 }
 
 function SidebarActionStrip() {
-    const { addNote, addGroup, sortData } = useNotesStore();
+    const addNote = useNotesStore((s) => s.addNote);
+    const addGroup = useNotesStore((s) => s.addGroup);
+    const sortData = useNotesStore((s) => s.sortData);
     const { openTab } = useTabsStore();
     const navigate = useNavigate();
 
@@ -209,7 +207,10 @@ type NoteMenuContentProps = {
 };
 function NoteMenuContent({ note, groupId, variant }: NoteMenuContentProps) {
     const navigate = useNavigate();
-    const { groups, duplicateNote, deleteNote, moveNote } = useNotesStore();
+    const groups = useNotesStore((s) => s.groups);
+    const duplicateNote = useNotesStore((s) => s.duplicateNote);
+    const deleteNote = useNotesStore((s) => s.deleteNote);
+    const moveNote = useNotesStore((s) => s.moveNote);
     const { openTab } = useTabsStore();
     const { addPane } = useSplitViewStore();
 
@@ -324,7 +325,8 @@ type GroupMenuContentProps = {
     variant: "context" | "dropdown";
 };
 function GroupMenuContent({ group, variant }: GroupMenuContentProps) {
-    const { sortGroup, setGroupDisplayLimit } = useNotesStore();
+    const sortGroup = useNotesStore((s) => s.sortGroup);
+    const setGroupDisplayLimit = useNotesStore((s) => s.setGroupDisplayLimit);
 
     const Item = variant === "context" ? ContextMenuItem : DropdownMenuItem;
     const Separator = variant === "context" ? ContextMenuSeparator : DropdownMenuSeparator;
@@ -459,75 +461,17 @@ function HiddenNotesPopover({
     );
 }
 
+// TODO: Re-implement TOC extraction from Lexical serialized state
+// For now, TOC feature is disabled until we can properly parse SerializedEditorState
+/*
 type NoteHeadingsProps = {
-    blocks: Block[];
+    content: unknown;
 };
-function NoteHeadings({ blocks }: NoteHeadingsProps) {
-    const activeHeadingId = useActiveHeading(blocks);
-    const headings = blocks.filter(b => b.type === "h1" || b.type === "h2" || b.type === "h3");
-
-    if (headings.length === 0) return null;
-
-    const handleHeadingClick = (id: string) => {
-        const element = document.getElementById(id);
-        if (element) {
-            element.scrollIntoView({ behavior: "smooth", block: "center" });
-            (element as HTMLElement).focus();
-        }
-    };
-
-    const activeIndex = headings.findIndex(h => h.id === activeHeadingId);
-
-    return (
-        <div className="relative">
-            {activeIndex !== -1 && (
-                <div
-                    className="absolute left-[14px] w-[2px] bg-primary/80 rounded-full transition-all duration-300 ease-[cubic-bezier(0.23,1,0.32,1)] z-10 shadow-[0_0_10px_rgba(var(--primary),0.4)]"
-                    style={{
-                        top: `${activeIndex * 30 + 6}px`,
-                        height: "20px"
-                    }}
-                />
-            )}
-            <SidebarMenuSub className="mt-1 gap-0.5 border-l-[1.5px] border-border/30 ml-[13.5px] pl-0">
-                {headings.map((heading) => {
-                    const isActive = heading.id === activeHeadingId;
-                    return (
-                        <SidebarMenuSubItem key={heading.id}>
-                            <SidebarMenuSubButton
-                                onClick={(ev) => {
-                                    ev.preventDefault();
-                                    ev.stopPropagation();
-                                    handleHeadingClick(heading.id);
-                                }}
-                                className={cn(
-                                    "cursor-pointer transition-all duration-200",
-                                    "h-7 py-0 rounded-r-md rounded-l-none",
-                                    isActive
-                                        ? "text-foreground font-medium bg-primary/5"
-                                        : "text-muted-foreground/60 hover:text-foreground hover:bg-sidebar-accent/50"
-                                )}
-                            >
-                                <span
-                                    className={cn(
-                                        "truncate text-[11px] transition-all duration-300",
-                                        isActive && "translate-x-1 scale-[1.02]",
-                                        heading.type === "h1" && "pl-3 font-medium text-muted-foreground/80",
-                                        heading.type === "h2" && "pl-6",
-                                        heading.type === "h3" && "pl-9",
-                                        isActive && "text-foreground"
-                                    )}
-                                >
-                                    {heading.content || "Untitled"}
-                                </span>
-                            </SidebarMenuSubButton>
-                        </SidebarMenuSubItem>
-                    );
-                })}
-            </SidebarMenuSub>
-        </div>
-    );
+function NoteHeadings({ content }: NoteHeadingsProps) {
+    // Placeholder component - TOC from Lexical state needs implementation
+    return null;
 }
+*/
 
 type SortableNoteProps = {
     note: Note;
@@ -538,7 +482,7 @@ type SortableNoteProps = {
 };
 function SortableNote({ note, groupId, isActive, onSelect, activeDragType }: SortableNoteProps) {
     const navigate = useNavigate();
-    const { updateNote } = useNotesStore();
+    const updateNote = useNotesStore((s) => s.updateNote);
     const [isHovered, setIsHovered] = useState(false);
     const [dropdownOpen, setDropdownOpen] = useState(false);
 
@@ -569,7 +513,8 @@ function SortableNote({ note, groupId, isActive, onSelect, activeDragType }: Sor
         navigate({ to: "/notes" });
     };
 
-    const hasHeadings = note.content?.some(b => b.type === "h1" || b.type === "h2" || b.type === "h3");
+    // TOC temporarily disabled - needs Lexical state parsing
+    const hasHeadings = false; // note.content?.some(b => b.type === "h1" || b.type === "h2" || b.type === "h3");
     const showIndicator = isOver && !isDragging && activeDragType === "note";
     const showDotsButton = isHovered || dropdownOpen;
 
@@ -672,9 +617,11 @@ function SortableNote({ note, groupId, isActive, onSelect, activeDragType }: Sor
                     </div>
                 </div>
 
+                {/* TOC temporarily disabled - needs Lexical state parsing
                 {isActive && note.content && note.showTOC !== false && (
-                    <NoteHeadings blocks={note.content} />
+                    <NoteHeadings content={note.content} />
                 )}
+                */}
             </ContextMenuTrigger>
 
             <ContextMenuContent>
@@ -836,15 +783,13 @@ function SortableGroup({
 export function AppSidebar() {
     const layout = usePlatformLayout();
     const navigate = useNavigate();
-    const {
-        groups,
-        notes,
-        addNote,
-        toggleGroupCollapse,
-        reorderGroups,
-        moveNote,
-        reorderNotesInGroup,
-    } = useNotesStore();
+    const groups = useNotesStore((s) => s.groups);
+    const notes = useNotesStore((s) => s.notes);
+    const addNote = useNotesStore((s) => s.addNote);
+    const toggleGroupCollapse = useNotesStore((s) => s.toggleGroupCollapse);
+    const reorderGroups = useNotesStore((s) => s.reorderGroups);
+    const moveNote = useNotesStore((s) => s.moveNote);
+    const reorderNotesInGroup = useNotesStore((s) => s.reorderNotesInGroup);
     const { openTab, activeTabId } = useTabsStore();
     const dragContext = useDragContext();
 

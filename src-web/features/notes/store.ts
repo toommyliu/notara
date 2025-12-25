@@ -1,23 +1,15 @@
 import { create } from "zustand";
 import { arrayMove } from "@dnd-kit/sortable";
-
-import type { BlockTypeValue } from "~/features/editor/utils/block-utils";
-
-export type Block = {
-    id: string;
-    type: BlockTypeValue;
-    content: string;
-    indent?: number;
-    language?: string;
-};
+import type { SerializedEditorState } from "lexical";
 
 export type Note = {
     id: string;
     title: string;
     emoji: string;
-    content?: Block[];
+    content?: SerializedEditorState | null;
     showTOC?: boolean;
 };
+
 
 export type SortOrder = "manual" | "a-z" | "z-a" | "newest" | "oldest";
 
@@ -57,12 +49,13 @@ type NotesStore = NotesState & NotesActions & {
 };
 
 const INITIAL_NOTES: Note[] = [
-    { id: "note-1", title: "My First Note", emoji: "📝", content: [{ id: "b1", type: "text", content: "Welcome to Notara!" }] },
-    { id: "note-2", title: "Project Ideas", emoji: "💡" },
-    { id: "note-3", title: "Meeting Notes", emoji: "📋" },
-    { id: "note-4", title: "Reading List", emoji: "📚" },
-    { id: "note-5", title: "Travel Plans", emoji: "✈️" },
+    { id: "note-1", title: "My First Note", emoji: "📝", content: null },
+    { id: "note-2", title: "Project Ideas", emoji: "💡", content: null },
+    { id: "note-3", title: "Meeting Notes", emoji: "📋", content: null },
+    { id: "note-4", title: "Reading List", emoji: "📚", content: null },
+    { id: "note-5", title: "Travel Plans", emoji: "✈️", content: null },
 ];
+
 
 const INITIAL_GROUPS: Group[] = [
     { id: "group-ungrouped", title: "Ungrouped", isCollapsed: false, noteIds: [], sortOrder: "manual", displayLimit: null },
@@ -86,19 +79,9 @@ export const useNotesStore = create<NotesStore>()((set, get) => ({
         const id = `note-${crypto.randomUUID()}`;
         const targetGroupId = groupId || "group-ungrouped";
 
-        const sampleBlocks: Block[] = [
-            { id: crypto.randomUUID(), type: "h1", content: "Sample Note with Markdown" },
-            { id: crypto.randomUUID(), type: "text", content: "This note contains **bold**, *italic*, and `inline code` for testing." },
-            { id: crypto.randomUUID(), type: "h2", content: "A Second Heading" },
-            { id: crypto.randomUUID(), type: "bullet", content: "First bullet point" },
-            { id: crypto.randomUUID(), type: "bullet", content: "Second bullet with **bold text**" },
-            { id: crypto.randomUUID(), type: "quote", content: "This is a blockquote for testing" },
-            { id: crypto.randomUUID(), type: "text", content: "" },
-        ];
-
         set((s) => {
             const newNotes = new Map(s.notes);
-            newNotes.set(id, { id, title, emoji, content: sampleBlocks });
+            newNotes.set(id, { id, title, emoji, content: null });
 
             return {
                 notes: newNotes,
@@ -111,6 +94,7 @@ export const useNotesStore = create<NotesStore>()((set, get) => ({
 
         return id;
     },
+
 
     updateNote: (noteId, updates) =>
         set((s) => {
@@ -131,7 +115,7 @@ export const useNotesStore = create<NotesStore>()((set, get) => ({
             ...note,
             id: newId,
             title: `${note.title} (copy)`,
-            content: note.content ? [...note.content] : undefined,
+            content: note.content ? structuredClone(note.content) : null,
         };
 
         set((s) => {
