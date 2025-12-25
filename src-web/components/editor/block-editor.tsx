@@ -20,6 +20,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 
 import { SlashMenu } from "./slash-menu";
+import { InlineRenderer } from "./inline-renderer";
 
 import IconGripVertical from "~icons/lucide/grip-vertical";
 import IconPlus from "~icons/lucide/plus";
@@ -99,6 +100,7 @@ type SortableBlockProps = {
     onBlur: () => void;
     onUpdateSlashQuery?: (query: string) => void;
     isSelected: boolean;
+    isFocused: boolean;
     blockRef: (el: HTMLElement | null) => void;
 };
 
@@ -111,6 +113,7 @@ function SortableBlock({
     onBlur,
     onUpdateSlashQuery,
     isSelected,
+    isFocused,
     blockRef,
 }: SortableBlockProps) {
     const {
@@ -169,7 +172,42 @@ function SortableBlock({
 
             {block.type === "divider" ? (
                 <hr className="flex-1 my-4 border-border" />
+            ) : !isFocused && block.content && block.type === "text" ? (
+                // Unfocused preview: rendered markdown, click to edit
+                <>
+                    <div
+                        className={cn(
+                            "flex-1 py-1 min-w-0 overflow-hidden cursor-text",
+                            "wrap-anywhere",
+                            "text-lg leading-relaxed text-ink",
+                            "selection:bg-amber/20",
+                            GET_BLOCK_STYLES(block.type)
+                        )}
+                        onClick={() => {
+                            document.getElementById(block.id)?.focus();
+                        }}
+                    >
+                        <InlineRenderer content={block.content} />
+                    </div>
+                    <div
+                        id={block.id}
+                        ref={blockRef}
+                        contentEditable
+                        suppressContentEditableWarning
+                        onFocus={onFocus}
+                        onBlur={onBlur}
+                        onInput={(ev) => {
+                            const content = ev.currentTarget.textContent || "";
+                            onUpdateBlock({ content });
+                            onUpdateSlashQuery?.(content);
+                        }}
+                        onKeyDown={(ev) => onKeyDown(ev, block)}
+                        className="sr-only"
+                        tabIndex={-1}
+                    />
+                </>
             ) : (
+                // Focused or other block types: standard raw markdown editing
                 <div
                     id={block.id}
                     ref={blockRef}
@@ -187,8 +225,7 @@ function SortableBlock({
                     className={cn(
                         "flex-1 outline-none py-1 min-w-0 overflow-hidden relative",
                         "wrap-anywhere",
-                        "text-lg leading-relaxed",
-                        "text-ink",
+                        "text-lg leading-relaxed text-ink",
                         "empty:after:content-[attr(data-placeholder)]",
                         "empty:after:text-muted-foreground/40",
                         "empty:after:absolute empty:after:top-1",
@@ -207,7 +244,7 @@ export function BlockEditor({ initialBlocks, onChange }: BlockEditorProps) {
         initialBlocks || [CREATE_BLOCK("text", "")]
     );
 
-    const [_activeBlockId, setActiveBlockId] = useState<string | null>(null);
+    const [focusedBlockId, setFocusedBlockId] = useState<string | null>(null);
     const [activeDragId, setActiveDragId] = useState<string | null>(null);
     const [slashMenu, setSlashMenu] = useState<{
         isOpen: boolean;
@@ -676,15 +713,16 @@ export function BlockEditor({ initialBlocks, onChange }: BlockEditorProps) {
                             onUpdateBlock={(updates) => updateBlock(b.id, updates)}
                             onKeyDown={handleBlockKeyDown}
                             onFocus={() => {
-                                setActiveBlockId(b.id);
+                                setFocusedBlockId(b.id);
                                 clearBlockSelection();
                             }}
-                            onBlur={() => setActiveBlockId(null)}
+                            onBlur={() => setFocusedBlockId(null)}
                             onUpdateSlashQuery={(query) => {
                                 if (slashMenu.isOpen && slashMenu.blockId === b.id)
                                     setSlashMenu(prev => ({ ...prev, query }));
                             }}
                             isSelected={selectedBlockIds.has(b.id)}
+                            isFocused={focusedBlockId === b.id}
                             blockRef={(el) => {
                                 if (el) {
                                     blockRefs.current.set(b.id, el);
