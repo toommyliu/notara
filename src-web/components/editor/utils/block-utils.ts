@@ -44,12 +44,13 @@ const BLOCK_PLACEHOLDERS: Record<BlockTypeValue, string> = {
     [BlockType.DIVIDER]: "",
 };
 
-export function createBlock(type: BlockTypeValue = BlockType.TEXT, content: string = "", indent: number = 0): Block {
+export function createBlock(type: BlockTypeValue = BlockType.TEXT, content: string = "", indent: number = 0, language?: string): Block {
     return {
         id: crypto.randomUUID(),
         type,
         content,
         indent,
+        ...(language && { language }),
     };
 }
 
@@ -134,6 +135,9 @@ export function parseMarkdownToBlocks(text: string): Block[] {
 
         // Code blocks (```), treat content as single code block
         else if (line.startsWith("```")) {
+            // Extract language from opening fence (e.g., ```typescript)
+            const langMatch = line.match(/^```(\w+)?/);
+            const language = langMatch?.[1] || undefined;
             const codeLines: string[] = [];
             idx++; // Skip opening ```
             while (idx < lines.length && !lines[idx].startsWith("```")) {
@@ -141,7 +145,7 @@ export function parseMarkdownToBlocks(text: string): Block[] {
                 idx++;
             }
 
-            result.push(createBlock(BlockType.CODE, codeLines.join("\n")));
+            result.push(createBlock(BlockType.CODE, codeLines.join("\n"), 0, language));
         }
 
         // Plain text (including empty lines that become empty text blocks)

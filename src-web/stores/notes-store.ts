@@ -8,6 +8,7 @@ export type Block = {
     type: BlockTypeValue;
     content: string;
     indent?: number;
+    language?: string;
 };
 
 export type Note = {

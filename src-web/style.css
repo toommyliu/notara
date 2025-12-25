@@ -228,6 +228,7 @@
 
   .scrollbar-custom::-webkit-scrollbar {
     width: 7px;
+    height: 7px;
   }
 
   .scrollbar-custom::-webkit-scrollbar-track {
@@ -245,6 +246,10 @@
     background: var(--muted-foreground);
     border: 1px solid transparent;
     background-clip: padding-box;
+  }
+
+  .scrollbar-custom::-webkit-scrollbar-corner {
+    background: transparent;
   }
 
   .dark .scrollbar-custom::-webkit-scrollbar-thumb {
@@ -308,5 +313,42 @@
   /* Hide native text selection when custom block selection is active */
   .blocks-selected *::selection {
     background: transparent;
+  }
+
+  /* Shiki syntax highlighting container */
+  .shiki-container,
+  .shiki-container pre,
+  .shiki-container code,
+  .shiki-container .shiki {
+    margin: 0;
+    padding: 0;
+    background: transparent !important;
+    font-family: ui-monospace, 'SF Mono', 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, monospace;
+    font-size: inherit;
+    line-height: inherit;
+    white-space: inherit;
+    word-wrap: inherit;
+  }
+
+  /* Ensure code blocks don't add extra spacing */
+  .shiki-container pre {
+    display: block;
+  }
+
+  .shiki-container code {
+    display: block;
+  }
+
+  /* Override any Shiki theme that sets backgrounds */
+  .shiki-container .shiki,
+  .shiki-container .shiki span {
+    background: transparent !important;
+  }
+
+  /* Line height for code blocks */
+  .shiki-container .line {
+    min-height: 1.5rem;
+    line-height: 1.5rem;
+    display: block;
   }
 }

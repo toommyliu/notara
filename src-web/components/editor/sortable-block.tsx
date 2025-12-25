@@ -5,6 +5,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
 import { LexicalBlockEditor } from "./lexical-editor";
+import { CodeBlock } from "./code-block";
 import { BlockType, getBlockStyles, getPlaceholder } from "./utils/block-utils";
 
 import IconGripVertical from "~icons/lucide/grip-vertical";
@@ -102,6 +103,25 @@ export const SortableBlock = memo(function SortableBlock({
 
             {block.type === BlockType.DIVIDER ? (
                 <hr className="flex-1 my-4 border-border" />
+            ) : block.type === BlockType.CODE ? (
+                <CodeBlock
+                    ref={innerRef}
+                    blockId={block.id}
+                    content={block.content}
+                    language={block.language}
+                    isSelected={isSelected}
+                    onContentChange={(text) => {
+                        onUpdateBlock({ content: text });
+                    }}
+                    onLanguageChange={(language) => {
+                        onUpdateBlock({ language });
+                    }}
+                    onFocus={onFocus}
+                    onBlur={onBlur}
+                    onEnter={onAddAfter}
+                    onNavigatePrev={onNavigatePrev}
+                    onNavigateNext={onNavigateNext}
+                />
             ) : (
                 <LexicalBlockEditor
                     ref={innerRef}

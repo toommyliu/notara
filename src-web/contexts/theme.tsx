@@ -13,11 +13,13 @@ type ThemeProviderProps = PropsWithChildren & {
 
 type ThemeProviderState = {
     theme: Theme
+    resolvedTheme: "dark" | "light"
     setTheme: (theme: Theme) => void
 }
 
 const initialState: ThemeProviderState = {
     theme: "system",
+    resolvedTheme: "dark",
     setTheme: () => null,
 }
 
@@ -32,6 +34,7 @@ export function ThemeProvider({
     const [theme, setTheme] = useState<Theme>(
         () => (localStorage.getItem(storageKey) as Theme) || defaultTheme
     )
+    const [resolvedTheme, setResolvedTheme] = useState<"dark" | "light">("dark")
     const isTauri = useIsTauri()
 
     useEffect(() => {
@@ -47,6 +50,7 @@ export function ThemeProvider({
                 : theme)
 
             root.classList.add(effectiveTheme)
+            setResolvedTheme(effectiveTheme)
 
             if (isTauri) {
                 const bgColor = effectiveTheme === "dark" ? "#1a1a1a" : "#ffffff"
@@ -75,6 +79,7 @@ export function ThemeProvider({
 
     const value = {
         theme,
+        resolvedTheme,
         setTheme: (theme: Theme) => {
             localStorage.setItem(storageKey, theme)
             setTheme(theme)
@@ -87,4 +92,3 @@ export function ThemeProvider({
         </ThemeProviderContext.Provider>
     )
 }
-

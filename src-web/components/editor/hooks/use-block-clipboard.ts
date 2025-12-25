@@ -78,8 +78,14 @@ export function useBlockClipboard({
         if (!container) return;
 
         const handlePaste = (ev: ClipboardEvent) => {
+            const target = ev.target as HTMLElement;
+            // codeblocks have their own paste handlers
+            if (target.closest("[data-code-block-id]"))
+                return;
+
             const clipboardData = ev.clipboardData;
-            if (!clipboardData) return;
+            if (!clipboardData)
+                return;
 
             // Check for internal block data first (from our copy handler)
             const blockData = clipboardData.getData(BLOCK_MIME_TYPE);
