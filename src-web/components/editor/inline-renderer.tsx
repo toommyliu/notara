@@ -22,7 +22,6 @@ const MARKDOWN_COMPONENTS: Components = {
     code: ({ children }) => (
         <code className="inline-code">{children}</code>
     ),
-    // strikethrough
     del: ({ children }) => (
         <del className="line-through text-muted-foreground">{children}</del>
     ),
@@ -56,15 +55,6 @@ const MARKDOWN_COMPONENTS: Components = {
 
 /**
  * Renders inline markdown content using react-markdown.
- * XSS-safe by design - converts markdown to React components without dangerouslySetInnerHTML.
- * 
- * Supported formats:
- * - **bold** or __bold__
- * - *italic* or _italic_
- * - `inline code`
- * - ~~strikethrough~~
- * - [link text](url)
- * - Autolinks via remark-gfm
  */
 export const InlineRenderer = memo(function InlineRenderer({
     content,

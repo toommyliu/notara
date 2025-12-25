@@ -1,9 +1,9 @@
 import { useCallback, useRef, memo } from "react";
+import type { RefObject } from "react";
 
 import { cn } from "~/lib/utils";
 
 type TokenType = "text" | "bold" | "italic" | "code" | "strikethrough" | "link";
-
 type Token = {
     type: TokenType;
     content: string;
@@ -180,7 +180,7 @@ export const LiveInlineRenderer = memo(function LiveInlineRenderer({
     );
 });
 
-export function useCursorPosition(elementRef: React.RefObject<HTMLElement | null>) {
+export function useCursorPosition(elementRef: RefObject<HTMLElement | null>) {
     const positionRef = useRef<number>(0);
 
     const updatePosition = useCallback(() => {

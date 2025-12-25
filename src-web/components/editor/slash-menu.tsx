@@ -11,27 +11,29 @@ import IconMinus from "~icons/lucide/minus";
 import IconQuote from "~icons/lucide/quote";
 import IconText from "~icons/lucide/type";
 
+import { BlockType, type BlockTypeValue } from "./utils/block-utils";
+
 import { cn } from "~/lib/utils";
 
 type SlashMenuProps = {
     isOpen: boolean;
     position: { top: number; left: number };
-    onSelect: (blockType: string) => void;
+    onSelect: (blockType: BlockTypeValue) => void;
     onClose: () => void;
     searchQuery: string;
 }
 
 const MENU_ITEMS = [
-    { type: "text", label: "Text", description: "Plain text block", icon: IconText, shortcut: null },
-    { type: "h1", label: "Heading 1", description: "Large section heading", icon: IconHeading1, shortcut: "#" },
-    { type: "h2", label: "Heading 2", description: "Medium section heading", icon: IconHeading2, shortcut: "##" },
-    { type: "h3", label: "Heading 3", description: "Small section heading", icon: IconHeading3, shortcut: "###" },
-    { type: "bullet", label: "Bulleted List", description: "Create a bullet list", icon: IconList, shortcut: "-" },
-    { type: "numbered", label: "Numbered List", description: "Create a numbered list", icon: IconListOrdered, shortcut: "1." },
-    { type: "todo", label: "To-do", description: "Track tasks with checkboxes", icon: IconCheckSquare, shortcut: "[]" },
-    { type: "quote", label: "Quote", description: "Capture a quote", icon: IconQuote, shortcut: ">" },
-    { type: "code", label: "Code", description: "Capture a code snippet", icon: IconCode, shortcut: "```" },
-    { type: "divider", label: "Divider", description: "Visual separator", icon: IconMinus, shortcut: "---" },
+    { type: BlockType.TEXT, label: "Text", description: "Plain text block", icon: IconText, shortcut: null },
+    { type: BlockType.H1, label: "Heading 1", description: "Large section heading", icon: IconHeading1, shortcut: "#" },
+    { type: BlockType.H2, label: "Heading 2", description: "Medium section heading", icon: IconHeading2, shortcut: "##" },
+    { type: BlockType.H3, label: "Heading 3", description: "Small section heading", icon: IconHeading3, shortcut: "###" },
+    { type: BlockType.BULLET, label: "Bulleted List", description: "Create a bullet list", icon: IconList, shortcut: "-" },
+    { type: BlockType.NUMBERED, label: "Numbered List", description: "Create a numbered list", icon: IconListOrdered, shortcut: "1." },
+    { type: BlockType.TODO, label: "To-do", description: "Track tasks with checkboxes", icon: IconCheckSquare, shortcut: "[]" },
+    { type: BlockType.QUOTE, label: "Quote", description: "Capture a quote", icon: IconQuote, shortcut: ">" },
+    { type: BlockType.CODE, label: "Code", description: "Capture a code snippet", icon: IconCode, shortcut: "```" },
+    { type: BlockType.DIVIDER, label: "Divider", description: "Visual separator", icon: IconMinus, shortcut: "---" },
 ] as const;
 
 export function SlashMenu({

@@ -166,6 +166,31 @@ export const useTabsStore = create<TabsState & TabsActions>()(
                 return { tabGroups: newGroups };
             })
         }),
-        { name: "notara:tabs" }
+        {
+            name: "notara:tabs",
+            onRehydrateStorage: () => (state) => {
+                // After hydration, ensure there's a valid active tab
+                if (!state)
+                    return;
+
+                const { notes } = useNotesStore.getState();
+
+                // Validate tabs
+                state.pinnedTabs = state.pinnedTabs.filter((id) => notes.has(id));
+                state.openTabs = state.openTabs.filter((id) => notes.has(id));
+
+                if (state.activeTabId && notes.has(state.activeTabId)) {
+                    if (!state.pinnedTabs.includes(state.activeTabId) && !state.openTabs.includes(state.activeTabId))
+                        state.openTabs = [...state.openTabs, state.activeTabId];
+
+                    return;
+                }
+
+                // Select first valid tab as active
+                const validTabs = [...state.pinnedTabs, ...state.openTabs];
+                if (validTabs.length > 0)
+                    state.activeTabId = validTabs[0]!;
+            },
+        }
     )
 );

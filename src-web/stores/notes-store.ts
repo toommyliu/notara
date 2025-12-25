@@ -1,9 +1,11 @@
 import { create } from "zustand";
 import { arrayMove } from "@dnd-kit/sortable";
 
+import type { BlockTypeValue } from "~/components/editor/utils/block-utils";
+
 export type Block = {
     id: string;
-    type: string;
+    type: BlockTypeValue;
     content: string;
     indent?: number;
 };
@@ -82,9 +84,20 @@ export const useNotesStore = create<NotesStore>()((set, get) => ({
     addNote: (groupId, title = "Untitled", emoji = "📝") => {
         const id = `note-${crypto.randomUUID()}`;
         const targetGroupId = groupId || "group-ungrouped";
+
+        const sampleBlocks: Block[] = [
+            { id: crypto.randomUUID(), type: "h1", content: "Sample Note with Markdown" },
+            { id: crypto.randomUUID(), type: "text", content: "This note contains **bold**, *italic*, and `inline code` for testing." },
+            { id: crypto.randomUUID(), type: "h2", content: "A Second Heading" },
+            { id: crypto.randomUUID(), type: "bullet", content: "First bullet point" },
+            { id: crypto.randomUUID(), type: "bullet", content: "Second bullet with **bold text**" },
+            { id: crypto.randomUUID(), type: "quote", content: "This is a blockquote for testing" },
+            { id: crypto.randomUUID(), type: "text", content: "" },
+        ];
+
         set((s) => {
             const newNotes = new Map(s.notes);
-            newNotes.set(id, { id, title, emoji });
+            newNotes.set(id, { id, title, emoji, content: sampleBlocks });
 
             return {
                 notes: newNotes,

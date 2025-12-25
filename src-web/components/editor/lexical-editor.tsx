@@ -1,5 +1,9 @@
 import { useEffect, useCallback, forwardRef, useImperativeHandle } from "react";
+import type { RefObject } from "react";
 
+import { $getRoot, $createParagraphNode, $createTextNode, KEY_ENTER_COMMAND, COMMAND_PRIORITY_HIGH } from "lexical";
+import { PASTE_COMMAND, COMMAND_PRIORITY_LOW, $insertNodes, $getSelection, $isRangeSelection, TextNode } from "lexical";
+import type { EditorState, LexicalEditor, RangeSelection } from "lexical";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
@@ -8,7 +12,6 @@ import { OnChangePlugin } from "@lexical/react/LexicalOnChangePlugin";
 import { MarkdownShortcutPlugin } from "@lexical/react/LexicalMarkdownShortcutPlugin";
 import { LexicalErrorBoundary } from "@lexical/react/LexicalErrorBoundary";
 import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
-import { $getRoot, $createParagraphNode, $createTextNode, KEY_ENTER_COMMAND, COMMAND_PRIORITY_HIGH, type EditorState, type LexicalEditor } from "lexical";
 import { HeadingNode, QuoteNode } from "@lexical/rich-text";
 import { CodeNode, CodeHighlightNode } from "@lexical/code";
 import { LinkNode, AutoLinkNode } from "@lexical/link";
@@ -16,6 +19,10 @@ import { ListNode, ListItemNode } from "@lexical/list";
 import { TRANSFORMERS } from "@lexical/markdown";
 
 import { cn } from "~/lib/utils";
+
+const INLINE_MARKDOWN_PATTERN = /(\*\*(.+?)\*\*|\*(.+?)\*|`(.+?)`|~~(.+?)~~)/g;
+const INLINE_MARKDOWN_CHECK = /(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`|~~[^~]+~~|\[[^\]]+\]\([^)]+\))/;
+const INLINE_MARKDOWN_FULL_PATTERN = /(\*\*(.+?)\*\*|\*(.+?)\*|`(.+?)`|~~(.+?)~~|\[(.+?)\]\((.+?)\))/g;
 
 type LexicalBlockEditorProps = {
     blockId?: string;
@@ -34,7 +41,7 @@ export type LexicalBlockEditorRef = {
     getText: () => string;
 };
 
-const theme = {
+const LEXICAL_THEME = {
     paragraph: "m-0",
     text: {
         bold: "font-semibold",
@@ -50,7 +57,18 @@ const theme = {
     },
     code: "bg-muted rounded p-3 font-mono text-sm",
     link: "text-amber underline underline-offset-2",
-};
+} as const;
+
+const LEXICAL_NODES = [
+    HeadingNode,
+    QuoteNode,
+    CodeNode,
+    CodeHighlightNode,
+    LinkNode,
+    AutoLinkNode,
+    ListNode,
+    ListItemNode,
+] as const;
 
 function onError(error: Error) {
     console.error("[Lexical Error]", error);
@@ -63,14 +81,14 @@ function EnterKeyPlugin({ onEnter }: { onEnter?: () => void }) {
     useEffect(() => {
         return editor.registerCommand(
             KEY_ENTER_COMMAND,
-            (event) => {
+            (ev) => {
                 // Shift+Enter: let Lexical handle (line break within block)
-                if (event?.shiftKey) {
+                if (ev?.shiftKey) {
                     return false;
                 }
 
                 // Regular Enter: always create new block
-                event?.preventDefault();
+                ev?.preventDefault();
                 onEnter?.();
                 return true;
             },
@@ -115,7 +133,7 @@ function SlashMenuPlugin({
     return null;
 }
 
-// Plugin to set initial content
+// Plugin to set initial content with markdown parsing
 function InitialContentPlugin({ content }: { content?: string }) {
     const [editor] = useLexicalComposerContext();
 
@@ -128,7 +146,12 @@ function InitialContentPlugin({ content }: { content?: string }) {
             if (root.getTextContent() === "") {
                 root.clear();
                 const paragraph = $createParagraphNode();
-                paragraph.append($createTextNode(content));
+
+                // Parse markdown and create formatted nodes
+                const nodes = parseInlineMarkdownToNodes(content);
+                for (const node of nodes)
+                    paragraph.append(node);
+
                 root.append(paragraph);
             }
         });
@@ -137,8 +160,63 @@ function InitialContentPlugin({ content }: { content?: string }) {
     return null;
 }
 
+// Parse inline markdown into formatted TextNodes
+function parseInlineMarkdownToNodes(text: string): TextNode[] {
+    // Reset lastIndex since we reuse the module-scope regex
+    INLINE_MARKDOWN_PATTERN.lastIndex = 0;
+
+    let lastIndex = 0;
+    let match;
+    const nodes: TextNode[] = [];
+
+    while ((match = INLINE_MARKDOWN_PATTERN.exec(text)) !== null) {
+        // Add text before this match
+        if (match.index > lastIndex) {
+            nodes.push($createTextNode(text.slice(lastIndex, match.index)));
+        }
+
+        const fullMatch = match[0];
+
+        if (fullMatch.startsWith("**")) {
+            // Bold
+            const node = $createTextNode(match[2]);
+            node.toggleFormat("bold");
+            nodes.push(node);
+        } else if (fullMatch.startsWith("~~")) {
+            // Strikethrough
+            const node = $createTextNode(match[5]);
+            node.toggleFormat("strikethrough");
+            nodes.push(node);
+        } else if (fullMatch.startsWith("`")) {
+            // Code
+            const node = $createTextNode(match[4]);
+            node.toggleFormat("code");
+            nodes.push(node);
+        } else if (fullMatch.startsWith("*")) {
+            // Italic (single asterisk)
+            const node = $createTextNode(match[3]);
+            node.toggleFormat("italic");
+            nodes.push(node);
+        }
+
+        lastIndex = match.index + fullMatch.length;
+    }
+
+    // Add remaining text after last match
+    if (lastIndex < text.length) {
+        nodes.push($createTextNode(text.slice(lastIndex)));
+    }
+
+    // If no markdown was found, just return plain text
+    if (nodes.length === 0) {
+        nodes.push($createTextNode(text));
+    }
+
+    return nodes;
+}
+
 // Plugin to expose editor methods via ref
-function EditorRefPlugin({ editorRef }: { editorRef: React.RefObject<LexicalBlockEditorRef | null> }) {
+function EditorRefPlugin({ editorRef }: { editorRef: RefObject<LexicalBlockEditorRef | null> }) {
     const [editor] = useLexicalComposerContext();
 
     useImperativeHandle(editorRef, () => ({
@@ -153,6 +231,113 @@ function EditorRefPlugin({ editorRef }: { editorRef: React.RefObject<LexicalBloc
     }));
 
     return null;
+}
+
+// Plugin to convert markdown on paste (bold, italic, links, etc.)
+function MarkdownPastePlugin() {
+    const [editor] = useLexicalComposerContext();
+
+    useEffect(() => {
+        return editor.registerCommand(
+            PASTE_COMMAND,
+            (ev: ClipboardEvent) => {
+                const clipboardData = ev.clipboardData;
+                if (!clipboardData)
+                    return false;
+
+                const text = clipboardData.getData("text/plain");
+                if (!text)
+                    return false;
+
+                if (text.includes("\n"))
+                    return false;
+
+                const hasInlineMarkdown = INLINE_MARKDOWN_CHECK.test(text);
+                if (!hasInlineMarkdown) return false; // Let default paste handle plain text
+
+                // Single-line with inline markdown - handle it here
+                ev.preventDefault();
+
+                editor.update(() => {
+                    const selection = $getSelection();
+                    if (!$isRangeSelection(selection)) return;
+
+                    // Remove current selection if any
+                    if (!selection.isCollapsed()) {
+                        selection.removeText();
+                    }
+
+                    // Parse and insert inline markdown
+                    parseAndInsertInlineMarkdown(selection, text);
+                });
+
+                return true;
+            },
+            COMMAND_PRIORITY_LOW
+        );
+    }, [editor]);
+
+    return null;
+}
+
+// Parse inline markdown and insert formatted text nodes
+function parseAndInsertInlineMarkdown(selection: RangeSelection, text: string) {
+    // Reset lastIndex since we reuse the module-scope regex
+    INLINE_MARKDOWN_FULL_PATTERN.lastIndex = 0;
+
+    let lastIndex = 0;
+    let match;
+    const nodes: TextNode[] = [];
+
+    while ((match = INLINE_MARKDOWN_FULL_PATTERN.exec(text)) !== null) {
+        // Add text before this match
+        if (match.index > lastIndex) {
+            nodes.push($createTextNode(text.slice(lastIndex, match.index)));
+        }
+
+        const fullMatch = match[0];
+
+        if (fullMatch.startsWith("**")) {
+            // Bold
+            const node = $createTextNode(match[2]);
+            node.toggleFormat("bold");
+            nodes.push(node);
+        } else if (fullMatch.startsWith("~~")) {
+            // Strikethrough
+            const node = $createTextNode(match[5]);
+            node.toggleFormat("strikethrough");
+            nodes.push(node);
+        } else if (fullMatch.startsWith("`")) {
+            // Code
+            const node = $createTextNode(match[4]);
+            node.toggleFormat("code");
+            nodes.push(node);
+        } else if (fullMatch.startsWith("[")) {
+            // Link - just insert as plain text for now (links need special handling)
+            const linkText = match[6];
+            nodes.push($createTextNode(linkText));
+        } else if (fullMatch.startsWith("*")) {
+            // Italic (single asterisk)
+            const node = $createTextNode(match[3]);
+            node.toggleFormat("italic");
+            nodes.push(node);
+        }
+
+        lastIndex = match.index + fullMatch.length;
+    }
+
+    // Add remaining text after last match
+    if (lastIndex < text.length)
+        nodes.push($createTextNode(text.slice(lastIndex)));
+
+    // If no markdown was found, just insert plain text
+    if (nodes.length === 0) {
+        selection.insertRawText(text);
+        return;
+    }
+
+    // Insert all nodes
+    $insertNodes(nodes);
 }
 
 export const LexicalBlockEditor = forwardRef<LexicalBlockEditorRef, LexicalBlockEditorProps>(
@@ -172,18 +357,9 @@ export const LexicalBlockEditor = forwardRef<LexicalBlockEditorRef, LexicalBlock
     ) {
         const initialConfig = {
             namespace: "BlockEditor",
-            theme,
+            theme: LEXICAL_THEME,
             onError,
-            nodes: [
-                HeadingNode,
-                QuoteNode,
-                CodeNode,
-                CodeHighlightNode,
-                LinkNode,
-                AutoLinkNode,
-                ListNode,
-                ListItemNode,
-            ],
+            nodes: [...LEXICAL_NODES],
         };
 
         const handleChange = useCallback(
@@ -226,6 +402,7 @@ export const LexicalBlockEditor = forwardRef<LexicalBlockEditorRef, LexicalBlock
                     <OnChangePlugin onChange={handleChange} />
                     <EnterKeyPlugin onEnter={onEnter} />
                     <SlashMenuPlugin onSlashMenu={onSlashMenu} />
+                    <MarkdownPastePlugin />
                     <InitialContentPlugin content={content} />
                     <EditorRefPlugin editorRef={ref as React.RefObject<LexicalBlockEditorRef | null> ?? internalRef} />
                 </div>
