@@ -304,4 +304,9 @@
   .internal-link:hover {
     background: linear-gradient(transparent 50%, color-mix(in oklch, var(--amber) 35%, transparent) 50%);
   }
+
+  /* Hide native text selection when custom block selection is active */
+  .blocks-selected *::selection {
+    background: transparent;
+  }
 }

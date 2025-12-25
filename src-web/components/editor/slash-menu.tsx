@@ -22,16 +22,16 @@ type SlashMenuProps = {
 }
 
 const MENU_ITEMS = [
-    { type: "text", label: "Text", description: "Plain text block", icon: IconText },
-    { type: "h1", label: "Heading 1", description: "Large section heading", icon: IconHeading1 },
-    { type: "h2", label: "Heading 2", description: "Medium section heading", icon: IconHeading2 },
-    { type: "h3", label: "Heading 3", description: "Small section heading", icon: IconHeading3 },
-    { type: "bullet", label: "Bulleted List", description: "Create a bullet list", icon: IconList },
-    { type: "numbered", label: "Numbered List", description: "Create a numbered list", icon: IconListOrdered },
-    { type: "todo", label: "To-do", description: "Track tasks with checkboxes", icon: IconCheckSquare },
-    { type: "quote", label: "Quote", description: "Capture a quote", icon: IconQuote },
-    { type: "code", label: "Code", description: "Capture a code snippet", icon: IconCode },
-    { type: "divider", label: "Divider", description: "Visual separator", icon: IconMinus },
+    { type: "text", label: "Text", description: "Plain text block", icon: IconText, shortcut: null },
+    { type: "h1", label: "Heading 1", description: "Large section heading", icon: IconHeading1, shortcut: "#" },
+    { type: "h2", label: "Heading 2", description: "Medium section heading", icon: IconHeading2, shortcut: "##" },
+    { type: "h3", label: "Heading 3", description: "Small section heading", icon: IconHeading3, shortcut: "###" },
+    { type: "bullet", label: "Bulleted List", description: "Create a bullet list", icon: IconList, shortcut: "-" },
+    { type: "numbered", label: "Numbered List", description: "Create a numbered list", icon: IconListOrdered, shortcut: "1." },
+    { type: "todo", label: "To-do", description: "Track tasks with checkboxes", icon: IconCheckSquare, shortcut: "[]" },
+    { type: "quote", label: "Quote", description: "Capture a quote", icon: IconQuote, shortcut: ">" },
+    { type: "code", label: "Code", description: "Capture a code snippet", icon: IconCode, shortcut: "```" },
+    { type: "divider", label: "Divider", description: "Visual separator", icon: IconMinus, shortcut: "---" },
 ] as const;
 
 export function SlashMenu({
@@ -189,6 +189,11 @@ export function SlashMenu({
                                 {item.description}
                             </div>
                         </div>
+                        {item.shortcut && (
+                            <code className="text-[10px] font-mono text-muted-foreground/60 bg-muted/50 px-1.5 py-0.5 rounded">
+                                {item.shortcut}
+                            </code>
+                        )}
                     </button>
                 ))}
             </div>

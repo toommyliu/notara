@@ -20,7 +20,7 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 
 import { SlashMenu } from "./slash-menu";
-import { InlineRenderer } from "./inline-renderer";
+import { LexicalBlockEditor } from "./lexical-editor";
 
 import IconGripVertical from "~icons/lucide/grip-vertical";
 import IconPlus from "~icons/lucide/plus";
@@ -31,6 +31,7 @@ import { cn } from "~/lib/utils";
 
 import { type Block } from "~/stores/notes-store";
 
+const BLOCK_MIME_TYPE = "application/x-notara-blocks";
 
 type BlockEditorProps = {
     initialBlocks?: Block[];
@@ -99,6 +100,7 @@ type SortableBlockProps = {
     onFocus: () => void;
     onBlur: () => void;
     onUpdateSlashQuery?: (query: string) => void;
+    onSlashMenu?: (position: { top: number; left: number }) => void;
     isSelected: boolean;
     isFocused: boolean;
     blockRef: (el: HTMLElement | null) => void;
@@ -112,6 +114,7 @@ function SortableBlock({
     onFocus,
     onBlur,
     onUpdateSlashQuery,
+    onSlashMenu,
     isSelected,
     isFocused,
     blockRef,
@@ -145,7 +148,7 @@ function SortableBlock({
         >
             <div
                 className={cn(
-                    "absolute left-0 -translate-x-full flex items-center gap-0.5 py-1.5 pr-2 opacity-0 group-hover:opacity-100 transition-opacity"
+                    "absolute left-0 top-1 -translate-x-full flex items-center gap-0.5 pr-2 opacity-0 group-hover:opacity-100 transition-opacity"
                 )}
             >
                 <button
@@ -172,42 +175,25 @@ function SortableBlock({
 
             {block.type === "divider" ? (
                 <hr className="flex-1 my-4 border-border" />
-            ) : !isFocused && block.content && block.type === "text" ? (
-                // Unfocused preview: rendered markdown, click to edit
-                <>
-                    <div
-                        className={cn(
-                            "flex-1 py-1 min-w-0 overflow-hidden cursor-text",
-                            "wrap-anywhere",
-                            "text-lg leading-relaxed text-ink",
-                            "selection:bg-amber/20",
-                            GET_BLOCK_STYLES(block.type)
-                        )}
-                        onClick={() => {
-                            document.getElementById(block.id)?.focus();
-                        }}
-                    >
-                        <InlineRenderer content={block.content} />
-                    </div>
-                    <div
-                        id={block.id}
-                        ref={blockRef}
-                        contentEditable
-                        suppressContentEditableWarning
-                        onFocus={onFocus}
-                        onBlur={onBlur}
-                        onInput={(ev) => {
-                            const content = ev.currentTarget.textContent || "";
-                            onUpdateBlock({ content });
-                            onUpdateSlashQuery?.(content);
-                        }}
-                        onKeyDown={(ev) => onKeyDown(ev, block)}
-                        className="sr-only"
-                        tabIndex={-1}
-                    />
-                </>
+            ) : block.type === "text" ? (
+                <LexicalBlockEditor
+                    blockId={block.id}
+                    content={block.content}
+                    placeholder={GET_PLACEHOLDER(block.type)}
+                    onChange={(text) => {
+                        onUpdateBlock({ content: text });
+                        onUpdateSlashQuery?.(text);
+                    }}
+                    onFocus={onFocus}
+                    onBlur={onBlur}
+                    onEnter={onAddAfter}
+                    onSlashMenu={onSlashMenu}
+                    className={cn(
+                        "py-1",
+                        GET_BLOCK_STYLES(block.type)
+                    )}
+                />
             ) : (
-                // Focused or other block types: standard raw markdown editing
                 <div
                     id={block.id}
                     ref={blockRef}
@@ -258,7 +244,6 @@ export function BlockEditor({ initialBlocks, onChange }: BlockEditorProps) {
         query: "",
     });
 
-    const lastSelectAllPressRef = useRef<number>(0);
     const [selectedBlockIds, setSelectedBlockIds] = useState<Set<string>>(new Set());
 
     const blockRefs = useRef<Map<string, HTMLElement>>(new Map());
@@ -267,16 +252,10 @@ export function BlockEditor({ initialBlocks, onChange }: BlockEditorProps) {
     const { isMac } = usePlatformLayout();
 
     const selectAllBlocks = useCallback(() => {
-        const selection = window.getSelection();
-        const container = containerRef.current;
-        if (!selection || !container) return;
-
         setSelectedBlockIds(new Set(blocks.map((b) => b.id)));
 
-        const range = document.createRange();
-        range.selectNodeContents(container);
-        selection.removeAllRanges();
-        selection.addRange(range);
+        // Clear native browser text selection - our amber highlights show the selection
+        window.getSelection()?.removeAllRanges();
     }, [blocks]);
 
     const clearBlockSelection = useCallback(() => {
@@ -284,6 +263,152 @@ export function BlockEditor({ initialBlocks, onChange }: BlockEditorProps) {
             setSelectedBlockIds(new Set());
         }
     }, [selectedBlockIds.size]);
+
+
+
+    // Format blocks as clean plain text for clipboard
+    const formatBlocksAsPlainText = useCallback((blocksToFormat: Block[]): string => {
+        return blocksToFormat.map((block, index) => {
+            const content = block.content || "";
+            switch (block.type) {
+                case "h1":
+                case "h2":
+                case "h3":
+                    return content;
+                case "bullet":
+                    return `• ${content}`;
+                case "numbered":
+                    return `${index + 1}. ${content}`;
+                case "quote":
+                    return `"${content}"`;
+                case "todo":
+                    return `☐ ${content}`;
+                case "divider":
+                    return "───";
+                default:
+                    return content;
+            }
+        }).join("\n");
+    }, []);
+
+    // Get blocks that are in the current selection
+    const getSelectedBlocksFromSelection = useCallback((): Block[] => {
+        const selection = window.getSelection();
+        if (!selection || selection.isCollapsed) return [];
+
+        // If we have explicit block selection
+        if (selectedBlockIds.size > 0) {
+            return blocks.filter(b => selectedBlockIds.has(b.id));
+        }
+
+        // Otherwise find blocks within selection range
+        const range = selection.getRangeAt(0);
+        const container = containerRef.current;
+        if (!container) return [];
+
+        const selectedBlocks: Block[] = [];
+        for (const block of blocks) {
+            const el = blockRefs.current.get(block.id) || document.getElementById(block.id);
+            if (el && range.intersectsNode(el)) {
+                selectedBlocks.push(block);
+            }
+        }
+
+        return selectedBlocks;
+    }, [blocks, selectedBlockIds]);
+
+    // Copy event handler - intercepts multi-block copies for clean formatting
+    useEffect(() => {
+        const container = containerRef.current;
+        if (!container) return;
+
+        const handleCopy = (ev: ClipboardEvent) => {
+            const selectedBlocks = getSelectedBlocksFromSelection();
+
+            // Only intercept if multiple blocks are selected
+            if (selectedBlocks.length > 1) {
+                ev.preventDefault();
+
+                // Format as clean plain text
+                const plainText = formatBlocksAsPlainText(selectedBlocks);
+                ev.clipboardData?.setData("text/plain", plainText);
+
+                // Store structured data for internal paste
+                ev.clipboardData?.setData(BLOCK_MIME_TYPE, JSON.stringify(selectedBlocks));
+            }
+        };
+
+        container.addEventListener("copy", handleCopy);
+        return () => container.removeEventListener("copy", handleCopy);
+    }, [getSelectedBlocksFromSelection, formatBlocksAsPlainText]);
+
+    // Container-level Cmd+A handler for seamless select-all (works for all block types)
+    // Track if we've already selected the current block
+    const lastSelectAllBlockIdRef = useRef<string | null>(null);
+
+    useEffect(() => {
+        const container = containerRef.current;
+        if (!container) return;
+
+        const handleKeyDown = (ev: globalThis.KeyboardEvent) => {
+            const modKey = isMac ? ev.metaKey : ev.ctrlKey;
+
+            if (ev.key === "a" && modKey && !ev.shiftKey) {
+                // If all blocks are already selected, prevent any action
+                if (selectedBlockIds.size === blocks.length) {
+                    ev.preventDefault();
+                    return;
+                }
+
+                const selection = window.getSelection();
+                if (!selection) return;
+
+                // Find which block has focus
+                const activeElement = document.activeElement;
+                const focusedBlockEl = activeElement?.closest("[data-block-id]") as HTMLElement | null ||
+                    Array.from(blockRefs.current.values()).find(el => el.contains(selection.anchorNode));
+
+                if (!focusedBlockEl) return;
+
+                const blockId = focusedBlockEl.getAttribute("data-block-id") ||
+                    focusedBlockEl.id ||
+                    Array.from(blockRefs.current.entries()).find(([, el]) => el === focusedBlockEl)?.[0];
+
+                const textContent = focusedBlockEl.textContent || "";
+                const selectedText = selection.toString();
+
+                // Check if block content is fully selected
+                const isBlockFullySelected = !selection.isCollapsed &&
+                    selectedText.length === textContent.length;
+
+                // If this is the same block we already selected, expand to all blocks
+                if (lastSelectAllBlockIdRef.current === blockId && (isBlockFullySelected || textContent.length === 0)) {
+                    ev.preventDefault();
+                    lastSelectAllBlockIdRef.current = null;
+                    selectAllBlocks();
+                } else {
+                    // First Cmd+A on this block - select block content
+                    lastSelectAllBlockIdRef.current = blockId ?? null;
+                    // Let default Cmd+A behavior select the block content
+                }
+            } else if (ev.key === "Escape") {
+                // Escape clears block selection
+                if (selectedBlockIds.size > 0) {
+                    ev.preventDefault();
+                    setSelectedBlockIds(new Set());
+                    window.getSelection()?.removeAllRanges();
+                }
+                lastSelectAllBlockIdRef.current = null;
+            } else {
+                // Reset on any other key
+                lastSelectAllBlockIdRef.current = null;
+            }
+        };
+
+        // Use capture phase to intercept before Lexical/contentEditable handles it
+        container.addEventListener("keydown", handleKeyDown, true);
+        return () => container.removeEventListener("keydown", handleKeyDown, true);
+    }, [blocks, selectedBlockIds, selectAllBlocks, isMac]);
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -319,6 +444,28 @@ export function BlockEditor({ initialBlocks, onChange }: BlockEditorProps) {
         );
     };
 
+    const scrollIntoComfortableView = useCallback((element: HTMLElement) => {
+        const rect = element.getBoundingClientRect();
+        const viewportHeight = window.innerHeight;
+
+        // Trigger autoscroll when within 200px of the bottom
+        const bottomThreshold = 200;
+        const distanceFromBottom = viewportHeight - rect.bottom;
+
+        if (distanceFromBottom < bottomThreshold) {
+            const scrollContainer = element.closest(".overflow-y-auto") as HTMLElement;
+            if (scrollContainer) {
+                const targetFromBottom = viewportHeight * 0.4; // 40%
+                const scrollAmount = bottomThreshold - distanceFromBottom + (bottomThreshold - targetFromBottom);
+
+                scrollContainer.scrollBy({
+                    top: scrollAmount,
+                    behavior: "instant"
+                });
+            }
+        }
+    }, []);
+
     const addBlockAfter = (afterId: string, type: string = "text", indent: number = 0) => {
         const newBlock = CREATE_BLOCK(type, "", indent);
         setBlocks((prev) => {
@@ -329,7 +476,13 @@ export function BlockEditor({ initialBlocks, onChange }: BlockEditorProps) {
         });
 
         setTimeout(() => {
-            blockRefs.current.get(newBlock.id)?.focus();
+            // Try blockRefs first (for non-Lexical blocks), then getElementById (for Lexical blocks)
+            const el = blockRefs.current.get(newBlock.id) || document.getElementById(newBlock.id);
+            if (el) {
+                el.focus();
+                // Autoscroll with comfortable margin
+                requestAnimationFrame(() => scrollIntoComfortableView(el));
+            }
         }, 0);
         return newBlock.id;
     };
@@ -337,7 +490,7 @@ export function BlockEditor({ initialBlocks, onChange }: BlockEditorProps) {
     const deleteBlock = (id: string) => {
         setBlocks((prev) => {
             if (prev.length === 1)
-                return prev; // Don't delete the last block
+                return prev;
 
             return prev.filter((b) => b.id !== id);
         });
@@ -346,10 +499,12 @@ export function BlockEditor({ initialBlocks, onChange }: BlockEditorProps) {
     const moveBlock = useCallback((id: string, direction: "up" | "down") => {
         setBlocks((prev) => {
             const index = prev.findIndex((b) => b.id === id);
-            if (index === -1) return prev;
+            if (index === -1)
+                return prev;
 
             const newIndex = direction === "up" ? index - 1 : index + 1;
-            if (newIndex < 0 || newIndex >= prev.length) return prev;
+            if (newIndex < 0 || newIndex >= prev.length)
+                return prev;
 
             return arrayMove(prev, index, newIndex);
         });
@@ -357,7 +512,7 @@ export function BlockEditor({ initialBlocks, onChange }: BlockEditorProps) {
 
     const focusBlock = (id: string, position: "start" | "end" = "end") => {
         setTimeout(() => {
-            const el = blockRefs.current.get(id);
+            const el = blockRefs.current.get(id) || document.getElementById(id);
             if (el) {
                 el.focus();
                 const range = document.createRange();
@@ -390,31 +545,35 @@ export function BlockEditor({ initialBlocks, onChange }: BlockEditorProps) {
         const blockIndex = blocks.findIndex((b) => b.id === block.id);
         const modKey = isMac ? ev.metaKey : ev.ctrlKey;
 
-        // mod + a: Select current block on first press, all blocks on quick double-press
+        // mod + a: Select current block first, then all blocks if already fully selected
         if (ev.key === "a" && modKey && !ev.shiftKey) {
             ev.preventDefault();
-
-            const now = Date.now();
-            const timeSinceLastPress = now - lastSelectAllPressRef.current;
-            lastSelectAllPressRef.current = now;
 
             // If all blocks are already selected, do nothing
             if (selectedBlockIds.size === blocks.length) {
                 return;
             }
 
-            // Double-press within 400ms: select all blocks
-            if (timeSinceLastPress < 400 && timeSinceLastPress > 0) {
-                selectAllBlocks();
-                return;
-            }
-
-            // Single press: select current block content
             const selection = window.getSelection();
-            const range = document.createRange();
-            range.selectNodeContents(element);
-            selection?.removeAllRanges();
-            selection?.addRange(range);
+            const textLength = element.textContent?.length || 0;
+
+            // Check if current block is already fully selected
+            const isBlockFullySelected = selection &&
+                !selection.isCollapsed &&
+                selection.toString().length === textLength &&
+                element.contains(selection.anchorNode) &&
+                element.contains(selection.focusNode);
+
+            if (isBlockFullySelected) {
+                // Block is fully selected, extend to all blocks
+                selectAllBlocks();
+            } else {
+                // Select current block content
+                const range = document.createRange();
+                range.selectNodeContents(element);
+                selection?.removeAllRanges();
+                selection?.addRange(range);
+            }
             return;
         }
 
@@ -704,7 +863,7 @@ export function BlockEditor({ initialBlocks, onChange }: BlockEditorProps) {
                 items={blocks.map((b) => b.id)}
                 strategy={verticalListSortingStrategy}
             >
-                <div ref={containerRef} className="space-y-0.5" tabIndex={-1}>
+                <div ref={containerRef} className={cn("space-y-0.5", selectedBlockIds.size > 0 && "blocks-selected")} tabIndex={-1}>
                     {blocks.map((b) => (
                         <SortableBlock
                             key={b.id}
@@ -715,11 +874,22 @@ export function BlockEditor({ initialBlocks, onChange }: BlockEditorProps) {
                             onFocus={() => {
                                 setFocusedBlockId(b.id);
                                 clearBlockSelection();
+                                // Autoscroll if near bottom
+                                const el = blockRefs.current.get(b.id) || document.getElementById(b.id);
+                                if (el) requestAnimationFrame(() => scrollIntoComfortableView(el));
                             }}
                             onBlur={() => setFocusedBlockId(null)}
                             onUpdateSlashQuery={(query) => {
                                 if (slashMenu.isOpen && slashMenu.blockId === b.id)
                                     setSlashMenu(prev => ({ ...prev, query }));
+                            }}
+                            onSlashMenu={(position) => {
+                                setSlashMenu({
+                                    isOpen: true,
+                                    blockId: b.id,
+                                    position,
+                                    query: "",
+                                });
                             }}
                             isSelected={selectedBlockIds.has(b.id)}
                             isFocused={focusedBlockId === b.id}
@@ -735,13 +905,8 @@ export function BlockEditor({ initialBlocks, onChange }: BlockEditorProps) {
                 </div>
             </SortableContext>
 
-            <DragOverlay dropAnimation={null}>
-                {activeDragId ? (
-                    <div className="max-w-prose px-3 py-1.5 text-lg leading-relaxed wrap-anywhere opacity-70">
-                        {blocks.find((b) => b.id === activeDragId)?.content}
-                    </div>
-                ) : null}
-            </DragOverlay>
+            <DragOverlay dropAnimation={null} />
+
 
             <SlashMenu
                 isOpen={slashMenu.isOpen}

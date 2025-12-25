@@ -302,7 +302,7 @@ function NoteView({ paneId, noteId, editorPaddingStyle, onTitleChange }: NoteVie
                     )}
                 />
 
-                <div className="mt-4 pb-16 select-text" data-block-editor>
+                <div className="mt-4 pb-48 select-text" data-block-editor>
                     <BlockEditor
                         key={note.id}
                         initialBlocks={note.content}
