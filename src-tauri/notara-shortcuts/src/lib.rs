@@ -159,7 +159,7 @@ interface ShortcutDefinition {{
   id: ShortcutId;
   label: string;
   default_binding: ShortcutBinding;
-  is_menu: bool;
+  is_menu: boolean;
 }}
 
 const SHORTCUT_DEFINITIONS: ShortcutDefinition[] = {definitions_json};
