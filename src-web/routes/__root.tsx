@@ -1,6 +1,13 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, lazy, Suspense } from "react";
 import { createRootRoute, Outlet } from "@tanstack/react-router";
-import { TanStackRouterDevtools } from "@tanstack/react-router-devtools";
+
+const TanStackRouterDevtools = import.meta.env.DEV
+    ? lazy(() =>
+        import("@tanstack/react-router-devtools").then((mod) => ({
+            default: mod.TanStackRouterDevtools,
+        }))
+    )
+    : () => null;
 import { listen } from "@tauri-apps/api/event";
 
 import { AppHeader, AppSidebar, TitlebarSpacer, IconRibbon } from "~/features/layout";
@@ -77,7 +84,11 @@ function AppShell() {
             <AppSidebar />
             <MainContent />
             <SettingsDialogContent />
-            <TanStackRouterDevtools position='bottom-right' />
+            {import.meta.env.DEV && (
+                <Suspense fallback={null}>
+                    <TanStackRouterDevtools position='bottom-right' />
+                </Suspense>
+            )}
         </>
     );
 }
