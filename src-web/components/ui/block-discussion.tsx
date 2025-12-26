@@ -28,10 +28,10 @@ import { useEditorPlugin, useEditorRef, usePluginOption } from 'platejs/react';
 import { Button } from '~/components/ui/button';
 import {
   Popover,
-  PopoverAnchor,
+  PopoverPositioner,
   PopoverContent,
   PopoverTrigger,
-} from '~/components/ui/popover';
+} from '~/ui/popover';
 import { commentPlugin } from '~/components/editor/plugins/comment-kit';
 import {
   type TDiscussion,
@@ -144,7 +144,7 @@ const BlockCommentContent = ({
         ([node]) =>
           TextApi.isText(node) &&
           editor.getApi(SuggestionPlugin).suggestion.nodeId(node) ===
-            activeSuggestion.suggestionId
+          activeSuggestion.suggestionId
       );
     }
 
@@ -194,11 +194,7 @@ const BlockCommentContent = ({
       >
         <div className="w-full">{children}</div>
         {anchorElement && (
-          <PopoverAnchor
-            asChild
-            className="w-full"
-            virtualRef={{ current: anchorElement }}
-          />
+          <PopoverPositioner className="w-full" anchor={anchorElement} />
         )}
 
         <PopoverContent
@@ -248,12 +244,12 @@ const BlockCommentContent = ({
         {totalCount > 0 && (
           <div className="relative left-0 size-0 select-none">
             <PopoverTrigger render={<Button variant="ghost" className="!px-1.5 mt-1 ml-1 flex h-6 gap-1 py-0 text-muted-foreground/80 hover:text-muted-foreground/80 data-[active=true]:bg-muted" data-active={open} contentEditable={false} />}>{suggestionsCount > 0 && discussionsCount === 0 && (
-                                        <PencilLineIcon className="size-4 shrink-0" />
-                                      )}{suggestionsCount === 0 && discussionsCount > 0 && (
-                                        <MessageSquareTextIcon className="size-4 shrink-0" />
-                                      )}{suggestionsCount > 0 && discussionsCount > 0 && (
-                                        <MessagesSquareIcon className="size-4 shrink-0" />
-                                      )}<span className="font-semibold text-xs">{totalCount}</span></PopoverTrigger>
+              <PencilLineIcon className="size-4 shrink-0" />
+            )}{suggestionsCount === 0 && discussionsCount > 0 && (
+              <MessageSquareTextIcon className="size-4 shrink-0" />
+            )}{suggestionsCount > 0 && discussionsCount > 0 && (
+              <MessagesSquareIcon className="size-4 shrink-0" />
+            )}<span className="font-semibold text-xs">{totalCount}</span></PopoverTrigger>
           </div>
         )}
       </Popover>

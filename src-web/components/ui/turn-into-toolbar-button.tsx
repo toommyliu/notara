@@ -31,7 +31,7 @@ import {
   DropdownMenuContent,
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
-} from '~/components/ui/dropdown-menu';
+} from '~/ui/dropdown-menu';
 import {
   getBlockType,
   setBlockType,

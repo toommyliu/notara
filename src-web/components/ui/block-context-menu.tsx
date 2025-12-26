@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 
-import { AIChatPlugin } from '@platejs/ai/react';
 import {
   BLOCK_CONTEXT_MENU_ID,
   BlockMenuPlugin,
@@ -20,14 +19,11 @@ import {
   ContextMenuSubContent,
   ContextMenuSubTrigger,
   ContextMenuTrigger,
-} from '~/components/ui/context-menu';
+} from '~/ui/context-menu';
 import { useIsTouchDevice } from '~/hooks/use-is-touch-device';
-
-type Value = 'askAI' | null;
 
 export function BlockContextMenu({ children }: { children: React.ReactNode }) {
   const { api, editor } = useEditorPlugin(BlockMenuPlugin);
-  const [value, setValue] = React.useState<Value>(null);
   const isTouch = useIsTouchDevice();
   const [readOnly] = usePlateState('readOnly');
   const openId = usePluginOption(BlockMenuPlugin, 'openId');
@@ -71,46 +67,34 @@ export function BlockContextMenu({ children }: { children: React.ReactNode }) {
           api.blockMenu.hide();
         }
       }}
-      modal={false}
+    // modal={false}
     >
       <ContextMenuTrigger onContextMenu={(event) => {
-                    const dataset = (event.target as HTMLElement).dataset;
-                    const disabled =
-                      dataset?.slateEditor === 'true' ||
-                      readOnly ||
-                      dataset?.plateOpenContextMenu === 'false';
+        const dataset = (event.target as HTMLElement).dataset;
+        const disabled =
+          dataset?.slateEditor === 'true' ||
+          readOnly ||
+          dataset?.plateOpenContextMenu === 'false';
 
-                    if (disabled) return event.preventDefault();
+        if (disabled) return event.preventDefault();
 
-                    setTimeout(() => {
-                      api.blockMenu.show(BLOCK_CONTEXT_MENU_ID, {
-                        x: event.clientX,
-                        y: event.clientY,
-                      });
-                    }, 0);
-                  }} render={<div className="w-full" />} nativeButton={false}>{children}</ContextMenuTrigger>
+        setTimeout(() => {
+          api.blockMenu.show(BLOCK_CONTEXT_MENU_ID, {
+            x: event.clientX,
+            y: event.clientY,
+          });
+        }, 0);
+      }}
+        render={<div className="w-full" />} >{children}</ContextMenuTrigger>
       {isOpen && (
         <ContextMenuContent
           className="w-64"
           onCloseAutoFocus={(e) => {
             e.preventDefault();
             editor.getApi(BlockSelectionPlugin).blockSelection.focus();
-
-            if (value === 'askAI') {
-              editor.getApi(AIChatPlugin).aiChat.show();
-            }
-
-            setValue(null);
           }}
         >
           <ContextMenuGroup>
-            <ContextMenuItem
-              onClick={() => {
-                setValue('askAI');
-              }}
-            >
-              Ask AI
-            </ContextMenuItem>
             <ContextMenuItem
               onClick={() => {
                 editor

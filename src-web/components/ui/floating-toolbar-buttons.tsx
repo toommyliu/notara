@@ -1,14 +1,11 @@
 'use client';
 
-import * as React from 'react';
-
 import {
   BoldIcon,
   Code2Icon,
   ItalicIcon,
   StrikethroughIcon,
   UnderlineIcon,
-  WandSparklesIcon,
 } from 'lucide-react';
 import { KEYS } from 'platejs';
 import { useEditorReadOnly } from 'platejs/react';

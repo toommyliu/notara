@@ -1,7 +1,5 @@
 'use client';
 
-import * as React from 'react';
-
 import {
   ArrowUpToLineIcon,
   BaselineIcon,
@@ -12,7 +10,6 @@ import {
   PaintBucketIcon,
   StrikethroughIcon,
   UnderlineIcon,
-  WandSparklesIcon,
 } from 'lucide-react';
 import { KEYS } from 'platejs';
 import { useEditorReadOnly } from 'platejs/react';

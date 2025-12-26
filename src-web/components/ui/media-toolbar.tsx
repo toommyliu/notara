@@ -25,9 +25,9 @@ import {
 import { Button, buttonVariants } from '~/components/ui/button';
 import {
   Popover,
-  PopoverAnchor,
+  PopoverPositioner,
   PopoverContent,
-} from '~/components/ui/popover';
+} from '~/ui/popover';
 import { Separator } from '~/components/ui/separator';
 
 import { CaptionButton } from './caption';
@@ -72,7 +72,7 @@ export function MediaToolbar({
 
   return (
     <Popover open={open} modal={false}>
-      <PopoverAnchor>{children}</PopoverAnchor>
+      <PopoverPositioner>{children}</PopoverPositioner>
 
       <PopoverContent
         className="w-auto p-1"

@@ -3,29 +3,26 @@
 
 import React from 'react';
 
-import type {
-  DropdownMenuItemProps,
-  DropdownMenuProps,
-} from '@radix-ui/react-dropdown-menu';
+import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
 
 import { useComposedRef } from '@udecode/cn';
 import debounce from 'lodash/debounce.js';
 import { EraserIcon, PlusIcon } from 'lucide-react';
 import { useEditorRef, useEditorSelector } from 'platejs/react';
 
-import { buttonVariants } from '~/components/ui/button';
+import { buttonVariants } from '~/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '~/components/ui/dropdown-menu';
+} from '~/ui/dropdown-menu';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '~/components/ui/tooltip';
+} from '~/ui/tooltip';
 import { cn } from '~/lib/utils';
 
 import { ToolbarButton, ToolbarMenuGroup } from './toolbar';
@@ -216,13 +213,13 @@ function ColorCustom({
     () =>
       customColor
         ? [
-            ...customColors,
-            {
-              isBrightColor: false,
-              name: '',
-              value: customColor,
-            },
-          ]
+          ...customColors,
+          {
+            isBrightColor: false,
+            name: '',
+            value: customColor,
+          },
+        ]
         : customColors,
     [customColor, customColors]
   );
@@ -314,14 +311,14 @@ function ColorDropdownMenuItem({
   name,
   updateColor,
   value,
-  ...props
 }: {
   isBrightColor: boolean;
   isSelected: boolean;
   value: string;
   updateColor: (color: string) => void;
   name?: string;
-} & DropdownMenuItemProps) {
+  className?: string;
+}) {
   const content = (
     <DropdownMenuItem
       className={cn(
@@ -339,7 +336,6 @@ function ColorDropdownMenuItem({
         e.preventDefault();
         updateColor(value);
       }}
-      {...props}
     />
   );
 

@@ -29,9 +29,9 @@ import {
 import { Button } from '~/components/ui/button';
 import {
   Popover,
-  PopoverAnchor,
+  PopoverPositioner,
   PopoverContent,
-} from '~/components/ui/popover';
+} from '~/ui/popover';
 import { Separator } from '~/components/ui/separator';
 import {
   Tooltip,
@@ -104,12 +104,12 @@ const ColumnDragHandle = React.memo(function ColumnDragHandle() {
     <TooltipProvider>
       <Tooltip>
         <TooltipTrigger render={<Button variant="ghost" className="!px-1 h-5" />}><GripHorizontal
-                            className="text-muted-foreground"
-                            onClick={(event) => {
-                              event.stopPropagation();
-                              event.preventDefault();
-                            }}
-                          /></TooltipTrigger>
+          className="text-muted-foreground"
+          onClick={(event) => {
+            event.stopPropagation();
+            event.preventDefault();
+          }}
+        /></TooltipTrigger>
 
         <TooltipContent>Drag to move column</TooltipContent>
       </Tooltip>
@@ -128,9 +128,9 @@ function DropLine() {
         'slate-dropLine',
         'absolute bg-brand/50',
         dropLine === 'left' &&
-          'group-first/column:-left-1 inset-y-0 left-[-10.5px] w-1',
+        'group-first/column:-left-1 inset-y-0 left-[-10.5px] w-1',
         dropLine === 'right' &&
-          'group-last/column:-right-1 inset-y-0 right-[-11px] w-1'
+        'group-last/column:-right-1 inset-y-0 right-[-11px] w-1'
       )}
     />
   );
@@ -169,7 +169,7 @@ function ColumnFloatingToolbar({ children }: React.PropsWithChildren) {
 
   return (
     <Popover open={open} modal={false}>
-      <PopoverAnchor>{children}</PopoverAnchor>
+      <PopoverPositioner>{children}</PopoverPositioner>
       <PopoverContent
         className="w-auto p-1"
         onOpenAutoFocus={(e) => e.preventDefault()}

@@ -1,7 +1,5 @@
 'use client';
 
-import * as React from 'react';
-
 import type { TCommentText } from 'platejs';
 import type { PlateLeafProps } from 'platejs/react';
 
@@ -31,8 +29,8 @@ export function CommentLeaf(props: PlateLeafProps<TCommentText>) {
         (isHover || isActive) && 'border-b-highlight bg-highlight/25',
         isOverlapping && 'border-b-2 border-b-highlight/[.7] bg-highlight/25',
         (isHover || isActive) &&
-          isOverlapping &&
-          'border-b-highlight bg-highlight/45'
+        isOverlapping &&
+        'border-b-highlight bg-highlight/45'
       )}
       attributes={{
         ...props.attributes,

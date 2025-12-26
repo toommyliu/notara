@@ -21,12 +21,12 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '~/components/ui/command';
+} from '~/ui/command';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '~/components/ui/popover';
+} from '~/ui/popover';
 import { cn } from '~/lib/utils';
 
 export function CodeBlockElement(props: PlateElementProps<TCodeBlockElement>) {
@@ -95,7 +95,7 @@ function CodeBlockCombobox() {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger render={<Button size="sm" variant="ghost" className="h-6 select-none justify-between gap-1 px-2 text-muted-foreground text-xs" aria-expanded={open} role="combobox" />}>{languages.find((language) => language.value === value)?.label ??
-                      'Plain Text'}</PopoverTrigger>
+        'Plain Text'}</PopoverTrigger>
       <PopoverContent
         className="w-[200px] p-0"
         onCloseAutoFocus={() => setSearchValue('')}

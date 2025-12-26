@@ -35,12 +35,34 @@ function ContextMenuContent({
   alignOffset = 4,
   side = "right",
   sideOffset = 0,
+  onCloseAutoFocus,
   ...props
 }: ContextMenuPrimitive.Popup.Props &
   Pick<
     ContextMenuPrimitive.Positioner.Props,
     "align" | "alignOffset" | "side" | "sideOffset"
-  >) {
+  > & {
+    onCloseAutoFocus?: (event: Event) => void;
+  }) {
+  const popupRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (!onCloseAutoFocus) return;
+
+    const popup = popupRef.current;
+    if (!popup) return;
+
+    const handleFocusOut = (e: FocusEvent) => {
+      // Only trigger when focus leaves the popup entirely
+      if (!popup.contains(e.relatedTarget as Node)) {
+        onCloseAutoFocus(e);
+      }
+    };
+
+    popup.addEventListener('focusout', handleFocusOut);
+    return () => popup.removeEventListener('focusout', handleFocusOut);
+  }, [onCloseAutoFocus]);
+
   return (
     <ContextMenuPrimitive.Portal>
       <ContextMenuPrimitive.Positioner
@@ -51,6 +73,7 @@ function ContextMenuContent({
         sideOffset={sideOffset}
       >
         <ContextMenuPrimitive.Popup
+          ref={popupRef}
           data-slot="context-menu-content"
           className={cn("data-open:animate-in data-closed:animate-out data-closed:fade-out-0 data-open:fade-in-0 data-closed:zoom-out-95 data-open:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 ring-foreground/10 bg-popover text-popover-foreground min-w-36 rounded-lg p-1 shadow-md ring-1 duration-100 z-50 max-h-(--available-height) origin-(--transform-origin) overflow-x-hidden overflow-y-auto outline-none", className)}
           {...props}
@@ -59,6 +82,7 @@ function ContextMenuContent({
     </ContextMenuPrimitive.Portal>
   )
 }
+
 
 function ContextMenuGroup({ ...props }: ContextMenuPrimitive.Group.Props) {
   return (

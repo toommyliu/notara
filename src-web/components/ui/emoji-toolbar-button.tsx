@@ -31,15 +31,15 @@ import {
   XIcon,
 } from 'lucide-react';
 
-import { Button } from '~/components/ui/button';
+import { Button } from '~/ui/button';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from '~/components/ui/tooltip';
+} from '~/ui/tooltip';
 import { cn } from '~/lib/utils';
-import { ToolbarButton } from '~/components/ui/toolbar';
+import { ToolbarButton } from './toolbar';
 
 export function EmojiToolbarButton({
   options,
@@ -83,7 +83,7 @@ export function EmojiPopover({
 }) {
   return (
     <Popover.Root open={isOpen} onOpenChange={setIsOpen}>
-      <Popover.Trigger>{control}</Popover.Trigger>
+      <Popover.Trigger asChild>{control}</Popover.Trigger>
 
       <Popover.Portal>
         <Popover.Content className="z-100">{children}</Popover.Content>
@@ -490,7 +490,7 @@ function EmojiPickerNavigation({
   'emojiLibrary' | 'focusedCategory' | 'i18n' | 'icons'
 >) {
   return (
-    <TooltipProvider delayDuration={500}>
+    <TooltipProvider delay={500}>
       <nav
         id="emoji-nav"
         className="mb-2.5 border-0 border-b border-b-border border-solid p-1.5"
@@ -502,14 +502,14 @@ function EmojiPickerNavigation({
             .map(({ id }) => (
               <Tooltip key={id}>
                 <TooltipTrigger render={<Button size="sm" variant="ghost" className={cn(
-                                          'h-fit rounded-full fill-current p-1.5 text-muted-foreground hover:bg-muted hover:text-muted-foreground',
-                                          id === focusedCategory &&
-                                            'pointer-events-none bg-accent fill-current text-accent-foreground'
-                                        )} onClick={() => {
-                                          onClick(id);
-                                        }} aria-label={i18n.categories[id]} type="button" />}><span className="inline-flex size-5 items-center justify-center">
-                                          {icons.categories[id].outline}
-                                        </span></TooltipTrigger>
+                  'h-fit rounded-full fill-current p-1.5 text-muted-foreground hover:bg-muted hover:text-muted-foreground',
+                  id === focusedCategory &&
+                  'pointer-events-none bg-accent fill-current text-accent-foreground'
+                )} onClick={() => {
+                  onClick(id);
+                }} aria-label={i18n.categories[id]} type="button" />}><span className="inline-flex size-5 items-center justify-center">
+                    {icons.categories[id].outline}
+                  </span></TooltipTrigger>
                 <TooltipContent side="bottom">
                   {i18n.categories[id]}
                 </TooltipContent>

@@ -16,5 +16,8 @@
   },
   "devDependencies": {
     "@tauri-apps/cli": "^2.9.6"
+  },
+  "dependencies": {
+    "cmdk": "^1.1.1"
   }
 }
