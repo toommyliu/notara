@@ -29,10 +29,10 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from '~/components/ui/dropdown-menu';
+} from '~/ui/dropdown-menu';
 import { cn } from '~/lib/utils';
 
-import { ToolbarButton } from '~/components/ui/toolbar';
+import { ToolbarButton } from '~/ui/toolbar';
 
 export function TableToolbarButton(props: DropdownMenuProps) {
   const tableSelected = useEditorSelector(

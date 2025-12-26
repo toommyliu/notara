@@ -16,11 +16,11 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '~/components/ui/dropdown-menu';
+} from '~/ui/dropdown-menu';
 import { BaseEditorKit } from '~/features/editor/editor-base-kit';
 
 import { EditorStatic } from './editor-static';
-import { ToolbarButton } from '~/components/ui/toolbar';
+import { ToolbarButton } from '~/ui/toolbar';
 
 const siteUrl = 'https://platejs.org';
 

@@ -19,18 +19,14 @@ import {
   PilcrowIcon,
   Quote,
   RadicalIcon,
-  SparklesIcon,
   Square,
   Table,
-  TableOfContentsIcon,
+  TableOfContentsIcon
 } from 'lucide-react';
 import { type TComboboxInputElement, KEYS } from 'platejs';
 import { PlateElement } from 'platejs/react';
 
-import {
-  insertBlock,
-  insertInlineElement,
-} from '~/features/editor/transforms';
+import { insertBlock, insertInlineElement } from '~/features/editor/transforms';
 
 import {
   InlineCombobox,
@@ -39,7 +35,7 @@ import {
   InlineComboboxGroup,
   InlineComboboxGroupLabel,
   InlineComboboxInput,
-  InlineComboboxItem,
+  InlineComboboxItem
 } from './inline-combobox';
 
 type Group = {
@@ -63,80 +59,80 @@ const groups: Group[] = [
         icon: <PilcrowIcon />,
         keywords: ['paragraph'],
         label: 'Text',
-        value: KEYS.p,
+        value: KEYS.p
       },
       {
         icon: <Heading1Icon />,
         keywords: ['title', 'h1'],
         label: 'Heading 1',
-        value: KEYS.h1,
+        value: KEYS.h1
       },
       {
         icon: <Heading2Icon />,
         keywords: ['subtitle', 'h2'],
         label: 'Heading 2',
-        value: KEYS.h2,
+        value: KEYS.h2
       },
       {
         icon: <Heading3Icon />,
         keywords: ['subtitle', 'h3'],
         label: 'Heading 3',
-        value: KEYS.h3,
+        value: KEYS.h3
       },
       {
         icon: <ListIcon />,
         keywords: ['unordered', 'ul', '-'],
         label: 'Bulleted list',
-        value: KEYS.ul,
+        value: KEYS.ul
       },
       {
         icon: <ListOrdered />,
         keywords: ['ordered', 'ol', '1'],
         label: 'Numbered list',
-        value: KEYS.ol,
+        value: KEYS.ol
       },
       {
         icon: <Square />,
         keywords: ['checklist', 'task', 'checkbox', '[]'],
         label: 'To-do list',
-        value: KEYS.listTodo,
+        value: KEYS.listTodo
       },
       {
         icon: <ChevronRightIcon />,
         keywords: ['collapsible', 'expandable'],
         label: 'Toggle',
-        value: KEYS.toggle,
+        value: KEYS.toggle
       },
       {
         icon: <Code2 />,
         keywords: ['```'],
         label: 'Code Block',
-        value: KEYS.codeBlock,
+        value: KEYS.codeBlock
       },
       {
         icon: <Table />,
         label: 'Table',
-        value: KEYS.table,
+        value: KEYS.table
       },
       {
         icon: <Quote />,
         keywords: ['citation', 'blockquote', 'quote', '>'],
         label: 'Blockquote',
-        value: KEYS.blockquote,
+        value: KEYS.blockquote
       },
       {
         description: 'Insert a highlighted block.',
         icon: <LightbulbIcon />,
         keywords: ['note'],
         label: 'Callout',
-        value: KEYS.callout,
-      },
+        value: KEYS.callout
+      }
     ].map((item) => ({
       ...item,
       onSelect: (editor, value) => {
         insertBlock(editor, value, { upsert: true });
-      },
-    })),
+      }
+    }))
   },
   {
     group: 'Advanced blocks',
@@ -145,31 +141,31 @@ const groups: Group[] = [
         icon: <TableOfContentsIcon />,
         keywords: ['toc'],
         label: 'Table of contents',
-        value: KEYS.toc,
+        value: KEYS.toc
       },
       {
         icon: <Columns3Icon />,
         label: '3 columns',
-        value: 'action_three_columns',
+        value: 'action_three_columns'
       },
       {
         focusEditor: false,
         icon: <RadicalIcon />,
         label: 'Equation',
-        value: KEYS.equation,
+        value: KEYS.equation
       },
       {
         icon: <PenToolIcon />,
         keywords: ['excalidraw'],
         label: 'Excalidraw',
-        value: KEYS.excalidraw,
-      },
+        value: KEYS.excalidraw
+      }
     ].map((item) => ({
       ...item,
       onSelect: (editor, value) => {
         insertBlock(editor, value, { upsert: true });
-      },
-    })),
+      }
+    }))
   },
   {
     group: 'Inline',
@@ -179,26 +175,24 @@ const groups: Group[] = [
         icon: <CalendarIcon />,
         keywords: ['time'],
         label: 'Date',
-        value: KEYS.date,
+        value: KEYS.date
       },
       {
         focusEditor: false,
         icon: <RadicalIcon />,
         label: 'Inline Equation',
-        value: KEYS.inlineEquation,
-      },
+        value: KEYS.inlineEquation
+      }
     ].map((item) => ({
       ...item,
       onSelect: (editor, value) => {
         insertInlineElement(editor, value);
-      },
-    })),
-  },
+      }
+    }))
+  }
 ];
 
-export function SlashInputElement(
-  props: PlateElementProps<TComboboxInputElement>
-) {
+export function SlashInputElement(props: PlateElementProps<TComboboxInputElement>) {
   const { editor, element } = props;
 
   return (
@@ -213,22 +207,20 @@ export function SlashInputElement(
             <InlineComboboxGroup key={group}>
               <InlineComboboxGroupLabel>{group}</InlineComboboxGroupLabel>
 
-              {items.map(
-                ({ focusEditor, icon, keywords, label, value, onSelect }) => (
-                  <InlineComboboxItem
-                    key={value}
-                    value={value}
-                    onClick={() => onSelect(editor, value)}
-                    label={label}
-                    focusEditor={focusEditor}
-                    group={group}
-                    keywords={keywords}
-                  >
-                    <div className="mr-2 text-muted-foreground">{icon}</div>
-                    {label ?? value}
-                  </InlineComboboxItem>
-                )
-              )}
+              {items.map(({ focusEditor, icon, keywords, label, value, onSelect }) => (
+                <InlineComboboxItem
+                  key={value}
+                  value={value}
+                  onClick={() => onSelect(editor, value)}
+                  label={label}
+                  focusEditor={focusEditor}
+                  group={group}
+                  keywords={keywords}
+                >
+                  <div className="mr-2 text-muted-foreground">{icon}</div>
+                  {label ?? value}
+                </InlineComboboxItem>
+              ))}
             </InlineComboboxGroup>
           ))}
         </InlineComboboxContent>

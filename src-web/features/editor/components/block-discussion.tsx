@@ -25,7 +25,7 @@ import {
 } from 'platejs';
 import { useEditorPlugin, useEditorRef, usePluginOption } from 'platejs/react';
 
-import { Button } from '~/components/ui/button';
+import { Button } from '~/ui/button';
 import {
   Popover,
   PopoverPositioner,

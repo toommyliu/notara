@@ -26,9 +26,9 @@ import {
   withHOC
 } from 'platejs/react';
 
-import { Button } from '~/components/ui/button';
+import { Button } from '~/ui/button';
 import { Popover, PopoverPositioner, PopoverContent } from '~/ui/popover';
-import { Separator } from '~/components/ui/separator';
+import { Separator } from '~/ui/separator';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '~/ui/tooltip';
 import { cn } from '~/lib/utils';
 

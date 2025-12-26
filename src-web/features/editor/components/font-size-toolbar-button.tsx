@@ -17,7 +17,7 @@ import {
 } from '~/ui/popover';
 import { cn } from '~/lib/utils';
 
-import { ToolbarButton } from '~/components/ui/toolbar';
+import { ToolbarButton } from '~/ui/toolbar';
 
 const DEFAULT_FONT_SIZE = '16';
 

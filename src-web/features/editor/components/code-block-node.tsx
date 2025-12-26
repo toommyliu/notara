@@ -13,7 +13,7 @@ import {
 } from 'platejs/react';
 import { useEditorRef, useElement, useReadOnly } from 'platejs/react';
 
-import { Button } from '~/components/ui/button';
+import { Button } from '~/ui/button';
 import {
   Command,
   CommandEmpty,

@@ -37,7 +37,7 @@ import {
   setBlockType,
 } from '~/features/editor/transforms';
 
-import { ToolbarButton, ToolbarMenuGroup } from '~/components/ui/toolbar';
+import { ToolbarButton, ToolbarMenuGroup } from '~/ui/toolbar';
 
 export const turnIntoItems = [
   {

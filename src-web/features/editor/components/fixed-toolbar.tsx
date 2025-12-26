@@ -2,7 +2,7 @@
 
 import { cn } from '~/lib/utils';
 
-import { Toolbar } from '~/components/ui/toolbar';
+import { Toolbar } from '~/ui/toolbar';
 import { useEditorUi } from '~/features/editor/contexts/editor-ui-context';
 
 export function FixedToolbar(props: React.ComponentProps<typeof Toolbar>) {

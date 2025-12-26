@@ -19,7 +19,7 @@ import {
 
 import { cn } from '~/lib/utils';
 
-import { Toolbar } from '~/components/ui/toolbar';
+import { Toolbar } from '~/ui/toolbar';
 
 export function FloatingToolbar({
   children,
