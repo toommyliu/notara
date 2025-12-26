@@ -22,6 +22,8 @@ import { EmojiKit } from './plugins/emoji-kit';
 import { ExitBreakKit } from './plugins/exit-break-kit';
 import { FixedToolbarKit } from './plugins/fixed-toolbar-kit';
 import { FloatingToolbarKit } from './plugins/floating-toolbar-kit';
+import { PageHeaderKit } from './plugins/page-header-kit';
+import { PageNavBarKit } from './plugins/page-navbar-kit';
 import { BaseFontKit } from './plugins/font-base-kit';
 import { IndentKit } from './plugins/indent-kit';
 import { BaseLineHeightKit } from './plugins/line-height-base-kit';
@@ -95,5 +97,7 @@ export const BaseEditorKit = [
   ...CursorOverlayKit, // selection cursor keeps showing when editor loses focus
   ...DndKit, // block drag and drop
   ...FixedToolbarKit,
-  ...FloatingToolbarKit
+  ...FloatingToolbarKit,
+  ...PageNavBarKit, // Top navigation bar
+  ...PageHeaderKit // Notion-style title/icon/cover
 ];

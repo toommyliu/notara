@@ -1,13 +1,14 @@
-import { StrictMode } from "react";
-import { createRoot } from "react-dom/client";
-import { createRouter, RouterProvider } from "@tanstack/react-router";
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { createRouter, RouterProvider } from '@tanstack/react-router';
 
 // import { scan } from "react-scan";
 
-import { ThemeProvider } from "~/providers/theme";
-import { DragProvider } from "~/providers/drag-context";
+import { ThemeProvider } from '~/providers/theme';
+import { DragProvider } from '~/providers/drag-context';
 
-import { routeTree } from "~/routeTree.gen";
+import { TooltipProvider } from '~/ui/tooltip';
+import { routeTree } from '~/routeTree.gen';
 
 const router = createRouter({ routeTree });
 
@@ -15,19 +16,20 @@ const router = createRouter({ routeTree });
 //   enabled: import.meta.env.REACT_SCAN === "true",
 // });
 
-createRoot(document.getElementById("root") as HTMLElement).render(
+createRoot(document.getElementById('root') as HTMLElement).render(
   <StrictMode>
     <ThemeProvider>
       <DragProvider>
-        <RouterProvider router={router} />
+        <TooltipProvider delay={500}>
+          <RouterProvider router={router} />
+        </TooltipProvider>
       </DragProvider>
     </ThemeProvider>
-  </StrictMode>,
+  </StrictMode>
 );
 
-declare module "@tanstack/react-router" {
+declare module '@tanstack/react-router' {
   interface Register {
     router: typeof router;
   }
 }
-

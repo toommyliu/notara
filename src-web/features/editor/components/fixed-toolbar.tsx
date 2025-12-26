@@ -3,8 +3,15 @@
 import { cn } from '~/lib/utils';
 
 import { Toolbar } from '~/components/ui/toolbar';
+import { useEditorUi } from '~/features/editor/contexts/editor-ui-context';
 
 export function FixedToolbar(props: React.ComponentProps<typeof Toolbar>) {
+  const { showFixedToolbar } = useEditorUi();
+
+  if (!showFixedToolbar) {
+    return null;
+  }
+
   return (
     <Toolbar
       {...props}
