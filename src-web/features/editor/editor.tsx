@@ -1,33 +1,36 @@
 import { Plate, usePlateEditor } from 'platejs/react';
 
-import { AutoformatKit } from '~/components/editor/plugins/autoformat-kit';
-import { BasicNodesKit } from '~/components/editor/plugins/basic-nodes-kit';
-import { BlockMenuKit } from '~/components/editor/plugins/block-menu-kit';
-import { BlockPlaceholderKit } from '~/components/editor/plugins/block-placeholder-kit';
-import { BlockSelectionKit } from '~/components/editor/plugins/block-selection-kit';
-import { CalloutKit } from '~/components/editor/plugins/callout-kit';
-import { CodeBlockKit } from '~/components/editor/plugins/code-block-kit';
-import { ColumnKit } from '~/components/editor/plugins/column-kit';
-import { CursorOverlayKit } from '~/components/editor/plugins/cursor-overlay-kit';
-import { DateKit } from '~/components/editor/plugins/date-kit';
-import { DndKit } from '~/components/editor/plugins/dnd-kit';
-import { EmojiKit } from '~/components/editor/plugins/emoji-kit';
-import { ExitBreakKit } from '~/components/editor/plugins/exit-break-kit';
-import { FixedToolbarKit } from '~/components/editor/plugins/fixed-toolbar-kit';
-import { FloatingToolbarKit } from '~/components/editor/plugins/floating-toolbar-kit';
-import { IndentKit } from '~/components/editor/plugins/indent-kit';
-import { LinkKit } from '~/components/editor/plugins/link-kit';
-import { ListKit } from '~/components/editor/plugins/list-kit';
-import { MediaKit } from '~/components/editor/plugins/media-kit';
-import { SlashKit } from '~/components/editor/plugins/slash-kit';
-import { TableKit } from '~/components/editor/plugins/table-kit';
-import { TocKit } from '~/components/editor/plugins/toc-kit';
-import { ToggleKit } from '~/components/editor/plugins/toggle-kit';
-import { Editor, EditorContainer } from '~/components/ui/editor';
+import { AutoformatKit } from '~/features/editor/plugins/autoformat-kit';
+import { BasicNodesKit } from '~/features/editor/plugins/basic-nodes-kit';
+import { BlockMenuKit } from '~/features/editor/plugins/block-menu-kit';
+import { BlockPlaceholderKit } from '~/features/editor/plugins/block-placeholder-kit';
+import { BlockSelectionKit } from '~/features/editor/plugins/block-selection-kit';
+import { CalloutKit } from '~/features/editor/plugins/callout-kit';
+import { CodeBlockKit } from '~/features/editor/plugins/code-block-kit';
+import { ColumnKit } from '~/features/editor/plugins/column-kit';
+import { CursorOverlayKit } from '~/features/editor/plugins/cursor-overlay-kit';
+import { DateKit } from '~/features/editor/plugins/date-kit';
+import { DndKit } from '~/features/editor/plugins/dnd-kit';
+import { EmojiKit } from '~/features/editor/plugins/emoji-kit';
+import { ExitBreakKit } from '~/features/editor/plugins/exit-break-kit';
+import { FixedToolbarKit } from '~/features/editor/plugins/fixed-toolbar-kit';
+import { FloatingToolbarKit } from '~/features/editor/plugins/floating-toolbar-kit';
+import { IndentKit } from '~/features/editor/plugins/indent-kit';
+import { LinkKit } from '~/features/editor/plugins/link-kit';
+import { ListKit } from '~/features/editor/plugins/list-kit';
+import { MediaKit } from '~/features/editor/plugins/media-kit';
+import { SlashKit } from '~/features/editor/plugins/slash-kit';
+import { TableKit } from '~/features/editor/plugins/table-kit';
+import { TocKit } from '~/features/editor/plugins/toc-kit';
+import { ToggleKit } from '~/features/editor/plugins/toggle-kit';
+import { Editor, EditorContainer } from '~/features/editor/components/editor';
+import { BaseEditorKit } from './editor-base-kit';
 
 export function NoteEditor() {
     const editor = usePlateEditor({
         plugins: [
+            ...BaseEditorKit,
+
             // Basic Blocks
             ...BasicNodesKit, // Headings, block quote, horizontal rule, bold, italic, etc...
             ...CalloutKit, // Tip, Warning, Success
