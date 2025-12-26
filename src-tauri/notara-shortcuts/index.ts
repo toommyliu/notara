@@ -11,7 +11,7 @@ interface ShortcutDefinition {
   id: ShortcutId;
   label: string;
   default_binding: ShortcutBinding;
-  is_menu: boolean;
+  is_menu: bool;
 }
 
 const SHORTCUT_DEFINITIONS: ShortcutDefinition[] = [
