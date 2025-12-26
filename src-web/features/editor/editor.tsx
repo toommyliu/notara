@@ -25,6 +25,8 @@ import { TocKit } from '~/features/editor/plugins/toc-kit';
 import { ToggleKit } from '~/features/editor/plugins/toggle-kit';
 import { Editor, EditorContainer } from '~/features/editor/components/editor';
 import { BaseEditorKit } from './editor-base-kit';
+import { CommentKit } from '~/features/editor/plugins/comment-kit';
+import { SuggestionKit } from '~/features/editor/plugins/suggestion-kit';
 
 export function NoteEditor() {
     const editor = usePlateEditor({
@@ -43,6 +45,8 @@ export function NoteEditor() {
             ...TableKit,
             ...TocKit,
             ...ToggleKit,
+            ...CommentKit,
+            ...SuggestionKit,
 
             // Styles
             ...IndentKit,
