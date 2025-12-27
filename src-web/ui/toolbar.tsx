@@ -11,6 +11,7 @@ import * as React from 'react';
 
 import { cn } from '~/lib/utils';
 import {
+  DropdownMenuGroup,
   DropdownMenuLabel,
   DropdownMenuRadioGroup,
   DropdownMenuSeparator,
@@ -280,15 +281,15 @@ export function ToolbarGroup({
     <ToolbarPrimitive.Group
       className={cn(
         'group/toolbar-group',
-        'relative hidden has-[button]:flex',
+        'relative hidden items-center has-[button]:flex',
         className,
       )}
       {...props}
     >
       <div className="flex items-center">{children}</div>
 
-      <div className="group-last/toolbar-group:hidden! mx-1.5 py-0.5">
-        <Separator orientation="vertical" />
+      <div className="group-last/toolbar-group:hidden! mx-1.5 flex h-4 items-center">
+        <Separator orientation="vertical" className="h-full" />
       </div>
     </ToolbarPrimitive.Group>
   );
@@ -353,13 +354,19 @@ export function ToolbarMenuGroup({
   ...props
 }: React.ComponentProps<typeof DropdownMenuRadioGroup> & { label?: string }) {
   return (
-    <>
+    <DropdownMenuGroup>
       <DropdownMenuSeparator
         className={cn(
           'hidden',
           'mb-0 shrink-0 peer-has-[[role=menuitem]]/menu-group:block peer-has-[[role=menuitemradio]]/menu-group:block peer-has-[[role=option]]/menu-group:block',
         )}
       />
+
+      {label && (
+        <DropdownMenuLabel className="select-none font-semibold text-muted-foreground text-xs">
+          {label}
+        </DropdownMenuLabel>
+      )}
 
       <DropdownMenuRadioGroup
         {...props}
@@ -369,13 +376,8 @@ export function ToolbarMenuGroup({
           className,
         )}
       >
-        {label && (
-          <DropdownMenuLabel className="select-none font-semibold text-muted-foreground text-xs">
-            {label}
-          </DropdownMenuLabel>
-        )}
         {children}
       </DropdownMenuRadioGroup>
-    </>
+    </DropdownMenuGroup>
   );
 }

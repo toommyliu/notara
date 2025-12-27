@@ -10,8 +10,11 @@ import {
 import { KEYS } from 'platejs';
 import { useEditorReadOnly } from 'platejs/react';
 
+import { getModKeyLabel } from '~/hooks/use-platform';
 import { ToolbarGroup } from '~/ui/toolbar';
+
 import { CommentToolbarButton } from './comment-toolbar-button';
+import { EmojiToolbarButton } from './emoji-toolbar-button';
 import { InlineEquationToolbarButton } from './equation-toolbar-button';
 import { FontColorToolbarButton } from './font-color-toolbar-button';
 import { LinkToolbarButton } from './link-toolbar-button';
@@ -25,52 +28,66 @@ export function FloatingToolbarButtons() {
 
   return (
     <>
-      {!readOnly && (
-        <>
-          <ToolbarGroup>
-            <TurnIntoToolbarButton />
-
-            <MarkToolbarButton nodeType={KEYS.bold} tooltip="Bold (⌘+B)">
-              <BoldIcon />
-            </MarkToolbarButton>
-
-            <MarkToolbarButton nodeType={KEYS.italic} tooltip="Italic (⌘+I)">
-              <ItalicIcon />
-            </MarkToolbarButton>
-
-            <MarkToolbarButton
-              nodeType={KEYS.underline}
-              tooltip="Underline (⌘+U)"
-            >
-              <UnderlineIcon />
-            </MarkToolbarButton>
-
-            <MarkToolbarButton
-              nodeType={KEYS.strikethrough}
-              tooltip="Strikethrough (⌘+⇧+M)"
-            >
-              <StrikethroughIcon />
-            </MarkToolbarButton>
-
-            <MarkToolbarButton nodeType={KEYS.code} tooltip="Code (⌘+E)">
-              <Code2Icon />
-            </MarkToolbarButton>
-
-            <InlineEquationToolbarButton />
-
-            <LinkToolbarButton />
-
-            <FontColorToolbarButton />
-          </ToolbarGroup>
-        </>
-      )}
-
       <ToolbarGroup>
         <CommentToolbarButton />
-        <SuggestionToolbarButton />
 
-        {!readOnly && <MoreToolbarButton />}
+        <EmojiToolbarButton />
+
+        <SuggestionToolbarButton />
       </ToolbarGroup>
+
+      {!readOnly && (
+        <ToolbarGroup>
+          <TurnIntoToolbarButton />
+
+          <MarkToolbarButton
+            nodeType={KEYS.bold}
+            tooltip={`Bold (${getModKeyLabel()}+B)`}
+          >
+            <BoldIcon />
+          </MarkToolbarButton>
+
+          <MarkToolbarButton
+            nodeType={KEYS.italic}
+            tooltip={`Italic (${getModKeyLabel()}+I)`}
+          >
+            <ItalicIcon />
+          </MarkToolbarButton>
+
+          <MarkToolbarButton
+            nodeType={KEYS.underline}
+            tooltip={`Underline (${getModKeyLabel()}+U)`}
+          >
+            <UnderlineIcon />
+          </MarkToolbarButton>
+
+          <MarkToolbarButton
+            nodeType={KEYS.strikethrough}
+            tooltip={`Strikethrough (${getModKeyLabel()}+⇧+M)`}
+          >
+            <StrikethroughIcon />
+          </MarkToolbarButton>
+
+          <MarkToolbarButton
+            nodeType={KEYS.code}
+            tooltip={`Code (${getModKeyLabel()}+E)`}
+          >
+            <Code2Icon />
+          </MarkToolbarButton>
+
+          <InlineEquationToolbarButton />
+
+          <LinkToolbarButton />
+
+          <FontColorToolbarButton />
+        </ToolbarGroup>
+      )}
+
+      {!readOnly && (
+        <ToolbarGroup>
+          <MoreToolbarButton />
+        </ToolbarGroup>
+      )}
     </>
   );
 }

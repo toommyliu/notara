@@ -13,6 +13,8 @@ import { KEYS } from 'platejs';
 import { useEditorRef } from 'platejs/react';
 import * as React from 'react';
 
+import { getModKeyLabel } from '~/hooks/use-platform';
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -61,7 +63,11 @@ export function MoreToolbarButton(props: DropdownMenuProps) {
           >
             <SuperscriptIcon />
             Superscript
-            {/* (⌘+,) */}
+            <span className="ml-auto text-xs opacity-50">
+              (
+              {getModKeyLabel()}
+              +,)
+            </span>
           </DropdownMenuItem>
           <DropdownMenuItem
             onSelect={() => {
@@ -73,7 +79,11 @@ export function MoreToolbarButton(props: DropdownMenuProps) {
           >
             <SubscriptIcon />
             Subscript
-            {/* (⌘+.) */}
+            <span className="ml-auto text-xs opacity-50">
+              (
+              {getModKeyLabel()}
+              +.)
+            </span>
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>

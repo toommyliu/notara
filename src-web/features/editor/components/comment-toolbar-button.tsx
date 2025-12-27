@@ -19,6 +19,7 @@ export function CommentToolbarButton() {
       tooltip="Comment"
     >
       <MessageSquareTextIcon />
+      Comment
     </ToolbarButton>
   );
 }

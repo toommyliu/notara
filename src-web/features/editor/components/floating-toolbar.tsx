@@ -66,7 +66,8 @@ export function FloatingToolbar({
 
   const ref = useComposedRef<HTMLDivElement>(props.ref, floatingRef);
 
-  if (hidden) return null;
+  if (hidden)
+    return null;
 
   return (
     <div ref={clickOutsideRef}>
@@ -77,6 +78,15 @@ export function FloatingToolbar({
         className={cn(
           'scrollbar-hide absolute z-50 overflow-x-auto whitespace-nowrap rounded-md border bg-popover p-1 opacity-100 shadow-md print:hidden',
           'max-w-[80vw]',
+          '[&_button]:h-6 [&_button]:px-1',
+          '[&_button_svg]:size-3',
+          '[&_.mx-2.my-1]:mx-0.5 [&_.mx-2.my-1]:h-3.5 [&_.mx-2.my-1]:my-auto', // ToolbarSeparator
+          '[&_.mx-1\\.5.h-4]:mx-0.5 [&_.mx-1\\.5.h-4]:h-3', // ToolbarGroup separator
+          // Blue active on "marks"
+          '[&_button[data-mark][data-pressed=true]]:bg-transparent [&_button[data-mark][data-pressed=true]]:text-brand',
+          '[&_button[data-mark][aria-pressed=true]]:bg-transparent [&_button[data-mark][aria-pressed=true]]:text-brand',
+          '[&_button[data-mark][aria-checked=true]]:bg-transparent [&_button[data-mark][aria-checked=true]]:text-brand',
+          '[&_.group-data-\[pressed\=true\]]:bg-transparent [&_.group-data-\[pressed\=true\]]:text-brand',
           className,
         )}
       >

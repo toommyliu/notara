@@ -86,7 +86,9 @@ function getPlatformSafe(): Platform {
   if (typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window) {
     try {
       return normalizePlatform(osType());
-    } catch {}
+    }
+    catch {
+    }
   }
 
   // fallback to userAgent if tauri fails
@@ -94,9 +96,11 @@ function getPlatformSafe(): Platform {
     const userAgent = navigator.userAgent.toLowerCase();
     if (userAgent.includes('macintosh') || userAgent.includes('mac os x')) {
       return MACOS;
-    } else if (userAgent.includes('windows')) {
+    }
+    else if (userAgent.includes('windows')) {
       return WINDOWS;
-    } else if (userAgent.includes('linux')) {
+    }
+    else if (userAgent.includes('linux')) {
       return LINUX;
     }
   }
@@ -127,7 +131,8 @@ export function usePlatformLayout(): LayoutTokens {
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
-    if (!isTauri) return;
+    if (!isTauri)
+      return;
 
     const checkFullscreen = async () => {
       const win = getCurrentWindow();
@@ -141,7 +146,6 @@ export function usePlatformLayout(): LayoutTokens {
 
     const setup = async () => {
       const win = getCurrentWindow();
-      // Listen for resize which happens on fullscreen toggle
       unlisten = await win.onResized(() => {
         checkFullscreen();
       });
@@ -150,7 +154,7 @@ export function usePlatformLayout(): LayoutTokens {
     setup();
 
     return () => {
-      if (unlisten) unlisten();
+      unlisten?.();
     };
   }, [isTauri]);
 

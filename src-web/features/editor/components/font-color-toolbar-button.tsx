@@ -111,33 +111,44 @@ function ColorSwatch({
         render={props => (
           <button
             {...props}
-            className={cn(
-              'flex size-6.5 items-center justify-center rounded transition-all hover:bg-muted',
-              isSelected && 'ring-1 ring-primary/70',
-            )}
-            onClick={(e) => {
-              props.onClick?.(e);
+            className="flex size-7.5 items-center justify-center rounded-md transition-all hover:bg-muted/80"
+            onClick={(ev) => {
+              props.onClick?.(ev);
               onSelect();
             }}
-            onMouseDown={(e) => {
-              props.onMouseDown?.(e);
-              e.preventDefault();
+            onMouseDown={(ev) => {
+              props.onMouseDown?.(ev);
+              ev.preventDefault();
             }}
             type="button"
           >
             {type === 'text'
               ? (
                   <span
-                    className="flex size-full items-center justify-center text-sm font-bold"
-                    style={{ color: isDefault ? 'var(--foreground)' : swatchColor }}
+                    className={cn(
+                      'flex size-full items-center justify-center rounded-sm text-[15px] font-bold transition-all',
+                      isSelected && 'bg-accent/40 ring-1 ring-inset',
+                    )}
+                    style={{
+                      'color': isDefault ? 'var(--foreground)' : swatchColor,
+                      '--tw-ring-color': isSelected
+                        ? (isDefault ? 'var(--primary)' : swatchColor)
+                        : 'transparent',
+                    } as React.CSSProperties}
                   >
                     A
                   </span>
                 )
               : (
                   <span
-                    className="size-5 rounded-[3px] border border-border/10"
-                    style={{ backgroundColor: swatchColor }}
+                    className={cn(
+                      'size-6 rounded border border-black/5 transition-all',
+                      isSelected && 'ring-2 ring-inset',
+                    )}
+                    style={{
+                      'backgroundColor': swatchColor,
+                      '--tw-ring-color': isSelected ? 'rgba(0,0,0,0.15)' : 'transparent',
+                    } as React.CSSProperties}
                   />
                 )}
           </button>
@@ -291,6 +302,7 @@ export function FontColorToolbarButton({
         render={props => (
           <ToolbarButton
             {...props}
+            isDropdown
             pressed={open}
             tooltip={tooltip ?? 'Color'}
             onMouseDown={(e) => {
@@ -337,8 +349,8 @@ export function FontColorToolbarButton({
       <DropdownMenuContent
         align="start"
         className="ignore-click-outside/toolbar w-44 p-0"
-        onCloseAutoFocus={(e) => {
-          e.preventDefault();
+        onCloseAutoFocus={(ev) => {
+          ev.preventDefault();
           editor.tf.focus();
         }}
       >
