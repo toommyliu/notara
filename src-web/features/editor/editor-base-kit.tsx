@@ -20,7 +20,7 @@ import { DateKit } from './plugins/date-kit';
 import { DndKit } from './plugins/dnd-kit';
 import { EmojiKit } from './plugins/emoji-kit';
 import { ExitBreakKit } from './plugins/exit-break-kit';
-import { FixedToolbarKit } from './plugins/fixed-toolbar-kit';
+
 import { FloatingToolbarKit } from './plugins/floating-toolbar-kit';
 import { BaseFontKit } from './plugins/font-base-kit';
 import { IndentKit } from './plugins/indent-kit';
@@ -96,7 +96,7 @@ export const BaseEditorKit = [
   ...SlashKit, // block slash menu
   ...CursorOverlayKit, // selection cursor keeps showing when editor loses focus
   ...DndKit, // block drag and drop
-  ...FixedToolbarKit,
+
   ...FloatingToolbarKit,
   ...PageNavBarKit, // Top navigation bar
   ...PageHeaderKit, // Notion-style title/icon/cover

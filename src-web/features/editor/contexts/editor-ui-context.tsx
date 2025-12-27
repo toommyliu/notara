@@ -3,8 +3,6 @@
 import * as React from 'react';
 
 interface EditorUIContextValue {
-  showFixedToolbar: boolean;
-  setShowFixedToolbar: (show: boolean) => void;
   // Page metadata
   pageIcon: string;
   setPageIcon: (icon: string) => void;
@@ -15,20 +13,17 @@ interface EditorUIContextValue {
 const EditorUIContext = React.createContext<EditorUIContextValue | null>(null);
 
 export function EditorUIProvider({ children }: { children: React.ReactNode }) {
-  const [showFixedToolbar, setShowFixedToolbar] = React.useState(true);
   const [pageIcon, setPageIcon] = React.useState('');
   const [coverUrl, setCoverUrl] = React.useState<string | null>(null);
 
   const value = React.useMemo(
     () => ({
-      showFixedToolbar,
-      setShowFixedToolbar,
       pageIcon,
       setPageIcon,
       coverUrl,
       setCoverUrl,
     }),
-    [showFixedToolbar, pageIcon, coverUrl],
+    [pageIcon, coverUrl],
   );
 
   return <EditorUIContext value={value}>{children}</EditorUIContext>;
@@ -39,8 +34,6 @@ export function useEditorUi() {
 
   if (!context) {
     return {
-      showFixedToolbar: true,
-      setShowFixedToolbar: () => {},
       pageIcon: '',
       setPageIcon: () => {},
       coverUrl: null,

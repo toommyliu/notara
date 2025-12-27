@@ -18,8 +18,6 @@ import {
 } from '~/ui/dropdown-menu';
 import { Toggle } from '~/ui/toggle';
 
-import { useEditorUi } from '../contexts/editor-ui-context';
-
 interface PageNavBarProps {
   title?: string;
   icon?: string;
@@ -39,8 +37,6 @@ export function PageNavBar({
   onStarChange,
   className,
 }: PageNavBarProps) {
-  const { showFixedToolbar, setShowFixedToolbar } = useEditorUi();
-
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   return (
