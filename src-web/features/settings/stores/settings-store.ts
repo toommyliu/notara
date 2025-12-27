@@ -1,25 +1,25 @@
-import { create } from "zustand";
-import { listen } from "@tauri-apps/api/event";
+import { listen } from '@tauri-apps/api/event'
+import { create } from 'zustand'
 
-type SettingsState = {
-    isOpen: boolean;
-};
+interface SettingsState {
+  isOpen: boolean
+}
 
-type SettingsActions = {
-    open: () => void;
-    close: () => void;
-    setOpen: (open: boolean) => void;
-};
+interface SettingsActions {
+  open: () => void
+  close: () => void
+  setOpen: (open: boolean) => void
+}
 
-export const useSettingsStore = create<SettingsState & SettingsActions>()((set) => ({
-    isOpen: false,
-    open: () => set({ isOpen: true }),
-    close: () => set({ isOpen: false }),
-    setOpen: (open) => set({ isOpen: open }),
-}));
+export const useSettingsStore = create<SettingsState & SettingsActions>()(set => ({
+  isOpen: false,
+  open: () => set({ isOpen: true }),
+  close: () => set({ isOpen: false }),
+  setOpen: open => set({ isOpen: open }),
+}))
 
-if (typeof window !== "undefined") {
-    listen("open-settings", () => {
-        useSettingsStore.getState().open();
-    }).catch(() => { });
+if (typeof window !== 'undefined') {
+  listen('open-settings', () => {
+    useSettingsStore.getState().open()
+  }).catch(() => { })
 }

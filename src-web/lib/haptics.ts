@@ -1,18 +1,18 @@
-import { invoke } from "@tauri-apps/api/core";
+import { invoke } from '@tauri-apps/api/core'
 
-const CMD_PERFORM = "plugin:notara-mac-haptics|perform";
-const CMD_IS_SUPPORTED = "plugin:notara-mac-haptics|is_supported";
+const CMD_PERFORM = 'plugin:notara-mac-haptics|perform'
+const CMD_IS_SUPPORTED = 'plugin:notara-mac-haptics|is_supported'
 
-let pluginSupported: boolean | null = null;
+let pluginSupported: boolean | null = null
 
 /**
  * Represents the different types of haptic feedback patterns.
  * @see https://developer.apple.com/documentation/appkit/nshapticfeedbackpattern
  */
 export enum HapticFeedbackPattern {
-    Alignment = 0,
-    LevelChange = 1,
-    Generic = 2,
+  Alignment = 0,
+  LevelChange = 1,
+  Generic = 2,
 }
 
 /**
@@ -20,12 +20,12 @@ export enum HapticFeedbackPattern {
  * @see https://developer.apple.com/documentation/appkit/nshapticfeedbackmanager/performancetime
  */
 export enum PerformanceTime {
-    /** The system chooses the most appropriate time for feedback. */
-    Default = 0,
-    /** Provide immediate haptic feedback. */
-    Now = 1,
-    /** Provide haptic feedback after the next screen update. */
-    DrawCompleted = 2,
+  /** The system chooses the most appropriate time for feedback. */
+  Default = 0,
+  /** Provide immediate haptic feedback. */
+  Now = 1,
+  /** Provide haptic feedback after the next screen update. */
+  DrawCompleted = 2,
 }
 
 /**
@@ -34,12 +34,12 @@ export enum PerformanceTime {
  * @returns A promise that resolves to a boolean indicating support.
  */
 export async function isSupported(): Promise<boolean> {
-    if (pluginSupported === null) {
-        pluginSupported = await invoke<boolean>(CMD_IS_SUPPORTED).catch(
-            (_) => false
-        );
-    }
-    return pluginSupported;
+  if (pluginSupported === null) {
+    pluginSupported = await invoke<boolean>(CMD_IS_SUPPORTED).catch(
+      _ => false,
+    )
+  }
+  return pluginSupported
 }
 
 /**
@@ -54,14 +54,13 @@ export async function isSupported(): Promise<boolean> {
  * @see https://developer.apple.com/documentation/appkit/nshapticfeedbackperformer/1441738-perform
  */
 export async function perform(
-    pattern: HapticFeedbackPattern = HapticFeedbackPattern.Generic,
-    performanceTime: PerformanceTime = PerformanceTime.Now
+  pattern: HapticFeedbackPattern = HapticFeedbackPattern.Generic,
+  performanceTime: PerformanceTime = PerformanceTime.Now,
 ): Promise<void> {
-    await invoke<void>(CMD_PERFORM, {
-        pattern,
-        performanceTime,  // Tauri converts Rust snake_case to JS camelCase
-    }).catch((error) =>
-        console.error("Error performing haptic feedback: ", error)
-    );
+  await invoke<void>(CMD_PERFORM, {
+    pattern,
+    performanceTime, // Tauri converts Rust snake_case to JS camelCase
+  }).catch(error =>
+    console.error('Error performing haptic feedback: ', error),
+  )
 }
-

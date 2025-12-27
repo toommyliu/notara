@@ -1,2 +1,2 @@
 // Store
-export { useNotesStore, type Note, type Group, type SortOrder } from "./store";
+export { type Group, type Note, type SortOrder, useNotesStore } from './store'

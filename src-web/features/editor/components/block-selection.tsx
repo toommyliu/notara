@@ -1,9 +1,10 @@
-'use client';
+'use client'
 
-import { DndPlugin } from '@platejs/dnd';
-import { useBlockSelected } from '@platejs/selection/react';
-import { cva } from 'class-variance-authority';
-import { type PlateElementProps, usePluginOption } from 'platejs/react';
+import type { PlateElementProps } from 'platejs/react'
+import { DndPlugin } from '@platejs/dnd'
+import { useBlockSelected } from '@platejs/selection/react'
+import { cva } from 'class-variance-authority'
+import { usePluginOption } from 'platejs/react'
 
 export const blockSelectionVariants = cva(
   'pointer-events-none absolute inset-0 z-1 bg-brand/[.13] transition-opacity',
@@ -17,19 +18,20 @@ export const blockSelectionVariants = cva(
         true: 'opacity-100',
       },
     },
-  }
-);
+  },
+)
 
 export function BlockSelection(props: PlateElementProps) {
-  const isBlockSelected = useBlockSelected();
-  const isDragging = usePluginOption(DndPlugin, 'isDragging');
+  const isBlockSelected = useBlockSelected()
+  const isDragging = usePluginOption(DndPlugin, 'isDragging')
 
   if (
-    !isBlockSelected ||
-    props.plugin.key === 'tr' ||
-    props.plugin.key === 'table'
-  )
-    return null;
+    !isBlockSelected
+    || props.plugin.key === 'tr'
+    || props.plugin.key === 'table'
+  ) {
+    return null
+  }
 
   return (
     <div
@@ -38,5 +40,5 @@ export function BlockSelection(props: PlateElementProps) {
       })}
       data-slot="block-selection"
     />
-  );
+  )
 }

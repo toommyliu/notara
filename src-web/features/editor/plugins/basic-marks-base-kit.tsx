@@ -8,11 +8,11 @@ import {
   BaseSubscriptPlugin,
   BaseSuperscriptPlugin,
   BaseUnderlinePlugin,
-} from '@platejs/basic-nodes';
+} from '@platejs/basic-nodes'
 
-import { CodeLeafStatic } from '~/features/editor/components/code-node-static';
-import { HighlightLeafStatic } from '~/features/editor/components/highlight-node-static';
-import { KbdLeafStatic } from '~/features/editor/components/kbd-node-static';
+import { CodeLeafStatic } from '~/features/editor/components/code-node-static'
+import { HighlightLeafStatic } from '~/features/editor/components/highlight-node-static'
+import { KbdLeafStatic } from '~/features/editor/components/kbd-node-static'
 
 export const BaseBasicMarksKit = [
   BaseBoldPlugin,
@@ -24,4 +24,4 @@ export const BaseBasicMarksKit = [
   BaseSuperscriptPlugin,
   BaseHighlightPlugin.withComponent(HighlightLeafStatic),
   BaseKbdPlugin.withComponent(KbdLeafStatic),
-];
+]

@@ -1,133 +1,136 @@
-import { useEffect, useRef, useState } from "react";
-import { useDragContext } from "~/providers/drag-context";
-import { useSplitViewStore } from "~/features/layout/stores/split-view-store";
-import { useTabsStore } from "~/features/layout/stores/tabs-store";
-import { cn } from "~/lib/utils";
+import { useEffect, useRef, useState } from 'react'
+import { useSplitViewStore } from '~/features/layout/stores/split-view-store'
+import { useTabsStore } from '~/features/layout/stores/tabs-store'
+import { cn } from '~/lib/utils'
+import { useDragContext } from '~/providers/drag-context'
 
-type SplitDropZoneProps = {
-    position: "left" | "right" | "top" | "bottom" | "center";
-    paneId?: string; // Required for position === "center"
-    anchorNoteId?: string; // The note to group with if creating a new split
-    onHoverChange?: (isHovering: boolean) => void;
-    contentPadding?: number; // px
-    contentWidth?: number; // max-width px (e.g. 768 for max-w-3xl)
-};
+interface SplitDropZoneProps {
+  position: 'left' | 'right' | 'top' | 'bottom' | 'center'
+  paneId?: string // Required for position === "center"
+  anchorNoteId?: string // The note to group with if creating a new split
+  onHoverChange?: (isHovering: boolean) => void
+  contentPadding?: number // px
+  contentWidth?: number // max-width px (e.g. 768 for max-w-3xl)
+}
 
 export function SplitDropZone({
-    position,
-    paneId,
-    anchorNoteId,
-    onHoverChange,
-    contentPadding = 48,
-    contentWidth = 768
+  position,
+  paneId,
+  anchorNoteId,
+  onHoverChange,
+  contentPadding = 48,
+  contentWidth = 768,
 }: SplitDropZoneProps) {
-    const dragContext = useDragContext();
-    const { panes, addPane, openInPane } = useSplitViewStore();
-    const { addToGroup } = useTabsStore();
+  const dragContext = useDragContext()
+  const { panes, addPane, openInPane } = useSplitViewStore()
+  const { addToGroup } = useTabsStore()
 
-    const zoneRef = useRef<HTMLDivElement>(null);
-    const [isHovering, setIsHovering] = useState(false);
+  const zoneRef = useRef<HTMLDivElement>(null)
+  const [isHovering, setIsHovering] = useState(false)
 
-    useEffect(() => {
-        onHoverChange?.(isHovering);
-    }, [isHovering, onHoverChange]);
+  useEffect(() => {
+    onHoverChange?.(isHovering)
+  }, [isHovering, onHoverChange])
 
-    const draggedNoteIdRef = useRef<string | null>(null);
-    const shouldShow = dragContext?.isDragging && (position === "center" || panes.length < 2);
+  const draggedNoteIdRef = useRef<string | null>(null)
+  const shouldShow = dragContext?.isDragging && (position === 'center' || panes.length < 2)
 
-    useEffect(() => {
-        if (dragContext?.draggedNoteId) {
-            draggedNoteIdRef.current = dragContext.draggedNoteId;
+  useEffect(() => {
+    if (dragContext?.draggedNoteId) {
+      draggedNoteIdRef.current = dragContext.draggedNoteId
+    }
+  }, [dragContext?.draggedNoteId])
+
+  useEffect(() => {
+    if (!shouldShow) {
+      setIsHovering(false)
+      return
+    }
+
+    const handleMouseMove = (ev: MouseEvent) => {
+      if (!zoneRef.current)
+        return
+
+      const rect = zoneRef.current.getBoundingClientRect()
+      const isOver = (
+        ev.clientX >= rect.left
+        && ev.clientX <= rect.right
+        && ev.clientY >= rect.top
+        && ev.clientY <= rect.bottom
+      )
+      setIsHovering(isOver)
+    }
+
+    window.addEventListener('mousemove', handleMouseMove)
+    return () => window.removeEventListener('mousemove', handleMouseMove)
+  }, [shouldShow])
+
+  useEffect(() => {
+    if (!shouldShow)
+      return
+
+    const handlePointerUp = () => {
+      if (isHovering && draggedNoteIdRef.current && dragContext?.isDragging) {
+        const noteId = draggedNoteIdRef.current
+        draggedNoteIdRef.current = null
+
+        if (position === 'center' && paneId) {
+          openInPane(paneId, noteId)
         }
-    }, [dragContext?.draggedNoteId]);
-
-    useEffect(() => {
-        if (!shouldShow) {
-            setIsHovering(false);
-            return;
+        else if (position !== 'center') {
+          if (anchorNoteId) {
+            addToGroup(noteId, anchorNoteId)
+          }
+          addPane(position, noteId)
         }
+      }
+    }
 
-        const handleMouseMove = (ev: MouseEvent) => {
-            if (!zoneRef.current) return;
+    window.addEventListener('pointerup', handlePointerUp, { capture: true })
+    return () => window.removeEventListener('pointerup', handlePointerUp, { capture: true })
+  }, [shouldShow, isHovering, position, addPane, openInPane, paneId, dragContext?.isDragging, anchorNoteId, addToGroup])
 
-            const rect = zoneRef.current.getBoundingClientRect();
-            const isOver = (
-                ev.clientX >= rect.left &&
-                ev.clientX <= rect.right &&
-                ev.clientY >= rect.top &&
-                ev.clientY <= rect.bottom
-            );
-            setIsHovering(isOver);
-        };
+  useEffect(() => {
+    if (!dragContext?.isDragging) {
+      const timer = setTimeout(() => {
+        draggedNoteIdRef.current = null
+      }, 100)
+      return () => clearTimeout(timer)
+    }
+  }, [dragContext?.isDragging])
 
-        window.addEventListener("mousemove", handleMouseMove);
-        return () => window.removeEventListener("mousemove", handleMouseMove);
-    }, [shouldShow]);
+  if (!shouldShow)
+    return null
 
-    useEffect(() => {
-        if (!shouldShow) return;
+  // trigger area configuration, w.r.t. to the content width
+  const halfContentWidth = contentWidth / 2
+  const triggerWidth = position === 'center'
+    ? '100%'
+    : (position === 'left' || position === 'right')
+        ? `calc(50vw - min(50vw, ${halfContentWidth}px) + ${contentPadding}px)`
+        : `calc(50vh - min(50vh, ${halfContentWidth}px) + ${contentPadding}px)`
 
-        const handlePointerUp = () => {
-            if (isHovering && draggedNoteIdRef.current && dragContext?.isDragging) {
-                const noteId = draggedNoteIdRef.current;
-                draggedNoteIdRef.current = null;
+  return (
+    <>
+      <div
+        ref={zoneRef}
+        className={cn(
+          'absolute z-10 transition-all duration-200',
+          position === 'left' && 'left-0 top-0 bottom-0',
+          position === 'right' && 'right-0 top-0 bottom-0',
+          position === 'top' && 'top-0 left-0 right-0',
+          position === 'bottom' && 'bottom-0 left-0 right-0',
+          position === 'center' && 'inset-0',
+          position !== 'center' && 'z-50', // edges take priority
+        )}
+        style={position === 'left' || position === 'right'
+          ? { width: triggerWidth }
+          : position === 'top' || position === 'bottom'
+            ? { height: triggerWidth }
+            : undefined}
+      />
 
-                if (position === "center" && paneId) {
-                    openInPane(paneId, noteId);
-                } else if (position !== "center") {
-                    if (anchorNoteId) {
-                        addToGroup(noteId, anchorNoteId);
-                    }
-                    addPane(position, noteId);
-                }
-            }
-        };
-
-        window.addEventListener("pointerup", handlePointerUp, { capture: true });
-        return () => window.removeEventListener("pointerup", handlePointerUp, { capture: true });
-    }, [shouldShow, isHovering, position, addPane, openInPane, paneId, dragContext?.isDragging, anchorNoteId, addToGroup]);
-
-    useEffect(() => {
-        if (!dragContext?.isDragging) {
-            const timer = setTimeout(() => {
-                draggedNoteIdRef.current = null;
-            }, 100);
-            return () => clearTimeout(timer);
-        }
-    }, [dragContext?.isDragging]);
-
-    if (!shouldShow) return null;
-
-    // trigger area configuration, w.r.t. to the content width
-    const halfContentWidth = contentWidth / 2;
-    const triggerWidth = position === "center"
-        ? "100%"
-        : (position === "left" || position === "right")
-            ? `calc(50vw - min(50vw, ${halfContentWidth}px) + ${contentPadding}px)`
-            : `calc(50vh - min(50vh, ${halfContentWidth}px) + ${contentPadding}px)`;
-
-    return (
-        <>
-            <div
-                ref={zoneRef}
-                className={cn(
-                    "absolute z-10 transition-all duration-200",
-                    position === "left" && "left-0 top-0 bottom-0",
-                    position === "right" && "right-0 top-0 bottom-0",
-                    position === "top" && "top-0 left-0 right-0",
-                    position === "bottom" && "bottom-0 left-0 right-0",
-                    position === "center" && "inset-0",
-                    position !== "center" && "z-50" // edges take priority 
-                )}
-                style={position === "left" || position === "right"
-                    ? { width: triggerWidth }
-                    : position === "top" || position === "bottom"
-                        ? { height: triggerWidth }
-                        : undefined
-                }
-            />
-
-            {/* <div
+      {/* <div
                 className={cn(
                     "absolute z-40 rounded-xl border-2 border-solid border-primary/20 bg-background/80 backdrop-blur-sm shadow-xl",
                     "transition-all duration-300 ease-out",
@@ -149,6 +152,6 @@ export function SplitDropZone({
                     {position === "center" ? "Open in this pane" : "Open in Split View"}
                 </span>
             </div> */}
-        </>
-    );
+    </>
+  )
 }

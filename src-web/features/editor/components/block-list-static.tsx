@@ -1,36 +1,37 @@
-import * as React from 'react';
+import type { RenderStaticNodeWrapper, TListElement } from 'platejs'
 
-import type { RenderStaticNodeWrapper, TListElement } from 'platejs';
-import type { SlateRenderElementProps } from 'platejs/static';
+import type { SlateRenderElementProps } from 'platejs/static'
+import { isOrderedList } from '@platejs/list'
 
-import { isOrderedList } from '@platejs/list';
-import { CheckIcon } from 'lucide-react';
+import { CheckIcon } from 'lucide-react'
+import * as React from 'react'
 
-import { cn } from '~/lib/utils';
+import { cn } from '~/lib/utils'
 
 const config: Record<
   string,
   {
-    Li: React.FC<SlateRenderElementProps>;
-    Marker: React.FC<SlateRenderElementProps>;
+    Li: React.FC<SlateRenderElementProps>
+    Marker: React.FC<SlateRenderElementProps>
   }
 > = {
   todo: {
     Li: TodoLiStatic,
     Marker: TodoMarkerStatic,
   },
-};
+}
 
 export const BlockListStatic: RenderStaticNodeWrapper = (props) => {
-  if (!props.element.listStyleType) return;
+  if (!props.element.listStyleType)
+    return
 
-  return (props) => <List {...props} />;
-};
+  return props => <List {...props} />
+}
 
 function List(props: SlateRenderElementProps) {
-  const { listStart, listStyleType } = props.element as TListElement;
-  const { Li, Marker } = config[listStyleType] ?? {};
-  const List = isOrderedList(props.element) ? 'ol' : 'ul';
+  const { listStart, listStyleType } = props.element as TListElement
+  const { Li, Marker } = config[listStyleType] ?? {}
+  const List = isOrderedList(props.element) ? 'ol' : 'ul'
 
   return (
     <List
@@ -41,18 +42,18 @@ function List(props: SlateRenderElementProps) {
       {Marker && <Marker {...props} />}
       {Li ? <Li {...props} /> : <li>{props.children}</li>}
     </List>
-  );
+  )
 }
 
 function TodoMarkerStatic(props: SlateRenderElementProps) {
-  const checked = props.element.checked as boolean;
+  const checked = props.element.checked as boolean
 
   return (
     <div contentEditable={false}>
       <button
         className={cn(
           'peer -left-6 pointer-events-none absolute top-1 size-4 shrink-0 rounded-sm border border-primary bg-background ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 data-[state=checked]:bg-primary data-[state=checked]:text-primary-foreground',
-          props.className
+          props.className,
         )}
         data-state={checked ? 'checked' : 'unchecked'}
         type="button"
@@ -62,7 +63,7 @@ function TodoMarkerStatic(props: SlateRenderElementProps) {
         </div>
       </button>
     </div>
-  );
+  )
 }
 
 function TodoLiStatic(props: SlateRenderElementProps) {
@@ -70,11 +71,11 @@ function TodoLiStatic(props: SlateRenderElementProps) {
     <li
       className={cn(
         'list-none',
-        (props.element.checked as boolean) &&
-          'text-muted-foreground line-through'
+        (props.element.checked as boolean)
+        && 'text-muted-foreground line-through',
       )}
     >
       {props.children}
     </li>
-  );
+  )
 }

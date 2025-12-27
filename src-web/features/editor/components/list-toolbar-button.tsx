@@ -1,14 +1,14 @@
-'use client';
+'use client'
 
-import * as React from 'react';
+import { ListStyleType, someList, toggleList } from '@platejs/list'
 
-import { ListStyleType, someList, toggleList } from '@platejs/list';
 import {
   useIndentTodoToolBarButton,
   useIndentTodoToolBarButtonState,
-} from '@platejs/list/react';
-import { List, ListOrdered, ListTodoIcon } from 'lucide-react';
-import { useEditorRef, useEditorSelector } from 'platejs/react';
+} from '@platejs/list/react'
+import { List, ListOrdered, ListTodoIcon } from 'lucide-react'
+import { useEditorRef, useEditorSelector } from 'platejs/react'
+import * as React from 'react'
 
 import {
   DropdownMenu,
@@ -16,28 +16,28 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '~/ui/dropdown-menu';
+} from '~/ui/dropdown-menu'
 
 import {
   ToolbarButton,
   ToolbarSplitButton,
   ToolbarSplitButtonPrimary,
   ToolbarSplitButtonSecondary,
-} from '~/ui/toolbar';
+} from '~/ui/toolbar'
 
 export function BulletedListToolbarButton() {
-  const editor = useEditorRef();
-  const [open, setOpen] = React.useState(false);
+  const editor = useEditorRef()
+  const [open, setOpen] = React.useState(false)
 
   const pressed = useEditorSelector(
-    (editor) =>
+    editor =>
       someList(editor, [
         ListStyleType.Disc,
         ListStyleType.Circle,
         ListStyleType.Square,
       ]),
-    []
-  );
+    [],
+  )
 
   return (
     <ToolbarSplitButton pressed={open}>
@@ -46,7 +46,7 @@ export function BulletedListToolbarButton() {
         onClick={() => {
           toggleList(editor, {
             listStyleType: ListStyleType.Disc,
-          });
+          })
         }}
         data-state={pressed ? 'on' : 'off'}
       >
@@ -62,8 +62,7 @@ export function BulletedListToolbarButton() {
               onClick={() =>
                 toggleList(editor, {
                   listStyleType: ListStyleType.Disc,
-                })
-              }
+                })}
             >
               <div className="flex items-center gap-2">
                 <div className="size-2 rounded-full border border-current bg-current" />
@@ -74,8 +73,7 @@ export function BulletedListToolbarButton() {
               onClick={() =>
                 toggleList(editor, {
                   listStyleType: ListStyleType.Circle,
-                })
-              }
+                })}
             >
               <div className="flex items-center gap-2">
                 <div className="size-2 rounded-full border border-current" />
@@ -86,8 +84,7 @@ export function BulletedListToolbarButton() {
               onClick={() =>
                 toggleList(editor, {
                   listStyleType: ListStyleType.Square,
-                })
-              }
+                })}
             >
               <div className="flex items-center gap-2">
                 <div className="size-2 border border-current bg-current" />
@@ -98,15 +95,15 @@ export function BulletedListToolbarButton() {
         </DropdownMenuContent>
       </DropdownMenu>
     </ToolbarSplitButton>
-  );
+  )
 }
 
 export function NumberedListToolbarButton() {
-  const editor = useEditorRef();
-  const [open, setOpen] = React.useState(false);
+  const editor = useEditorRef()
+  const [open, setOpen] = React.useState(false)
 
   const pressed = useEditorSelector(
-    (editor) =>
+    editor =>
       someList(editor, [
         ListStyleType.Decimal,
         ListStyleType.LowerAlpha,
@@ -114,8 +111,8 @@ export function NumberedListToolbarButton() {
         ListStyleType.LowerRoman,
         ListStyleType.UpperRoman,
       ]),
-    []
-  );
+    [],
+  )
 
   return (
     <ToolbarSplitButton pressed={open}>
@@ -124,8 +121,7 @@ export function NumberedListToolbarButton() {
         onClick={() =>
           toggleList(editor, {
             listStyleType: ListStyleType.Decimal,
-          })
-        }
+          })}
         data-state={pressed ? 'on' : 'off'}
       >
         <ListOrdered className="size-4" />
@@ -140,8 +136,7 @@ export function NumberedListToolbarButton() {
               onSelect={() =>
                 toggleList(editor, {
                   listStyleType: ListStyleType.Decimal,
-                })
-              }
+                })}
             >
               Decimal (1, 2, 3)
             </DropdownMenuItem>
@@ -149,8 +144,7 @@ export function NumberedListToolbarButton() {
               onSelect={() =>
                 toggleList(editor, {
                   listStyleType: ListStyleType.LowerAlpha,
-                })
-              }
+                })}
             >
               Lower Alpha (a, b, c)
             </DropdownMenuItem>
@@ -158,8 +152,7 @@ export function NumberedListToolbarButton() {
               onSelect={() =>
                 toggleList(editor, {
                   listStyleType: ListStyleType.UpperAlpha,
-                })
-              }
+                })}
             >
               Upper Alpha (A, B, C)
             </DropdownMenuItem>
@@ -167,8 +160,7 @@ export function NumberedListToolbarButton() {
               onSelect={() =>
                 toggleList(editor, {
                   listStyleType: ListStyleType.LowerRoman,
-                })
-              }
+                })}
             >
               Lower Roman (i, ii, iii)
             </DropdownMenuItem>
@@ -176,8 +168,7 @@ export function NumberedListToolbarButton() {
               onSelect={() =>
                 toggleList(editor, {
                   listStyleType: ListStyleType.UpperRoman,
-                })
-              }
+                })}
             >
               Upper Roman (I, II, III)
             </DropdownMenuItem>
@@ -185,18 +176,18 @@ export function NumberedListToolbarButton() {
         </DropdownMenuContent>
       </DropdownMenu>
     </ToolbarSplitButton>
-  );
+  )
 }
 
 export function TodoListToolbarButton(
-  props: React.ComponentProps<typeof ToolbarButton>
+  props: React.ComponentProps<typeof ToolbarButton>,
 ) {
-  const state = useIndentTodoToolBarButtonState({ nodeType: 'todo' });
-  const { props: buttonProps } = useIndentTodoToolBarButton(state);
+  const state = useIndentTodoToolBarButtonState({ nodeType: 'todo' })
+  const { props: buttonProps } = useIndentTodoToolBarButton(state)
 
   return (
     <ToolbarButton {...props} {...buttonProps} tooltip="Todo">
       <ListTodoIcon />
     </ToolbarButton>
-  );
+  )
 }

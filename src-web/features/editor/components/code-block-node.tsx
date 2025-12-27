@@ -1,19 +1,24 @@
-'use client';
+'use client'
 
-import * as React from 'react';
+import type { TCodeBlockElement, TCodeSyntaxLeaf } from 'platejs'
 
-import { formatCodeBlock, isLangSupported } from '@platejs/code-block';
-import { BracesIcon, Check, CheckIcon, CopyIcon } from 'lucide-react';
-import { type TCodeBlockElement, type TCodeSyntaxLeaf, NodeApi } from 'platejs';
+import type { PlateElementProps, PlateLeafProps } from 'platejs/react'
+import { formatCodeBlock, isLangSupported } from '@platejs/code-block'
+import { BracesIcon, Check, CheckIcon, CopyIcon } from 'lucide-react'
+import { NodeApi } from 'platejs'
 import {
-  type PlateElementProps,
-  type PlateLeafProps,
   PlateElement,
-  PlateLeaf,
-} from 'platejs/react';
-import { useEditorRef, useElement, useReadOnly } from 'platejs/react';
 
-import { Button } from '~/ui/button';
+  PlateLeaf,
+  useEditorRef,
+  useElement,
+  useReadOnly,
+
+} from 'platejs/react'
+import * as React from 'react'
+
+import { cn } from '~/lib/utils'
+import { Button } from '~/ui/button'
 import {
   Command,
   CommandEmpty,
@@ -21,16 +26,15 @@ import {
   CommandInput,
   CommandItem,
   CommandList,
-} from '~/ui/command';
+} from '~/ui/command'
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '~/ui/popover';
-import { cn } from '~/lib/utils';
+} from '~/ui/popover'
 
 export function CodeBlockElement(props: PlateElementProps<TCodeBlockElement>) {
-  const { editor, element } = props;
+  const { editor, element } = props
 
   return (
     <PlateElement
@@ -69,33 +73,36 @@ export function CodeBlockElement(props: PlateElementProps<TCodeBlockElement>) {
         </div>
       </div>
     </PlateElement>
-  );
+  )
 }
 
 function CodeBlockCombobox() {
-  const [open, setOpen] = React.useState(false);
-  const readOnly = useReadOnly();
-  const editor = useEditorRef();
-  const element = useElement<TCodeBlockElement>();
-  const value = element.lang || 'plaintext';
-  const [searchValue, setSearchValue] = React.useState('');
+  const [open, setOpen] = React.useState(false)
+  const readOnly = useReadOnly()
+  const editor = useEditorRef()
+  const element = useElement<TCodeBlockElement>()
+  const value = element.lang || 'plaintext'
+  const [searchValue, setSearchValue] = React.useState('')
 
   const items = React.useMemo(
     () =>
       languages.filter(
-        (language) =>
-          !searchValue ||
-          language.label.toLowerCase().includes(searchValue.toLowerCase())
+        language =>
+          !searchValue
+          || language.label.toLowerCase().includes(searchValue.toLowerCase()),
       ),
-    [searchValue]
-  );
+    [searchValue],
+  )
 
-  if (readOnly) return null;
+  if (readOnly)
+    return null
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger render={<Button size="sm" variant="ghost" className="h-6 select-none justify-between gap-1 px-2 text-muted-foreground text-xs" aria-expanded={open} role="combobox" />}>{languages.find((language) => language.value === value)?.label ??
-        'Plain Text'}</PopoverTrigger>
+      <PopoverTrigger render={<Button size="sm" variant="ghost" className="h-6 select-none justify-between gap-1 px-2 text-muted-foreground text-xs" aria-expanded={open} role="combobox" />}>
+        {languages.find(language => language.value === value)?.label
+          ?? 'Plain Text'}
+      </PopoverTrigger>
       <PopoverContent
         className="w-[200px] p-0"
         onCloseAutoFocus={() => setSearchValue('')}
@@ -104,14 +111,14 @@ function CodeBlockCombobox() {
           <CommandInput
             className="h-9"
             value={searchValue}
-            onValueChange={(value) => setSearchValue(value)}
+            onValueChange={value => setSearchValue(value)}
             placeholder="Search language..."
           />
           <CommandEmpty>No language found.</CommandEmpty>
 
           <CommandList className="h-[344px] overflow-y-auto">
             <CommandGroup>
-              {items.map((language) => (
+              {items.map(language => (
                 <CommandItem
                   key={language.label}
                   className="cursor-pointer"
@@ -119,15 +126,15 @@ function CodeBlockCombobox() {
                   onSelect={(value) => {
                     editor.tf.setNodes<TCodeBlockElement>(
                       { lang: value },
-                      { at: element }
-                    );
-                    setSearchValue(value);
-                    setOpen(false);
+                      { at: element },
+                    )
+                    setSearchValue(value)
+                    setOpen(false)
                   }}
                 >
                   <Check
                     className={cn(
-                      value === language.value ? 'opacity-100' : 'opacity-0'
+                      value === language.value ? 'opacity-100' : 'opacity-0',
                     )}
                   />
                   {language.label}
@@ -138,7 +145,7 @@ function CodeBlockCombobox() {
         </Command>
       </PopoverContent>
     </Popover>
-  );
+  )
 }
 
 function CopyButton({
@@ -148,45 +155,47 @@ function CopyButton({
   React.ComponentProps<typeof Button>,
   'value'
 >) {
-  const [hasCopied, setHasCopied] = React.useState(false);
+  const [hasCopied, setHasCopied] = React.useState(false)
 
   React.useEffect(() => {
     setTimeout(() => {
-      setHasCopied(false);
-    }, 2000);
-  }, [hasCopied]);
+      setHasCopied(false)
+    }, 2000)
+  }, [hasCopied])
 
   return (
     <Button
       onClick={() => {
         void navigator.clipboard.writeText(
-          typeof value === 'function' ? value() : value
-        );
-        setHasCopied(true);
+          typeof value === 'function' ? value() : value,
+        )
+        setHasCopied(true)
       }}
       {...props}
     >
       <span className="sr-only">Copy</span>
-      {hasCopied ? (
-        <CheckIcon className="!size-3" />
-      ) : (
-        <CopyIcon className="!size-3" />
-      )}
+      {hasCopied
+        ? (
+            <CheckIcon className="!size-3" />
+          )
+        : (
+            <CopyIcon className="!size-3" />
+          )}
     </Button>
-  );
+  )
 }
 
 export function CodeLineElement(props: PlateElementProps) {
-  return <PlateElement {...props} />;
+  return <PlateElement {...props} />
 }
 
 export function CodeSyntaxLeaf(props: PlateLeafProps<TCodeSyntaxLeaf>) {
-  const tokenClassName = props.leaf.className as string;
+  const tokenClassName = props.leaf.className as string
 
-  return <PlateLeaf className={tokenClassName} {...props} />;
+  return <PlateLeaf className={tokenClassName} {...props} />
 }
 
-const languages: { label: string; value: string }[] = [
+const languages: { label: string, value: string }[] = [
   { label: 'Auto', value: 'auto' },
   { label: 'Plain Text', value: 'plaintext' },
   { label: 'ABAP', value: 'abap' },
@@ -276,4 +285,4 @@ const languages: { label: string; value: string }[] = [
   { label: 'WebAssembly', value: 'wasm' },
   { label: 'XML', value: 'xml' },
   { label: 'YAML', value: 'yaml' },
-];
+]

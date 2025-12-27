@@ -1,21 +1,21 @@
-'use client';
+'use client'
 
-import * as React from 'react';
+import type { TComboboxInputElement, TMentionElement } from 'platejs'
 
-import type { TComboboxInputElement, TMentionElement } from 'platejs';
-import type { PlateElementProps } from 'platejs/react';
+import type { PlateElementProps } from 'platejs/react'
+import { getMentionOnSelectItem } from '@platejs/mention'
 
-import { getMentionOnSelectItem } from '@platejs/mention';
-import { IS_APPLE, KEYS } from 'platejs';
+import { IS_APPLE, KEYS } from 'platejs'
 import {
   PlateElement,
   useFocused,
   useReadOnly,
   useSelected,
-} from 'platejs/react';
+} from 'platejs/react'
+import * as React from 'react'
 
-import { cn } from '~/lib/utils';
-import { useMounted } from '~/hooks/use-mounted';
+import { useMounted } from '~/hooks/use-mounted'
+import { cn } from '~/lib/utils'
 
 import {
   InlineCombobox,
@@ -24,19 +24,19 @@ import {
   InlineComboboxGroup,
   InlineComboboxInput,
   InlineComboboxItem,
-} from './inline-combobox';
+} from './inline-combobox'
 
 export function MentionElement(
   props: PlateElementProps<TMentionElement> & {
-    prefix?: string;
-  }
+    prefix?: string
+  },
 ) {
-  const element = props.element;
+  const element = props.element
 
-  const selected = useSelected();
-  const focused = useFocused();
-  const mounted = useMounted();
-  const readOnly = useReadOnly();
+  const selected = useSelected()
+  const focused = useFocused()
+  const mounted = useMounted()
+  const readOnly = useReadOnly()
 
   return (
     <PlateElement
@@ -47,13 +47,13 @@ export function MentionElement(
         selected && focused && 'ring-2 ring-ring',
         element.children[0][KEYS.bold] === true && 'font-bold',
         element.children[0][KEYS.italic] === true && 'italic',
-        element.children[0][KEYS.underline] === true && 'underline'
+        element.children[0][KEYS.underline] === true && 'underline',
       )}
       attributes={{
         ...props.attributes,
-        contentEditable: false,
+        'contentEditable': false,
         'data-slate-value': element.value,
-        draggable: true,
+        'draggable': true,
       }}
     >
       {mounted && IS_APPLE ? (
@@ -72,16 +72,16 @@ export function MentionElement(
         </>
       )}
     </PlateElement>
-  );
+  )
 }
 
-const onSelectItem = getMentionOnSelectItem();
+const onSelectItem = getMentionOnSelectItem()
 
 export function MentionInputElement(
-  props: PlateElementProps<TComboboxInputElement>
+  props: PlateElementProps<TComboboxInputElement>,
 ) {
-  const { editor, element } = props;
-  const [search, setSearch] = React.useState('');
+  const { editor, element } = props
+  const [search, setSearch] = React.useState('')
 
   return (
     <PlateElement {...props} as="span">
@@ -100,7 +100,7 @@ export function MentionInputElement(
           <InlineComboboxEmpty>No results</InlineComboboxEmpty>
 
           <InlineComboboxGroup>
-            {MENTIONABLES.map((item) => (
+            {MENTIONABLES.map(item => (
               <InlineComboboxItem
                 key={item.key}
                 value={item.text}
@@ -115,7 +115,7 @@ export function MentionInputElement(
 
       {props.children}
     </PlateElement>
-  );
+  )
 }
 
 const MENTIONABLES = [
@@ -193,4 +193,4 @@ const MENTIONABLES = [
   { key: '47', text: 'Bren Derlin' },
   { key: '48', text: 'Brendol Hux' },
   { key: '49', text: 'BT-1' },
-];
+]

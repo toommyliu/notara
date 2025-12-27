@@ -1,8 +1,8 @@
-'use client';
+'use client'
 
-import * as React from 'react';
+import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu'
 
-import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
+import type { PlateEditor } from 'platejs/react'
 
 import {
   CalendarIcon,
@@ -26,35 +26,36 @@ import {
   SquareIcon,
   TableIcon,
   TableOfContentsIcon,
-} from 'lucide-react';
-import { KEYS } from 'platejs';
-import { type PlateEditor, useEditorRef } from 'platejs/react';
+} from 'lucide-react'
+import { KEYS } from 'platejs'
+import { useEditorRef } from 'platejs/react'
+import * as React from 'react'
 
+import {
+  insertBlock,
+  insertInlineElement,
+} from '~/features/editor/transforms'
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '~/ui/dropdown-menu';
-import {
-  insertBlock,
-  insertInlineElement,
-} from '~/features/editor/transforms';
+} from '~/ui/dropdown-menu'
 
-import { ToolbarButton, ToolbarMenuGroup } from '~/ui/toolbar';
+import { ToolbarButton, ToolbarMenuGroup } from '~/ui/toolbar'
 
-type Group = {
-  group: string;
-  items: Item[];
-};
+interface Group {
+  group: string
+  items: Item[]
+}
 
-type Item = {
-  icon: React.ReactNode;
-  value: string;
-  onSelect: (editor: PlateEditor, value: string) => void;
-  focusEditor?: boolean;
-  label?: string;
-};
+interface Item {
+  icon: React.ReactNode
+  value: string
+  onSelect: (editor: PlateEditor, value: string) => void
+  focusEditor?: boolean
+  label?: string
+}
 
 const groups: Group[] = [
   {
@@ -100,10 +101,10 @@ const groups: Group[] = [
         label: 'Divider',
         value: KEYS.hr,
       },
-    ].map((item) => ({
+    ].map(item => ({
       ...item,
       onSelect: (editor, value) => {
-        insertBlock(editor, value);
+        insertBlock(editor, value)
       },
     })),
   },
@@ -130,10 +131,10 @@ const groups: Group[] = [
         label: 'Toggle list',
         value: KEYS.toggle,
       },
-    ].map((item) => ({
+    ].map(item => ({
       ...item,
       onSelect: (editor, value) => {
-        insertBlock(editor, value);
+        insertBlock(editor, value)
       },
     })),
   },
@@ -150,10 +151,10 @@ const groups: Group[] = [
         label: 'Embed',
         value: KEYS.mediaEmbed,
       },
-    ].map((item) => ({
+    ].map(item => ({
       ...item,
       onSelect: (editor, value) => {
-        insertBlock(editor, value);
+        insertBlock(editor, value)
       },
     })),
   },
@@ -181,10 +182,10 @@ const groups: Group[] = [
         label: 'Excalidraw',
         value: KEYS.excalidraw,
       },
-    ].map((item) => ({
+    ].map(item => ({
       ...item,
       onSelect: (editor, value) => {
-        insertBlock(editor, value);
+        insertBlock(editor, value)
       },
     })),
   },
@@ -208,18 +209,18 @@ const groups: Group[] = [
         label: 'Inline Equation',
         value: KEYS.inlineEquation,
       },
-    ].map((item) => ({
+    ].map(item => ({
       ...item,
       onSelect: (editor, value) => {
-        insertInlineElement(editor, value);
+        insertInlineElement(editor, value)
       },
     })),
   },
-];
+]
 
 export function InsertToolbarButton(props: DropdownMenuProps) {
-  const editor = useEditorRef();
-  const [open, setOpen] = React.useState(false);
+  const editor = useEditorRef()
+  const [open, setOpen] = React.useState(false)
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen} modal={false} {...props}>
@@ -236,8 +237,8 @@ export function InsertToolbarButton(props: DropdownMenuProps) {
                 key={value}
                 className="min-w-[180px]"
                 onSelect={() => {
-                  onSelect(editor, value);
-                  editor.tf.focus();
+                  onSelect(editor, value)
+                  editor.tf.focus()
                 }}
               >
                 {icon}
@@ -248,5 +249,5 @@ export function InsertToolbarButton(props: DropdownMenuProps) {
         ))}
       </DropdownMenuContent>
     </DropdownMenu>
-  );
+  )
 }

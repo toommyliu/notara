@@ -6,7 +6,7 @@ edition = "2021"
 publish = false
 
 [build-dependencies]
-tauri-plugin = { version = "2", features = ["build"] }
+tauri-plugin = { version = "2", features = [ "build" ] }
 
 [target.'cfg(target_os = "macos")'.dependencies]
 cocoa = "0.26.0"

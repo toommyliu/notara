@@ -1,15 +1,15 @@
-'use client';
+'use client'
 
-import { cn } from '~/lib/utils';
+import { useEditorUi } from '~/features/editor/contexts/editor-ui-context'
 
-import { Toolbar } from '~/ui/toolbar';
-import { useEditorUi } from '~/features/editor/contexts/editor-ui-context';
+import { cn } from '~/lib/utils'
+import { Toolbar } from '~/ui/toolbar'
 
 export function FixedToolbar(props: React.ComponentProps<typeof Toolbar>) {
-  const { showFixedToolbar } = useEditorUi();
+  const { showFixedToolbar } = useEditorUi()
 
   if (!showFixedToolbar) {
-    return null;
+    return null
   }
 
   return (
@@ -17,8 +17,8 @@ export function FixedToolbar(props: React.ComponentProps<typeof Toolbar>) {
       {...props}
       className={cn(
         'scrollbar-hide sticky top-0 left-0 z-50 w-full justify-between overflow-x-auto rounded-t-lg border-b border-b-border bg-background/95 p-1 backdrop-blur-sm supports-backdrop-blur:bg-background/60',
-        props.className
+        props.className,
       )}
     />
-  );
+  )
 }

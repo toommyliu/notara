@@ -1,10 +1,8 @@
-'use client';
+'use client'
 
+import type { PlateLeafProps } from 'platejs/react'
 
-
-import type { PlateLeafProps } from 'platejs/react';
-
-import { PlateLeaf } from 'platejs/react';
+import { PlateLeaf } from 'platejs/react'
 
 export function CodeLeaf(props: PlateLeafProps) {
   return (
@@ -15,5 +13,5 @@ export function CodeLeaf(props: PlateLeafProps) {
     >
       {props.children}
     </PlateLeaf>
-  );
+  )
 }

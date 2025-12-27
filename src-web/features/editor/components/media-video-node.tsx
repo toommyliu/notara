@@ -1,31 +1,31 @@
-'use client';
+'use client'
 
-import LiteYouTubeEmbed from 'react-lite-youtube-embed';
-import ReactPlayer from 'react-player';
+import type { TResizableProps, TVideoElement } from 'platejs'
+import type { PlateElementProps } from 'platejs/react'
 
-import type { TResizableProps, TVideoElement } from 'platejs';
-import type { PlateElementProps } from 'platejs/react';
+import { useDraggable } from '@platejs/dnd'
+import { parseTwitterUrl, parseVideoUrl } from '@platejs/media'
 
-import { useDraggable } from '@platejs/dnd';
-import { parseTwitterUrl, parseVideoUrl } from '@platejs/media';
-import { useMediaState } from '@platejs/media/react';
-import { ResizableProvider, useResizableValue } from '@platejs/resizable';
-import { PlateElement, useEditorMounted, withHOC } from 'platejs/react';
+import { useMediaState } from '@platejs/media/react'
+import { ResizableProvider, useResizableValue } from '@platejs/resizable'
+import { PlateElement, useEditorMounted, withHOC } from 'platejs/react'
+import LiteYouTubeEmbed from 'react-lite-youtube-embed'
+import ReactPlayer from 'react-player'
 
-import { cn } from '~/lib/utils';
+import { cn } from '~/lib/utils'
 
-import { Caption, CaptionTextarea } from './caption';
+import { Caption, CaptionTextarea } from './caption'
 import {
   mediaResizeHandleVariants,
   Resizable,
   ResizeHandle,
-} from './resize-handle';
+} from './resize-handle'
 
 export const VideoElement = withHOC(
   ResizableProvider,
-  function VideoElement(
-    props: PlateElementProps<TVideoElement & TResizableProps>
-  ) {
+  (
+    props: PlateElementProps<TVideoElement & TResizableProps>,
+  ) => {
     const {
       align = 'center',
       embed,
@@ -35,16 +35,16 @@ export const VideoElement = withHOC(
       unsafeUrl,
     } = useMediaState({
       urlParsers: [parseTwitterUrl, parseVideoUrl],
-    });
-    const width = useResizableValue('width');
+    })
+    const width = useResizableValue('width')
 
-    const isEditorMounted = useEditorMounted();
+    const isEditorMounted = useEditorMounted()
 
-    const isTweet = true;
+    const isTweet = true
 
     const { isDragging, handleRef } = useDraggable({
       element: props.element,
-    });
+    })
 
     return (
       <PlateElement className="py-2.5" {...props}>
@@ -89,7 +89,7 @@ export const VideoElement = withHOC(
                       '[&_>_.lty-playbtn]:before:absolute [&_>_.lty-playbtn]:before:top-1/2 [&_>_.lty-playbtn]:before:left-1/2 [&_>_.lty-playbtn]:before:[transform:translate3d(-50%,-50%,0)]',
                       '[&.lyt-activated]:cursor-[unset]',
                       '[&.lyt-activated]:before:pointer-events-none [&.lyt-activated]:before:opacity-0',
-                      '[&.lyt-activated_>_.lty-playbtn]:pointer-events-none [&.lyt-activated_>_.lty-playbtn]:opacity-0!'
+                      '[&.lyt-activated_>_.lty-playbtn]:pointer-events-none [&.lyt-activated_>_.lty-playbtn]:opacity-0!',
                     )}
                   />
                 </div>
@@ -117,6 +117,6 @@ export const VideoElement = withHOC(
         </figure>
         {props.children}
       </PlateElement>
-    );
-  }
-);
+    )
+  },
+)

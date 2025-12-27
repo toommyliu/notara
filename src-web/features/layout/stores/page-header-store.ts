@@ -1,22 +1,22 @@
-import { create } from "zustand";
-import type { ReactNode } from "react";
+import type { ReactNode } from 'react'
+import { create } from 'zustand'
 
-export type PageHeaderConfig = {
-    title?: string;
-    emoji?: string;
-    isPrivate?: boolean;
-    actions?: ReactNode;
-};
+export interface PageHeaderConfig {
+  title?: string
+  emoji?: string
+  isPrivate?: boolean
+  actions?: ReactNode
+}
 
-type PageHeaderState = {
-    config: PageHeaderConfig;
-};
+interface PageHeaderState {
+  config: PageHeaderConfig
+}
 
-type PageHeaderActions = {
-    setConfig: (config: PageHeaderConfig) => void;
-};
+interface PageHeaderActions {
+  setConfig: (config: PageHeaderConfig) => void
+}
 
-export const usePageHeaderStore = create<PageHeaderState & PageHeaderActions>()((set) => ({
-    config: {},
-    setConfig: (config) => set({ config }),
-}));
+export const usePageHeaderStore = create<PageHeaderState & PageHeaderActions>()(set => ({
+  config: {},
+  setConfig: config => set({ config }),
+}))

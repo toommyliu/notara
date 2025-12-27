@@ -5,9 +5,11 @@
 [[permission]]
 identifier = "allow-set-title"
 description = "Enables the set_title command without any pre-configured scope."
-commands.allow = ["set_title"]
+
+commands.allow = [ "set_title" ]
 
 [[permission]]
 identifier = "deny-set-title"
 description = "Denies the set_title command without any pre-configured scope."
-commands.deny = ["set_title"]
+
+commands.deny = [ "set_title" ]

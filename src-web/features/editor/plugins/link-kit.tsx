@@ -1,9 +1,9 @@
-'use client';
+'use client'
 
-import { LinkPlugin } from '@platejs/link/react';
+import { LinkPlugin } from '@platejs/link/react'
 
-import { LinkElement } from '~/features/editor/components/link-node';
-import { LinkFloatingToolbar } from '~/features/editor/components/link-toolbar';
+import { LinkElement } from '~/features/editor/components/link-node'
+import { LinkFloatingToolbar } from '~/features/editor/components/link-toolbar'
 
 export const LinkKit = [
   LinkPlugin.configure({
@@ -12,4 +12,4 @@ export const LinkKit = [
       afterEditable: () => <LinkFloatingToolbar />,
     },
   }),
-];
+]

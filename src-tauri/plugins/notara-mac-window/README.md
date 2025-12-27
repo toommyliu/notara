@@ -6,4 +6,3 @@ This sets NSAppearanceNameVibrantLight for light backgrounds and NSAppearanceNam
 # License
 
 This code is adapted from the [Yaak app](https://github.com/mountain-loop/yaak) which is licensed under the MIT License.
-

@@ -1,2 +1,2 @@
-export { SplitViewContainer } from "./split-view-container";
-export { SplitDropZone } from "./split-drop-zone";
+export { SplitDropZone } from './split-drop-zone'
+export { SplitViewContainer } from './split-view-container'

@@ -1,23 +1,23 @@
-'use client';
+'use client'
 
-import * as React from 'react';
+import * as React from 'react'
 
-type EditorUIContextValue = {
-  showFixedToolbar: boolean;
-  setShowFixedToolbar: (show: boolean) => void;
+interface EditorUIContextValue {
+  showFixedToolbar: boolean
+  setShowFixedToolbar: (show: boolean) => void
   // Page metadata
-  pageIcon: string;
-  setPageIcon: (icon: string) => void;
-  coverUrl: string | null;
-  setCoverUrl: (url: string | null) => void;
-};
+  pageIcon: string
+  setPageIcon: (icon: string) => void
+  coverUrl: string | null
+  setCoverUrl: (url: string | null) => void
+}
 
-const EditorUIContext = React.createContext<EditorUIContextValue | null>(null);
+const EditorUIContext = React.createContext<EditorUIContextValue | null>(null)
 
 export function EditorUIProvider({ children }: { children: React.ReactNode }) {
-  const [showFixedToolbar, setShowFixedToolbar] = React.useState(true);
-  const [pageIcon, setPageIcon] = React.useState('');
-  const [coverUrl, setCoverUrl] = React.useState<string | null>(null);
+  const [showFixedToolbar, setShowFixedToolbar] = React.useState(true)
+  const [pageIcon, setPageIcon] = React.useState('')
+  const [coverUrl, setCoverUrl] = React.useState<string | null>(null)
 
   const value = React.useMemo(
     () => ({
@@ -26,16 +26,16 @@ export function EditorUIProvider({ children }: { children: React.ReactNode }) {
       pageIcon,
       setPageIcon,
       coverUrl,
-      setCoverUrl
+      setCoverUrl,
     }),
-    [showFixedToolbar, pageIcon, coverUrl]
-  );
+    [showFixedToolbar, pageIcon, coverUrl],
+  )
 
-  return <EditorUIContext.Provider value={value}>{children}</EditorUIContext.Provider>;
+  return <EditorUIContext value={value}>{children}</EditorUIContext>
 }
 
 export function useEditorUi() {
-  const context = React.useContext(EditorUIContext);
+  const context = React.use(EditorUIContext)
 
   if (!context) {
     return {
@@ -44,9 +44,9 @@ export function useEditorUi() {
       pageIcon: '',
       setPageIcon: () => {},
       coverUrl: null,
-      setCoverUrl: () => {}
-    };
+      setCoverUrl: () => {},
+    }
   }
 
-  return context;
+  return context
 }

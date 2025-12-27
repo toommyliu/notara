@@ -1,17 +1,17 @@
-'use client';
+'use client'
 
-import type { PlateElementProps } from 'platejs/react';
+import type { PlateElementProps } from 'platejs/react'
 
-import { useToggleButton, useToggleButtonState } from '@platejs/toggle/react';
-import { ChevronRight } from 'lucide-react';
-import { PlateElement } from 'platejs/react';
+import { useToggleButton, useToggleButtonState } from '@platejs/toggle/react'
+import { ChevronRight } from 'lucide-react'
+import { PlateElement } from 'platejs/react'
 
-import { Button } from '~/ui/button';
+import { Button } from '~/ui/button'
 
 export function ToggleElement(props: PlateElementProps) {
-  const element = props.element;
-  const state = useToggleButtonState(element.id as string);
-  const { buttonProps, open } = useToggleButton(state);
+  const element = props.element
+  const state = useToggleButtonState(element.id as string)
+  const { buttonProps, open } = useToggleButton(state)
 
   return (
     <PlateElement {...props} className="pl-6">
@@ -32,5 +32,5 @@ export function ToggleElement(props: PlateElementProps) {
       </Button>
       {props.children}
     </PlateElement>
-  );
+  )
 }
