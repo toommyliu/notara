@@ -1,3 +1,4 @@
+import { use } from 'react';
 import { ThemeProviderContext } from '~/providers/theme';
 
 export function useTheme() {

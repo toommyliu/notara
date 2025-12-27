@@ -82,7 +82,7 @@ import { blockSelectionVariants } from './block-selection';
 import {
   ColorDropdownMenuItems,
   DEFAULT_COLORS,
-} from './font-color-toolbar-button';
+} from './color-dropdown-menu-items';
 import { ResizeHandle } from './resize-handle';
 import {
   BorderAllIcon,

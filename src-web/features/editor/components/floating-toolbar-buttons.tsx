@@ -13,6 +13,7 @@ import { useEditorReadOnly } from 'platejs/react';
 import { ToolbarGroup } from '~/ui/toolbar';
 import { CommentToolbarButton } from './comment-toolbar-button';
 import { InlineEquationToolbarButton } from './equation-toolbar-button';
+import { FontColorToolbarButton } from './font-color-toolbar-button';
 import { LinkToolbarButton } from './link-toolbar-button';
 import { MarkToolbarButton } from './mark-toolbar-button';
 import { MoreToolbarButton } from './more-toolbar-button';
@@ -58,6 +59,8 @@ export function FloatingToolbarButtons() {
             <InlineEquationToolbarButton />
 
             <LinkToolbarButton />
+
+            <FontColorToolbarButton />
           </ToolbarGroup>
         </>
       )}

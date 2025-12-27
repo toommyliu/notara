@@ -1,20 +1,19 @@
-import type { SlatePluginConfig } from 'platejs';
-
 import {
-  BaseFontBackgroundColorPlugin,
-  BaseFontColorPlugin,
-  BaseFontFamilyPlugin,
-  BaseFontSizePlugin,
-} from '@platejs/basic-styles';
-import { KEYS } from 'platejs';
+  FontBackgroundColorPlugin,
+  FontColorPlugin,
+  FontFamilyPlugin,
+  FontSizePlugin,
+} from '@platejs/basic-styles/react';
 
-const options = {
-  inject: { targetPlugins: [KEYS.p] },
-} satisfies SlatePluginConfig;
-
+// FontColorPlugin and FontBackgroundColorPlugin are inline mark plugins that apply
+// styles directly to text nodes. They don't need inject.targetPlugins configuration
+// (that's only for block-level style injection like text-align).
+//
+// The plugins automatically apply 'color' and 'background-color' CSS inline styles
+// to text leaves when marks are added.
 export const BaseFontKit = [
-  BaseFontColorPlugin.configure(options),
-  BaseFontBackgroundColorPlugin.configure(options),
-  BaseFontSizePlugin.configure(options),
-  BaseFontFamilyPlugin.configure(options),
+  FontColorPlugin,
+  FontBackgroundColorPlugin,
+  FontSizePlugin,
+  FontFamilyPlugin,
 ];
