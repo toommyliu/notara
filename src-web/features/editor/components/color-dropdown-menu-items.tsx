@@ -59,16 +59,20 @@ export function ColorDropdownMenuItems({
       {colors.map(({ isBrightColor, name, value }) => (
         <Tooltip key={name ?? value}>
           <TooltipTrigger
-            render={(
+            render={props => (
               <button
+                {...props}
                 className={cn(
                   'my-1 flex size-6 items-center justify-center rounded-full border border-solid p-0 transition-all hover:scale-125',
                   !isBrightColor && 'border-transparent',
                   isBrightColor && 'border-muted',
-                  color === value && 'ring-2 ring-primary',
+                  color === value && 'ring-1 ring-primary/70',
                 )}
                 style={{ backgroundColor: value }}
-                onClick={() => updateColor(value)}
+                onClick={(e) => {
+                  props.onClick?.(e);
+                  updateColor(value);
+                }}
                 type="button"
               />
             )}

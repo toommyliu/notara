@@ -321,12 +321,21 @@ function withTooltip<T extends React.ElementType>(Component: T) {
       setMounted(true);
     }, []);
 
-    const component = <Component {...(props as React.ComponentProps<T>)} />;
+    const componentProps = props as React.ComponentProps<T>;
+    const component = <Component {...componentProps} />;
 
     if (tooltip && mounted) {
       return (
         <Tooltip {...tooltipProps}>
-          <TooltipTrigger {...tooltipTriggerProps}>{component}</TooltipTrigger>
+          <TooltipTrigger
+            {...tooltipTriggerProps}
+            render={(triggerProps: Record<string, unknown>) => (
+              <Component
+                {...(triggerProps as React.ComponentProps<T>)}
+                {...componentProps}
+              />
+            )}
+          />
 
           <TooltipContent {...tooltipContentProps}>{tooltip}</TooltipContent>
         </Tooltip>

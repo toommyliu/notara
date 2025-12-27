@@ -105,22 +105,24 @@ function ColorSwatch({
 }) {
   const swatchColor = displayColor ?? color;
 
-  const handleClick = () => {
-    console.warn('[ColorSwatch Debug] Clicked:', { name, color, type });
-    onSelect();
-  };
-
   return (
     <Tooltip>
       <TooltipTrigger
-        render={(
+        render={props => (
           <button
+            {...props}
             className={cn(
               'flex size-6.5 items-center justify-center rounded transition-all hover:bg-muted',
-              isSelected && 'ring-2 ring-primary ring-offset-1 ring-offset-background',
+              isSelected && 'ring-1 ring-primary/70',
             )}
-            onClick={handleClick}
-            onMouseDown={ev => ev.preventDefault()}
+            onClick={(e) => {
+              props.onClick?.(e);
+              onSelect();
+            }}
+            onMouseDown={(e) => {
+              props.onMouseDown?.(e);
+              e.preventDefault();
+            }}
             type="button"
           >
             {type === 'text'
@@ -226,40 +228,22 @@ export function FontColorToolbarButton({
 
   const applyTextColor = React.useCallback(
     (value?: string) => {
-      console.warn('[FontColor Debug] applyTextColor called with:', value);
-      console.warn('[FontColor Debug] Current selection before capture:', JSON.stringify(editor.selection));
-
       captureSelection();
       if (!ensureSelection()) {
-        console.warn('[FontColor Debug] ensureSelection failed, no selection available');
         editor.tf.focus();
-        setOpen(false);
         return;
       }
 
-      console.warn('[FontColor Debug] Selection after ensure:', JSON.stringify(editor.selection));
-      console.warn('[FontColor Debug] Current marks before apply:', editor.api.marks());
-
       if (value) {
         fontColorTf.color.addMark(value);
-        console.warn('[FontColor Debug] addMark called with:', value);
-        console.warn('[FontColor Debug] Marks after apply:', editor.api.marks());
         addRecentlyUsed({ type: 'text', value });
         refreshRecentColors();
       }
       else {
         editor.tf.removeMarks(KEYS.color);
-        console.warn('[FontColor Debug] removeMarks called');
-      }
-
-      // Log the current node at selection to see if mark was applied
-      if (editor.selection) {
-        const [node] = editor.api.nodes({ at: editor.selection, match: n => 'text' in n }) ?? [];
-        console.warn('[FontColor Debug] Text node at selection after apply:', node);
       }
 
       editor.tf.focus();
-      setOpen(false);
     },
     [captureSelection, editor, ensureSelection, fontColorTf, refreshRecentColors],
   );
@@ -269,7 +253,6 @@ export function FontColorToolbarButton({
       captureSelection();
       if (!ensureSelection()) {
         editor.tf.focus();
-        setOpen(false);
         return;
       }
 
@@ -282,7 +265,6 @@ export function FontColorToolbarButton({
         editor.tf.removeMarks(KEYS.backgroundColor);
       }
       editor.tf.focus();
-      setOpen(false);
     },
     [bgColorTf, captureSelection, editor, ensureSelection, refreshRecentColors],
   );
@@ -306,50 +288,55 @@ export function FontColorToolbarButton({
       modal={false}
     >
       <DropdownMenuTrigger
-        render={(
+        render={props => (
           <ToolbarButton
+            {...props}
             pressed={open}
             tooltip={tooltip ?? 'Color'}
             onMouseDown={(e) => {
+              props.onMouseDown?.(e as React.MouseEvent<HTMLButtonElement>);
               captureSelection();
               e.preventDefault();
             }}
-          />
-        )}
-      >
-        {children ?? (
-          <div className="relative flex size-full items-center justify-center">
-            <div
-              className={cn(
-                'flex items-center justify-center rounded px-0.5 min-w-5 h-5',
-                backgroundColor && 'border border-border/30',
-              )}
-              style={{
-                backgroundColor: backgroundColor ?? 'transparent',
-              }}
-            >
-              <span
-                className="text-sm font-bold leading-none"
-                style={{ color: textColor ?? 'currentColor' }}
-              >
-                A
-              </span>
-            </div>
-            {!backgroundColor && (
-              <div
-                className="absolute -bottom-0.5 left-[15%] right-[15%] h-0.5 rounded-full"
-                style={{
-                  backgroundColor: textColor ?? 'currentColor',
-                }}
-              />
+            onClick={(e) => {
+              props.onClick?.(e as React.MouseEvent<HTMLButtonElement>);
+            }}
+          >
+            {children ?? (
+              <div className="relative flex size-full items-center justify-center">
+                <div
+                  className={cn(
+                    'flex items-center justify-center rounded px-0.5 min-w-5 h-5',
+                    backgroundColor && 'border border-border/30',
+                  )}
+                  style={{
+                    backgroundColor: backgroundColor ?? 'transparent',
+                  }}
+                >
+                  <span
+                    className="text-sm font-bold leading-none"
+                    style={{ color: textColor ?? 'currentColor' }}
+                  >
+                    A
+                  </span>
+                </div>
+                {!backgroundColor && (
+                  <div
+                    className="absolute -bottom-0.5 left-[15%] right-[15%] h-0.5 rounded-full"
+                    style={{
+                      backgroundColor: textColor ?? 'currentColor',
+                    }}
+                  />
+                )}
+              </div>
             )}
-          </div>
+          </ToolbarButton>
         )}
-      </DropdownMenuTrigger>
+      />
 
       <DropdownMenuContent
         align="start"
-        className="w-44 p-0"
+        className="ignore-click-outside/toolbar w-44 p-0"
         onCloseAutoFocus={(e) => {
           e.preventDefault();
           editor.tf.focus();
@@ -414,6 +401,32 @@ export function FontColorToolbarButton({
               />
             ))}
           </ColorSection>
+
+          {(textColor || backgroundColor) && (
+            <>
+              <div className="mx-1 h-px bg-border/40" />
+              <div className="px-2 py-1.5">
+                <button
+                  className="w-full rounded px-2 py-1 text-xs text-muted-foreground hover:bg-muted hover:text-foreground transition-colors text-left"
+                  onClick={() => {
+                    captureSelection();
+                    if (!ensureSelection()) {
+                      editor.tf.focus();
+                      setOpen(false);
+                      return;
+                    }
+                    editor.tf.removeMarks([KEYS.color, KEYS.backgroundColor]);
+                    editor.tf.focus();
+                    setOpen(false);
+                  }}
+                  onMouseDown={e => e.preventDefault()}
+                  type="button"
+                >
+                  Clear formatting
+                </button>
+              </div>
+            </>
+          )}
         </div>
       </DropdownMenuContent>
     </DropdownMenu>
