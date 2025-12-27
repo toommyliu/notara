@@ -1,15 +1,22 @@
 'use client';
 
-import * as React from 'react';
+import {useState} from 'react';
 
-import IconChevronDown from '~icons/lucide/chevron-down';
 import IconGlobe from '~icons/lucide/globe';
 import IconLock from '~icons/lucide/lock';
 import IconMoreHorizontal from '~icons/lucide/more-horizontal';
-import IconPanelTop from '~icons/lucide/panel-top';
 import IconStar from '~icons/lucide/star';
 
 import { cn } from '~/lib/utils';
+
+import { Button } from '~/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '~/ui/dropdown-menu';
+import { Toggle } from '~/ui/toggle';
 
 import { useEditorUi } from '../contexts/editor-ui-context';
 
@@ -20,8 +27,6 @@ interface PageNavBarProps {
   isStarred?: boolean;
   onPrivacyChange?: (isPrivate: boolean) => void;
   onStarChange?: (isStarred: boolean) => void;
-  onShare?: () => void;
-  onMoreClick?: () => void;
   className?: string;
 }
 
@@ -32,135 +37,93 @@ export function PageNavBar({
   isStarred = false,
   onPrivacyChange,
   onStarChange,
-  onShare,
-  onMoreClick,
   className,
 }: PageNavBarProps) {
-  const [showPrivacyMenu, setShowPrivacyMenu] = React.useState(false);
   const { showFixedToolbar, setShowFixedToolbar } = useEditorUi();
-  const privacyMenuRef = React.useRef<HTMLDivElement>(null);
 
-  React.useEffect(() => {
-    if (!showPrivacyMenu) return;
-
-    const handleClickOutside = (e: MouseEvent) => {
-      if (
-        privacyMenuRef.current &&
-        !privacyMenuRef.current.contains(e.target as Node)
-      ) {
-        setShowPrivacyMenu(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [showPrivacyMenu]);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   return (
     <div
-      className={cn(
-        'flex h-11 items-center justify-between border-b border-border/50 bg-background/80 px-3 backdrop-blur-sm',
-        className,
-      )}
+      className={cn('flex h-12 items-center justify-between px-3', className)}
       data-tauri-drag-region
     >
-      {/* Left section: Page title with icon */}
-      <div className="flex items-center gap-2 min-w-0">
+      {/* Left section */}
+      <div className="flex items-center gap-2 min-w-0" data-no-drag>
         {icon && <span className="text-base shrink-0">{icon}</span>}
-        <span className="truncate text-sm font-medium text-foreground/90">
+        <span className="truncate text-sm text-foreground/70">
           {title || 'Untitled'}
         </span>
 
-        {/* Privacy dropdown */}
-        <div className="relative" ref={privacyMenuRef}>
-          <button
-            onClick={() => setShowPrivacyMenu(!showPrivacyMenu)}
-            className="flex items-center gap-1 rounded px-1.5 py-0.5 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            data-no-drag
-          >
-            {isPrivate ? (
-              <IconLock className="h-3 w-3" />
-            ) : (
-              <IconGlobe className="h-3 w-3" />
+        <DropdownMenu>
+          <DropdownMenuTrigger
+            render={(
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-foreground/50 hover:text-foreground/70"
+              >
+                {isPrivate
+                  ? <IconLock className="size-3.5" />
+                  : <IconGlobe className="size-3.5" />}
+                <span className="hidden sm:inline">
+                  {isPrivate ? 'Private' : 'Public'}
+                </span>
+              </Button>
             )}
-            <span>{isPrivate ? 'Private' : 'Public'}</span>
-            <IconChevronDown className="h-3 w-3 opacity-60" />
-          </button>
-
-          {/* Privacy dropdown menu */}
-          {showPrivacyMenu && (
-            <div className="absolute left-0 top-full z-50 mt-1 w-36 rounded-lg border border-border bg-popover p-1 shadow-lg animate-in fade-in-0 zoom-in-95 duration-100">
-              <button
-                onClick={() => {
-                  onPrivacyChange?.(true);
-                  setShowPrivacyMenu(false);
-                }}
-                className={cn(
-                  'flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors hover:bg-muted',
-                  isPrivate && 'bg-muted/50',
-                )}
-              >
-                <IconLock className="h-3.5 w-3.5" />
-                <span>Private</span>
-              </button>
-              <button
-                onClick={() => {
-                  onPrivacyChange?.(false);
-                  setShowPrivacyMenu(false);
-                }}
-                className={cn(
-                  'flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors hover:bg-muted',
-                  !isPrivate && 'bg-muted/50',
-                )}
-              >
-                <IconGlobe className="h-3.5 w-3.5" />
-                <span>Public</span>
-              </button>
-            </div>
-          )}
-        </div>
+          />
+          <DropdownMenuContent align="start" sideOffset={4}>
+            <DropdownMenuItem
+              onClick={() => onPrivacyChange?.(true)}
+              className={cn(
+                isPrivate && 'text-foreground/80',
+                !isPrivate && 'text-foreground/50',
+              )}
+            >
+              <IconLock className="size-3.5" />
+              <span>Private</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => onPrivacyChange?.(false)}
+              className={cn(
+                !isPrivate && 'text-foreground/80',
+                isPrivate && 'text-foreground/50',
+              )}
+            >
+              <IconGlobe className="size-3.5" />
+              <span>Public</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
-      {/* Right section: Actions */}
-      <div className="flex items-center gap-0.5" data-no-drag>
-        <button
-          onClick={onShare}
-          className="flex items-center gap-1.5 rounded-md px-2.5 py-1 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+      {/* Right section */}
+      <div className="flex items-center gap-1" data-no-drag>
+        <Toggle
+          size="icon-sm"
+          pressed={isStarred}
+          onPressedChange={onStarChange}
         >
-          <span>Share</span>
-        </button>
+          <IconStar className={cn('size-4', isStarred && 'fill-current')} />
+        </Toggle>
 
-        <button
-          onClick={() => onStarChange?.(!isStarred)}
-          className={cn(
-            'flex h-7 w-7 items-center justify-center rounded-md transition-colors hover:bg-muted',
-            isStarred
-              ? 'text-amber hover:text-amber-muted'
-              : 'text-muted-foreground hover:text-foreground',
-          )}
-        >
-          <IconStar className={cn('h-4 w-4', isStarred && 'fill-current')} />
-        </button>
-
-        <button
-          onClick={() => setShowFixedToolbar(!showFixedToolbar)}
-          className={cn(
-            'flex h-7 w-7 items-center justify-center rounded-md transition-colors hover:bg-muted',
-            showFixedToolbar
-              ? 'text-foreground'
-              : 'text-muted-foreground hover:text-foreground',
-          )}
-          title={showFixedToolbar ? 'Hide toolbar' : 'Show toolbar'}
-        >
-          <IconPanelTop className="h-4 w-4" />
-        </button>
-
-        <button
-          onClick={onMoreClick}
-          className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-        >
-          <IconMoreHorizontal className="h-4 w-4" />
-        </button>
+        <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
+          <DropdownMenuTrigger
+            render={(
+              <Toggle
+                size="icon-sm"
+                pressed={dropdownOpen}
+              >
+                <IconMoreHorizontal className="size-4" />
+              </Toggle>
+            )}
+          />
+          <DropdownMenuContent align="end" sideOffset={4}>
+            <DropdownMenuItem>
+              i am more options...
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   );
