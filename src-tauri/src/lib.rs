@@ -103,8 +103,19 @@ pub fn run() {
                 .accelerator("CmdOrCtrl+\\")
                 .build(app)?;
 
+            let reload_item = MenuItemBuilder::with_id("reload", "Reload")
+                .accelerator("CmdOrCtrl+R")
+                .build(app)?;
+
+            let force_reload_item = MenuItemBuilder::with_id("force-reload", "Force Reload")
+                .accelerator("CmdOrCtrl+Shift+R")
+                .build(app)?;
+
             let view_submenu = SubmenuBuilder::new(app, "View")
                 .item(&toggle_sidebar_item)
+                .separator()
+                .item(&reload_item)
+                .item(&force_reload_item)
                 .build()?;
 
             let window_submenu = SubmenuBuilder::new(app, "Window")
@@ -147,6 +158,15 @@ pub fn run() {
                 } else if event.id().as_ref() == "toggle-sidebar" {
                     if let Some(window) = app.get_webview_window("main") {
                         let _ = window.emit("toggle-sidebar", ());
+                    }
+                } else if event.id().as_ref() == "reload" {
+                    if let Some(window) = app.get_webview_window("main") {
+                        let _ = window.eval("window.location.reload()");
+                    }
+                } else if event.id().as_ref() == "force-reload" {
+                    if let Some(window) = app.get_webview_window("main") {
+                        // Force reload bypasses cache
+                        let _ = window.eval("window.location.reload(true)");
                     }
                 }
             });
