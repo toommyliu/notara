@@ -15,7 +15,6 @@ import {
   LightbulbIcon,
   ListIcon,
   ListOrdered,
-  PenToolIcon,
   PilcrowIcon,
   Quote,
   RadicalIcon,
@@ -128,7 +127,7 @@ const groups: Group[] = [
         label: 'Callout',
         value: KEYS.callout,
       },
-    ].map((item) => ({
+    ].map(item => ({
       ...item,
       onSelect: (editor, value) => {
         insertBlock(editor, value, { upsert: true });
@@ -155,13 +154,7 @@ const groups: Group[] = [
         label: 'Equation',
         value: KEYS.equation,
       },
-      {
-        icon: <PenToolIcon />,
-        keywords: ['excalidraw'],
-        label: 'Excalidraw',
-        value: KEYS.excalidraw,
-      },
-    ].map((item) => ({
+    ].map(item => ({
       ...item,
       onSelect: (editor, value) => {
         insertBlock(editor, value, { upsert: true });
@@ -184,7 +177,7 @@ const groups: Group[] = [
         label: 'Inline Equation',
         value: KEYS.inlineEquation,
       },
-    ].map((item) => ({
+    ].map(item => ({
       ...item,
       onSelect: (editor, value) => {
         insertInlineElement(editor, value);

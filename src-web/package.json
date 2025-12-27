@@ -32,7 +32,6 @@
     "@platejs/date": "^52.0.11",
     "@platejs/dnd": "^52.0.11",
     "@platejs/emoji": "^52.0.15",
-    "@platejs/excalidraw": "^52.0.11",
     "@platejs/floating": "^52.0.11",
     "@platejs/indent": "^52.0.11",
     "@platejs/layout": "^52.0.11",

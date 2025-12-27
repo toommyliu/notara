@@ -18,7 +18,6 @@ import {
   ListIcon,
   ListOrderedIcon,
   MinusIcon,
-  PenToolIcon,
   PilcrowIcon,
   PlusIcon,
   QuoteIcon,
@@ -98,7 +97,7 @@ const groups: Group[] = [
         label: 'Divider',
         value: KEYS.hr,
       },
-    ].map((item) => ({
+    ].map(item => ({
       ...item,
       onSelect: (editor, value) => {
         insertBlock(editor, value);
@@ -128,7 +127,7 @@ const groups: Group[] = [
         label: 'Toggle list',
         value: KEYS.toggle,
       },
-    ].map((item) => ({
+    ].map(item => ({
       ...item,
       onSelect: (editor, value) => {
         insertBlock(editor, value);
@@ -148,7 +147,7 @@ const groups: Group[] = [
         label: 'Embed',
         value: KEYS.mediaEmbed,
       },
-    ].map((item) => ({
+    ].map(item => ({
       ...item,
       onSelect: (editor, value) => {
         insertBlock(editor, value);
@@ -174,12 +173,7 @@ const groups: Group[] = [
         label: 'Equation',
         value: KEYS.equation,
       },
-      {
-        icon: <PenToolIcon />,
-        label: 'Excalidraw',
-        value: KEYS.excalidraw,
-      },
-    ].map((item) => ({
+    ].map(item => ({
       ...item,
       onSelect: (editor, value) => {
         insertBlock(editor, value);
@@ -206,7 +200,7 @@ const groups: Group[] = [
         label: 'Inline Equation',
         value: KEYS.inlineEquation,
       },
-    ].map((item) => ({
+    ].map(item => ({
       ...item,
       onSelect: (editor, value) => {
         insertInlineElement(editor, value);
