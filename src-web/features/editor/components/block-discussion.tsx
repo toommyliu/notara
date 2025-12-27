@@ -1,6 +1,13 @@
 'use client';
 
-import type { AnyPluginConfig, NodeEntry, Path, TCommentText, TElement, TSuggestionText } from 'platejs';
+import type {
+  AnyPluginConfig,
+  NodeEntry,
+  Path,
+  TCommentText,
+  TElement,
+  TSuggestionText,
+} from 'platejs';
 
 import type { PlateElementProps, RenderNodeWrapper } from 'platejs/react';
 
@@ -14,19 +21,12 @@ import {
   MessagesSquareIcon,
   PencilLineIcon,
 } from 'lucide-react';
-import {
-
-  PathApi,
-  TextApi,
-} from 'platejs';
+import { PathApi, TextApi } from 'platejs';
 import { useEditorPlugin, useEditorRef, usePluginOption } from 'platejs/react';
 
 import * as React from 'react';
 import { commentPlugin } from '~/features/editor/plugins/comment-kit';
-import {
-  discussionPlugin,
-
-} from '~/features/editor/plugins/discussion-kit';
+import { discussionPlugin } from '~/features/editor/plugins/discussion-kit';
 import { suggestionPlugin } from '~/features/editor/plugins/suggestion-kit';
 import { Button } from '~/ui/button';
 import {
@@ -50,8 +50,7 @@ export const BlockDiscussion: RenderNodeWrapper<AnyPluginConfig> = (props) => {
   const blockPath = editor.api.findPath(element);
 
   // avoid duplicate in table or column
-  if (!blockPath || blockPath.length > 1)
-    return;
+  if (!blockPath || blockPath.length > 1) return;
 
   const draftCommentNode = commentsApi.node({ at: blockPath, isDraft: true });
 
@@ -62,14 +61,14 @@ export const BlockDiscussion: RenderNodeWrapper<AnyPluginConfig> = (props) => {
   ].filter(([node]) => !node[getTransientSuggestionKey()]);
 
   if (
-    commentNodes.length === 0
-    && suggestionNodes.length === 0
-    && !draftCommentNode
+    commentNodes.length === 0 &&
+    suggestionNodes.length === 0 &&
+    !draftCommentNode
   ) {
     return;
   }
 
-  return props => (
+  return (props) => (
     <BlockCommentContent
       blockPath={blockPath}
       commentNodes={commentNodes}
@@ -101,16 +100,16 @@ function BlockCommentContent({
   const totalCount = suggestionsCount + discussionsCount;
 
   const activeSuggestionId = usePluginOption(suggestionPlugin, 'activeId');
-  const activeSuggestion
-    = activeSuggestionId
-      && resolvedSuggestions.find(s => s.suggestionId === activeSuggestionId);
+  const activeSuggestion =
+    activeSuggestionId &&
+    resolvedSuggestions.find((s) => s.suggestionId === activeSuggestionId);
 
   const commentingBlock = usePluginOption(commentPlugin, 'commentingBlock');
   const activeCommentId = usePluginOption(commentPlugin, 'activeId');
   const isCommenting = activeCommentId === getDraftCommentKey();
-  const activeDiscussion
-    = activeCommentId
-      && resolvedDiscussions.find(d => d.id === activeCommentId);
+  const activeDiscussion =
+    activeCommentId &&
+    resolvedDiscussions.find((d) => d.id === activeCommentId);
 
   const noneActive = !activeSuggestion && !activeDiscussion;
 
@@ -119,20 +118,20 @@ function BlockCommentContent({
     ...resolvedSuggestions,
   ].sort((a, b) => a.createdAt.getTime() - b.createdAt.getTime());
 
-  const selected
-    = resolvedDiscussions.some(d => d.id === activeCommentId)
-      || resolvedSuggestions.some(s => s.suggestionId === activeSuggestionId);
+  const selected =
+    resolvedDiscussions.some((d) => d.id === activeCommentId) ||
+    resolvedSuggestions.some((s) => s.suggestionId === activeSuggestionId);
 
   const [_open, setOpen] = React.useState(selected);
 
   // in some cases, we may comment the multiple blocks
-  const commentingCurrent
-    = !!commentingBlock && PathApi.equals(blockPath, commentingBlock);
+  const commentingCurrent =
+    !!commentingBlock && PathApi.equals(blockPath, commentingBlock);
 
-  const open
-    = _open
-      || selected
-      || (isCommenting && !!draftCommentNode && commentingCurrent);
+  const open =
+    _open ||
+    selected ||
+    (isCommenting && !!draftCommentNode && commentingCurrent);
 
   const anchorElement = React.useMemo(() => {
     let activeNode: NodeEntry | undefined;
@@ -140,27 +139,25 @@ function BlockCommentContent({
     if (activeSuggestion) {
       activeNode = suggestionNodes.find(
         ([node]) =>
-          TextApi.isText(node)
-          && editor.getApi(SuggestionPlugin).suggestion.nodeId(node)
-          === activeSuggestion.suggestionId,
+          TextApi.isText(node) &&
+          editor.getApi(SuggestionPlugin).suggestion.nodeId(node) ===
+            activeSuggestion.suggestionId,
       );
     }
 
     if (activeCommentId) {
       if (activeCommentId === getDraftCommentKey()) {
         activeNode = draftCommentNode;
-      }
-      else {
+      } else {
         activeNode = commentNodes.find(
           ([node]) =>
-            editor.getApi(commentPlugin).comment.nodeId(node)
-            === activeCommentId,
+            editor.getApi(commentPlugin).comment.nodeId(node) ===
+            activeCommentId,
         );
       }
     }
 
-    if (!activeNode)
-      return null;
+    if (!activeNode) return null;
 
     return editor.api.toDOMNode(activeNode[0])!;
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -186,7 +183,7 @@ function BlockCommentContent({
             editor.tf.unsetNodes(getDraftCommentKey(), {
               at: [],
               mode: 'lowest',
-              match: n => n[getDraftCommentKey()],
+              match: (n) => n[getDraftCommentKey()],
             });
           }
           setOpen(_open_);
@@ -199,57 +196,60 @@ function BlockCommentContent({
 
         <PopoverContent
           className="max-h-[min(50dvh,calc(-24px+var(--radix-popper-available-height)))] w-[380px] min-w-[130px] max-w-[calc(100vw-24px)] overflow-y-auto p-0 data-[state=closed]:opacity-0"
-          onCloseAutoFocus={e => e.preventDefault()}
-          onOpenAutoFocus={e => e.preventDefault()}
+          onCloseAutoFocus={(e) => e.preventDefault()}
+          onOpenAutoFocus={(e) => e.preventDefault()}
           align="center"
           side="bottom"
         >
-          {isCommenting
-            ? (
-                <CommentCreateForm className="p-4" focusOnMount />
-              )
-            : noneActive
-              ? (
-                  sortedMergedData.map((item, index) =>
-                    isResolvedSuggestion(item)
-                      ? (
-                          <BlockSuggestionCard
-                            key={item.suggestionId}
-                            idx={index}
-                            isLast={index === sortedMergedData.length - 1}
-                            suggestion={item}
-                          />
-                        )
-                      : (
-                          <BlockComment
-                            key={item.id}
-                            discussion={item}
-                            isLast={index === sortedMergedData.length - 1}
-                          />
-                        ),
-                  )
-                )
-              : (
-                  <>
-                    {activeSuggestion && (
-                      <BlockSuggestionCard
-                        key={activeSuggestion.suggestionId}
-                        idx={0}
-                        isLast={true}
-                        suggestion={activeSuggestion}
-                      />
-                    )}
+          {isCommenting ? (
+            <CommentCreateForm className="p-4" focusOnMount />
+          ) : noneActive ? (
+            sortedMergedData.map((item, index) =>
+              isResolvedSuggestion(item) ? (
+                <BlockSuggestionCard
+                  key={item.suggestionId}
+                  idx={index}
+                  isLast={index === sortedMergedData.length - 1}
+                  suggestion={item}
+                />
+              ) : (
+                <BlockComment
+                  key={item.id}
+                  discussion={item}
+                  isLast={index === sortedMergedData.length - 1}
+                />
+              ),
+            )
+          ) : (
+            <>
+              {activeSuggestion && (
+                <BlockSuggestionCard
+                  key={activeSuggestion.suggestionId}
+                  idx={0}
+                  isLast={true}
+                  suggestion={activeSuggestion}
+                />
+              )}
 
-                    {activeDiscussion && (
-                      <BlockComment discussion={activeDiscussion} isLast={true} />
-                    )}
-                  </>
-                )}
+              {activeDiscussion && (
+                <BlockComment discussion={activeDiscussion} isLast={true} />
+              )}
+            </>
+          )}
         </PopoverContent>
 
         {totalCount > 0 && (
           <div className="relative left-0 size-0 select-none">
-            <PopoverTrigger render={<Button variant="ghost" className="!px-1.5 mt-1 ml-1 flex h-6 gap-1 py-0 text-muted-foreground/80 hover:text-muted-foreground/80 data-[active=true]:bg-muted" data-active={open} contentEditable={false} />}>
+            <PopoverTrigger
+              render={
+                <Button
+                  variant="ghost"
+                  className="!px-1.5 mt-1 ml-1 flex h-6 gap-1 py-0 text-muted-foreground/80 hover:text-muted-foreground/80 data-[active=true]:bg-muted"
+                  data-active={open}
+                  contentEditable={false}
+                />
+              }
+            >
               {suggestionsCount > 0 && discussionsCount === 0 && (
                 <PencilLineIcon className="size-4 shrink-0" />
               )}
@@ -300,7 +300,10 @@ function BlockComment({
   );
 }
 
-function useResolvedDiscussion(commentNodes: NodeEntry<TCommentText>[], blockPath: Path) {
+function useResolvedDiscussion(
+  commentNodes: NodeEntry<TCommentText>[],
+  blockPath: Path,
+) {
   const { api, getOption, setOption } = useEditorPlugin(commentPlugin);
 
   const discussions = usePluginOption(discussionPlugin, 'discussions');
@@ -309,8 +312,7 @@ function useResolvedDiscussion(commentNodes: NodeEntry<TCommentText>[], blockPat
     const id = api.comment.nodeId(node);
     const map = getOption('uniquePathMap');
 
-    if (!id)
-      return;
+    if (!id) return;
 
     const previousPath = map.get(id);
 
@@ -343,15 +345,13 @@ function useResolvedDiscussion(commentNodes: NodeEntry<TCommentText>[], blockPat
       const commentsPathMap = getOption('uniquePathMap');
       const firstBlockPath = commentsPathMap.get(item.id);
 
-      if (!firstBlockPath)
-        return false;
-      if (!PathApi.equals(firstBlockPath, blockPath))
-        return false;
+      if (!firstBlockPath) return false;
+      if (!PathApi.equals(firstBlockPath, blockPath)) return false;
 
       return (
-        api.comment.has({ id: item.id })
-        && commentsIds.has(item.id)
-        && !item.isResolved
+        api.comment.has({ id: item.id }) &&
+        commentsIds.has(item.id) &&
+        !item.isResolved
       );
     });
 

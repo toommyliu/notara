@@ -4,15 +4,12 @@ import type { Emoji } from '@emoji-mart/data';
 
 import type { EmojiCategoryList, EmojiIconList, GridRow } from '@platejs/emoji';
 
-import type { EmojiDropdownMenuOptions, UseEmojiPickerType } from '@platejs/emoji/react';
-import {
-
-  EmojiSettings,
-} from '@platejs/emoji';
-import {
-
-  useEmojiDropdownMenuState,
+import type {
+  EmojiDropdownMenuOptions,
+  UseEmojiPickerType,
 } from '@platejs/emoji/react';
+import { EmojiSettings } from '@platejs/emoji';
+import { useEmojiDropdownMenuState } from '@platejs/emoji/react';
 import * as Popover from '@radix-ui/react-popover';
 import {
   AppleIcon,
@@ -45,16 +42,16 @@ export function EmojiToolbarButton({
 }: {
   options?: EmojiDropdownMenuOptions;
 } & React.ComponentPropsWithoutRef<typeof ToolbarButton>) {
-  const { emojiPickerState, isOpen, setIsOpen }
-    = useEmojiDropdownMenuState(options);
+  const { emojiPickerState, isOpen, setIsOpen } =
+    useEmojiDropdownMenuState(options);
 
   return (
     <EmojiPopover
-      control={(
+      control={
         <ToolbarButton pressed={isOpen} tooltip="Emoji" isDropdown {...props}>
           <SmileIcon />
         </ToolbarButton>
-      )}
+      }
       isOpen={isOpen}
       setIsOpen={setIsOpen}
     >
@@ -160,71 +157,75 @@ export function EmojiPicker({
   );
 }
 
-const EmojiButton = React.memo(({
-  emoji,
-  index,
-  onMouseOver,
-  onSelect,
-}: {
-  emoji: Emoji;
-  index: number;
-  onMouseOver: (emoji?: Emoji) => void;
-  onSelect: (emoji: Emoji) => void;
-}) => {
-  return (
-    <button
-      className="group relative flex size-9 cursor-pointer items-center justify-center border-none bg-transparent text-2xl leading-none"
-      onClick={() => onSelect(emoji)}
-      onMouseEnter={() => onMouseOver(emoji)}
-      onMouseLeave={() => onMouseOver()}
-      aria-label={emoji.skins[0].native}
-      data-index={index}
-      tabIndex={-1}
-      type="button"
-    >
-      <div
-        className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100"
-        aria-hidden="true"
-      />
-      <span
-        className="relative"
-        style={{
-          fontFamily:
-            '"Apple Color Emoji", "Segoe UI Emoji", NotoColorEmoji, "Noto Color Emoji", "Segoe UI Symbol", "Android Emoji", EmojiSymbols',
-        }}
-        data-emoji-set="native"
+const EmojiButton = React.memo(
+  ({
+    emoji,
+    index,
+    onMouseOver,
+    onSelect,
+  }: {
+    emoji: Emoji;
+    index: number;
+    onMouseOver: (emoji?: Emoji) => void;
+    onSelect: (emoji: Emoji) => void;
+  }) => {
+    return (
+      <button
+        className="group relative flex size-9 cursor-pointer items-center justify-center border-none bg-transparent text-2xl leading-none"
+        onClick={() => onSelect(emoji)}
+        onMouseEnter={() => onMouseOver(emoji)}
+        onMouseLeave={() => onMouseOver()}
+        aria-label={emoji.skins[0].native}
+        data-index={index}
+        tabIndex={-1}
+        type="button"
       >
-        {emoji.skins[0].native}
-      </span>
-    </button>
-  );
-});
-
-const RowOfButtons = React.memo(({
-  emojiLibrary,
-  row,
-  onMouseOver,
-  onSelectEmoji,
-}: {
-  row: GridRow;
-} & Pick<
-  UseEmojiPickerType,
-  'emojiLibrary' | 'onMouseOver' | 'onSelectEmoji'
->) => {
-  return (
-    <div key={row.id} className="flex" data-index={row.id}>
-      {row.elements.map((emojiId, index) => (
-        <EmojiButton
-          key={emojiId}
-          onMouseOver={onMouseOver}
-          onSelect={onSelectEmoji}
-          emoji={emojiLibrary.getEmoji(emojiId)}
-          index={index}
+        <div
+          className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100"
+          aria-hidden="true"
         />
-      ))}
-    </div>
-  );
-});
+        <span
+          className="relative"
+          style={{
+            fontFamily:
+              '"Apple Color Emoji", "Segoe UI Emoji", NotoColorEmoji, "Noto Color Emoji", "Segoe UI Symbol", "Android Emoji", EmojiSymbols',
+          }}
+          data-emoji-set="native"
+        >
+          {emoji.skins[0].native}
+        </span>
+      </button>
+    );
+  },
+);
+
+const RowOfButtons = React.memo(
+  ({
+    emojiLibrary,
+    row,
+    onMouseOver,
+    onSelectEmoji,
+  }: {
+    row: GridRow;
+  } & Pick<
+    UseEmojiPickerType,
+    'emojiLibrary' | 'onMouseOver' | 'onSelectEmoji'
+  >) => {
+    return (
+      <div key={row.id} className="flex" data-index={row.id}>
+        {row.elements.map((emojiId, index) => (
+          <EmojiButton
+            key={emojiId}
+            onMouseOver={onMouseOver}
+            onSelect={onSelectEmoji}
+            emoji={emojiLibrary.getEmoji(emojiId)}
+            index={index}
+          />
+        ))}
+      </div>
+    );
+  },
+);
 
 function EmojiPickerContent({
   emojiLibrary,
@@ -281,8 +282,8 @@ function EmojiPickerContent({
                 className="relative flex flex-wrap"
                 style={{ height: section.getRows().length * buttonSize.value }}
               >
-                {isCategoryVisible(categoryId)
-                  && section
+                {isCategoryVisible(categoryId) &&
+                  section
                     .getRows()
                     .map((row: GridRow) => (
                       <RowOfButtons
@@ -370,7 +371,7 @@ function EmojiPickerSearchBar({
         <input
           className="block w-full appearance-none rounded-full border-0 bg-muted px-10 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:outline-none"
           value={searchValue}
-          onChange={event => setSearch(event.target.value)}
+          onChange={(event) => setSearch(event.target.value)}
           placeholder={i18n.search}
           aria-label="Search"
           autoComplete="off"
@@ -499,22 +500,23 @@ function EmojiPickerNavigation({
             .sections()
             .map(({ id }) => (
               <Tooltip key={id}>
-                <TooltipTrigger render={(
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className={cn(
-                      'h-fit rounded-full fill-current p-1.5 text-muted-foreground hover:bg-muted hover:text-muted-foreground',
-                      id === focusedCategory
-                      && 'pointer-events-none bg-accent fill-current text-accent-foreground',
-                    )}
-                    onClick={() => {
-                      onClick(id);
-                    }}
-                    aria-label={i18n.categories[id]}
-                    type="button"
-                  />
-                )}
+                <TooltipTrigger
+                  render={
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className={cn(
+                        'h-fit rounded-full fill-current p-1.5 text-muted-foreground hover:bg-muted hover:text-muted-foreground',
+                        id === focusedCategory &&
+                          'pointer-events-none bg-accent fill-current text-accent-foreground',
+                      )}
+                      onClick={() => {
+                        onClick(id);
+                      }}
+                      aria-label={i18n.categories[id]}
+                      type="button"
+                    />
+                  }
                 >
                   <span className="inline-flex size-5 items-center justify-center">
                     {icons.categories[id].outline}

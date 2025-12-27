@@ -51,9 +51,9 @@ export function MentionElement(
       )}
       attributes={{
         ...props.attributes,
-        'contentEditable': false,
+        contentEditable: false,
         'data-slate-value': element.value,
-        'draggable': true,
+        draggable: true,
       }}
     >
       {mounted && IS_APPLE ? (
@@ -100,7 +100,7 @@ export function MentionInputElement(
           <InlineComboboxEmpty>No results</InlineComboboxEmpty>
 
           <InlineComboboxGroup>
-            {MENTIONABLES.map(item => (
+            {MENTIONABLES.map((item) => (
               <InlineComboboxItem
                 key={item.key}
                 value={item.text}

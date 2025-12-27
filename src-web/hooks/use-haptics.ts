@@ -12,7 +12,9 @@ export function useHaptics() {
   const [supported, setSupported] = useState(false);
 
   useEffect(() => {
-    checkSupported().then(supported => setSupported(supported)).catch(() => setSupported(false));
+    checkSupported()
+      .then((supported) => setSupported(supported))
+      .catch(() => setSupported(false));
   }, []);
 
   const perform = useCallback(

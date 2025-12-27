@@ -1,4 +1,8 @@
-import type { CollisionDetection, DragEndEvent, DragStartEvent } from '@dnd-kit/core';
+import type {
+  CollisionDetection,
+  DragEndEvent,
+  DragStartEvent,
+} from '@dnd-kit/core';
 import type { Group, Note, SortOrder } from '~/features/notes/store';
 import {
   closestCenter,
@@ -8,7 +12,6 @@ import {
   useDroppable,
   useSensor,
   useSensors,
-
 } from '@dnd-kit/core';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import {
@@ -81,11 +84,7 @@ import {
   SidebarRail,
 } from '~/ui/sidebar';
 
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '~/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipTrigger } from '~/ui/tooltip';
 
 interface DropIndicatorProps {
   position?: 'top' | 'bottom';
@@ -114,18 +113,16 @@ function GroupDropZone({ groupId, isVisible }: GroupDropZoneProps) {
     data: { type: 'group-end', groupId },
   });
 
-  if (!isVisible)
-    return null;
+  if (!isVisible) return null;
 
   return (
-    <div
-      ref={setNodeRef}
-      className="relative h-4 mt-2 -mx-2 flex items-center"
-    >
+    <div ref={setNodeRef} className="relative h-4 mt-2 -mx-2 flex items-center">
       <div
         className={cn(
           'absolute left-4 right-4 h-px transition-all duration-200',
-          isOver ? 'bg-primary shadow-[0_0_8px_rgba(var(--primary),0.4)] h-[2px]' : 'bg-border/20',
+          isOver
+            ? 'bg-primary shadow-[0_0_8px_rgba(var(--primary),0.4)] h-[2px]'
+            : 'bg-border/20',
         )}
       />
       {isOver && (
@@ -141,8 +138,7 @@ function GroupsEndDropZone({ isVisible }: { isVisible: boolean }) {
     data: { type: 'group-end-list' },
   });
 
-  if (!isVisible)
-    return null;
+  if (!isVisible) return null;
 
   return (
     <div ref={setNodeRef} className="h-6 relative mt-1 flex items-center">
@@ -152,9 +148,9 @@ function GroupsEndDropZone({ isVisible }: { isVisible: boolean }) {
 }
 
 function SidebarActionStrip() {
-  const addNote = useNotesStore(s => s.addNote);
-  const addGroup = useNotesStore(s => s.addGroup);
-  const sortData = useNotesStore(s => s.sortData);
+  const addNote = useNotesStore((s) => s.addNote);
+  const addGroup = useNotesStore((s) => s.addGroup);
+  const sortData = useNotesStore((s) => s.sortData);
   const { openTab } = useTabsStore();
   const navigate = useNavigate();
 
@@ -174,7 +170,9 @@ function SidebarActionStrip() {
           <IconAdd className="size-4" />
           <span className="sr-only">New Page</span>
         </TooltipTrigger>
-        <TooltipContent side="bottom" className="text-xs">New Page</TooltipContent>
+        <TooltipContent side="bottom" className="text-xs">
+          New Page
+        </TooltipContent>
       </Tooltip>
 
       <Tooltip>
@@ -185,7 +183,9 @@ function SidebarActionStrip() {
           <IconFolderPlus className="size-4" />
           <span className="sr-only">New Group</span>
         </TooltipTrigger>
-        <TooltipContent side="bottom" className="text-xs">New Group</TooltipContent>
+        <TooltipContent side="bottom" className="text-xs">
+          New Group
+        </TooltipContent>
       </Tooltip>
 
       <Tooltip>
@@ -196,7 +196,9 @@ function SidebarActionStrip() {
           <IconSort className="size-4" />
           <span className="sr-only">Sort</span>
         </TooltipTrigger>
-        <TooltipContent side="bottom" className="text-xs">Sort Alphabetically</TooltipContent>
+        <TooltipContent side="bottom" className="text-xs">
+          Sort Alphabetically
+        </TooltipContent>
       </Tooltip>
     </div>
   );
@@ -209,18 +211,21 @@ interface NoteMenuContentProps {
 }
 function NoteMenuContent({ note, groupId, variant }: NoteMenuContentProps) {
   const navigate = useNavigate();
-  const groups = useNotesStore(s => s.groups);
-  const duplicateNote = useNotesStore(s => s.duplicateNote);
-  const deleteNote = useNotesStore(s => s.deleteNote);
-  const moveNote = useNotesStore(s => s.moveNote);
+  const groups = useNotesStore((s) => s.groups);
+  const duplicateNote = useNotesStore((s) => s.duplicateNote);
+  const deleteNote = useNotesStore((s) => s.deleteNote);
+  const moveNote = useNotesStore((s) => s.moveNote);
   const { openTab } = useTabsStore();
   const { addPane } = useSplitViewStore();
 
   const Item = variant === 'context' ? ContextMenuItem : DropdownMenuItem;
-  const Separator = variant === 'context' ? ContextMenuSeparator : DropdownMenuSeparator;
+  const Separator =
+    variant === 'context' ? ContextMenuSeparator : DropdownMenuSeparator;
   const Sub = variant === 'context' ? ContextMenuSub : DropdownMenuSub;
-  const SubTrigger = variant === 'context' ? ContextMenuSubTrigger : DropdownMenuSubTrigger;
-  const SubContent = variant === 'context' ? ContextMenuSubContent : DropdownMenuSubContent;
+  const SubTrigger =
+    variant === 'context' ? ContextMenuSubTrigger : DropdownMenuSubTrigger;
+  const SubContent =
+    variant === 'context' ? ContextMenuSubContent : DropdownMenuSubContent;
 
   const handleDuplicate = () => {
     const newId = duplicateNote(note.id);
@@ -250,7 +255,7 @@ function NoteMenuContent({ note, groupId, variant }: NoteMenuContentProps) {
     }
   };
 
-  const availableGroups = groups.filter(g => g.id !== groupId);
+  const availableGroups = groups.filter((g) => g.id !== groupId);
 
   return (
     <>
@@ -273,17 +278,15 @@ function NoteMenuContent({ note, groupId, variant }: NoteMenuContentProps) {
           Move to
         </SubTrigger>
         <SubContent>
-          {availableGroups.length > 0
-            ? (
-                availableGroups.map(g => (
-                  <Item key={g.id} onClick={() => handleMoveToGroup(g.id)}>
-                    {g.title}
-                  </Item>
-                ))
-              )
-            : (
-                <Item disabled>No other groups</Item>
-              )}
+          {availableGroups.length > 0 ? (
+            availableGroups.map((g) => (
+              <Item key={g.id} onClick={() => handleMoveToGroup(g.id)}>
+                {g.title}
+              </Item>
+            ))
+          ) : (
+            <Item disabled>No other groups</Item>
+          )}
         </SubContent>
       </Sub>
       <Item variant="destructive" onClick={handleDelete}>
@@ -318,7 +321,11 @@ const DISPLAY_LIMITS = [
   { value: null, label: 'Show all' },
 ] as const;
 
-const SORT_OPTIONS: { value: SortOrder; label: string; icon: typeof IconArrowDownAZ }[] = [
+const SORT_OPTIONS: {
+  value: SortOrder;
+  label: string;
+  icon: typeof IconArrowDownAZ;
+}[] = [
   { value: 'manual', label: 'Manual', icon: IconListOrdered },
   { value: 'a-z', label: 'A → Z', icon: IconArrowDownAZ },
   { value: 'z-a', label: 'Z → A', icon: IconArrowUpZA },
@@ -329,14 +336,17 @@ interface GroupMenuContentProps {
   variant: 'context' | 'dropdown';
 }
 function GroupMenuContent({ group, variant }: GroupMenuContentProps) {
-  const sortGroup = useNotesStore(s => s.sortGroup);
-  const setGroupDisplayLimit = useNotesStore(s => s.setGroupDisplayLimit);
+  const sortGroup = useNotesStore((s) => s.sortGroup);
+  const setGroupDisplayLimit = useNotesStore((s) => s.setGroupDisplayLimit);
 
   const Item = variant === 'context' ? ContextMenuItem : DropdownMenuItem;
-  const Separator = variant === 'context' ? ContextMenuSeparator : DropdownMenuSeparator;
+  const Separator =
+    variant === 'context' ? ContextMenuSeparator : DropdownMenuSeparator;
   const Sub = variant === 'context' ? ContextMenuSub : DropdownMenuSub;
-  const SubTrigger = variant === 'context' ? ContextMenuSubTrigger : DropdownMenuSubTrigger;
-  const SubContent = variant === 'context' ? ContextMenuSubContent : DropdownMenuSubContent;
+  const SubTrigger =
+    variant === 'context' ? ContextMenuSubTrigger : DropdownMenuSubTrigger;
+  const SubContent =
+    variant === 'context' ? ContextMenuSubContent : DropdownMenuSubContent;
 
   return (
     <>
@@ -353,7 +363,9 @@ function GroupMenuContent({ group, variant }: GroupMenuContentProps) {
           >
             <Icon className="size-4" />
             {option.label}
-            {isActive && <IconCheck className="size-3.5 ml-auto text-primary" />}
+            {isActive && (
+              <IconCheck className="size-3.5 ml-auto text-primary" />
+            )}
           </Item>
         );
       })}
@@ -371,17 +383,17 @@ function GroupMenuContent({ group, variant }: GroupMenuContentProps) {
                 key={String(option.value)}
                 onClick={() => setGroupDisplayLimit(group.id, option.value)}
               >
-                {option.value === null
-                  ? (
-                      <IconInfinity className="size-4" />
-                    )
-                  : (
-                      <span className="w-4 text-center text-xs font-medium text-muted-foreground">
-                        {option.value}
-                      </span>
-                    )}
+                {option.value === null ? (
+                  <IconInfinity className="size-4" />
+                ) : (
+                  <span className="w-4 text-center text-xs font-medium text-muted-foreground">
+                    {option.value}
+                  </span>
+                )}
                 {option.label}
-                {isActive && <IconCheck className="size-3.5 ml-auto text-primary" />}
+                {isActive && (
+                  <IconCheck className="size-3.5 ml-auto text-primary" />
+                )}
               </Item>
             );
           })}
@@ -415,7 +427,7 @@ function HiddenNotesPopover({
     <li className="relative">
       <Popover>
         <PopoverTrigger
-          render={(
+          render={
             <button
               className={cn(
                 'w-full flex items-center gap-1.5 px-2 py-1.5 rounded-md text-xs',
@@ -424,10 +436,7 @@ function HiddenNotesPopover({
                 'cursor-pointer select-none group/more',
               )}
             >
-              <span className="text-muted-foreground/50">
-                +
-                {notes.length}
-              </span>
+              <span className="text-muted-foreground/50">+{notes.length}</span>
               <span>more</span>
               <svg
                 className="size-3 ml-auto opacity-50 group-hover/more:opacity-100 transition-opacity"
@@ -436,10 +445,14 @@ function HiddenNotesPopover({
                 stroke="currentColor"
                 strokeWidth={2}
               >
-                <path strokeLinecap="round" strokeLinejoin="round" d="m9 5 7 7-7 7" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="m9 5 7 7-7 7"
+                />
               </svg>
             </button>
-          )}
+          }
         />
         <PopoverContent
           side="right"
@@ -448,7 +461,7 @@ function HiddenNotesPopover({
           className="w-56 p-1.5 max-h-64 overflow-y-auto scrollbar-custom"
         >
           <div className="space-y-0.5">
-            {notes.map(note => (
+            {notes.map((note) => (
               <button
                 key={note.id}
                 onClick={() => handleNoteClick(note.id)}
@@ -456,7 +469,8 @@ function HiddenNotesPopover({
                   'w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-sm',
                   'hover:bg-accent transition-colors duration-100',
                   'text-left cursor-pointer',
-                  activeNoteId === note.id && 'bg-accent/50 text-accent-foreground',
+                  activeNoteId === note.id &&
+                    'bg-accent/50 text-accent-foreground',
                 )}
               >
                 <span className="text-base leading-none">{note.emoji}</span>
@@ -489,9 +503,15 @@ interface SortableNoteProps {
   onSelect: () => void;
   activeDragType: 'note' | 'group' | null;
 }
-function SortableNote({ note, groupId, isActive, onSelect, activeDragType }: SortableNoteProps) {
+function SortableNote({
+  note,
+  groupId,
+  isActive,
+  onSelect,
+  activeDragType,
+}: SortableNoteProps) {
   const navigate = useNavigate();
-  const updateNote = useNotesStore(s => s.updateNote);
+  const updateNote = useNotesStore((s) => s.updateNote);
   const [isHovered, setIsHovered] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
@@ -515,8 +535,7 @@ function SortableNote({ note, groupId, isActive, onSelect, activeDragType }: Sor
 
   const handleClick = (ev: React.MouseEvent) => {
     // prevent "open in new tab"
-    if (ev.metaKey || ev.ctrlKey)
-      ev.preventDefault();
+    if (ev.metaKey || ev.ctrlKey) ev.preventDefault();
 
     onSelect();
     navigate({ to: '/notes' });
@@ -530,7 +549,7 @@ function SortableNote({ note, groupId, isActive, onSelect, activeDragType }: Sor
   return (
     <ContextMenu>
       <ContextMenuTrigger
-        render={(
+        render={
           <SidebarMenuItem
             ref={setNodeRef}
             style={style}
@@ -538,7 +557,7 @@ function SortableNote({ note, groupId, isActive, onSelect, activeDragType }: Sor
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
           />
-        )}
+        }
       >
         {showIndicator && <DropIndicator position="top" />}
         <div className="relative">
@@ -552,7 +571,7 @@ function SortableNote({ note, groupId, isActive, onSelect, activeDragType }: Sor
             )}
             {...attributes}
             {...listeners}
-            render={(
+            render={
               <Link
                 to="/notes"
                 onClick={handleClick}
@@ -561,7 +580,7 @@ function SortableNote({ note, groupId, isActive, onSelect, activeDragType }: Sor
                   ev.preventDefault();
                 }}
               />
-            )}
+            }
           >
             <span>{note.emoji}</span>
             <span className="flex-1 truncate">{note.title}</span>
@@ -570,36 +589,41 @@ function SortableNote({ note, groupId, isActive, onSelect, activeDragType }: Sor
           <div className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-0.5">
             {hasHeadings && (
               <Tooltip>
-                <TooltipTrigger render={(
-                  <button
-                    onClick={(ev) => {
-                      ev.preventDefault();
-                      ev.stopPropagation();
-                      updateNote(note.id, { showTOC: !note.showTOC });
-                    }}
-                    className={cn(
-                      'p-1 rounded-sm cursor-pointer',
-                      'text-sidebar-foreground/90 hover:text-sidebar-foreground hover:bg-sidebar-accent-foreground/5',
-                      'transition-all duration-150',
-                      showDotsButton ? 'opacity-100' : 'opacity-0',
-                      note.showTOC !== false ? 'text-primary opacity-100' : 'text-sidebar-foreground/60',
-                    )}
-                  >
-                    <IconListOrdered className="size-3.5" />
-                  </button>
-                )}
+                <TooltipTrigger
+                  render={
+                    <button
+                      onClick={(ev) => {
+                        ev.preventDefault();
+                        ev.stopPropagation();
+                        updateNote(note.id, { showTOC: !note.showTOC });
+                      }}
+                      className={cn(
+                        'p-1 rounded-sm cursor-pointer',
+                        'text-sidebar-foreground/90 hover:text-sidebar-foreground hover:bg-sidebar-accent-foreground/5',
+                        'transition-all duration-150',
+                        showDotsButton ? 'opacity-100' : 'opacity-0',
+                        note.showTOC !== false
+                          ? 'text-primary opacity-100'
+                          : 'text-sidebar-foreground/60',
+                      )}
+                    >
+                      <IconListOrdered className="size-3.5" />
+                    </button>
+                  }
                 />
                 <TooltipContent side="top">
-                  {note.showTOC === false ? 'Show Table of Contents' : 'Hide Table of Contents'}
+                  {note.showTOC === false
+                    ? 'Show Table of Contents'
+                    : 'Hide Table of Contents'}
                 </TooltipContent>
               </Tooltip>
             )}
             <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
               <Tooltip>
                 <TooltipTrigger
-                  render={(
+                  render={
                     <DropdownMenuTrigger
-                      render={(
+                      render={
                         <button
                           className={cn(
                             'p-1 rounded-sm',
@@ -614,14 +638,22 @@ function SortableNote({ note, groupId, isActive, onSelect, activeDragType }: Sor
                         >
                           <IconMoreHorizontal className="size-4" />
                         </button>
-                      )}
+                      }
                     />
-                  )}
+                  }
                 />
                 <TooltipContent side="top">More actions</TooltipContent>
               </Tooltip>
-              <DropdownMenuContent side="right" align="start" className="min-w-48">
-                <NoteMenuContent note={note} groupId={groupId} variant="dropdown" />
+              <DropdownMenuContent
+                side="right"
+                align="start"
+                className="min-w-48"
+              >
+                <NoteMenuContent
+                  note={note}
+                  groupId={groupId}
+                  variant="dropdown"
+                />
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -692,15 +724,17 @@ function SortableGroup({
         'group/sidebar-group relative rounded-md pl-2 pr-1 py-1 transition-colors duration-200',
         isDragSelected && 'bg-sidebar-accent/30 ring-1 ring-sidebar-border',
         isDragging && 'opacity-30',
-        showDropBackground && isOver && !isDragging && activeDragType === 'note' && 'bg-primary/5 ring-1 ring-primary/20 shadow-[0_0_15px_rgba(var(--primary),0.05)]',
+        showDropBackground &&
+          isOver &&
+          !isDragging &&
+          activeDragType === 'note' &&
+          'bg-primary/5 ring-1 ring-primary/20 shadow-[0_0_15px_rgba(var(--primary),0.05)]',
       )}
     >
       {showTopIndicator && <DropIndicator position="top" />}
 
       <ContextMenu>
-        <ContextMenuTrigger
-          render={<div className="group/header relative" />}
-        >
+        <ContextMenuTrigger render={<div className="group/header relative" />}>
           <SidebarGroupLabel
             className={cn(
               'w-full min-w-0 cursor-grab active:cursor-grabbing transition-colors duration-150 p-0',
@@ -716,39 +750,46 @@ function SortableGroup({
               {...attributes}
               {...listeners}
             >
-              <span className="truncate text-xs font-medium">{group.title}</span>
+              <span className="truncate text-xs font-medium">
+                {group.title}
+              </span>
             </button>
           </SidebarGroupLabel>
           <DropdownMenu>
             <Tooltip>
               <TooltipTrigger
-                render={(
+                render={
                   <DropdownMenuTrigger
-                    render={(
+                    render={
                       <SidebarGroupAction className="top-1/2 -translate-y-1/2 right-8 rounded-sm opacity-0 group-hover/header:opacity-100 focus-visible:opacity-100 transition-opacity hover:bg-sidebar-accent-foreground/5 text-sidebar-foreground/90">
                         <IconMoreHorizontal className="size-4" />
                         <span className="sr-only">More options</span>
                       </SidebarGroupAction>
-                    )}
+                    }
                   />
-                )}
+                }
               />
               <TooltipContent side="top">More options</TooltipContent>
             </Tooltip>
-            <DropdownMenuContent side="right" align="start" className="min-w-48">
+            <DropdownMenuContent
+              side="right"
+              align="start"
+              className="min-w-48"
+            >
               <GroupMenuContent group={group} variant="dropdown" />
             </DropdownMenuContent>
           </DropdownMenu>
           <Tooltip>
-            <TooltipTrigger render={(
-              <SidebarGroupAction
-                onClick={onAddNote}
-                className="top-1/2 -translate-y-1/2 rounded-sm opacity-0 group-hover/header:opacity-100 focus-visible:opacity-100 transition-opacity hover:bg-sidebar-accent-foreground/5 text-sidebar-foreground/90"
-              >
-                <IconAdd className="size-4" />
-                <span className="sr-only">New Page</span>
-              </SidebarGroupAction>
-            )}
+            <TooltipTrigger
+              render={
+                <SidebarGroupAction
+                  onClick={onAddNote}
+                  className="top-1/2 -translate-y-1/2 rounded-sm opacity-0 group-hover/header:opacity-100 focus-visible:opacity-100 transition-opacity hover:bg-sidebar-accent-foreground/5 text-sidebar-foreground/90"
+                >
+                  <IconAdd className="size-4" />
+                  <span className="sr-only">New Page</span>
+                </SidebarGroupAction>
+              }
             />
             <TooltipContent side="top">New Page</TooltipContent>
           </Tooltip>
@@ -765,7 +806,10 @@ function SortableGroup({
             strategy={verticalListSortingStrategy}
           >
             <SidebarMenu className="gap-1">
-              {(group.displayLimit ? notes.slice(0, group.displayLimit) : notes).map(note => (
+              {(group.displayLimit
+                ? notes.slice(0, group.displayLimit)
+                : notes
+              ).map((note) => (
                 <SortableNote
                   key={note.id}
                   note={note}
@@ -784,7 +828,10 @@ function SortableGroup({
               )}
             </SidebarMenu>
           </SortableContext>
-          <GroupDropZone groupId={group.id} isVisible={activeDragType === 'note'} />
+          <GroupDropZone
+            groupId={group.id}
+            isVisible={activeDragType === 'note'}
+          />
         </SidebarGroupContent>
       )}
     </SidebarGroup>
@@ -794,18 +841,20 @@ function SortableGroup({
 export function AppSidebar() {
   const layout = usePlatformLayout();
   const navigate = useNavigate();
-  const groups = useNotesStore(s => s.groups);
-  const notes = useNotesStore(s => s.notes);
-  const addNote = useNotesStore(s => s.addNote);
-  const toggleGroupCollapse = useNotesStore(s => s.toggleGroupCollapse);
-  const reorderGroups = useNotesStore(s => s.reorderGroups);
-  const moveNote = useNotesStore(s => s.moveNote);
-  const reorderNotesInGroup = useNotesStore(s => s.reorderNotesInGroup);
+  const groups = useNotesStore((s) => s.groups);
+  const notes = useNotesStore((s) => s.notes);
+  const addNote = useNotesStore((s) => s.addNote);
+  const toggleGroupCollapse = useNotesStore((s) => s.toggleGroupCollapse);
+  const reorderGroups = useNotesStore((s) => s.reorderGroups);
+  const moveNote = useNotesStore((s) => s.moveNote);
+  const reorderNotesInGroup = useNotesStore((s) => s.reorderNotesInGroup);
   const { openTab, activeTabId } = useTabsStore();
   const dragContext = useDragContext();
 
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
-  const [activeDragType, setActiveDragType] = useState<'note' | 'group' | null>(null);
+  const [activeDragType, setActiveDragType] = useState<'note' | 'group' | null>(
+    null,
+  );
   const activeDragTypeRef = useRef<'note' | 'group' | null>(null);
   const sidebarContentRef = useRef<HTMLDivElement>(null);
 
@@ -821,7 +870,9 @@ export function AppSidebar() {
   );
 
   // Only restrict to vertical axis when dragging groups, not notes
-  const conditionalVerticalRestriction = (args: Parameters<typeof restrictToVerticalAxis>[0]) => {
+  const conditionalVerticalRestriction = (
+    args: Parameters<typeof restrictToVerticalAxis>[0],
+  ) => {
     if (activeDragTypeRef.current === 'group') {
       return restrictToVerticalAxis(args);
     }
@@ -830,28 +881,24 @@ export function AppSidebar() {
   };
 
   const collisionDetection: CollisionDetection = (args) => {
-    const activeType = args.active.data.current?.type ?? activeDragTypeRef.current;
+    const activeType =
+      args.active.data.current?.type ?? activeDragTypeRef.current;
 
     // Check if pointer is within sidebar
     if (sidebarContentRef.current && args.pointerCoordinates) {
       const rect = sidebarContentRef.current.getBoundingClientRect();
       const { x, y } = args.pointerCoordinates;
 
-      const isInside = (
-        x >= rect.left
-        && x <= rect.right
-        && y >= rect.top
-        && y <= rect.bottom
-      );
+      const isInside =
+        x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
 
-      if (!isInside)
-        return [];
+      if (!isInside) return [];
     }
 
-    const droppableContainers
-      = activeType === 'group'
+    const droppableContainers =
+      activeType === 'group'
         ? args.droppableContainers.filter(
-            container => container.data.current?.type === 'group',
+            (container) => container.data.current?.type === 'group',
           )
         : args.droppableContainers;
 
@@ -887,8 +934,7 @@ export function AppSidebar() {
 
     dragContext?.endDrag();
 
-    if (!over || active.id === over.id)
-      return;
+    if (!over || active.id === over.id) return;
 
     const activeType = active.data.current?.type;
     const overType = over.data.current?.type;
@@ -897,8 +943,7 @@ export function AppSidebar() {
     if (activeType === 'group') {
       if (overType === 'group') {
         reorderGroups(active.id as string, over.id as string);
-      }
-      else if (overType === 'group-end-list') {
+      } else if (overType === 'group-end-list') {
         const lastGroup = groups[groups.length - 1];
         if (lastGroup && active.id !== lastGroup.id) {
           reorderGroups(active.id as string, lastGroup.id);
@@ -916,20 +961,26 @@ export function AppSidebar() {
 
         if (activeGroupId === overGroupId) {
           // Reorder within same group
-          reorderNotesInGroup(activeGroupId, active.id as string, over.id as string);
-        }
-        else {
+          reorderNotesInGroup(
+            activeGroupId,
+            active.id as string,
+            over.id as string,
+          );
+        } else {
           // Move to different group
-          moveNote(active.id as string, activeGroupId, overGroupId, over.id as string);
+          moveNote(
+            active.id as string,
+            activeGroupId,
+            overGroupId,
+            over.id as string,
+          );
         }
-      }
-      else if (overType === 'group') {
+      } else if (overType === 'group') {
         // Drop on group header - add to end of that group
         if (activeGroupId !== over.id) {
           moveNote(active.id as string, activeGroupId, over.id as string);
         }
-      }
-      else if (overType === 'group-end') {
+      } else if (overType === 'group-end') {
         // Drop at end of group
         const targetGroupId = over.data.current?.groupId;
         if (activeGroupId !== targetGroupId) {
@@ -940,12 +991,10 @@ export function AppSidebar() {
   };
 
   const getDragOverlayContent = () => {
-    if (!activeDragId || activeDragType !== 'note')
-      return null;
+    if (!activeDragId || activeDragType !== 'note') return null;
 
     const note = notes.get(activeDragId);
-    if (!note)
-      return null;
+    if (!note) return null;
 
     return (
       <div className="flex items-center gap-2 px-3 py-1.5 bg-background border rounded-md shadow-lg text-sm z-50 pointer-events-none">
@@ -971,7 +1020,10 @@ export function AppSidebar() {
         <SidebarActionStrip />
       </SidebarHeader>
 
-      <SidebarContent className="overflow-x-hidden pl-2 pr-1 pb-4" style={{ scrollbarGutter: 'stable' }}>
+      <SidebarContent
+        className="overflow-x-hidden pl-2 pr-1 pb-4"
+        style={{ scrollbarGutter: 'stable' }}
+      >
         <div ref={sidebarContentRef} className="flex flex-col">
           <DndContext
             sensors={sensors}
@@ -983,12 +1035,12 @@ export function AppSidebar() {
             onDragCancel={handleDragCancel}
           >
             <SortableContext
-              items={groups.map(g => g.id)}
+              items={groups.map((g) => g.id)}
               strategy={verticalListSortingStrategy}
             >
               {groups.map((group, index) => {
                 const groupNotes = group.noteIds
-                  .map(id => notes.get(id))
+                  .map((id) => notes.get(id))
                   .filter((n): n is Note => n !== undefined);
 
                 return (

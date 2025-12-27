@@ -1,10 +1,11 @@
 'use client';
 
-import type { EmojiPickerListCategoryHeaderProps, EmojiPickerListEmojiProps, EmojiPickerListRowProps } from 'frimousse';
-import {
-
-  EmojiPicker as EmojiPickerPrimitive,
+import type {
+  EmojiPickerListCategoryHeaderProps,
+  EmojiPickerListEmojiProps,
+  EmojiPickerListRowProps,
 } from 'frimousse';
+import { EmojiPicker as EmojiPickerPrimitive } from 'frimousse';
 import React from 'react';
 
 import LoaderIcon from '~icons/lucide/loader';
@@ -27,7 +28,10 @@ const EMOJI_CATEGORIES = [
   { id: 'Flags', icon: '🏳️' },
 ] as const;
 
-function EmojiPicker({ className, ...props }: React.ComponentProps<typeof EmojiPickerPrimitive.Root>) {
+function EmojiPicker({
+  className,
+  ...props
+}: React.ComponentProps<typeof EmojiPickerPrimitive.Root>) {
   return (
     <EmojiPickerPrimitive.Root
       className={cn(
@@ -40,17 +44,23 @@ function EmojiPicker({ className, ...props }: React.ComponentProps<typeof EmojiP
   );
 }
 
-function EmojiPickerSearch({ className, ...props }: React.ComponentProps<typeof EmojiPickerPrimitive.Search>) {
+function EmojiPickerSearch({
+  className,
+  ...props
+}: React.ComponentProps<typeof EmojiPickerPrimitive.Search>) {
   const [value, setValue] = React.useState('');
 
   return (
-    <div className={cn('flex h-8 items-center gap-2 border-b px-2', className)} data-slot="emoji-picker-search-wrapper">
+    <div
+      className={cn('flex h-8 items-center gap-2 border-b px-2', className)}
+      data-slot="emoji-picker-search-wrapper"
+    >
       <SearchIcon className="size-3.5 shrink-0 opacity-50" />
       <EmojiPickerPrimitive.Search
         autoFocus
         type="text"
         value={value}
-        onChange={e => setValue(e.target.value)}
+        onChange={(e) => setValue(e.target.value)}
         className="outline-hidden placeholder:text-muted-foreground flex h-8 w-full rounded-md bg-transparent py-2 text-sm appearance-none disabled:cursor-not-allowed disabled:opacity-50"
         data-slot="emoji-picker-search"
         {...props}
@@ -70,13 +80,21 @@ function EmojiPickerSearch({ className, ...props }: React.ComponentProps<typeof 
 
 function EmojiPickerRow({ children, ...props }: EmojiPickerListRowProps) {
   return (
-    <div {...props} className="flex scroll-my-1 px-1" data-slot="emoji-picker-row">
+    <div
+      {...props}
+      className="flex scroll-my-1 px-1"
+      data-slot="emoji-picker-row"
+    >
       {children}
     </div>
   );
 }
 
-function EmojiPickerEmoji({ emoji, className, ...props }: EmojiPickerListEmojiProps) {
+function EmojiPickerEmoji({
+  emoji,
+  className,
+  ...props
+}: EmojiPickerListEmojiProps) {
   return (
     <Tooltip>
       <TooltipTrigger
@@ -100,7 +118,10 @@ function EmojiPickerEmoji({ emoji, className, ...props }: EmojiPickerListEmojiPr
   );
 }
 
-function EmojiPickerCategoryHeader({ category, ...props }: EmojiPickerListCategoryHeaderProps) {
+function EmojiPickerCategoryHeader({
+  category,
+  ...props
+}: EmojiPickerListCategoryHeaderProps) {
   return (
     <div
       {...props}
@@ -113,7 +134,10 @@ function EmojiPickerCategoryHeader({ category, ...props }: EmojiPickerListCatego
   );
 }
 
-function EmojiPickerCategoryNav({ className, ...props }: React.ComponentProps<'div'>) {
+function EmojiPickerCategoryNav({
+  className,
+  ...props
+}: React.ComponentProps<'div'>) {
   const scrollToCategory = (categoryId: string) => {
     const header = document.querySelector(`[data-category-id="${categoryId}"]`);
     if (header) {
@@ -123,7 +147,7 @@ function EmojiPickerCategoryNav({ className, ...props }: React.ComponentProps<'d
 
   return (
     <div className={cn('flex items-center', className)} {...props}>
-      {EMOJI_CATEGORIES.map(category => (
+      {EMOJI_CATEGORIES.map((category) => (
         <Tooltip key={category.id}>
           <TooltipTrigger
             render={() => (
@@ -145,7 +169,10 @@ function EmojiPickerCategoryNav({ className, ...props }: React.ComponentProps<'d
   );
 }
 
-function EmojiPickerContent({ className, ...props }: React.ComponentProps<typeof EmojiPickerPrimitive.Viewport>) {
+function EmojiPickerContent({
+  className,
+  ...props
+}: React.ComponentProps<typeof EmojiPickerPrimitive.Viewport>) {
   return (
     <EmojiPickerPrimitive.Viewport
       className={cn('outline-hidden relative flex-1', className)}
@@ -210,11 +237,12 @@ function EmojiPickerSkinToneDropdown({
               onClick={() => setIsOpen(!isOpen)}
               className="flex size-7 items-center justify-center rounded-sm text-base transition-colors hover:bg-accent"
             >
-              {skinToneVariations.find(v => v.skinTone === skinTone)?.emoji ?? emoji}
+              {skinToneVariations.find((v) => v.skinTone === skinTone)?.emoji ??
+                emoji}
             </button>
             {isOpen && (
               <div className="absolute bottom-full right-0 mb-1 flex gap-0.5 rounded-md border border-border bg-popover p-1 shadow-lg animate-in fade-in-0 slide-in-from-bottom-2 duration-150">
-                {skinToneVariations.map(variation => (
+                {skinToneVariations.map((variation) => (
                   <button
                     key={variation.skinTone}
                     type="button"
@@ -239,10 +267,17 @@ function EmojiPickerSkinToneDropdown({
   );
 }
 
-function EmojiPickerFooter({ className, children, ...props }: React.ComponentProps<'div'>) {
+function EmojiPickerFooter({
+  className,
+  children,
+  ...props
+}: React.ComponentProps<'div'>) {
   return (
     <div
-      className={cn('flex w-full min-w-0 items-center justify-between gap-2 border-t px-2 py-1.5', className)}
+      className={cn(
+        'flex w-full min-w-0 items-center justify-between gap-2 border-t px-2 py-1.5',
+        className,
+      )}
       data-slot="emoji-picker-footer"
       {...props}
     >

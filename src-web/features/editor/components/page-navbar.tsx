@@ -41,11 +41,13 @@ export function PageNavBar({
   const privacyMenuRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
-    if (!showPrivacyMenu)
-      return;
+    if (!showPrivacyMenu) return;
 
     const handleClickOutside = (e: MouseEvent) => {
-      if (privacyMenuRef.current && !privacyMenuRef.current.contains(e.target as Node)) {
+      if (
+        privacyMenuRef.current &&
+        !privacyMenuRef.current.contains(e.target as Node)
+      ) {
         setShowPrivacyMenu(false);
       }
     };
@@ -65,7 +67,9 @@ export function PageNavBar({
       {/* Left section: Page title with icon */}
       <div className="flex items-center gap-2 min-w-0">
         {icon && <span className="text-base shrink-0">{icon}</span>}
-        <span className="truncate text-sm font-medium text-foreground/90">{title || 'Untitled'}</span>
+        <span className="truncate text-sm font-medium text-foreground/90">
+          {title || 'Untitled'}
+        </span>
 
         {/* Privacy dropdown */}
         <div className="relative" ref={privacyMenuRef}>
@@ -74,7 +78,11 @@ export function PageNavBar({
             className="flex items-center gap-1 rounded px-1.5 py-0.5 text-xs text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             data-no-drag
           >
-            {isPrivate ? <IconLock className="h-3 w-3" /> : <IconGlobe className="h-3 w-3" />}
+            {isPrivate ? (
+              <IconLock className="h-3 w-3" />
+            ) : (
+              <IconGlobe className="h-3 w-3" />
+            )}
             <span>{isPrivate ? 'Private' : 'Public'}</span>
             <IconChevronDown className="h-3 w-3 opacity-60" />
           </button>
@@ -126,7 +134,9 @@ export function PageNavBar({
           onClick={() => onStarChange?.(!isStarred)}
           className={cn(
             'flex h-7 w-7 items-center justify-center rounded-md transition-colors hover:bg-muted',
-            isStarred ? 'text-amber hover:text-amber-muted' : 'text-muted-foreground hover:text-foreground',
+            isStarred
+              ? 'text-amber hover:text-amber-muted'
+              : 'text-muted-foreground hover:text-foreground',
           )}
         >
           <IconStar className={cn('h-4 w-4', isStarred && 'fill-current')} />
@@ -136,7 +146,9 @@ export function PageNavBar({
           onClick={() => setShowFixedToolbar(!showFixedToolbar)}
           className={cn(
             'flex h-7 w-7 items-center justify-center rounded-md transition-colors hover:bg-muted',
-            showFixedToolbar ? 'text-foreground' : 'text-muted-foreground hover:text-foreground',
+            showFixedToolbar
+              ? 'text-foreground'
+              : 'text-muted-foreground hover:text-foreground',
           )}
           title={showFixedToolbar ? 'Hide toolbar' : 'Show toolbar'}
         >

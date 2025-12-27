@@ -24,69 +24,80 @@ interface SplitViewContainerProps {
 const SNAP_THRESHOLD = 5; // Snap when within 5% of 50%
 const ESCAPE_THRESHOLD = 8; // Must drag past 8% to escape snap
 
-export function SplitViewContainer({ renderPane, renderPreview, contentPadding }: SplitViewContainerProps) {
-  const activeTabId = useTabsStore(s => s.activeTabId);
-  const setActiveTab = useTabsStore(s => s.setActiveTab);
-  const { panes, activePaneId, setActivePane, orientation } = useSplitViewStore();
-  const [hoverSide, setHoverSide] = useState<'left' | 'right' | 'top' | 'bottom' | null>(null);
+export function SplitViewContainer({
+  renderPane,
+  renderPreview,
+  contentPadding,
+}: SplitViewContainerProps) {
+  const activeTabId = useTabsStore((s) => s.activeTabId);
+  const setActiveTab = useTabsStore((s) => s.setActiveTab);
+  const { panes, activePaneId, setActivePane, orientation } =
+    useSplitViewStore();
+  const [hoverSide, setHoverSide] = useState<
+    'left' | 'right' | 'top' | 'bottom' | null
+  >(null);
   const groupRef = useRef<GroupImperativeHandle>(null);
   const isSnappedRef = useRef(false);
   const { perform } = useHaptics();
 
   const dragContext = useDragContext();
-  const notes = useNotesStore(s => s.notes);
+  const notes = useNotesStore((s) => s.notes);
 
-  const draggedNote = dragContext?.isDragging && dragContext.draggedNoteId
-    ? notes.get(dragContext.draggedNoteId) ?? null
-    : null;
+  const draggedNote =
+    dragContext?.isDragging && dragContext.draggedNoteId
+      ? (notes.get(dragContext.draggedNoteId) ?? null)
+      : null;
 
   const triggerHaptic = useCallback(() => {
     perform(HapticFeedbackPattern.Generic);
   }, [perform]);
 
-  const handleLayoutChange = useCallback((layout: Layout) => {
-    const panelIds = Object.keys(layout);
-    if (panelIds.length !== 2 || panes.length !== 2)
-      return;
+  const handleLayoutChange = useCallback(
+    (layout: Layout) => {
+      const panelIds = Object.keys(layout);
+      if (panelIds.length !== 2 || panes.length !== 2) return;
 
-    const [pane1Id, pane2Id] = panelIds;
-    const firstSize = layout[pane1Id];
-    const diff = Math.abs(firstSize - 50);
+      const [pane1Id, pane2Id] = panelIds;
+      const firstSize = layout[pane1Id];
+      const diff = Math.abs(firstSize - 50);
 
-    if (isSnappedRef.current) {
-      // Already snapped - only escape if dragged past escape threshold
-      if (diff > ESCAPE_THRESHOLD) {
-        isSnappedRef.current = false;
+      if (isSnappedRef.current) {
+        // Already snapped - only escape if dragged past escape threshold
+        if (diff > ESCAPE_THRESHOLD) {
+          isSnappedRef.current = false;
+        } else if (diff > 0.1) {
+          // Keep it locked at center
+          groupRef.current?.setLayout({ [pane1Id]: 50, [pane2Id]: 50 });
+        }
+      } else {
+        // Not snapped - check if we should snap
+        if (diff > 0.5 && diff < SNAP_THRESHOLD) {
+          isSnappedRef.current = true;
+          groupRef.current?.setLayout({ [pane1Id]: 50, [pane2Id]: 50 });
+          triggerHaptic();
+        }
       }
-      else if (diff > 0.1) {
-        // Keep it locked at center
-        groupRef.current?.setLayout({ [pane1Id]: 50, [pane2Id]: 50 });
-      }
-    }
-    else {
-      // Not snapped - check if we should snap
-      if (diff > 0.5 && diff < SNAP_THRESHOLD) {
-        isSnappedRef.current = true;
-        groupRef.current?.setLayout({ [pane1Id]: 50, [pane2Id]: 50 });
-        triggerHaptic();
-      }
-    }
-  }, [panes, triggerHaptic]);
+    },
+    [panes, triggerHaptic],
+  );
   // Determine preview orientation based on hover side
   const isVerticalPreview = hoverSide === 'top' || hoverSide === 'bottom';
 
   // Get the current note for the split preview
-  const activePane = panes.find(p => p.id === activePaneId);
-  const currentNote = activePane?.noteId ? notes.get(activePane.noteId) ?? null : null;
+  const activePane = panes.find((p) => p.id === activePaneId);
+  const currentNote = activePane?.noteId
+    ? (notes.get(activePane.noteId) ?? null)
+    : null;
 
   return (
     <div className="relative flex-1 min-h-0 flex overflow-hidden">
       {/* Existing content - stays stationary */}
-      <div className={cn(
-        'absolute inset-0 flex flex-col',
-        'transition-opacity duration-200 ease-out',
-        hoverSide ? 'opacity-0' : 'opacity-100',
-      )}
+      <div
+        className={cn(
+          'absolute inset-0 flex flex-col',
+          'transition-opacity duration-200 ease-out',
+          hoverSide ? 'opacity-0' : 'opacity-100',
+        )}
       >
         <Group
           groupRef={groupRef}
@@ -130,38 +141,46 @@ export function SplitViewContainer({ renderPane, renderPreview, contentPadding }
       >
         {/* First pane - dragged note if left/top, current note if right/bottom */}
         <div className="flex-1 min-w-0 min-h-0">
-          {hoverSide && (hoverSide === 'left' || hoverSide === 'top') && draggedNote && (
-            <NotePreview
-              note={draggedNote}
-              orientation={isVerticalPreview ? 'vertical' : 'horizontal'}
-              renderPreview={renderPreview}
-            />
-          )}
-          {hoverSide && (hoverSide === 'right' || hoverSide === 'bottom') && currentNote && (
-            <NotePreview
-              note={currentNote}
-              orientation={isVerticalPreview ? 'vertical' : 'horizontal'}
-              renderPreview={renderPreview}
-            />
-          )}
+          {hoverSide &&
+            (hoverSide === 'left' || hoverSide === 'top') &&
+            draggedNote && (
+              <NotePreview
+                note={draggedNote}
+                orientation={isVerticalPreview ? 'vertical' : 'horizontal'}
+                renderPreview={renderPreview}
+              />
+            )}
+          {hoverSide &&
+            (hoverSide === 'right' || hoverSide === 'bottom') &&
+            currentNote && (
+              <NotePreview
+                note={currentNote}
+                orientation={isVerticalPreview ? 'vertical' : 'horizontal'}
+                renderPreview={renderPreview}
+              />
+            )}
         </div>
 
         {/* Second pane - current note if left/top, dragged note if right/bottom */}
         <div className="flex-1 min-w-0 min-h-0">
-          {hoverSide && (hoverSide === 'left' || hoverSide === 'top') && currentNote && (
-            <NotePreview
-              note={currentNote}
-              orientation={isVerticalPreview ? 'vertical' : 'horizontal'}
-              renderPreview={renderPreview}
-            />
-          )}
-          {hoverSide && (hoverSide === 'right' || hoverSide === 'bottom') && draggedNote && (
-            <NotePreview
-              note={draggedNote}
-              orientation={isVerticalPreview ? 'vertical' : 'horizontal'}
-              renderPreview={renderPreview}
-            />
-          )}
+          {hoverSide &&
+            (hoverSide === 'left' || hoverSide === 'top') &&
+            currentNote && (
+              <NotePreview
+                note={currentNote}
+                orientation={isVerticalPreview ? 'vertical' : 'horizontal'}
+                renderPreview={renderPreview}
+              />
+            )}
+          {hoverSide &&
+            (hoverSide === 'right' || hoverSide === 'bottom') &&
+            draggedNote && (
+              <NotePreview
+                note={draggedNote}
+                orientation={isVerticalPreview ? 'vertical' : 'horizontal'}
+                renderPreview={renderPreview}
+              />
+            )}
         </div>
       </div>
 
@@ -169,25 +188,29 @@ export function SplitViewContainer({ renderPane, renderPreview, contentPadding }
         position="left"
         contentPadding={contentPadding}
         anchorNoteId={activeTabId || undefined}
-        onHoverChange={isHovering => setHoverSide(isHovering ? 'left' : null)}
+        onHoverChange={(isHovering) => setHoverSide(isHovering ? 'left' : null)}
       />
       <SplitDropZone
         position="right"
         contentPadding={contentPadding}
         anchorNoteId={activeTabId || undefined}
-        onHoverChange={isHovering => setHoverSide(isHovering ? 'right' : null)}
+        onHoverChange={(isHovering) =>
+          setHoverSide(isHovering ? 'right' : null)
+        }
       />
       <SplitDropZone
         position="top"
         contentPadding={contentPadding}
         anchorNoteId={activeTabId || undefined}
-        onHoverChange={isHovering => setHoverSide(isHovering ? 'top' : null)}
+        onHoverChange={(isHovering) => setHoverSide(isHovering ? 'top' : null)}
       />
       <SplitDropZone
         position="bottom"
         contentPadding={contentPadding}
         anchorNoteId={activeTabId || undefined}
-        onHoverChange={isHovering => setHoverSide(isHovering ? 'bottom' : null)}
+        onHoverChange={(isHovering) =>
+          setHoverSide(isHovering ? 'bottom' : null)
+        }
       />
     </div>
   );
@@ -228,38 +251,43 @@ function NotePreview({ note, orientation, renderPreview }: NotePreviewProps) {
         <div className="absolute inset-0 ring-1 ring-inset ring-foreground/5 z-20 rounded-xl pointer-events-none" />
 
         <div className="relative h-full flex flex-col items-center overflow-y-auto scrollbar-none select-none">
-          <div className={cn(
-            'w-full max-w-3xl px-12 opacity-40',
-            orientation === 'vertical' ? 'pt-8' : 'pt-16',
-          )}
-          >
-            <div className={cn(
-              'flex justify-start',
-              orientation === 'vertical' ? 'mb-2' : 'mb-4',
+          <div
+            className={cn(
+              'w-full max-w-3xl px-12 opacity-40',
+              orientation === 'vertical' ? 'pt-8' : 'pt-16',
             )}
-            >
-              <span className={cn(
-                'opacity-80',
-                orientation === 'vertical' ? 'text-5xl' : 'text-7xl',
+          >
+            <div
+              className={cn(
+                'flex justify-start',
+                orientation === 'vertical' ? 'mb-2' : 'mb-4',
               )}
+            >
+              <span
+                className={cn(
+                  'opacity-80',
+                  orientation === 'vertical' ? 'text-5xl' : 'text-7xl',
+                )}
               >
                 {note.emoji}
               </span>
             </div>
 
-            <h1 className={cn(
-              'font-bold mb-4 leading-tight text-foreground/70 select-text',
-              orientation === 'vertical' ? 'text-2xl' : 'text-4xl',
-            )}
+            <h1
+              className={cn(
+                'font-bold mb-4 leading-tight text-foreground/70 select-text',
+                orientation === 'vertical' ? 'text-2xl' : 'text-4xl',
+              )}
             >
               {note.title || 'Untitled'}
             </h1>
             {/* Content preview disabled - uses Lexical serialized state now */}
             <div className="space-y-2 text-muted-foreground/40 select-text pb-16">
-              <p className={cn(
-                'leading-relaxed italic',
-                orientation === 'vertical' ? 'text-sm' : 'text-base',
-              )}
+              <p
+                className={cn(
+                  'leading-relaxed italic',
+                  orientation === 'vertical' ? 'text-sm' : 'text-base',
+                )}
               >
                 Start typing to add content...
               </p>
@@ -282,23 +310,34 @@ interface SplitPaneProps {
   children: ReactNode;
 }
 
-function SplitPane({ pane, isActive, isFirst, paneCount, orientation, isPreviewingSplit, onActivate, children }: SplitPaneProps) {
+function SplitPane({
+  pane,
+  isActive,
+  isFirst,
+  paneCount,
+  orientation,
+  isPreviewingSplit,
+  onActivate,
+  children,
+}: SplitPaneProps) {
   const isSplit = paneCount > 1;
   const showFrame = isSplit || isPreviewingSplit;
 
   return (
     <>
       {!isFirst && (
-        <Separator className={cn(
-          'split-divider group z-10',
-          orientation === 'horizontal' ? 'w-1 h-full' : 'h-1 w-full',
-        )}
+        <Separator
+          className={cn(
+            'split-divider group z-10',
+            orientation === 'horizontal' ? 'w-1 h-full' : 'h-1 w-full',
+          )}
         >
           <div className="w-full h-full flex items-center justify-center">
-            <div className={cn(
-              'rounded-full bg-border/50 group-hover:bg-border group-data-[resize-handle-state=drag]:bg-primary transition-colors',
-              orientation === 'horizontal' ? 'w-0.5 h-8' : 'h-0.5 w-8',
-            )}
+            <div
+              className={cn(
+                'rounded-full bg-border/50 group-hover:bg-border group-data-[resize-handle-state=drag]:bg-primary transition-colors',
+                orientation === 'horizontal' ? 'w-0.5 h-8' : 'h-0.5 w-8',
+              )}
             />
           </div>
         </Separator>
@@ -312,11 +351,19 @@ function SplitPane({ pane, isActive, isFirst, paneCount, orientation, isPreviewi
           // Horizontal split: vertical padding always
           showFrame && orientation === 'horizontal' && 'py-1',
           showFrame && orientation === 'horizontal' && isFirst && 'pl-1',
-          showFrame && orientation === 'horizontal' && !isFirst && paneCount === 2 && 'pr-1',
+          showFrame &&
+            orientation === 'horizontal' &&
+            !isFirst &&
+            paneCount === 2 &&
+            'pr-1',
           // Vertical split: horizontal padding always
           showFrame && orientation === 'vertical' && 'px-1',
           showFrame && orientation === 'vertical' && isFirst && 'pt-1',
-          showFrame && orientation === 'vertical' && !isFirst && paneCount === 2 && 'pb-1',
+          showFrame &&
+            orientation === 'vertical' &&
+            !isFirst &&
+            paneCount === 2 &&
+            'pb-1',
         )}
       >
         <div
@@ -324,11 +371,13 @@ function SplitPane({ pane, isActive, isFirst, paneCount, orientation, isPreviewi
             'h-full w-full flex flex-col overflow-hidden bg-background',
             // Only transition specific properties for frame appearance
             'transition-[border-radius,border-color,box-shadow] duration-200 ease-out',
-            showFrame
-              ? 'rounded-xl border shadow-sm'
-              : '',
-            showFrame && isActive && 'ring-1 ring-inset ring-primary/20 border-primary/20',
-            showFrame && !isActive && 'after:absolute after:inset-0 after:bg-background/5 after:pointer-events-none',
+            showFrame ? 'rounded-xl border shadow-sm' : '',
+            showFrame &&
+              isActive &&
+              'ring-1 ring-inset ring-primary/20 border-primary/20',
+            showFrame &&
+              !isActive &&
+              'after:absolute after:inset-0 after:bg-background/5 after:pointer-events-none',
           )}
           onClickCapture={onActivate}
         >

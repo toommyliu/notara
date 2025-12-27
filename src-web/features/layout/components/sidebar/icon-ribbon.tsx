@@ -11,11 +11,7 @@ import { useSettingsStore } from '~/features/settings/stores/settings-store';
 import { usePlatformLayout } from '~/hooks/use-platform';
 import { cn } from '~/lib/utils';
 
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '~/ui/tooltip';
+import { Tooltip, TooltipContent, TooltipTrigger } from '~/ui/tooltip';
 
 interface RibbonIconProps {
   icon: ReactNode;
@@ -44,15 +40,13 @@ function RibbonIcon({ icon, label, isActive, onClick, to }: RibbonIconProps) {
     </button>
   );
 
-  const wrapped = to
-    ? (
-        <Link to={to} className="flex">
-          {content}
-        </Link>
-      )
-    : (
-        content
-      );
+  const wrapped = to ? (
+    <Link to={to} className="flex">
+      {content}
+    </Link>
+  ) : (
+    content
+  );
 
   return (
     <Tooltip>
@@ -80,7 +74,9 @@ export function IconRibbon() {
       )}
       style={{
         top: 0,
-        paddingTop: layout.titlebarHeight + (layout.isMac && !layout.isFullscreen ? 8 : 2),
+        paddingTop:
+          layout.titlebarHeight +
+          (layout.isMac && !layout.isFullscreen ? 8 : 2),
         paddingBottom: 8,
       }}
       data-tauri-drag-region

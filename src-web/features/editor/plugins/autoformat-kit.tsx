@@ -225,7 +225,7 @@ export const AutoformatKit = [
       ].map(
         (rule): AutoformatRule => ({
           ...rule,
-          query: editor =>
+          query: (editor) =>
             !editor.api.some({
               match: { type: editor.getType(KEYS.codeBlock) },
             }),

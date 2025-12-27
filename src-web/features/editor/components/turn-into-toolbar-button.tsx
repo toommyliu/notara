@@ -26,10 +26,7 @@ import { KEYS } from 'platejs';
 import { useEditorRef, useSelectionFragmentProp } from 'platejs/react';
 import * as React from 'react';
 
-import {
-  getBlockType,
-  setBlockType,
-} from '~/features/editor/transforms';
+import { getBlockType, setBlockType } from '~/features/editor/transforms';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -131,18 +128,29 @@ export function TurnIntoToolbarButton(props: DropdownMenuProps) {
 
   const value = useSelectionFragmentProp({
     defaultValue: KEYS.p,
-    getProp: node => getBlockType(node as TElement),
+    getProp: (node) => getBlockType(node as TElement),
   });
   const selectedItem = React.useMemo(
     () =>
-      turnIntoItems.find(item => item.value === (value ?? KEYS.p))
-      ?? turnIntoItems[0],
+      turnIntoItems.find((item) => item.value === (value ?? KEYS.p)) ??
+      turnIntoItems[0],
     [value],
   );
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen} modal={false} {...props}>
-      <DropdownMenuTrigger render={<ToolbarButton className="min-w-[125px]" pressed={open} tooltip="Turn into" isDropdown />}>{selectedItem.label}</DropdownMenuTrigger>
+      <DropdownMenuTrigger
+        render={
+          <ToolbarButton
+            className="min-w-[125px]"
+            pressed={open}
+            tooltip="Turn into"
+            isDropdown
+          />
+        }
+      >
+        {selectedItem.label}
+      </DropdownMenuTrigger>
 
       <DropdownMenuContent
         className="ignore-click-outside/toolbar min-w-0"

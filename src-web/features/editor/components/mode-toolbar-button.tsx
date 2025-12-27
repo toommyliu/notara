@@ -3,10 +3,7 @@
 import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
 
 import { SuggestionPlugin } from '@platejs/suggestion/react';
-import {
-  DropdownMenuItemIndicator,
-
-} from '@radix-ui/react-dropdown-menu';
+import { DropdownMenuItemIndicator } from '@radix-ui/react-dropdown-menu';
 import { CheckIcon, EyeIcon, PencilLineIcon, PenIcon } from 'lucide-react';
 import { useEditorRef, usePlateState, usePluginOption } from 'platejs/react';
 import * as React from 'react';
@@ -30,11 +27,9 @@ export function ModeToolbarButton(props: DropdownMenuProps) {
 
   let value = 'editing';
 
-  if (readOnly)
-    value = 'viewing';
+  if (readOnly) value = 'viewing';
 
-  if (isSuggesting)
-    value = 'suggestion';
+  if (isSuggesting) value = 'suggestion';
 
   const item: Record<string, { icon: React.ReactNode; label: string }> = {
     editing: {
@@ -53,7 +48,11 @@ export function ModeToolbarButton(props: DropdownMenuProps) {
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen} modal={false} {...props}>
-      <DropdownMenuTrigger render={<ToolbarButton pressed={open} tooltip="Editing mode" isDropdown />}>
+      <DropdownMenuTrigger
+        render={
+          <ToolbarButton pressed={open} tooltip="Editing mode" isDropdown />
+        }
+      >
         {item[value].icon}
         <span className="hidden lg:inline">{item[value].label}</span>
       </DropdownMenuTrigger>

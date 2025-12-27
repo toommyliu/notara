@@ -13,8 +13,10 @@ interface ThemeOptionProps {
 }
 
 function ThemeOption({ value, isActive, onClick }: ThemeOptionProps) {
-  const Icon = value === 'light' ? IconSun : value === 'dark' ? IconMoon : IconMonitor;
-  const label = value === 'light' ? 'Light' : value === 'dark' ? 'Dark' : 'System';
+  const Icon =
+    value === 'light' ? IconSun : value === 'dark' ? IconMoon : IconMonitor;
+  const label =
+    value === 'light' ? 'Light' : value === 'dark' ? 'Dark' : 'System';
 
   return (
     <button

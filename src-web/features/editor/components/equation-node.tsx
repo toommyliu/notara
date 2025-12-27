@@ -22,11 +22,7 @@ import React, { useRef, useState } from 'react';
 import TextareaAutosize from 'react-textarea-autosize';
 import { cn } from '~/lib/utils';
 import { Button } from '~/ui/button';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '~/ui/popover';
+import { Popover, PopoverContent, PopoverTrigger } from '~/ui/popover';
 
 export function EquationElement(props: PlateElementProps<TEquationElement>) {
   const selected = useSelected();
@@ -53,7 +49,7 @@ export function EquationElement(props: PlateElementProps<TEquationElement>) {
     <PlateElement className="my-1" {...props}>
       <Popover open={open} onOpenChange={setOpen} modal={false}>
         <PopoverTrigger
-          render={(
+          render={
             <div
               className={cn(
                 'group flex cursor-pointer select-none items-center justify-center rounded-sm hover:bg-primary/10 data-[selected=true]:bg-primary/10',
@@ -65,19 +61,17 @@ export function EquationElement(props: PlateElementProps<TEquationElement>) {
               contentEditable={false}
               role="button"
             />
-          )}
+          }
           nativeButton={false}
         >
-          {props.element.texExpression.length > 0
-            ? (
-                <span ref={katexRef} />
-              )
-            : (
-                <div className="flex h-7 w-full items-center gap-2 whitespace-nowrap text-muted-foreground text-sm">
-                  <RadicalIcon className="size-6 text-muted-foreground/80" />
-                  <div>Add a Tex equation</div>
-                </div>
-              )}
+          {props.element.texExpression.length > 0 ? (
+            <span ref={katexRef} />
+          ) : (
+            <div className="flex h-7 w-full items-center gap-2 whitespace-nowrap text-muted-foreground text-sm">
+              <RadicalIcon className="size-6 text-muted-foreground/80" />
+              <div>Add a Tex equation</div>
+            </div>
+          )}
         </PopoverTrigger>
 
         <EquationPopoverContent
@@ -102,7 +96,7 @@ export function InlineEquationElement(
   const katexRef = React.useRef<HTMLDivElement | null>(null);
   const selected = useSelected();
   const isCollapsed = useEditorSelector(
-    editor => editor.api.isCollapsed(),
+    (editor) => editor.api.isCollapsed(),
     [],
   );
   const [open, setOpen] = React.useState(selected && isCollapsed);
@@ -138,19 +132,19 @@ export function InlineEquationElement(
     >
       <Popover open={open} onOpenChange={setOpen} modal={false}>
         <PopoverTrigger
-          render={(
+          render={
             <div
               className={cn(
                 'after:-top-0.5 after:-left-1 after:absolute after:inset-0 after:z-1 after:h-[calc(100%)+4px] after:w-[calc(100%+8px)] after:rounded-sm after:content-[""]',
                 'h-6',
-                ((element.texExpression.length > 0 && open) || selected)
-                && 'after:bg-brand/15',
-                element.texExpression.length === 0
-                && 'text-muted-foreground after:bg-neutral-500/10',
+                ((element.texExpression.length > 0 && open) || selected) &&
+                  'after:bg-brand/15',
+                element.texExpression.length === 0 &&
+                  'text-muted-foreground after:bg-neutral-500/10',
               )}
               contentEditable={false}
             />
-          )}
+          }
           nativeButton={false}
         >
           <span
@@ -207,20 +201,17 @@ function EquationPopoverContent({
     }
   }, [isInline, open, setOpen]);
 
-  if (readOnly)
-    return null;
+  if (readOnly) return null;
 
   const onClose = () => {
     setOpen(false);
 
     if (isInline) {
       editor.tf.select(element, { focus: true, next: true });
-    }
-    else {
+    } else {
       editor
         .getApi(BlockSelectionPlugin)
-        .blockSelection
-        .set(element.id as string);
+        .blockSelection.set(element.id as string);
     }
   };
 
@@ -240,9 +231,7 @@ function EquationPopoverContent({
       />
 
       <Button variant="secondary" className="px-3" onClick={onClose}>
-        Done
-        {' '}
-        <CornerDownLeftIcon className="size-3.5" />
+        Done <CornerDownLeftIcon className="size-3.5" />
       </Button>
     </PopoverContent>
   );

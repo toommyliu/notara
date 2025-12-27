@@ -23,9 +23,7 @@ import {
 
 export const VideoElement = withHOC(
   ResizableProvider,
-  (
-    props: PlateElementProps<TVideoElement & TResizableProps>,
-  ) => {
+  (props: PlateElementProps<TVideoElement & TResizableProps>) => {
     const {
       align = 'center',
       embed,

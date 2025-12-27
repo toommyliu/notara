@@ -32,10 +32,7 @@ import {
 
 import * as React from 'react';
 import { BasicMarksKit } from '~/features/editor/plugins/basic-marks-kit';
-import {
-  discussionPlugin,
-
-} from '~/features/editor/plugins/discussion-kit';
+import { discussionPlugin } from '~/features/editor/plugins/discussion-kit';
 import { cn } from '~/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from '~/ui/avatar';
 import { Button } from '~/ui/button';
@@ -98,7 +95,7 @@ export function Comment(props: {
   const removeDiscussion = async (id: string) => {
     const updatedDiscussions = editor
       .getOption(discussionPlugin, 'discussions')
-      .filter(discussion => discussion.id !== id);
+      .filter((discussion) => discussion.id !== id);
     editor.setOption(discussionPlugin, 'discussions', updatedDiscussions);
   };
 
@@ -324,7 +321,7 @@ function CommentMoreDropdown(props: {
         }
 
         const commentIndex = discussion.comments.findIndex(
-          c => c.id === comment.id,
+          (c) => c.id === comment.id,
         );
         if (commentIndex === -1) {
           return discussion;
@@ -359,7 +356,17 @@ function CommentMoreDropdown(props: {
       onOpenChange={setDropdownOpen}
       modal={false}
     >
-      <DropdownMenuTrigger onClick={e => e.stopPropagation()} render={<Button variant="ghost" className={cn('h-6 p-1 text-muted-foreground')} />}><MoreHorizontalIcon className="size-4" /></DropdownMenuTrigger>
+      <DropdownMenuTrigger
+        onClick={(e) => e.stopPropagation()}
+        render={
+          <Button
+            variant="ghost"
+            className={cn('h-6 p-1 text-muted-foreground')}
+          />
+        }
+      >
+        <MoreHorizontalIcon className="size-4" />
+      </DropdownMenuTrigger>
       <DropdownMenuContent
         className="w-48"
         onCloseAutoFocus={(e) => {
@@ -386,7 +393,10 @@ function CommentMoreDropdown(props: {
   );
 }
 
-function useCommentEditor(options: Omit<CreatePlateEditorOptions, 'plugins'> = {}, deps: any[] = []) {
+function useCommentEditor(
+  options: Omit<CreatePlateEditorOptions, 'plugins'> = {},
+  deps: any[] = [],
+) {
   const commentEditor = usePlateEditor(
     {
       id: 'comment',
@@ -435,14 +445,13 @@ export function CommentCreateForm({
   }, [commentEditor, focusOnMount]);
 
   const onAddComment = React.useCallback(async () => {
-    if (!commentValue)
-      return;
+    if (!commentValue) return;
 
     commentEditor.tf.reset();
 
     if (discussionId) {
       // Get existing discussion
-      const discussion = discussions.find(d => d.id === discussionId);
+      const discussion = discussions.find((d) => d.id === discussionId);
       if (!discussion) {
         // Mock creating suggestion
         const newDiscussion: TDiscussion = {
@@ -487,7 +496,7 @@ export function CommentCreateForm({
 
       // Filter out old discussion and add updated one
       const updatedDiscussions = discussions
-        .filter(d => d.id !== discussionId)
+        .filter((d) => d.id !== discussionId)
         .concat(updatedDiscussion);
 
       editor.setOption(discussionPlugin, 'discussions', updatedDiscussions);
@@ -497,11 +506,9 @@ export function CommentCreateForm({
 
     const commentsNodeEntry = editor
       .getApi(CommentPlugin)
-      .comment
-      .nodes({ at: [], isDraft: true });
+      .comment.nodes({ at: [], isDraft: true });
 
-    if (commentsNodeEntry.length === 0)
-      return;
+    if (commentsNodeEntry.length === 0) return;
 
     const documentContent = commentsNodeEntry
       .map(([node]) => node.text)

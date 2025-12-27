@@ -1,10 +1,7 @@
 'use client';
 
 import type { CursorData, CursorOverlayState } from '@platejs/selection/react';
-import {
-
-  useCursorOverlay,
-} from '@platejs/selection/react';
+import { useCursorOverlay } from '@platejs/selection/react';
 import { RangeApi } from 'platejs';
 
 import { cn } from '~/lib/utils';
@@ -14,7 +11,7 @@ export function CursorOverlay() {
 
   return (
     <>
-      {cursors.map(cursor => (
+      {cursors.map((cursor) => (
         <Cursor key={cursor.id} {...cursor} />
       ))}
     </>

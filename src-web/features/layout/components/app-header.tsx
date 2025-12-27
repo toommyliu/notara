@@ -15,12 +15,16 @@ export function AppHeader() {
   const { title, emoji, isPrivate, actions } = config;
   const { isTabBarVisible, pinnedTabs, openTabs } = useTabsStore();
 
-  const showTabs = isTabBarVisible && (pinnedTabs.length > 0 || openTabs.length > 0);
+  const showTabs =
+    isTabBarVisible && (pinnedTabs.length > 0 || openTabs.length > 0);
 
   const hasTrafficLights = layout.isMac && !layout.isFullscreen;
 
   return (
-    <AppTitlebar className="border-b border-border/40 overscroll-none select-none" noLeftInset={!hasTrafficLights}>
+    <AppTitlebar
+      className="border-b border-border/40 overscroll-none select-none"
+      noLeftInset={!hasTrafficLights}
+    >
       <div className="flex items-center w-full h-full gap-0.5">
         <div
           className="flex items-center justify-center shrink-0"
@@ -41,7 +45,11 @@ export function AppHeader() {
         {!showTabs && (emoji || title) && (
           <div className="flex items-center gap-2 shrink-0 mr-2">
             {emoji && <span className="text-base shrink-0">{emoji}</span>}
-            {title && <span className="truncate font-medium text-sm max-w-[150px]">{title}</span>}
+            {title && (
+              <span className="truncate font-medium text-sm max-w-[150px]">
+                {title}
+              </span>
+            )}
             {isPrivate && (
               <div className="flex items-center gap-1 text-xs text-muted-foreground/70 shrink-0">
                 <IconLock className="size-3" />

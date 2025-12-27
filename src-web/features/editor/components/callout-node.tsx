@@ -21,8 +21,8 @@ export function CalloutElement({
     closeOnSelect: true,
   });
 
-  const { emojiToolbarDropdownProps, props: calloutProps }
-    = useCalloutEmojiPicker({
+  const { emojiToolbarDropdownProps, props: calloutProps } =
+    useCalloutEmojiPicker({
       isOpen,
       setIsOpen,
     });
@@ -42,7 +42,7 @@ export function CalloutElement({
       <div className="flex w-full gap-2 rounded-md">
         <EmojiPopover
           {...emojiToolbarDropdownProps}
-          control={(
+          control={
             <Button
               variant="ghost"
               className="size-6 select-none p-1 text-[18px] hover:bg-muted-foreground/15"
@@ -54,7 +54,7 @@ export function CalloutElement({
             >
               {(props.element.icon as any) || '💡'}
             </Button>
-          )}
+          }
         >
           <EmojiPicker {...emojiPickerState} {...calloutProps} />
         </EmojiPopover>

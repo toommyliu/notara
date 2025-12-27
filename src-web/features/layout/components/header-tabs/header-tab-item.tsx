@@ -10,8 +10,16 @@ import { useNotesStore } from '~/features/notes/store';
 
 import { cn } from '~/lib/utils';
 
-export function HeaderTabItem({ ref, noteId, isActive, isPinned, onActivate, onClose, compact }: HeaderTabItemProps & { ref?: React.RefObject<HeaderTabItemHandle | null> }) {
-  const notes = useNotesStore(s => s.notes);
+export function HeaderTabItem({
+  ref,
+  noteId,
+  isActive,
+  isPinned,
+  onActivate,
+  onClose,
+  compact,
+}: HeaderTabItemProps & { ref?: React.RefObject<HeaderTabItemHandle | null> }) {
+  const notes = useNotesStore((s) => s.notes);
   const note = notes.get(noteId);
   const tabRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -39,12 +47,15 @@ export function HeaderTabItem({ ref, noteId, isActive, isPinned, onActivate, onC
 
   useEffect(() => {
     if (isActive && tabRef.current) {
-      tabRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      tabRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'center',
+      });
     }
   }, [isActive]);
 
-  if (!note)
-    return null;
+  if (!note) return null;
 
   return (
     <div
@@ -84,10 +95,11 @@ export function HeaderTabItem({ ref, noteId, isActive, isPinned, onActivate, onC
         {note.emoji}
       </span>
 
-      <span className={cn(
-        'text-[13px] font-medium relative z-10 pointer-events-none truncate',
-        compact ? 'max-w-[70px]' : 'max-w-[140px]',
-      )}
+      <span
+        className={cn(
+          'text-[13px] font-medium relative z-10 pointer-events-none truncate',
+          compact ? 'max-w-[70px]' : 'max-w-[140px]',
+        )}
       >
         {note.title}
       </span>

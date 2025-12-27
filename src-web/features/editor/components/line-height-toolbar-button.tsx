@@ -21,19 +21,25 @@ import { ToolbarButton } from '~/ui/toolbar';
 
 export function LineHeightToolbarButton(props: DropdownMenuProps) {
   const editor = useEditorRef();
-  const { defaultNodeValue, validNodeValues: values = [] }
-    = editor.getInjectProps(LineHeightPlugin);
+  const { defaultNodeValue, validNodeValues: values = [] } =
+    editor.getInjectProps(LineHeightPlugin);
 
   const value = useSelectionFragmentProp({
     defaultValue: defaultNodeValue,
-    getProp: node => node.lineHeight,
+    getProp: (node) => node.lineHeight,
   });
 
   const [open, setOpen] = React.useState(false);
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen} modal={false} {...props}>
-      <DropdownMenuTrigger render={<ToolbarButton pressed={open} tooltip="Line height" isDropdown />}><WrapText /></DropdownMenuTrigger>
+      <DropdownMenuTrigger
+        render={
+          <ToolbarButton pressed={open} tooltip="Line height" isDropdown />
+        }
+      >
+        <WrapText />
+      </DropdownMenuTrigger>
 
       <DropdownMenuContent className="min-w-0" align="start">
         <DropdownMenuRadioGroup
@@ -41,12 +47,11 @@ export function LineHeightToolbarButton(props: DropdownMenuProps) {
           onValueChange={(newValue) => {
             editor
               .getTransforms(LineHeightPlugin)
-              .lineHeight
-              .setNodes(Number(newValue));
+              .lineHeight.setNodes(Number(newValue));
             editor.tf.focus();
           }}
         >
-          {values.map(value => (
+          {values.map((value) => (
             <DropdownMenuRadioItem
               key={value}
               className="min-w-[180px] pl-2 *:first:[span]:hidden"

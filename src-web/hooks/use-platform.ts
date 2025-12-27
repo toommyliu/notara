@@ -45,7 +45,11 @@ function normalizePlatform(osTypeValue: string): Platform {
   }
 }
 
-function getLayout(platform: Platform, isTauri: boolean, isFullscreen: boolean): LayoutTokens {
+function getLayout(
+  platform: Platform,
+  isTauri: boolean,
+  isFullscreen: boolean,
+): LayoutTokens {
   const isMac = platform === MACOS;
   const isWindows = platform === WINDOWS;
   const isLinux = platform === LINUX;
@@ -82,9 +86,7 @@ function getPlatformSafe(): Platform {
   if (typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window) {
     try {
       return normalizePlatform(osType());
-    }
-    catch {
-    }
+    } catch {}
   }
 
   // fallback to userAgent if tauri fails
@@ -92,11 +94,9 @@ function getPlatformSafe(): Platform {
     const userAgent = navigator.userAgent.toLowerCase();
     if (userAgent.includes('macintosh') || userAgent.includes('mac os x')) {
       return MACOS;
-    }
-    else if (userAgent.includes('windows')) {
+    } else if (userAgent.includes('windows')) {
       return WINDOWS;
-    }
-    else if (userAgent.includes('linux')) {
+    } else if (userAgent.includes('linux')) {
       return LINUX;
     }
   }
@@ -127,8 +127,7 @@ export function usePlatformLayout(): LayoutTokens {
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
-    if (!isTauri)
-      return;
+    if (!isTauri) return;
 
     const checkFullscreen = async () => {
       const win = getCurrentWindow();
@@ -151,10 +150,12 @@ export function usePlatformLayout(): LayoutTokens {
     setup();
 
     return () => {
-      if (unlisten)
-        unlisten();
+      if (unlisten) unlisten();
     };
   }, [isTauri]);
 
-  return useMemo(() => getLayout(platform, isTauri, isFullscreen), [platform, isTauri, isFullscreen]);
+  return useMemo(
+    () => getLayout(platform, isTauri, isFullscreen),
+    [platform, isTauri, isFullscreen],
+  );
 }

@@ -33,8 +33,8 @@ export function Caption({
   align,
   className,
   ...props
-}: React.ComponentProps<typeof CaptionPrimitive>
-  & VariantProps<typeof captionVariants>) {
+}: React.ComponentProps<typeof CaptionPrimitive> &
+  VariantProps<typeof captionVariants>) {
   return (
     <CaptionPrimitive
       {...props}

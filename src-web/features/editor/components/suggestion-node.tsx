@@ -10,10 +10,7 @@ import { CornerDownLeftIcon } from 'lucide-react';
 import { PlateLeaf, useEditorPlugin, usePluginOption } from 'platejs/react';
 
 import * as React from 'react';
-import {
-
-  suggestionPlugin,
-} from '~/features/editor/plugins/suggestion-kit';
+import { suggestionPlugin } from '~/features/editor/plugins/suggestion-kit';
 import { cn } from '~/lib/utils';
 
 const suggestionVariants = cva(
@@ -52,9 +49,9 @@ export function SuggestionLeaf(props: PlateLeafProps<TSuggestionText>) {
   const hoverSuggestionId = usePluginOption(suggestionPlugin, 'hoverId');
   const dataList = api.suggestion.dataList(leaf);
 
-  const hasRemove = dataList.some(data => data.type === 'remove');
-  const hasActive = dataList.some(data => data.id === activeSuggestionId);
-  const hasHover = dataList.some(data => data.id === hoverSuggestionId);
+  const hasRemove = dataList.some((data) => data.type === 'remove');
+  const hasActive = dataList.some((data) => data.id === activeSuggestionId);
+  const hasHover = dataList.some((data) => data.id === hoverSuggestionId);
 
   const diffOperation = { type: hasRemove ? 'delete' : 'insert' } as const;
 
@@ -87,8 +84,7 @@ export const SuggestionLineBreak: RenderNodeWrapper<SuggestionConfig> = ({
   api,
   element,
 }) => {
-  if (!api.suggestion.isBlockSuggestion(element))
-    return;
+  if (!api.suggestion.isBlockSuggestion(element)) return;
 
   const suggestionData = element.suggestion;
 
@@ -123,46 +119,44 @@ function SuggestionLineBreakContent({
 
   return (
     <>
-      {isLineBreak
-        ? (
-            <>
-              {children}
-              <span
-                ref={spanRef}
-                className={cn(
-                  'absolute text-justify',
-                  suggestionVariants({
-                    insertActive: isInsert && (isActive || isHover),
-                    remove: isRemove,
-                    removeActive: (isActive || isHover) && isRemove,
-                  }),
-                )}
-                style={{
-                  bottom: 3.5,
-                  height: 21,
-                }}
-                contentEditable={false}
-              >
-                <CornerDownLeftIcon className="mt-0.5 size-4" />
-              </span>
-            </>
-          )
-        : (
-            <div
-              className={cn(
-                suggestionVariants({
-                  insertActive: isInsert && (isActive || isHover),
-                  remove: isRemove,
-                  removeActive: (isActive || isHover) && isRemove,
-                }),
-              )}
-              onMouseEnter={() => setOption('hoverId', suggestionData.id)}
-              onMouseLeave={() => setOption('hoverId', null)}
-              data-block-suggestion="true"
-            >
-              {children}
-            </div>
+      {isLineBreak ? (
+        <>
+          {children}
+          <span
+            ref={spanRef}
+            className={cn(
+              'absolute text-justify',
+              suggestionVariants({
+                insertActive: isInsert && (isActive || isHover),
+                remove: isRemove,
+                removeActive: (isActive || isHover) && isRemove,
+              }),
+            )}
+            style={{
+              bottom: 3.5,
+              height: 21,
+            }}
+            contentEditable={false}
+          >
+            <CornerDownLeftIcon className="mt-0.5 size-4" />
+          </span>
+        </>
+      ) : (
+        <div
+          className={cn(
+            suggestionVariants({
+              insertActive: isInsert && (isActive || isHover),
+              remove: isRemove,
+              removeActive: (isActive || isHover) && isRemove,
+            }),
           )}
+          onMouseEnter={() => setOption('hoverId', suggestionData.id)}
+          onMouseLeave={() => setOption('hoverId', null)}
+          data-block-suggestion="true"
+        >
+          {children}
+        </div>
+      )}
     </>
   );
 }

@@ -1,9 +1,5 @@
 import type { ShortcutBinding, ShortcutId } from '@notara/shortcuts';
-import {
-  DEFAULT_BINDINGS,
-  MENU_SHORTCUTS,
-
-} from '@notara/shortcuts';
+import { DEFAULT_BINDINGS, MENU_SHORTCUTS } from '@notara/shortcuts';
 import { invoke } from '@tauri-apps/api/core';
 import { create } from 'zustand';
 
@@ -39,8 +35,7 @@ export function bindingToAccelerator(binding: ShortcutBinding): string {
   }
 
   let key = binding.key;
-  if (key === ' ')
-    key = 'Space';
+  if (key === ' ') key = 'Space';
 
   parts.push(key.length === 1 ? key.toUpperCase() : key);
 
@@ -50,45 +45,32 @@ export function bindingToAccelerator(binding: ShortcutBinding): string {
 export function formatBindingForDisplay(binding: ShortcutBinding): string {
   const symbols: string[] = [];
 
-  if (binding.modifiers.includes('ctrl'))
-    symbols.push('⌃');
-  if (binding.modifiers.includes('alt'))
-    symbols.push('⌥');
-  if (binding.modifiers.includes('shift'))
-    symbols.push('⇧');
-  if (binding.modifiers.includes('meta'))
-    symbols.push('⌘');
+  if (binding.modifiers.includes('ctrl')) symbols.push('⌃');
+  if (binding.modifiers.includes('alt')) symbols.push('⌥');
+  if (binding.modifiers.includes('shift')) symbols.push('⇧');
+  if (binding.modifiers.includes('meta')) symbols.push('⌘');
 
   let key = binding.key;
-  if (key === 'Tab')
-    key = '⇥';
-  else if (key === ' ')
-    key = 'Space';
-  else if (key === 'ArrowUp')
-    key = '↑';
-  else if (key === 'ArrowDown')
-    key = '↓';
-  else if (key === 'ArrowLeft')
-    key = '←';
-  else if (key === 'ArrowRight')
-    key = '→';
-  else if (key === 'Enter')
-    key = '↩';
-  else if (key === 'Backspace')
-    key = '⌫';
-  else if (key === 'Escape')
-    key = '⎋';
-  else if (key === '\\')
-    key = '\\';
-  else if (key === 'Dead')
-    key = '?';
+  if (key === 'Tab') key = '⇥';
+  else if (key === ' ') key = 'Space';
+  else if (key === 'ArrowUp') key = '↑';
+  else if (key === 'ArrowDown') key = '↓';
+  else if (key === 'ArrowLeft') key = '←';
+  else if (key === 'ArrowRight') key = '→';
+  else if (key === 'Enter') key = '↩';
+  else if (key === 'Backspace') key = '⌫';
+  else if (key === 'Escape') key = '⎋';
+  else if (key === '\\') key = '\\';
+  else if (key === 'Dead') key = '?';
   else key = key.toUpperCase();
 
   symbols.push(key);
   return symbols.join(' ');
 }
 
-async function syncMenuAccelerators(bindings: Record<ShortcutId, ShortcutBinding>) {
+async function syncMenuAccelerators(
+  bindings: Record<ShortcutId, ShortcutBinding>,
+) {
   if (typeof window === 'undefined' || !('__TAURI_INTERNALS__' in window)) {
     return;
   }
@@ -104,19 +86,21 @@ async function syncMenuAccelerators(bindings: Record<ShortcutId, ShortcutBinding
     }
 
     await invoke('update_menu_accelerators', { accelerators });
-  }
-  catch (err) {
+  } catch (err) {
     console.error('[shortcuts] Failed to sync menu accelerators:', err);
   }
 }
 
 export const useShortcutsStore = create<ShortcutsState & ShortcutsActions>()(
   persist(
-    set => ({
+    (set) => ({
       bindings: { ...DEFAULT_BINDINGS },
 
       setBinding: (id, binding) => {
-        const newBindings = { ...useShortcutsStore.getState().bindings, [id]: binding };
+        const newBindings = {
+          ...useShortcutsStore.getState().bindings,
+          [id]: binding,
+        };
         set({ bindings: newBindings });
         syncMenuAccelerators(newBindings);
       },

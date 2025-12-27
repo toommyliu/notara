@@ -33,8 +33,7 @@ export function BlockContextMenu({ children }: { children: React.ReactNode }) {
     (type: string) => {
       editor
         .getApi(BlockSelectionPlugin)
-        .blockSelection
-        .getNodes()
+        .blockSelection.getNodes()
         .forEach(([node, path]) => {
           if (node[KEYS.listType]) {
             editor.tf.unsetNodes([KEYS.listType, 'indent'], {
@@ -52,8 +51,7 @@ export function BlockContextMenu({ children }: { children: React.ReactNode }) {
     (align: 'center' | 'left' | 'right') => {
       editor
         .getTransforms(BlockSelectionPlugin)
-        .blockSelection
-        .setNodes({ align });
+        .blockSelection.setNodes({ align });
     },
     [editor],
   );
@@ -69,18 +67,17 @@ export function BlockContextMenu({ children }: { children: React.ReactNode }) {
           api.blockMenu.hide();
         }
       }}
-    // modal={false}
+      // modal={false}
     >
       <ContextMenuTrigger
         onContextMenu={(event) => {
           const dataset = (event.target as HTMLElement).dataset;
-          const disabled
-            = dataset?.slateEditor === 'true'
-              || readOnly
-              || dataset?.plateOpenContextMenu === 'false';
+          const disabled =
+            dataset?.slateEditor === 'true' ||
+            readOnly ||
+            dataset?.plateOpenContextMenu === 'false';
 
-          if (disabled)
-            return event.preventDefault();
+          if (disabled) return event.preventDefault();
 
           setTimeout(() => {
             api.blockMenu.show(BLOCK_CONTEXT_MENU_ID, {
@@ -106,8 +103,7 @@ export function BlockContextMenu({ children }: { children: React.ReactNode }) {
               onClick={() => {
                 editor
                   .getTransforms(BlockSelectionPlugin)
-                  .blockSelection
-                  .removeNodes();
+                  .blockSelection.removeNodes();
                 editor.tf.focus();
               }}
             >
@@ -117,8 +113,7 @@ export function BlockContextMenu({ children }: { children: React.ReactNode }) {
               onClick={() => {
                 editor
                   .getTransforms(BlockSelectionPlugin)
-                  .blockSelection
-                  .duplicate();
+                  .blockSelection.duplicate();
               }}
             >
               Duplicate
@@ -154,8 +149,8 @@ export function BlockContextMenu({ children }: { children: React.ReactNode }) {
               onClick={() =>
                 editor
                   .getTransforms(BlockSelectionPlugin)
-                  .blockSelection
-                  .setIndent(1)}
+                  .blockSelection.setIndent(1)
+              }
             >
               Indent
             </ContextMenuItem>
@@ -163,8 +158,8 @@ export function BlockContextMenu({ children }: { children: React.ReactNode }) {
               onClick={() =>
                 editor
                   .getTransforms(BlockSelectionPlugin)
-                  .blockSelection
-                  .setIndent(-1)}
+                  .blockSelection.setIndent(-1)
+              }
             >
               Outdent
             </ContextMenuItem>

@@ -1,13 +1,13 @@
 import type { Modifier, ShortcutBinding, ShortcutId } from '@notara/shortcuts';
-import {
-  SHORTCUT_LABELS,
-
-} from '@notara/shortcuts';
+import { SHORTCUT_LABELS } from '@notara/shortcuts';
 
 import { useCallback, useEffect, useState } from 'react';
 
 import IconRotateCcw from '~icons/lucide/rotate-ccw';
-import { formatBindingForDisplay, useShortcutsStore } from '~/features/settings/stores/shortcuts-store';
+import {
+  formatBindingForDisplay,
+  useShortcutsStore,
+} from '~/features/settings/stores/shortcuts-store';
 import { getKeyFromEvent } from '~/lib/keyboard';
 
 import { cn } from '~/lib/utils';
@@ -20,12 +20,17 @@ interface ShortcutRowProps {
   onCancelRecording: () => void;
 }
 
-function ShortcutRow({ id, binding, isRecording, onStartRecording, onCancelRecording }: ShortcutRowProps) {
+function ShortcutRow({
+  id,
+  binding,
+  isRecording,
+  onStartRecording,
+  onCancelRecording,
+}: ShortcutRowProps) {
   const { setBinding } = useShortcutsStore();
 
   useEffect(() => {
-    if (!isRecording)
-      return;
+    if (!isRecording) return;
 
     const handleKeyDown = (ev: KeyboardEvent) => {
       ev.preventDefault();
@@ -42,14 +47,10 @@ function ShortcutRow({ id, binding, isRecording, onStartRecording, onCancelRecor
       }
 
       const modifiers: Modifier[] = [];
-      if (ev.metaKey)
-        modifiers.push('meta');
-      if (ev.ctrlKey)
-        modifiers.push('ctrl');
-      if (ev.shiftKey)
-        modifiers.push('shift');
-      if (ev.altKey)
-        modifiers.push('alt');
+      if (ev.metaKey) modifiers.push('meta');
+      if (ev.ctrlKey) modifiers.push('ctrl');
+      if (ev.shiftKey) modifiers.push('shift');
+      if (ev.altKey) modifiers.push('alt');
 
       // Require at least one modifier for most keys
       const isFunctionKey = /^F([1-9]|1[0-2])$/.test(ev.key);
@@ -73,7 +74,9 @@ function ShortcutRow({ id, binding, isRecording, onStartRecording, onCancelRecor
   }, [isRecording, id, setBinding, onCancelRecording]);
 
   const label = SHORTCUT_LABELS[id];
-  const displayText = isRecording ? 'Press shortcut... (Esc to cancel)' : formatBindingForDisplay(binding);
+  const displayText = isRecording
+    ? 'Press shortcut... (Esc to cancel)'
+    : formatBindingForDisplay(binding);
 
   return (
     <div className="flex items-center justify-between py-2">
@@ -117,7 +120,7 @@ export function ShortcutsTab() {
     <div className="space-y-3">
       <div className="bg-muted/30 rounded-xl p-3 border border-border/40">
         <div className="divide-y divide-border/40">
-          {shortcutIds.map(id => (
+          {shortcutIds.map((id) => (
             <ShortcutRow
               key={id}
               id={id}

@@ -1,4 +1,8 @@
-import type { CollisionDetection, DragEndEvent, DragStartEvent } from '@dnd-kit/core';
+import type {
+  CollisionDetection,
+  DragEndEvent,
+  DragStartEvent,
+} from '@dnd-kit/core';
 import type { CSSProperties, WheelEvent } from 'react';
 import type { HeaderTabItemHandle } from './types';
 import {
@@ -8,9 +12,11 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
-
 } from '@dnd-kit/core';
-import { horizontalListSortingStrategy, SortableContext } from '@dnd-kit/sortable';
+import {
+  horizontalListSortingStrategy,
+  SortableContext,
+} from '@dnd-kit/sortable';
 import { useNavigate } from '@tanstack/react-router';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -22,7 +28,10 @@ import IconColumns from '~icons/lucide/columns-2';
 import IconPlus from '~icons/lucide/plus';
 import IconRows from '~icons/lucide/rows-2';
 import IconX from '~icons/lucide/x';
-import { useIsSplitView, useSplitViewStore } from '~/features/layout/stores/split-view-store';
+import {
+  useIsSplitView,
+  useSplitViewStore,
+} from '~/features/layout/stores/split-view-store';
 import { useTabsStore } from '~/features/layout/stores/tabs-store';
 
 import { useNotesStore } from '~/features/notes/store';
@@ -41,10 +50,20 @@ import { HeaderTabItem } from './header-tab-item';
 import { SplitTabItem } from './split-tab-item';
 
 export function HeaderTabs() {
-  const { pinnedTabs, openTabs, activeTabId, setActiveTab, closeTab, reorderTabs, isTabBarVisible, tabGroups, removeFromGroup } = useTabsStore();
-  const notes = useNotesStore(s => s.notes);
-  const groups = useNotesStore(s => s.groups);
-  const addNote = useNotesStore(s => s.addNote);
+  const {
+    pinnedTabs,
+    openTabs,
+    activeTabId,
+    setActiveTab,
+    closeTab,
+    reorderTabs,
+    isTabBarVisible,
+    tabGroups,
+    removeFromGroup,
+  } = useTabsStore();
+  const notes = useNotesStore((s) => s.notes);
+  const groups = useNotesStore((s) => s.groups);
+  const addNote = useNotesStore((s) => s.addNote);
   const { swapPanes, orientation, setOrientation } = useSplitViewStore();
   const isSplitView = useIsSplitView();
   const dragContext = useDragContext();
@@ -54,22 +73,21 @@ export function HeaderTabs() {
 
   const tabRefs = useRef<Map<string, HeaderTabItemHandle>>(new Map());
 
-  const getGroupForTab = (noteId: string) => tabGroups.find(g => g.includes(noteId));
+  const getGroupForTab = (noteId: string) =>
+    tabGroups.find((g) => g.includes(noteId));
 
   const processTabs = (tabIds: string[]) => {
     const processed: string[] = [];
     const seenInGroup = new Set<string>();
 
     for (const id of tabIds) {
-      if (seenInGroup.has(id))
-        continue;
+      if (seenInGroup.has(id)) continue;
 
       const group = getGroupForTab(id);
       if (group) {
         processed.push(id);
-        group.forEach(gid => seenInGroup.add(gid));
-      }
-      else {
+        group.forEach((gid) => seenInGroup.add(gid));
+      } else {
         processed.push(id);
       }
     }
@@ -82,14 +100,15 @@ export function HeaderTabs() {
   visiblePinned.forEach((id) => {
     const group = getGroupForTab(id);
     if (group) {
-      group.forEach(gid => processedInPinned.add(gid));
-    }
-    else {
+      group.forEach((gid) => processedInPinned.add(gid));
+    } else {
       processedInPinned.add(id);
     }
   });
 
-  const visibleOpen = processTabs(openTabs.filter(id => !processedInPinned.has(id)));
+  const visibleOpen = processTabs(
+    openTabs.filter((id) => !processedInPinned.has(id)),
+  );
   const allVisibleTabs = [...visiblePinned, ...visibleOpen];
 
   const sensors = useSensors(
@@ -105,15 +124,13 @@ export function HeaderTabs() {
       const rect = tabListRef.current.getBoundingClientRect();
       const { x, y } = args.pointerCoordinates;
 
-      const isInside = (
-        x >= rect.left
-        && x <= rect.right
-        && y >= rect.top - 20
-        && y <= rect.bottom + 20
-      );
+      const isInside =
+        x >= rect.left &&
+        x <= rect.right &&
+        y >= rect.top - 20 &&
+        y <= rect.bottom + 20;
 
-      if (!isInside)
-        return []; // Allow drag to escape for split-view
+      if (!isInside) return []; // Allow drag to escape for split-view
     }
 
     return closestCenter(args);
@@ -125,7 +142,8 @@ export function HeaderTabs() {
 
   const updateFades = useCallback(() => {
     if (scrollContainerRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+      const { scrollLeft, scrollWidth, clientWidth } =
+        scrollContainerRef.current;
       setShowLeftFade(scrollLeft > 10);
       setShowRightFade(scrollLeft + clientWidth < scrollWidth - 10);
     }
@@ -152,8 +170,7 @@ export function HeaderTabs() {
 
     dragContext?.endDrag();
 
-    if (!over || active.id === over.id)
-      return;
+    if (!over || active.id === over.id) return;
 
     const activeSection = active.data.current?.section as 'pinned' | 'open';
     const overSection = over.data.current?.section as 'pinned' | 'open';
@@ -189,18 +206,15 @@ export function HeaderTabs() {
   };
 
   const handleCloseSplit = () => {
-    if (!activeTabId)
-      return;
+    if (!activeTabId) return;
 
     removeFromGroup(activeTabId);
   };
 
-  if (!isTabBarVisible)
-    return null;
+  if (!isTabBarVisible) return null;
 
   const hasTabs = pinnedTabs.length > 0 || openTabs.length > 0;
-  if (!hasTabs)
-    return null;
+  if (!hasTabs) return null;
 
   const draggedNote = activeDragId ? notes.get(activeDragId) : null;
 
@@ -212,7 +226,10 @@ export function HeaderTabs() {
       onDragEnd={handleDragEnd}
       onDragCancel={handleDragCancel}
     >
-      <div className="flex items-center min-w-0 pointer-events-auto" data-no-drag>
+      <div
+        className="flex items-center min-w-0 pointer-events-auto"
+        data-no-drag
+      >
         <div
           ref={tabListRef}
           className="relative flex items-center min-w-0 group/tabs outline-none"
@@ -222,23 +239,28 @@ export function HeaderTabs() {
           <div
             ref={scrollContainerRef}
             className="flex items-center gap-1.5 min-w-0 overflow-x-auto overflow-y-hidden scrollbar-none pb-2 -mb-2 pl-2"
-            style={{
-              overscrollBehavior: 'contain',
-              maskImage: `linear-gradient(to right, 
+            style={
+              {
+                overscrollBehavior: 'contain',
+                maskImage: `linear-gradient(to right, 
                             ${showLeftFade ? 'transparent' : 'black'} 0px, 
                             black 40px, 
                             black calc(100% - 40px), 
                             ${showRightFade ? 'transparent' : 'black'} 100%)`,
-              WebkitMaskImage: `linear-gradient(to right, 
+                WebkitMaskImage: `linear-gradient(to right, 
                             ${showLeftFade ? 'transparent' : 'black'} 0px, 
                             black 40px, 
                             black calc(100% - 40px), 
                             ${showRightFade ? 'transparent' : 'black'} 100%)`,
-            } as CSSProperties}
+              } as CSSProperties
+            }
             onWheel={handleWheel}
             onScroll={handleScroll}
           >
-            <SortableContext items={allVisibleTabs} strategy={horizontalListSortingStrategy}>
+            <SortableContext
+              items={allVisibleTabs}
+              strategy={horizontalListSortingStrategy}
+            >
               {visiblePinned.map((noteId) => {
                 const group = getGroupForTab(noteId);
                 if (group) {
@@ -248,8 +270,7 @@ export function HeaderTabs() {
                       ref={(handle) => {
                         if (handle) {
                           tabRefs.current.set(noteId, handle);
-                        }
-                        else {
+                        } else {
                           tabRefs.current.delete(noteId);
                         }
                       }}
@@ -263,7 +284,7 @@ export function HeaderTabs() {
                       }}
                       onActivate={() => setActiveTab(noteId)}
                       onClose={() => closeTab(noteId)}
-                      onClosePane={id => removeFromGroup(id)}
+                      onClosePane={(id) => removeFromGroup(id)}
                     />
                   );
                 }
@@ -273,8 +294,7 @@ export function HeaderTabs() {
                     ref={(handle) => {
                       if (handle) {
                         tabRefs.current.set(noteId, handle);
-                      }
-                      else {
+                      } else {
                         tabRefs.current.delete(noteId);
                       }
                     }}
@@ -303,8 +323,7 @@ export function HeaderTabs() {
                       ref={(handle) => {
                         if (handle) {
                           tabRefs.current.set(noteId, handle);
-                        }
-                        else {
+                        } else {
                           tabRefs.current.delete(noteId);
                         }
                       }}
@@ -318,7 +337,7 @@ export function HeaderTabs() {
                       }}
                       onActivate={() => setActiveTab(noteId)}
                       onClose={() => closeTab(noteId)}
-                      onClosePane={id => removeFromGroup(id)}
+                      onClosePane={(id) => removeFromGroup(id)}
                     />
                   );
                 }
@@ -326,8 +345,7 @@ export function HeaderTabs() {
                   <HeaderTabItem
                     key={noteId}
                     ref={(handle) => {
-                      if (handle)
-                        tabRefs.current.set(noteId, handle);
+                      if (handle) tabRefs.current.set(noteId, handle);
                       else tabRefs.current.delete(noteId);
                     }}
                     noteId={noteId}
@@ -360,29 +378,31 @@ export function HeaderTabs() {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" sideOffset={8} className="w-48">
                 <DropdownMenuItem onClick={() => swapPanes()}>
-                  {orientation === 'horizontal'
-                    ? (
-                        <IconArrowLeftRight className="size-3.5 mr-2" />
-                      )
-                    : (
-                        <IconArrowUpDown className="size-3.5 mr-2" />
-                      )}
+                  {orientation === 'horizontal' ? (
+                    <IconArrowLeftRight className="size-3.5 mr-2" />
+                  ) : (
+                    <IconArrowUpDown className="size-3.5 mr-2" />
+                  )}
                   Swap Panes
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setOrientation(orientation === 'horizontal' ? 'vertical' : 'horizontal')}>
-                  {orientation === 'horizontal'
-                    ? (
-                        <>
-                          <IconRows className="size-3.5 mr-2" />
-                          Split Horizontally
-                        </>
-                      )
-                    : (
-                        <>
-                          <IconColumns className="size-3.5 mr-2" />
-                          Split Vertically
-                        </>
-                      )}
+                <DropdownMenuItem
+                  onClick={() =>
+                    setOrientation(
+                      orientation === 'horizontal' ? 'vertical' : 'horizontal',
+                    )
+                  }
+                >
+                  {orientation === 'horizontal' ? (
+                    <>
+                      <IconRows className="size-3.5 mr-2" />
+                      Split Horizontally
+                    </>
+                  ) : (
+                    <>
+                      <IconColumns className="size-3.5 mr-2" />
+                      Split Vertically
+                    </>
+                  )}
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleCloseSplit}>
@@ -407,8 +427,7 @@ export function HeaderTabs() {
             <DropdownMenuContent align="end" sideOffset={8} className="w-48">
               {pinnedTabs.map((noteId) => {
                 const note = notes.get(noteId);
-                if (!note)
-                  return null;
+                if (!note) return null;
                 return (
                   <DropdownMenuItem
                     key={noteId}

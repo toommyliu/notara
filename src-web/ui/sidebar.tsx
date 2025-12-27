@@ -21,11 +21,7 @@ import {
   SheetTitle,
 } from './sheet';
 import { Skeleton } from './skeleton';
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from './tooltip';
+import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip';
 
 const SIDEBAR_COOKIE_NAME = 'sidebar_state';
 const SIDEBAR_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
@@ -81,8 +77,7 @@ function SidebarProvider({
       const openState = typeof value === 'function' ? value(open) : value;
       if (setOpenProp) {
         setOpenProp(openState);
-      }
-      else {
+      } else {
         _setOpen(openState);
       }
 
@@ -94,7 +89,7 @@ function SidebarProvider({
 
   // Helper to toggle the sidebar.
   const toggleSidebar = React.useCallback(() => {
-    return isMobile ? setOpenMobile(open => !open) : setOpen(open => !open);
+    return isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open);
   }, [isMobile, setOpen, setOpenMobile]);
 
   // We add a state so that we can do data-state="expanded" or "collapsed".
@@ -115,7 +110,16 @@ function SidebarProvider({
       resizing,
       setResizing,
     }),
-    [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar, resizing],
+    [
+      state,
+      open,
+      setOpen,
+      isMobile,
+      openMobile,
+      setOpenMobile,
+      toggleSidebar,
+      resizing,
+    ],
   );
 
   return (
@@ -229,7 +233,9 @@ function Sidebar({
               data-slot="sidebar-hover-trigger"
               className={cn(
                 'fixed z-20 w-4',
-                side === 'left' ? 'left-(--sidebar-ribbon-width,0px)' : 'right-0',
+                side === 'left'
+                  ? 'left-(--sidebar-ribbon-width,0px)'
+                  : 'right-0',
               )}
               style={{
                 top: layout.titlebarHeight,
@@ -239,7 +245,11 @@ function Sidebar({
           )}
           <div
             data-slot="sidebar-container"
-            inert={state === 'collapsed' && collapsible === 'offcanvas' ? true : undefined}
+            inert={
+              state === 'collapsed' && collapsible === 'offcanvas'
+                ? true
+                : undefined
+            }
             className={cn(
               'fixed bottom-0 z-10 hidden w-(--sidebar-width) md:flex',
               side === 'left'
@@ -301,46 +311,63 @@ function SidebarRail({ className, ...props }: React.ComponentProps<'button'>) {
   const startWidthRef = React.useRef(0);
   const hasDraggedRef = React.useRef(false);
 
-  const handlePointerDown = React.useCallback((e: React.PointerEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    e.currentTarget.setPointerCapture(e.pointerId);
-    setIsDragging(true);
-    startXRef.current = e.clientX;
-    hasDraggedRef.current = false;
+  const handlePointerDown = React.useCallback(
+    (e: React.PointerEvent<HTMLButtonElement>) => {
+      e.preventDefault();
+      e.currentTarget.setPointerCapture(e.pointerId);
+      setIsDragging(true);
+      startXRef.current = e.clientX;
+      hasDraggedRef.current = false;
 
-    const wrapper = document.querySelector('[data-slot="sidebar-wrapper"]') as HTMLElement;
-    const sidebarGap = document.querySelector('[data-slot="sidebar-gap"]') as HTMLElement;
-    if (wrapper && sidebarGap) {
-      const ribbonWidth = Number.parseInt(getComputedStyle(wrapper).getPropertyValue('--sidebar-ribbon-width') || '0', 10);
-      const totalWidth = sidebarGap.getBoundingClientRect().width;
-      startWidthRef.current = totalWidth - ribbonWidth;
-    }
-    else {
-      startWidthRef.current = 256;
-    }
-    setResizing(true);
-    document.body.style.cursor = 'ew-resize';
-  }, [setResizing]);
+      const wrapper = document.querySelector(
+        '[data-slot="sidebar-wrapper"]',
+      ) as HTMLElement;
+      const sidebarGap = document.querySelector(
+        '[data-slot="sidebar-gap"]',
+      ) as HTMLElement;
+      if (wrapper && sidebarGap) {
+        const ribbonWidth = Number.parseInt(
+          getComputedStyle(wrapper).getPropertyValue(
+            '--sidebar-ribbon-width',
+          ) || '0',
+          10,
+        );
+        const totalWidth = sidebarGap.getBoundingClientRect().width;
+        startWidthRef.current = totalWidth - ribbonWidth;
+      } else {
+        startWidthRef.current = 256;
+      }
+      setResizing(true);
+      document.body.style.cursor = 'ew-resize';
+    },
+    [setResizing],
+  );
 
-  const handlePointerMove = React.useCallback((e: React.PointerEvent) => {
-    if (!isDragging)
-      return;
+  const handlePointerMove = React.useCallback(
+    (e: React.PointerEvent) => {
+      if (!isDragging) return;
 
-    const delta = e.clientX - startXRef.current;
-    if (Math.abs(delta) > 5) {
-      hasDraggedRef.current = true;
-    }
+      const delta = e.clientX - startXRef.current;
+      if (Math.abs(delta) > 5) {
+        hasDraggedRef.current = true;
+      }
 
-    const newWidth = Math.max(180, Math.min(480, startWidthRef.current + delta));
-    const sidebar = document.querySelector('[data-slot="sidebar-wrapper"]') as HTMLElement;
-    if (sidebar) {
-      sidebar.style.setProperty('--sidebar-width', `${newWidth}px`);
-    }
-  }, [isDragging]);
+      const newWidth = Math.max(
+        180,
+        Math.min(480, startWidthRef.current + delta),
+      );
+      const sidebar = document.querySelector(
+        '[data-slot="sidebar-wrapper"]',
+      ) as HTMLElement;
+      if (sidebar) {
+        sidebar.style.setProperty('--sidebar-width', `${newWidth}px`);
+      }
+    },
+    [isDragging],
+  );
 
   const handlePointerUp = React.useCallback(() => {
-    if (!isDragging)
-      return;
+    if (!isDragging) return;
     setIsDragging(false);
     setResizing(false);
     document.body.style.cursor = '';
@@ -457,10 +484,7 @@ function SidebarGroup({ className, ...props }: React.ComponentProps<'div'>) {
     <div
       data-slot="sidebar-group"
       data-sidebar="group"
-      className={cn(
-        'p-2 relative flex w-full min-w-0 flex-col',
-        className,
-      )}
+      className={cn('p-2 relative flex w-full min-w-0 flex-col', className)}
       {...props}
     />
   );
@@ -556,7 +580,8 @@ const sidebarMenuButtonVariants = cva(
     variants: {
       variant: {
         default: 'hover:bg-sidebar-accent hover:text-sidebar-accent-foreground',
-        outline: 'bg-background hover:bg-sidebar-accent hover:text-sidebar-accent-foreground shadow-[0_0_0_1px_hsl(var(--sidebar-border))] hover:shadow-[0_0_0_1px_hsl(var(--sidebar-accent))]',
+        outline:
+          'bg-background hover:bg-sidebar-accent hover:text-sidebar-accent-foreground shadow-[0_0_0_1px_hsl(var(--sidebar-border))] hover:shadow-[0_0_0_1px_hsl(var(--sidebar-accent))]',
       },
       size: {
         default: 'h-8 text-sm',
@@ -579,8 +604,8 @@ function SidebarMenuButton({
   tooltip,
   className,
   ...props
-}: useRender.ComponentProps<'button'>
-  & React.ComponentProps<'button'> & {
+}: useRender.ComponentProps<'button'> &
+  React.ComponentProps<'button'> & {
     isActive?: boolean;
     tooltip?: string | React.ComponentProps<typeof TooltipContent>;
   } & VariantProps<typeof sidebarMenuButtonVariants>) {
@@ -630,8 +655,8 @@ function SidebarMenuAction({
   render,
   showOnHover = false,
   ...props
-}: useRender.ComponentProps<'button'>
-  & React.ComponentProps<'button'> & {
+}: useRender.ComponentProps<'button'> &
+  React.ComponentProps<'button'> & {
     showOnHover?: boolean;
   }) {
   return useRender({
@@ -640,8 +665,8 @@ function SidebarMenuAction({
       {
         className: cn(
           'text-sidebar-foreground ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground peer-hover/menu-button:text-sidebar-accent-foreground absolute top-1.5 right-1 aspect-square w-5 rounded-md p-0 peer-data-[size=default]/menu-button:top-1.5 peer-data-[size=lg]/menu-button:top-2.5 peer-data-[size=sm]/menu-button:top-1 focus-visible:ring-2 [&>svg]:size-4 flex items-center justify-center outline-hidden transition-transform group-data-[collapsible=icon]:hidden after:absolute after:-inset-2 md:after:hidden [&>svg]:shrink-0',
-          showOnHover
-          && 'peer-data-active/menu-button:text-sidebar-accent-foreground group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-open:opacity-100 md:opacity-0',
+          showOnHover &&
+            'peer-data-active/menu-button:text-sidebar-accent-foreground group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-open:opacity-100 md:opacity-0',
           className,
         ),
       },
@@ -715,7 +740,10 @@ function SidebarMenuSub({ className, ...props }: React.ComponentProps<'ul'>) {
     <ul
       data-slot="sidebar-menu-sub"
       data-sidebar="menu-sub"
-      className={cn('border-sidebar-border mx-3.5 translate-x-px gap-1 border-l px-2.5 py-0.5 group-data-[collapsible=icon]:hidden flex min-w-0 flex-col', className)}
+      className={cn(
+        'border-sidebar-border mx-3.5 translate-x-px gap-1 border-l px-2.5 py-0.5 group-data-[collapsible=icon]:hidden flex min-w-0 flex-col',
+        className,
+      )}
       {...props}
     />
   );
@@ -741,8 +769,8 @@ function SidebarMenuSubButton({
   isActive = false,
   className,
   ...props
-}: useRender.ComponentProps<'a'>
-  & React.ComponentProps<'a'> & {
+}: useRender.ComponentProps<'a'> &
+  React.ComponentProps<'a'> & {
     size?: 'sm' | 'md';
     isActive?: boolean;
   }) {

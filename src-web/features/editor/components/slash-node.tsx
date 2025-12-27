@@ -128,7 +128,7 @@ const groups: Group[] = [
         label: 'Callout',
         value: KEYS.callout,
       },
-    ].map(item => ({
+    ].map((item) => ({
       ...item,
       onSelect: (editor, value) => {
         insertBlock(editor, value, { upsert: true });
@@ -161,7 +161,7 @@ const groups: Group[] = [
         label: 'Excalidraw',
         value: KEYS.excalidraw,
       },
-    ].map(item => ({
+    ].map((item) => ({
       ...item,
       onSelect: (editor, value) => {
         insertBlock(editor, value, { upsert: true });
@@ -184,7 +184,7 @@ const groups: Group[] = [
         label: 'Inline Equation',
         value: KEYS.inlineEquation,
       },
-    ].map(item => ({
+    ].map((item) => ({
       ...item,
       onSelect: (editor, value) => {
         insertInlineElement(editor, value);
@@ -193,7 +193,9 @@ const groups: Group[] = [
   },
 ];
 
-export function SlashInputElement(props: PlateElementProps<TComboboxInputElement>) {
+export function SlashInputElement(
+  props: PlateElementProps<TComboboxInputElement>,
+) {
   const { editor, element } = props;
 
   return (
@@ -208,20 +210,22 @@ export function SlashInputElement(props: PlateElementProps<TComboboxInputElement
             <InlineComboboxGroup key={group}>
               <InlineComboboxGroupLabel>{group}</InlineComboboxGroupLabel>
 
-              {items.map(({ focusEditor, icon, keywords, label, value, onSelect }) => (
-                <InlineComboboxItem
-                  key={value}
-                  value={value}
-                  onClick={() => onSelect(editor, value)}
-                  label={label}
-                  focusEditor={focusEditor}
-                  group={group}
-                  keywords={keywords}
-                >
-                  <div className="mr-2 text-muted-foreground">{icon}</div>
-                  {label ?? value}
-                </InlineComboboxItem>
-              ))}
+              {items.map(
+                ({ focusEditor, icon, keywords, label, value, onSelect }) => (
+                  <InlineComboboxItem
+                    key={value}
+                    value={value}
+                    onClick={() => onSelect(editor, value)}
+                    label={label}
+                    focusEditor={focusEditor}
+                    group={group}
+                    keywords={keywords}
+                  >
+                    <div className="mr-2 text-muted-foreground">{icon}</div>
+                    {label ?? value}
+                  </InlineComboboxItem>
+                ),
+              )}
             </InlineComboboxGroup>
           ))}
         </InlineComboboxContent>

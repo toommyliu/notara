@@ -29,7 +29,11 @@ export function MoreToolbarButton(props: DropdownMenuProps) {
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen} modal={false} {...props}>
-      <DropdownMenuTrigger render={<ToolbarButton pressed={open} tooltip="Insert" />}><MoreHorizontalIcon /></DropdownMenuTrigger>
+      <DropdownMenuTrigger
+        render={<ToolbarButton pressed={open} tooltip="Insert" />}
+      >
+        <MoreHorizontalIcon />
+      </DropdownMenuTrigger>
 
       <DropdownMenuContent
         className="ignore-click-outside/toolbar flex max-h-[500px] min-w-[180px] flex-col overflow-y-auto"

@@ -10,9 +10,5 @@ export default antfu({
   },
   unicorn: true,
   formatters: true,
-  ignores: [
-    'dist',
-    'node_modules',
-    '*.gen.ts',
-  ],
+  ignores: ['dist', 'node_modules', '*.gen.ts'],
 });

@@ -3,10 +3,7 @@
 import type { BaseSuggestionConfig } from '@platejs/suggestion';
 
 import type { ExtendConfig, Path } from 'platejs';
-import {
-
-  BaseSuggestionPlugin,
-} from '@platejs/suggestion';
+import { BaseSuggestionPlugin } from '@platejs/suggestion';
 import { isSlateEditor, isSlateString } from 'platejs';
 import { toTPlatePlugin } from 'platejs/react';
 
@@ -79,8 +76,7 @@ export const suggestionPlugin = toTPlatePlugin<SuggestionConfig>(
         leaf = leaf.parentElement;
       }
 
-      if (!isSet)
-        unsetActiveSuggestion();
+      if (!isSet) unsetActiveSuggestion();
     },
   },
   render: {

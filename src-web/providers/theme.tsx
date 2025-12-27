@@ -24,7 +24,8 @@ const initialState: ThemeProviderState = {
   setTheme: () => null,
 };
 
-export const ThemeProviderContext = createContext<ThemeProviderState>(initialState);
+export const ThemeProviderContext =
+  createContext<ThemeProviderState>(initialState);
 
 export function ThemeProvider({
   children,
@@ -46,16 +47,18 @@ export function ThemeProvider({
     const applyTheme = (override?: 'light' | 'dark') => {
       root.classList.remove('light', 'dark');
 
-      const effectiveTheme = override || (theme === 'system'
-        ? (mediaQuery.matches ? 'dark' : 'light')
-        : theme);
+      const effectiveTheme =
+        override ||
+        (theme === 'system' ? (mediaQuery.matches ? 'dark' : 'light') : theme);
 
       root.classList.add(effectiveTheme);
       setResolvedTheme(effectiveTheme);
 
       if (isTauri) {
         const bgColor = effectiveTheme === 'dark' ? '#1a1a1a' : '#ffffff';
-        invoke('plugin:notara-mac-window|set_theme', { bgColor }).catch(() => { });
+        invoke('plugin:notara-mac-window|set_theme', { bgColor }).catch(
+          () => {},
+        );
       }
     };
 
@@ -66,9 +69,11 @@ export function ThemeProvider({
       mediaQuery.addEventListener('change', handleMediaChange);
 
       if (isTauri) {
-        getCurrentWindow().onThemeChanged(({ payload: systemTheme }) => {
-          applyTheme(systemTheme);
-        }).then(fn => unlisten = fn);
+        getCurrentWindow()
+          .onThemeChanged(({ payload: systemTheme }) => {
+            applyTheme(systemTheme);
+          })
+          .then((fn) => (unlisten = fn));
       }
 
       return () => {

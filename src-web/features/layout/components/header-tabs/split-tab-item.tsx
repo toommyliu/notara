@@ -10,18 +10,25 @@ import { useTabsStore } from '~/features/layout/stores/tabs-store';
 import { useNotesStore } from '~/features/notes/store';
 import { cn } from '~/lib/utils';
 
-export function SplitTabItem({ ref, noteId, isActive, isPinned, noteIds, onActivatePane, onClosePane }: SplitTabItemProps & { ref?: React.RefObject<HeaderTabItemHandle | null> }) {
-  const notes = useNotesStore(s => s.notes);
+export function SplitTabItem({
+  ref,
+  noteId,
+  isActive,
+  isPinned,
+  noteIds,
+  onActivatePane,
+  onClosePane,
+}: SplitTabItemProps & { ref?: React.RefObject<HeaderTabItemHandle | null> }) {
+  const notes = useNotesStore((s) => s.notes);
   const tabRef = useRef<HTMLDivElement>(null);
   const buttonRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
-  const activeTabId = useTabsStore(s => s.activeTabId);
+  const activeTabId = useTabsStore((s) => s.activeTabId);
 
   useImperativeHandle(ref, () => ({
     focus: () => {
       if (activeTabId && buttonRefs.current.has(activeTabId)) {
         buttonRefs.current.get(activeTabId)?.focus();
-      }
-      else if (noteIds.length > 0) {
+      } else if (noteIds.length > 0) {
         buttonRefs.current.get(noteIds[0])?.focus();
       }
     },
@@ -46,7 +53,11 @@ export function SplitTabItem({ ref, noteId, isActive, isPinned, noteIds, onActiv
 
   useEffect(() => {
     if (isActive && tabRef.current) {
-      tabRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      tabRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'center',
+      });
     }
   }, [isActive]);
 
@@ -75,19 +86,24 @@ export function SplitTabItem({ ref, noteId, isActive, isPinned, noteIds, onActiv
         const isPaneActive = id === activeTabId;
 
         return (
-          <div key={id} className="group/pane relative flex items-center h-full">
+          <div
+            key={id}
+            className="group/pane relative flex items-center h-full"
+          >
             {index > 0 && (
-              <div className={cn(
-                'w-px h-3.5 bg-border/20 mx-1 transition-opacity duration-150',
-                (isPaneActive || noteIds[index - 1] === activeTabId) ? 'opacity-0' : 'opacity-100',
-              )}
+              <div
+                className={cn(
+                  'w-px h-3.5 bg-border/20 mx-1 transition-opacity duration-150',
+                  isPaneActive || noteIds[index - 1] === activeTabId
+                    ? 'opacity-0'
+                    : 'opacity-100',
+                )}
               />
             )}
 
             <button
               ref={(el) => {
-                if (el)
-                  buttonRefs.current.set(id, el);
+                if (el) buttonRefs.current.set(id, el);
                 else buttonRefs.current.delete(id);
               }}
               onClick={(ev) => {
@@ -103,7 +119,9 @@ export function SplitTabItem({ ref, noteId, isActive, isPinned, noteIds, onActiv
               )}
             >
               <span className="text-[14px] shrink-0">{note?.emoji}</span>
-              <span className="text-[13px] font-medium truncate max-w-[110px]">{note?.title}</span>
+              <span className="text-[13px] font-medium truncate max-w-[110px]">
+                {note?.title}
+              </span>
             </button>
 
             <button
@@ -116,7 +134,9 @@ export function SplitTabItem({ ref, noteId, isActive, isPinned, noteIds, onActiv
                 'absolute right-1 top-1/2 -translate-y-1/2 z-10 p-0.5 rounded-sm transition-all duration-200',
                 'text-muted-foreground/50 hover:text-foreground hover:bg-muted/60',
                 'focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:outline-none',
-                (isActive && isPaneActive) ? 'opacity-100' : 'opacity-0 group-hover/pane:opacity-100',
+                isActive && isPaneActive
+                  ? 'opacity-100'
+                  : 'opacity-0 group-hover/pane:opacity-100',
               )}
               aria-label="Close pane"
             >

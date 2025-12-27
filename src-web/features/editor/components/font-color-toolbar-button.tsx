@@ -37,12 +37,12 @@ export function FontColorToolbarButton({
   const editor = useEditorRef();
 
   const selectionDefined = useEditorSelector(
-    editor => !!editor.selection,
+    (editor) => !!editor.selection,
     [],
   );
 
   const color = useEditorSelector(
-    editor => editor.api.mark(nodeType) as string,
+    (editor) => editor.api.mark(nodeType) as string,
     [nodeType],
   );
 
@@ -105,7 +105,11 @@ export function FontColorToolbarButton({
       }}
       modal={false}
     >
-      <DropdownMenuTrigger render={<ToolbarButton pressed={open} tooltip={tooltip} />}>{children}</DropdownMenuTrigger>
+      <DropdownMenuTrigger
+        render={<ToolbarButton pressed={open} tooltip={tooltip} />}
+      >
+        {children}
+      </DropdownMenuTrigger>
 
       <DropdownMenuContent align="start">
         <ColorPicker
@@ -173,9 +177,9 @@ function PureColorPicker({
 const ColorPicker = React.memo(
   PureColorPicker,
   (prev, next) =>
-    prev.color === next.color
-    && prev.colors === next.colors
-    && prev.customColors === next.customColors,
+    prev.color === next.color &&
+    prev.colors === next.colors &&
+    prev.customColors === next.customColors,
 );
 
 function ColorCustom({
@@ -198,9 +202,9 @@ function ColorCustom({
 
   React.useEffect(() => {
     if (
-      !color
-      || customColors.some(c => c.value === color)
-      || colors.some(c => c.value === color)
+      !color ||
+      customColors.some((c) => c.value === color) ||
+      colors.some((c) => c.value === color)
     ) {
       return;
     }
@@ -275,8 +279,7 @@ function ColorInput({
   return (
     <div className="flex flex-col items-center">
       {React.Children.map(children, (child) => {
-        if (!child)
-          return child;
+        if (!child) return child;
 
         return React.cloneElement(
           child as React.ReactElement<{
@@ -339,16 +342,14 @@ function ColorDropdownMenuItem({
     />
   );
 
-  return name
-    ? (
-        <Tooltip>
-          <TooltipTrigger>{content}</TooltipTrigger>
-          <TooltipContent className="mb-1 capitalize">{name}</TooltipContent>
-        </Tooltip>
-      )
-    : (
-        content
-      );
+  return name ? (
+    <Tooltip>
+      <TooltipTrigger>{content}</TooltipTrigger>
+      <TooltipContent className="mb-1 capitalize">{name}</TooltipContent>
+    </Tooltip>
+  ) : (
+    content
+  );
 }
 
 export function ColorDropdownMenuItems({

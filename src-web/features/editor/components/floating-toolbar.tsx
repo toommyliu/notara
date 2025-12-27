@@ -3,7 +3,6 @@
 import type { FloatingToolbarState } from '@platejs/floating';
 import {
   flip,
-
   offset,
   useFloatingToolbar,
   useFloatingToolbarState,
@@ -67,8 +66,7 @@ export function FloatingToolbar({
 
   const ref = useComposedRef<HTMLDivElement>(props.ref, floatingRef);
 
-  if (hidden)
-    return null;
+  if (hidden) return null;
 
   return (
     <div ref={clickOutsideRef}>

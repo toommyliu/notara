@@ -31,10 +31,7 @@ import { KEYS } from 'platejs';
 import { useEditorRef } from 'platejs/react';
 import * as React from 'react';
 
-import {
-  insertBlock,
-  insertInlineElement,
-} from '~/features/editor/transforms';
+import { insertBlock, insertInlineElement } from '~/features/editor/transforms';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -101,7 +98,7 @@ const groups: Group[] = [
         label: 'Divider',
         value: KEYS.hr,
       },
-    ].map(item => ({
+    ].map((item) => ({
       ...item,
       onSelect: (editor, value) => {
         insertBlock(editor, value);
@@ -131,7 +128,7 @@ const groups: Group[] = [
         label: 'Toggle list',
         value: KEYS.toggle,
       },
-    ].map(item => ({
+    ].map((item) => ({
       ...item,
       onSelect: (editor, value) => {
         insertBlock(editor, value);
@@ -151,7 +148,7 @@ const groups: Group[] = [
         label: 'Embed',
         value: KEYS.mediaEmbed,
       },
-    ].map(item => ({
+    ].map((item) => ({
       ...item,
       onSelect: (editor, value) => {
         insertBlock(editor, value);
@@ -182,7 +179,7 @@ const groups: Group[] = [
         label: 'Excalidraw',
         value: KEYS.excalidraw,
       },
-    ].map(item => ({
+    ].map((item) => ({
       ...item,
       onSelect: (editor, value) => {
         insertBlock(editor, value);
@@ -209,7 +206,7 @@ const groups: Group[] = [
         label: 'Inline Equation',
         value: KEYS.inlineEquation,
       },
-    ].map(item => ({
+    ].map((item) => ({
       ...item,
       onSelect: (editor, value) => {
         insertInlineElement(editor, value);
@@ -224,7 +221,11 @@ export function InsertToolbarButton(props: DropdownMenuProps) {
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen} modal={false} {...props}>
-      <DropdownMenuTrigger render={<ToolbarButton pressed={open} tooltip="Insert" isDropdown />}><PlusIcon /></DropdownMenuTrigger>
+      <DropdownMenuTrigger
+        render={<ToolbarButton pressed={open} tooltip="Insert" isDropdown />}
+      >
+        <PlusIcon />
+      </DropdownMenuTrigger>
 
       <DropdownMenuContent
         className="flex max-h-[500px] min-w-0 flex-col overflow-y-auto"

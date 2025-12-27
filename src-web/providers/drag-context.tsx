@@ -31,13 +31,16 @@ export function DragProvider({ children }: DragProviderProps) {
     source: null,
   });
 
-  const startDrag = useCallback((noteId: string, source: 'sidebar' | 'tabs') => {
-    setDragState({
-      isDragging: true,
-      draggedNoteId: noteId,
-      source,
-    });
-  }, []);
+  const startDrag = useCallback(
+    (noteId: string, source: 'sidebar' | 'tabs') => {
+      setDragState({
+        isDragging: true,
+        draggedNoteId: noteId,
+        source,
+      });
+    },
+    [],
+  );
 
   const endDrag = useCallback(() => {
     setDragState({

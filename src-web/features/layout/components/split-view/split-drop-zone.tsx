@@ -33,7 +33,8 @@ export function SplitDropZone({
   }, [isHovering, onHoverChange]);
 
   const draggedNoteIdRef = useRef<string | null>(null);
-  const shouldShow = dragContext?.isDragging && (position === 'center' || panes.length < 2);
+  const shouldShow =
+    dragContext?.isDragging && (position === 'center' || panes.length < 2);
 
   useEffect(() => {
     if (dragContext?.draggedNoteId) {
@@ -48,16 +49,14 @@ export function SplitDropZone({
     }
 
     const handleMouseMove = (ev: MouseEvent) => {
-      if (!zoneRef.current)
-        return;
+      if (!zoneRef.current) return;
 
       const rect = zoneRef.current.getBoundingClientRect();
-      const isOver = (
-        ev.clientX >= rect.left
-        && ev.clientX <= rect.right
-        && ev.clientY >= rect.top
-        && ev.clientY <= rect.bottom
-      );
+      const isOver =
+        ev.clientX >= rect.left &&
+        ev.clientX <= rect.right &&
+        ev.clientY >= rect.top &&
+        ev.clientY <= rect.bottom;
       setIsHovering(isOver);
     };
 
@@ -66,8 +65,7 @@ export function SplitDropZone({
   }, [shouldShow]);
 
   useEffect(() => {
-    if (!shouldShow)
-      return;
+    if (!shouldShow) return;
 
     const handlePointerUp = () => {
       if (isHovering && draggedNoteIdRef.current && dragContext?.isDragging) {
@@ -76,8 +74,7 @@ export function SplitDropZone({
 
         if (position === 'center' && paneId) {
           openInPane(paneId, noteId);
-        }
-        else if (position !== 'center') {
+        } else if (position !== 'center') {
           if (anchorNoteId) {
             addToGroup(noteId, anchorNoteId);
           }
@@ -87,8 +84,21 @@ export function SplitDropZone({
     };
 
     window.addEventListener('pointerup', handlePointerUp, { capture: true });
-    return () => window.removeEventListener('pointerup', handlePointerUp, { capture: true });
-  }, [shouldShow, isHovering, position, addPane, openInPane, paneId, dragContext?.isDragging, anchorNoteId, addToGroup]);
+    return () =>
+      window.removeEventListener('pointerup', handlePointerUp, {
+        capture: true,
+      });
+  }, [
+    shouldShow,
+    isHovering,
+    position,
+    addPane,
+    openInPane,
+    paneId,
+    dragContext?.isDragging,
+    anchorNoteId,
+    addToGroup,
+  ]);
 
   useEffect(() => {
     if (!dragContext?.isDragging) {
@@ -99,14 +109,14 @@ export function SplitDropZone({
     }
   }, [dragContext?.isDragging]);
 
-  if (!shouldShow)
-    return null;
+  if (!shouldShow) return null;
 
   // trigger area configuration, w.r.t. to the content width
   const halfContentWidth = contentWidth / 2;
-  const triggerWidth = position === 'center'
-    ? '100%'
-    : (position === 'left' || position === 'right')
+  const triggerWidth =
+    position === 'center'
+      ? '100%'
+      : position === 'left' || position === 'right'
         ? `calc(50vw - min(50vw, ${halfContentWidth}px) + ${contentPadding}px)`
         : `calc(50vh - min(50vh, ${halfContentWidth}px) + ${contentPadding}px)`;
 
@@ -123,11 +133,13 @@ export function SplitDropZone({
           position === 'center' && 'inset-0',
           position !== 'center' && 'z-50', // edges take priority
         )}
-        style={position === 'left' || position === 'right'
-          ? { width: triggerWidth }
-          : position === 'top' || position === 'bottom'
-            ? { height: triggerWidth }
-            : undefined}
+        style={
+          position === 'left' || position === 'right'
+            ? { width: triggerWidth }
+            : position === 'top' || position === 'bottom'
+              ? { height: triggerWidth }
+              : undefined
+        }
       />
 
       {/* <div

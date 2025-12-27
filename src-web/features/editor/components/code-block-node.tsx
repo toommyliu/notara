@@ -8,12 +8,10 @@ import { BracesIcon, Check, CheckIcon, CopyIcon } from 'lucide-react';
 import { NodeApi } from 'platejs';
 import {
   PlateElement,
-
   PlateLeaf,
   useEditorRef,
   useElement,
   useReadOnly,
-
 } from 'platejs/react';
 import * as React from 'react';
 
@@ -27,11 +25,7 @@ import {
   CommandItem,
   CommandList,
 } from '~/ui/command';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '~/ui/popover';
+import { Popover, PopoverContent, PopoverTrigger } from '~/ui/popover';
 
 export function CodeBlockElement(props: PlateElementProps<TCodeBlockElement>) {
   const { editor, element } = props;
@@ -87,21 +81,30 @@ function CodeBlockCombobox() {
   const items = React.useMemo(
     () =>
       languages.filter(
-        language =>
-          !searchValue
-          || language.label.toLowerCase().includes(searchValue.toLowerCase()),
+        (language) =>
+          !searchValue ||
+          language.label.toLowerCase().includes(searchValue.toLowerCase()),
       ),
     [searchValue],
   );
 
-  if (readOnly)
-    return null;
+  if (readOnly) return null;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger render={<Button size="sm" variant="ghost" className="h-6 select-none justify-between gap-1 px-2 text-muted-foreground text-xs" aria-expanded={open} role="combobox" />}>
-        {languages.find(language => language.value === value)?.label
-          ?? 'Plain Text'}
+      <PopoverTrigger
+        render={
+          <Button
+            size="sm"
+            variant="ghost"
+            className="h-6 select-none justify-between gap-1 px-2 text-muted-foreground text-xs"
+            aria-expanded={open}
+            role="combobox"
+          />
+        }
+      >
+        {languages.find((language) => language.value === value)?.label ??
+          'Plain Text'}
       </PopoverTrigger>
       <PopoverContent
         className="w-[200px] p-0"
@@ -111,14 +114,14 @@ function CodeBlockCombobox() {
           <CommandInput
             className="h-9"
             value={searchValue}
-            onValueChange={value => setSearchValue(value)}
+            onValueChange={(value) => setSearchValue(value)}
             placeholder="Search language..."
           />
           <CommandEmpty>No language found.</CommandEmpty>
 
           <CommandList className="h-[344px] overflow-y-auto">
             <CommandGroup>
-              {items.map(language => (
+              {items.map((language) => (
                 <CommandItem
                   key={language.label}
                   className="cursor-pointer"
@@ -174,13 +177,11 @@ function CopyButton({
       {...props}
     >
       <span className="sr-only">Copy</span>
-      {hasCopied
-        ? (
-            <CheckIcon className="!size-3" />
-          )
-        : (
-            <CopyIcon className="!size-3" />
-          )}
+      {hasCopied ? (
+        <CheckIcon className="!size-3" />
+      ) : (
+        <CopyIcon className="!size-3" />
+      )}
     </Button>
   );
 }

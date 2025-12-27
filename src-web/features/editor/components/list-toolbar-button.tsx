@@ -30,7 +30,7 @@ export function BulletedListToolbarButton() {
   const [open, setOpen] = React.useState(false);
 
   const pressed = useEditorSelector(
-    editor =>
+    (editor) =>
       someList(editor, [
         ListStyleType.Disc,
         ListStyleType.Circle,
@@ -54,7 +54,9 @@ export function BulletedListToolbarButton() {
       </ToolbarSplitButtonPrimary>
 
       <DropdownMenu open={open} onOpenChange={setOpen} modal={false}>
-        <DropdownMenuTrigger render={<ToolbarSplitButtonSecondary />}></DropdownMenuTrigger>
+        <DropdownMenuTrigger
+          render={<ToolbarSplitButtonSecondary />}
+        ></DropdownMenuTrigger>
 
         <DropdownMenuContent align="start" alignOffset={-32}>
           <DropdownMenuGroup>
@@ -62,7 +64,8 @@ export function BulletedListToolbarButton() {
               onClick={() =>
                 toggleList(editor, {
                   listStyleType: ListStyleType.Disc,
-                })}
+                })
+              }
             >
               <div className="flex items-center gap-2">
                 <div className="size-2 rounded-full border border-current bg-current" />
@@ -73,7 +76,8 @@ export function BulletedListToolbarButton() {
               onClick={() =>
                 toggleList(editor, {
                   listStyleType: ListStyleType.Circle,
-                })}
+                })
+              }
             >
               <div className="flex items-center gap-2">
                 <div className="size-2 rounded-full border border-current" />
@@ -84,7 +88,8 @@ export function BulletedListToolbarButton() {
               onClick={() =>
                 toggleList(editor, {
                   listStyleType: ListStyleType.Square,
-                })}
+                })
+              }
             >
               <div className="flex items-center gap-2">
                 <div className="size-2 border border-current bg-current" />
@@ -103,7 +108,7 @@ export function NumberedListToolbarButton() {
   const [open, setOpen] = React.useState(false);
 
   const pressed = useEditorSelector(
-    editor =>
+    (editor) =>
       someList(editor, [
         ListStyleType.Decimal,
         ListStyleType.LowerAlpha,
@@ -121,14 +126,17 @@ export function NumberedListToolbarButton() {
         onClick={() =>
           toggleList(editor, {
             listStyleType: ListStyleType.Decimal,
-          })}
+          })
+        }
         data-state={pressed ? 'on' : 'off'}
       >
         <ListOrdered className="size-4" />
       </ToolbarSplitButtonPrimary>
 
       <DropdownMenu open={open} onOpenChange={setOpen} modal={false}>
-        <DropdownMenuTrigger render={<ToolbarSplitButtonSecondary />}></DropdownMenuTrigger>
+        <DropdownMenuTrigger
+          render={<ToolbarSplitButtonSecondary />}
+        ></DropdownMenuTrigger>
 
         <DropdownMenuContent align="start" alignOffset={-32}>
           <DropdownMenuGroup>
@@ -136,7 +144,8 @@ export function NumberedListToolbarButton() {
               onSelect={() =>
                 toggleList(editor, {
                   listStyleType: ListStyleType.Decimal,
-                })}
+                })
+              }
             >
               Decimal (1, 2, 3)
             </DropdownMenuItem>
@@ -144,7 +153,8 @@ export function NumberedListToolbarButton() {
               onSelect={() =>
                 toggleList(editor, {
                   listStyleType: ListStyleType.LowerAlpha,
-                })}
+                })
+              }
             >
               Lower Alpha (a, b, c)
             </DropdownMenuItem>
@@ -152,7 +162,8 @@ export function NumberedListToolbarButton() {
               onSelect={() =>
                 toggleList(editor, {
                   listStyleType: ListStyleType.UpperAlpha,
-                })}
+                })
+              }
             >
               Upper Alpha (A, B, C)
             </DropdownMenuItem>
@@ -160,7 +171,8 @@ export function NumberedListToolbarButton() {
               onSelect={() =>
                 toggleList(editor, {
                   listStyleType: ListStyleType.LowerRoman,
-                })}
+                })
+              }
             >
               Lower Roman (i, ii, iii)
             </DropdownMenuItem>
@@ -168,7 +180,8 @@ export function NumberedListToolbarButton() {
               onSelect={() =>
                 toggleList(editor, {
                   listStyleType: ListStyleType.UpperRoman,
-                })}
+                })
+              }
             >
               Upper Roman (I, II, III)
             </DropdownMenuItem>

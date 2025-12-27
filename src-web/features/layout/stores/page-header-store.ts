@@ -16,7 +16,9 @@ interface PageHeaderActions {
   setConfig: (config: PageHeaderConfig) => void;
 }
 
-export const usePageHeaderStore = create<PageHeaderState & PageHeaderActions>()(set => ({
-  config: {},
-  setConfig: config => set({ config }),
-}));
+export const usePageHeaderStore = create<PageHeaderState & PageHeaderActions>()(
+  (set) => ({
+    config: {},
+    setConfig: (config) => set({ config }),
+  }),
+);

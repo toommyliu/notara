@@ -11,11 +11,7 @@ import { useEditorPlugin, useEditorSelector } from 'platejs/react';
 import * as React from 'react';
 
 import { cn } from '~/lib/utils';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '~/ui/popover';
+import { Popover, PopoverContent, PopoverTrigger } from '~/ui/popover';
 
 import { ToolbarButton } from '~/ui/toolbar';
 
@@ -58,8 +54,7 @@ export function FontSizeToolbarButton() {
 
     const [block] = editor.api.block<TElement>() || [];
 
-    if (!block?.type)
-      return DEFAULT_FONT_SIZE;
+    if (!block?.type) return DEFAULT_FONT_SIZE;
 
     return block.type in FONT_SIZE_MAP
       ? FONT_SIZE_MAP[block.type as keyof typeof FONT_SIZE_MAP]
@@ -70,8 +65,8 @@ export function FontSizeToolbarButton() {
     const newSize = toUnitLess(inputValue);
 
     if (
-      Number.parseInt(newSize, 10) < 1
-      || Number.parseInt(newSize, 10) > 100
+      Number.parseInt(newSize, 10) < 1 ||
+      Number.parseInt(newSize, 10) > 100
     ) {
       editor.tf.focus();
 
@@ -99,38 +94,38 @@ export function FontSizeToolbarButton() {
       </ToolbarButton>
 
       <Popover open={isFocused} modal={false}>
-        <PopoverTrigger render={(
-          <input
-            className={cn(
-              'h-full w-10 shrink-0 bg-transparent px-1 text-center text-sm hover:bg-muted',
-            )}
-            value={displayValue}
-            onBlur={() => {
-              setIsFocused(false);
-              handleInputChange();
-            }}
-            onChange={e => setInputValue(e.target.value)}
-            onFocus={() => {
-              setIsFocused(true);
-              setInputValue(toUnitLess(cursorFontSize));
-            }}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
+        <PopoverTrigger
+          render={
+            <input
+              className={cn(
+                'h-full w-10 shrink-0 bg-transparent px-1 text-center text-sm hover:bg-muted',
+              )}
+              value={displayValue}
+              onBlur={() => {
+                setIsFocused(false);
                 handleInputChange();
-              }
-            }}
-            data-plate-focus="true"
-            type="text"
-          />
-        )}
-        >
-        </PopoverTrigger>
+              }}
+              onChange={(e) => setInputValue(e.target.value)}
+              onFocus={() => {
+                setIsFocused(true);
+                setInputValue(toUnitLess(cursorFontSize));
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  handleInputChange();
+                }
+              }}
+              data-plate-focus="true"
+              type="text"
+            />
+          }
+        ></PopoverTrigger>
         <PopoverContent
           className="w-10 px-px py-1"
-          onOpenAutoFocus={e => e.preventDefault()}
+          onOpenAutoFocus={(e) => e.preventDefault()}
         >
-          {FONT_SIZES.map(size => (
+          {FONT_SIZES.map((size) => (
             <button
               key={size}
               className={cn(
