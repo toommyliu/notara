@@ -1,16 +1,16 @@
-'use client'
+'use client';
 
-import { SuggestionPlugin } from '@platejs/suggestion/react'
-import { PencilLineIcon } from 'lucide-react'
-import { useEditorPlugin, usePluginOption } from 'platejs/react'
+import { SuggestionPlugin } from '@platejs/suggestion/react';
+import { PencilLineIcon } from 'lucide-react';
+import { useEditorPlugin, usePluginOption } from 'platejs/react';
 
-import { cn } from '~/lib/utils'
+import { cn } from '~/lib/utils';
 
-import { ToolbarButton } from '~/ui/toolbar'
+import { ToolbarButton } from '~/ui/toolbar';
 
 export function SuggestionToolbarButton() {
-  const { setOption } = useEditorPlugin(SuggestionPlugin)
-  const isSuggesting = usePluginOption(SuggestionPlugin, 'isSuggesting')
+  const { setOption } = useEditorPlugin(SuggestionPlugin);
+  const isSuggesting = usePluginOption(SuggestionPlugin, 'isSuggesting');
 
   return (
     <ToolbarButton
@@ -21,5 +21,5 @@ export function SuggestionToolbarButton() {
     >
       <PencilLineIcon />
     </ToolbarButton>
-  )
+  );
 }

@@ -1,28 +1,28 @@
-'use client'
+'use client';
 
-import * as React from 'react'
+import * as React from 'react';
 
-import IconChevronDown from '~icons/lucide/chevron-down'
-import IconGlobe from '~icons/lucide/globe'
-import IconLock from '~icons/lucide/lock'
-import IconMoreHorizontal from '~icons/lucide/more-horizontal'
-import IconPanelTop from '~icons/lucide/panel-top'
-import IconStar from '~icons/lucide/star'
+import IconChevronDown from '~icons/lucide/chevron-down';
+import IconGlobe from '~icons/lucide/globe';
+import IconLock from '~icons/lucide/lock';
+import IconMoreHorizontal from '~icons/lucide/more-horizontal';
+import IconPanelTop from '~icons/lucide/panel-top';
+import IconStar from '~icons/lucide/star';
 
-import { cn } from '~/lib/utils'
+import { cn } from '~/lib/utils';
 
-import { useEditorUi } from '../contexts/editor-ui-context'
+import { useEditorUi } from '../contexts/editor-ui-context';
 
 interface PageNavBarProps {
-  title?: string
-  icon?: string
-  isPrivate?: boolean
-  isStarred?: boolean
-  onPrivacyChange?: (isPrivate: boolean) => void
-  onStarChange?: (isStarred: boolean) => void
-  onShare?: () => void
-  onMoreClick?: () => void
-  className?: string
+  title?: string;
+  icon?: string;
+  isPrivate?: boolean;
+  isStarred?: boolean;
+  onPrivacyChange?: (isPrivate: boolean) => void;
+  onStarChange?: (isStarred: boolean) => void;
+  onShare?: () => void;
+  onMoreClick?: () => void;
+  className?: string;
 }
 
 export function PageNavBar({
@@ -36,23 +36,23 @@ export function PageNavBar({
   onMoreClick,
   className,
 }: PageNavBarProps) {
-  const [showPrivacyMenu, setShowPrivacyMenu] = React.useState(false)
-  const { showFixedToolbar, setShowFixedToolbar } = useEditorUi()
-  const privacyMenuRef = React.useRef<HTMLDivElement>(null)
+  const [showPrivacyMenu, setShowPrivacyMenu] = React.useState(false);
+  const { showFixedToolbar, setShowFixedToolbar } = useEditorUi();
+  const privacyMenuRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
     if (!showPrivacyMenu)
-      return
+      return;
 
     const handleClickOutside = (e: MouseEvent) => {
       if (privacyMenuRef.current && !privacyMenuRef.current.contains(e.target as Node)) {
-        setShowPrivacyMenu(false)
+        setShowPrivacyMenu(false);
       }
-    }
+    };
 
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [showPrivacyMenu])
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showPrivacyMenu]);
 
   return (
     <div
@@ -84,8 +84,8 @@ export function PageNavBar({
             <div className="absolute left-0 top-full z-50 mt-1 w-36 rounded-lg border border-border bg-popover p-1 shadow-lg animate-in fade-in-0 zoom-in-95 duration-100">
               <button
                 onClick={() => {
-                  onPrivacyChange?.(true)
-                  setShowPrivacyMenu(false)
+                  onPrivacyChange?.(true);
+                  setShowPrivacyMenu(false);
                 }}
                 className={cn(
                   'flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors hover:bg-muted',
@@ -97,8 +97,8 @@ export function PageNavBar({
               </button>
               <button
                 onClick={() => {
-                  onPrivacyChange?.(false)
-                  setShowPrivacyMenu(false)
+                  onPrivacyChange?.(false);
+                  setShowPrivacyMenu(false);
                 }}
                 className={cn(
                   'flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-sm transition-colors hover:bg-muted',
@@ -151,5 +151,5 @@ export function PageNavBar({
         </button>
       </div>
     </div>
-  )
+  );
 }

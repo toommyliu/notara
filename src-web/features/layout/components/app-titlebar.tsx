@@ -1,13 +1,13 @@
-import type { PropsWithChildren } from 'react'
+import type { PropsWithChildren } from 'react';
 
-import { usePlatformLayout } from '~/hooks/use-platform'
+import { usePlatformLayout } from '~/hooks/use-platform';
 
-import { cn } from '~/lib/utils'
+import { cn } from '~/lib/utils';
 
-type AppTitlebarProps = PropsWithChildren<{ className?: string, noLeftInset?: boolean }>
+type AppTitlebarProps = PropsWithChildren<{ className?: string; noLeftInset?: boolean }>;
 
 export function AppTitlebar({ children, className, noLeftInset }: AppTitlebarProps) {
-  const layout = usePlatformLayout()
+  const layout = usePlatformLayout();
 
   return (
     <div
@@ -23,10 +23,10 @@ export function AppTitlebar({ children, className, noLeftInset }: AppTitlebarPro
         {children}
       </div>
     </div>
-  )
+  );
 }
 
 export function TitlebarSpacer() {
-  const layout = usePlatformLayout()
-  return <div className="shrink-0" style={{ height: layout.titlebarHeight }} />
+  const layout = usePlatformLayout();
+  return <div className="shrink-0" style={{ height: layout.titlebarHeight }} />;
 }

@@ -1,26 +1,26 @@
-'use client'
+'use client';
 
-import type { FloatingToolbarState } from '@platejs/floating'
+import type { FloatingToolbarState } from '@platejs/floating';
 import {
   flip,
 
   offset,
   useFloatingToolbar,
   useFloatingToolbarState,
-} from '@platejs/floating'
+} from '@platejs/floating';
 
-import { useComposedRef } from '@udecode/cn'
-import { KEYS } from 'platejs'
+import { useComposedRef } from '@udecode/cn';
+import { KEYS } from 'platejs';
 import {
   useEditorId,
   useEventEditorValue,
   usePluginOption,
-} from 'platejs/react'
-import * as React from 'react'
+} from 'platejs/react';
+import * as React from 'react';
 
-import { cn } from '~/lib/utils'
+import { cn } from '~/lib/utils';
 
-import { Toolbar } from '~/ui/toolbar'
+import { Toolbar } from '~/ui/toolbar';
 
 export function FloatingToolbar({
   children,
@@ -28,12 +28,12 @@ export function FloatingToolbar({
   state,
   ...props
 }: React.ComponentProps<typeof Toolbar> & {
-  state?: FloatingToolbarState
+  state?: FloatingToolbarState;
 }) {
-  const editorId = useEditorId()
-  const focusedEditorId = useEventEditorValue('focus')
-  const isFloatingLinkOpen = !!usePluginOption({ key: KEYS.link }, 'mode')
-  const isAIChatOpen = usePluginOption({ key: KEYS.aiChat }, 'open')
+  const editorId = useEditorId();
+  const focusedEditorId = useEventEditorValue('focus');
+  const isFloatingLinkOpen = !!usePluginOption({ key: KEYS.link }, 'mode');
+  const isAIChatOpen = usePluginOption({ key: KEYS.aiChat }, 'open');
 
   const floatingToolbarState = useFloatingToolbarState({
     editorId,
@@ -56,19 +56,19 @@ export function FloatingToolbar({
       placement: 'top',
       ...state?.floatingOptions,
     },
-  })
+  });
 
   const {
     clickOutsideRef,
     hidden,
     props: rootProps,
     ref: floatingRef,
-  } = useFloatingToolbar(floatingToolbarState)
+  } = useFloatingToolbar(floatingToolbarState);
 
-  const ref = useComposedRef<HTMLDivElement>(props.ref, floatingRef)
+  const ref = useComposedRef<HTMLDivElement>(props.ref, floatingRef);
 
   if (hidden)
-    return null
+    return null;
 
   return (
     <div ref={clickOutsideRef}>
@@ -85,5 +85,5 @@ export function FloatingToolbar({
         {children}
       </Toolbar>
     </div>
-  )
+  );
 }

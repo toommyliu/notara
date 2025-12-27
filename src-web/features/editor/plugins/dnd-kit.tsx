@@ -1,12 +1,12 @@
-'use client'
+'use client';
 
-import { DndPlugin } from '@platejs/dnd'
-import { PlaceholderPlugin } from '@platejs/media/react'
+import { DndPlugin } from '@platejs/dnd';
+import { PlaceholderPlugin } from '@platejs/media/react';
 
-import { DndProvider } from 'react-dnd'
-import { HTML5Backend } from 'react-dnd-html5-backend'
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 
-import { BlockDraggable } from '~/features/editor/components/block-draggable'
+import { BlockDraggable } from '~/features/editor/components/block-draggable';
 
 export const DndKit = [
   DndPlugin.configure({
@@ -16,7 +16,7 @@ export const DndKit = [
         editor
           .getTransforms(PlaceholderPlugin)
           .insert
-          .media(dragItem.files, { at: target, nextBlock: false })
+          .media(dragItem.files, { at: target, nextBlock: false });
       },
     },
     render: {
@@ -26,4 +26,4 @@ export const DndKit = [
       ),
     },
   }),
-]
+];

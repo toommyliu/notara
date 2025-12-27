@@ -1,15 +1,15 @@
-'use client'
+'use client';
 
-import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu'
+import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
 
-import { SuggestionPlugin } from '@platejs/suggestion/react'
+import { SuggestionPlugin } from '@platejs/suggestion/react';
 import {
   DropdownMenuItemIndicator,
 
-} from '@radix-ui/react-dropdown-menu'
-import { CheckIcon, EyeIcon, PencilLineIcon, PenIcon } from 'lucide-react'
-import { useEditorRef, usePlateState, usePluginOption } from 'platejs/react'
-import * as React from 'react'
+} from '@radix-ui/react-dropdown-menu';
+import { CheckIcon, EyeIcon, PencilLineIcon, PenIcon } from 'lucide-react';
+import { useEditorRef, usePlateState, usePluginOption } from 'platejs/react';
+import * as React from 'react';
 
 import {
   DropdownMenu,
@@ -17,26 +17,26 @@ import {
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
-} from '~/ui/dropdown-menu'
+} from '~/ui/dropdown-menu';
 
-import { ToolbarButton } from '~/ui/toolbar'
+import { ToolbarButton } from '~/ui/toolbar';
 
 export function ModeToolbarButton(props: DropdownMenuProps) {
-  const editor = useEditorRef()
-  const [readOnly, setReadOnly] = usePlateState('readOnly')
-  const [open, setOpen] = React.useState(false)
+  const editor = useEditorRef();
+  const [readOnly, setReadOnly] = usePlateState('readOnly');
+  const [open, setOpen] = React.useState(false);
 
-  const isSuggesting = usePluginOption(SuggestionPlugin, 'isSuggesting')
+  const isSuggesting = usePluginOption(SuggestionPlugin, 'isSuggesting');
 
-  let value = 'editing'
+  let value = 'editing';
 
   if (readOnly)
-    value = 'viewing'
+    value = 'viewing';
 
   if (isSuggesting)
-    value = 'suggestion'
+    value = 'suggestion';
 
-  const item: Record<string, { icon: React.ReactNode, label: string }> = {
+  const item: Record<string, { icon: React.ReactNode; label: string }> = {
     editing: {
       icon: <PenIcon />,
       label: 'Editing',
@@ -49,7 +49,7 @@ export function ModeToolbarButton(props: DropdownMenuProps) {
       icon: <EyeIcon />,
       label: 'Viewing',
     },
-  }
+  };
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen} modal={false} {...props}>
@@ -63,21 +63,21 @@ export function ModeToolbarButton(props: DropdownMenuProps) {
           value={value}
           onValueChange={(newValue) => {
             if (newValue === 'viewing') {
-              setReadOnly(true)
+              setReadOnly(true);
 
-              return
+              return;
             }
-            setReadOnly(false)
+            setReadOnly(false);
 
             if (newValue === 'suggestion') {
-              editor.setOption(SuggestionPlugin, 'isSuggesting', true)
+              editor.setOption(SuggestionPlugin, 'isSuggesting', true);
 
-              return
+              return;
             }
-            editor.setOption(SuggestionPlugin, 'isSuggesting', false)
+            editor.setOption(SuggestionPlugin, 'isSuggesting', false);
 
             if (newValue === 'editing') {
-              editor.tf.focus()
+              editor.tf.focus();
             }
           }}
         >
@@ -110,7 +110,7 @@ export function ModeToolbarButton(props: DropdownMenuProps) {
         </DropdownMenuRadioGroup>
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }
 
 function Indicator() {
@@ -120,5 +120,5 @@ function Indicator() {
         <CheckIcon />
       </DropdownMenuItemIndicator>
     </span>
-  )
+  );
 }

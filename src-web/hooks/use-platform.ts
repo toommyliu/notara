@@ -1,54 +1,54 @@
-import { getCurrentWindow } from '@tauri-apps/api/window'
-import { type as osType } from '@tauri-apps/plugin-os'
+import { getCurrentWindow } from '@tauri-apps/api/window';
+import { type as osType } from '@tauri-apps/plugin-os';
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react';
 
-import { useIsTauri } from '~/hooks/use-tauri'
+import { useIsTauri } from '~/hooks/use-tauri';
 
-const TITLEBAR_HEIGHT = 40
-const MAC_LEFT_INSET = 72
-const BASE_LEFT_INSET = 12
-const WIN_LINUX_RIGHT_INSET = 138
-const BASE_RIGHT_INSET = 12
-const RIBBON_WIDTH = 48
+const TITLEBAR_HEIGHT = 40;
+const MAC_LEFT_INSET = 72;
+const BASE_LEFT_INSET = 12;
+const WIN_LINUX_RIGHT_INSET = 138;
+const BASE_RIGHT_INSET = 12;
+const RIBBON_WIDTH = 48;
 
-const MACOS = 'macos'
-const WINDOWS = 'windows'
-const LINUX = 'linux'
-const UNKNOWN = 'unknown'
+const MACOS = 'macos';
+const WINDOWS = 'windows';
+const LINUX = 'linux';
+const UNKNOWN = 'unknown';
 
-type Platform = typeof MACOS | typeof WINDOWS | typeof LINUX | typeof UNKNOWN
+type Platform = typeof MACOS | typeof WINDOWS | typeof LINUX | typeof UNKNOWN;
 
 interface LayoutTokens {
-  platform: Platform
-  isMac: boolean
-  isWindows: boolean
-  isLinux: boolean
-  isTauri: boolean
-  titlebarHeight: number
-  leftInset: number
-  rightInset: number
-  ribbonWidth: number
-  isFullscreen: boolean
+  platform: Platform;
+  isMac: boolean;
+  isWindows: boolean;
+  isLinux: boolean;
+  isTauri: boolean;
+  titlebarHeight: number;
+  leftInset: number;
+  rightInset: number;
+  ribbonWidth: number;
+  isFullscreen: boolean;
 }
 
 function normalizePlatform(osTypeValue: string): Platform {
   switch (osTypeValue.toLowerCase()) {
     case MACOS:
-      return MACOS
+      return MACOS;
     case WINDOWS:
-      return WINDOWS
+      return WINDOWS;
     case LINUX:
-      return LINUX
+      return LINUX;
     default:
-      return UNKNOWN
+      return UNKNOWN;
   }
 }
 
 function getLayout(platform: Platform, isTauri: boolean, isFullscreen: boolean): LayoutTokens {
-  const isMac = platform === MACOS
-  const isWindows = platform === WINDOWS
-  const isLinux = platform === LINUX
+  const isMac = platform === MACOS;
+  const isWindows = platform === WINDOWS;
+  const isLinux = platform === LINUX;
 
   const baseTokens = {
     platform,
@@ -60,14 +60,14 @@ function getLayout(platform: Platform, isTauri: boolean, isFullscreen: boolean):
     isFullscreen,
     titlebarHeight: TITLEBAR_HEIGHT,
     rightInset: BASE_RIGHT_INSET,
-  }
+  };
 
   if (!isTauri) {
     return {
       ...baseTokens,
       leftInset: BASE_LEFT_INSET,
       rightInset: BASE_RIGHT_INSET,
-    }
+    };
   }
 
   // Tauri-specific overrides
@@ -75,13 +75,13 @@ function getLayout(platform: Platform, isTauri: boolean, isFullscreen: boolean):
     ...baseTokens,
     leftInset: isMac && !isFullscreen ? MAC_LEFT_INSET : BASE_LEFT_INSET,
     rightInset: isMac ? BASE_RIGHT_INSET : WIN_LINUX_RIGHT_INSET,
-  }
+  };
 }
 
 function getPlatformSafe(): Platform {
   if (typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window) {
     try {
-      return normalizePlatform(osType())
+      return normalizePlatform(osType());
     }
     catch {
     }
@@ -89,72 +89,72 @@ function getPlatformSafe(): Platform {
 
   // fallback to userAgent if tauri fails
   if (typeof navigator !== 'undefined') {
-    const userAgent = navigator.userAgent.toLowerCase()
+    const userAgent = navigator.userAgent.toLowerCase();
     if (userAgent.includes('macintosh') || userAgent.includes('mac os x')) {
-      return MACOS
+      return MACOS;
     }
     else if (userAgent.includes('windows')) {
-      return WINDOWS
+      return WINDOWS;
     }
     else if (userAgent.includes('linux')) {
-      return LINUX
+      return LINUX;
     }
   }
 
-  return UNKNOWN
+  return UNKNOWN;
 }
 
 export function getIsMacOS(): boolean {
-  return getPlatformSafe() === MACOS
+  return getPlatformSafe() === MACOS;
 }
 
 export function useIsMacOS(): boolean {
-  return useMemo(() => getIsMacOS(), [])
+  return useMemo(() => getIsMacOS(), []);
 }
 
 export function isModKey(ev: KeyboardEvent | React.KeyboardEvent): boolean {
-  const isMac = getIsMacOS()
-  return isMac ? ev.metaKey : ev.ctrlKey
+  const isMac = getIsMacOS();
+  return isMac ? ev.metaKey : ev.ctrlKey;
 }
 
 export function getModKeyLabel(): string {
-  return getIsMacOS() ? '⌘' : 'Ctrl'
+  return getIsMacOS() ? '⌘' : 'Ctrl';
 }
 
 export function usePlatformLayout(): LayoutTokens {
-  const isTauri = useIsTauri()
-  const platform = useMemo(() => getPlatformSafe(), [])
-  const [isFullscreen, setIsFullscreen] = useState(false)
+  const isTauri = useIsTauri();
+  const platform = useMemo(() => getPlatformSafe(), []);
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
     if (!isTauri)
-      return
+      return;
 
     const checkFullscreen = async () => {
-      const win = getCurrentWindow()
-      const full = await win.isFullscreen()
-      setIsFullscreen(full)
-    }
+      const win = getCurrentWindow();
+      const full = await win.isFullscreen();
+      setIsFullscreen(full);
+    };
 
-    checkFullscreen()
+    checkFullscreen();
 
-    let unlisten: (() => void) | undefined
+    let unlisten: (() => void) | undefined;
 
     const setup = async () => {
-      const win = getCurrentWindow()
+      const win = getCurrentWindow();
       // Listen for resize which happens on fullscreen toggle
       unlisten = await win.onResized(() => {
-        checkFullscreen()
-      })
-    }
+        checkFullscreen();
+      });
+    };
 
-    setup()
+    setup();
 
     return () => {
       if (unlisten)
-        unlisten()
-    }
-  }, [isTauri])
+        unlisten();
+    };
+  }, [isTauri]);
 
-  return useMemo(() => getLayout(platform, isTauri, isFullscreen), [platform, isTauri, isFullscreen])
+  return useMemo(() => getLayout(platform, isTauri, isFullscreen), [platform, isTauri, isFullscreen]);
 }

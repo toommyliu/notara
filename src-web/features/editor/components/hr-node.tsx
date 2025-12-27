@@ -1,20 +1,20 @@
-'use client'
+'use client';
 
-import type { PlateElementProps } from 'platejs/react'
+import type { PlateElementProps } from 'platejs/react';
 
 import {
   PlateElement,
   useFocused,
   useReadOnly,
   useSelected,
-} from 'platejs/react'
+} from 'platejs/react';
 
-import { cn } from '~/lib/utils'
+import { cn } from '~/lib/utils';
 
 export function HrElement(props: PlateElementProps) {
-  const readOnly = useReadOnly()
-  const selected = useSelected()
-  const focused = useFocused()
+  const readOnly = useReadOnly();
+  const selected = useSelected();
+  const focused = useFocused();
 
   return (
     <PlateElement {...props}>
@@ -29,5 +29,5 @@ export function HrElement(props: PlateElementProps) {
       </div>
       {props.children}
     </PlateElement>
-  )
+  );
 }

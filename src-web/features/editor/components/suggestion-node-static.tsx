@@ -1,24 +1,24 @@
-import type { TSuggestionText } from 'platejs'
-import type { SlateLeafProps } from 'platejs/static'
+import type { TSuggestionText } from 'platejs';
+import type { SlateLeafProps } from 'platejs/static';
 
-import { BaseSuggestionPlugin } from '@platejs/suggestion'
-import { SlateLeaf } from 'platejs/static'
+import { BaseSuggestionPlugin } from '@platejs/suggestion';
+import { SlateLeaf } from 'platejs/static';
 
-import { cn } from '~/lib/utils'
+import { cn } from '~/lib/utils';
 
 export function SuggestionLeafStatic(props: SlateLeafProps<TSuggestionText>) {
-  const { editor, leaf } = props
+  const { editor, leaf } = props;
 
   const dataList = editor
     .getApi(BaseSuggestionPlugin)
     .suggestion
-    .dataList(leaf)
-  const hasRemove = dataList.some(data => data.type === 'remove')
-  const diffOperation = { type: hasRemove ? 'delete' : 'insert' } as const
+    .dataList(leaf);
+  const hasRemove = dataList.some(data => data.type === 'remove');
+  const diffOperation = { type: hasRemove ? 'delete' : 'insert' } as const;
 
   const Component = ({ delete: 'del', insert: 'ins', update: 'span' } as const)[
     diffOperation.type
-  ]
+  ];
 
   return (
     <SlateLeaf
@@ -32,5 +32,5 @@ export function SuggestionLeafStatic(props: SlateLeafProps<TSuggestionText>) {
     >
       {props.children}
     </SlateLeaf>
-  )
+  );
 }

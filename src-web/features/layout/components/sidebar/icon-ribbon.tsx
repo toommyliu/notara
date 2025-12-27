@@ -1,28 +1,28 @@
-import type { ReactNode } from 'react'
-import { Link, useLocation } from '@tanstack/react-router'
+import type { ReactNode } from 'react';
+import { Link, useLocation } from '@tanstack/react-router';
 
-import IconFiles from '~icons/lucide/folder-open'
+import IconFiles from '~icons/lucide/folder-open';
 
-import IconSearch from '~icons/lucide/search'
-import IconSettings from '~icons/lucide/settings'
-import IconStar from '~icons/lucide/star'
-import { useSettingsStore } from '~/features/settings/stores/settings-store'
+import IconSearch from '~icons/lucide/search';
+import IconSettings from '~icons/lucide/settings';
+import IconStar from '~icons/lucide/star';
+import { useSettingsStore } from '~/features/settings/stores/settings-store';
 
-import { usePlatformLayout } from '~/hooks/use-platform'
-import { cn } from '~/lib/utils'
+import { usePlatformLayout } from '~/hooks/use-platform';
+import { cn } from '~/lib/utils';
 
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from '~/ui/tooltip'
+} from '~/ui/tooltip';
 
 interface RibbonIconProps {
-  icon: ReactNode
-  label: string
-  isActive?: boolean
-  onClick?: () => void
-  to?: string
+  icon: ReactNode;
+  label: string;
+  isActive?: boolean;
+  onClick?: () => void;
+  to?: string;
 }
 
 function RibbonIcon({ icon, label, isActive, onClick, to }: RibbonIconProps) {
@@ -42,7 +42,7 @@ function RibbonIcon({ icon, label, isActive, onClick, to }: RibbonIconProps) {
     >
       {icon}
     </button>
-  )
+  );
 
   const wrapped = to
     ? (
@@ -52,7 +52,7 @@ function RibbonIcon({ icon, label, isActive, onClick, to }: RibbonIconProps) {
       )
     : (
         content
-      )
+      );
 
   return (
     <Tooltip>
@@ -61,13 +61,13 @@ function RibbonIcon({ icon, label, isActive, onClick, to }: RibbonIconProps) {
         {label}
       </TooltipContent>
     </Tooltip>
-  )
+  );
 }
 
 export function IconRibbon() {
-  const layout = usePlatformLayout()
-  const location = useLocation()
-  const { open } = useSettingsStore()
+  const layout = usePlatformLayout();
+  const location = useLocation();
+  const { open } = useSettingsStore();
 
   return (
     <div
@@ -112,5 +112,5 @@ export function IconRibbon() {
         />
       </div>
     </div>
-  )
+  );
 }

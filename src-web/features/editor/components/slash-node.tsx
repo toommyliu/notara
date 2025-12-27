@@ -1,8 +1,8 @@
-'use client'
+'use client';
 
-import type { TComboboxInputElement } from 'platejs'
+import type { TComboboxInputElement } from 'platejs';
 
-import type { PlateEditor, PlateElementProps } from 'platejs/react'
+import type { PlateEditor, PlateElementProps } from 'platejs/react';
 
 import {
   CalendarIcon,
@@ -22,12 +22,12 @@ import {
   Square,
   Table,
   TableOfContentsIcon,
-} from 'lucide-react'
-import { KEYS } from 'platejs'
-import { PlateElement } from 'platejs/react'
-import * as React from 'react'
+} from 'lucide-react';
+import { KEYS } from 'platejs';
+import { PlateElement } from 'platejs/react';
+import * as React from 'react';
 
-import { insertBlock, insertInlineElement } from '~/features/editor/transforms'
+import { insertBlock, insertInlineElement } from '~/features/editor/transforms';
 
 import {
   InlineCombobox,
@@ -37,19 +37,19 @@ import {
   InlineComboboxGroupLabel,
   InlineComboboxInput,
   InlineComboboxItem,
-} from './inline-combobox'
+} from './inline-combobox';
 
 interface Group {
-  group: string
+  group: string;
   items: {
-    icon: React.ReactNode
-    value: string
-    onSelect: (editor: PlateEditor, value: string) => void
-    className?: string
-    focusEditor?: boolean
-    keywords?: string[]
-    label?: string
-  }[]
+    icon: React.ReactNode;
+    value: string;
+    onSelect: (editor: PlateEditor, value: string) => void;
+    className?: string;
+    focusEditor?: boolean;
+    keywords?: string[];
+    label?: string;
+  }[];
 }
 
 const groups: Group[] = [
@@ -131,7 +131,7 @@ const groups: Group[] = [
     ].map(item => ({
       ...item,
       onSelect: (editor, value) => {
-        insertBlock(editor, value, { upsert: true })
+        insertBlock(editor, value, { upsert: true });
       },
     })),
   },
@@ -164,7 +164,7 @@ const groups: Group[] = [
     ].map(item => ({
       ...item,
       onSelect: (editor, value) => {
-        insertBlock(editor, value, { upsert: true })
+        insertBlock(editor, value, { upsert: true });
       },
     })),
   },
@@ -187,14 +187,14 @@ const groups: Group[] = [
     ].map(item => ({
       ...item,
       onSelect: (editor, value) => {
-        insertInlineElement(editor, value)
+        insertInlineElement(editor, value);
       },
     })),
   },
-]
+];
 
 export function SlashInputElement(props: PlateElementProps<TComboboxInputElement>) {
-  const { editor, element } = props
+  const { editor, element } = props;
 
   return (
     <PlateElement {...props} as="span">
@@ -229,5 +229,5 @@ export function SlashInputElement(props: PlateElementProps<TComboboxInputElement
 
       {props.children}
     </PlateElement>
-  )
+  );
 }

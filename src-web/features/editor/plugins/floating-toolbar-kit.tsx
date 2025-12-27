@@ -1,9 +1,9 @@
-'use client'
+'use client';
 
-import { createPlatePlugin } from 'platejs/react'
+import { createPlatePlugin } from 'platejs/react';
 
-import { FloatingToolbar } from '~/features/editor/components/floating-toolbar'
-import { FloatingToolbarButtons } from '~/features/editor/components/floating-toolbar-buttons'
+import { FloatingToolbar } from '~/features/editor/components/floating-toolbar';
+import { FloatingToolbarButtons } from '~/features/editor/components/floating-toolbar-buttons';
 
 export const FloatingToolbarKit = [
   createPlatePlugin({
@@ -16,4 +16,4 @@ export const FloatingToolbarKit = [
       ),
     },
   }),
-]
+];

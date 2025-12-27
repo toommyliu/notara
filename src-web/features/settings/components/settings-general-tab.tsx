@@ -1,20 +1,20 @@
-import IconMonitor from '~icons/lucide/monitor'
-import IconMoon from '~icons/lucide/moon'
-import IconSun from '~icons/lucide/sun'
+import IconMonitor from '~icons/lucide/monitor';
+import IconMoon from '~icons/lucide/moon';
+import IconSun from '~icons/lucide/sun';
 
-import { useTheme } from '~/hooks/use-theme'
+import { useTheme } from '~/hooks/use-theme';
 
-import { cn } from '~/lib/utils'
+import { cn } from '~/lib/utils';
 
 interface ThemeOptionProps {
-  value: 'light' | 'dark' | 'system'
-  isActive: boolean
-  onClick: () => void
+  value: 'light' | 'dark' | 'system';
+  isActive: boolean;
+  onClick: () => void;
 }
 
 function ThemeOption({ value, isActive, onClick }: ThemeOptionProps) {
-  const Icon = value === 'light' ? IconSun : value === 'dark' ? IconMoon : IconMonitor
-  const label = value === 'light' ? 'Light' : value === 'dark' ? 'Dark' : 'System'
+  const Icon = value === 'light' ? IconSun : value === 'dark' ? IconMoon : IconMonitor;
+  const label = value === 'light' ? 'Light' : value === 'dark' ? 'Dark' : 'System';
 
   return (
     <button
@@ -46,11 +46,11 @@ function ThemeOption({ value, isActive, onClick }: ThemeOptionProps) {
         <div className="absolute -top-px left-1/2 -translate-x-1/2 w-6 h-0.5 bg-foreground rounded-full" />
       )}
     </button>
-  )
+  );
 }
 
 export function GeneralTab() {
-  const { theme, setTheme } = useTheme()
+  const { theme, setTheme } = useTheme();
 
   return (
     <div className="space-y-4">
@@ -85,5 +85,5 @@ export function GeneralTab() {
         </div>
       </div>
     </div>
-  )
+  );
 }

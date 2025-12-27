@@ -1,18 +1,18 @@
-'use client'
+'use client';
 
-import type { Alignment } from '@platejs/basic-styles'
+import type { Alignment } from '@platejs/basic-styles';
 
-import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu'
-import { TextAlignPlugin } from '@platejs/basic-styles/react'
+import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
+import { TextAlignPlugin } from '@platejs/basic-styles/react';
 
 import {
   AlignCenterIcon,
   AlignJustifyIcon,
   AlignLeftIcon,
   AlignRightIcon,
-} from 'lucide-react'
-import { useEditorPlugin, useSelectionFragmentProp } from 'platejs/react'
-import * as React from 'react'
+} from 'lucide-react';
+import { useEditorPlugin, useSelectionFragmentProp } from 'platejs/react';
+import * as React from 'react';
 
 import {
   DropdownMenu,
@@ -20,9 +20,9 @@ import {
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
-} from '~/ui/dropdown-menu'
+} from '~/ui/dropdown-menu';
 
-import { ToolbarButton } from '~/ui/toolbar'
+import { ToolbarButton } from '~/ui/toolbar';
 
 const items = [
   {
@@ -41,19 +41,19 @@ const items = [
     icon: AlignJustifyIcon,
     value: 'justify',
   },
-]
+];
 
 export function AlignToolbarButton(props: DropdownMenuProps) {
-  const { editor, tf } = useEditorPlugin(TextAlignPlugin)
+  const { editor, tf } = useEditorPlugin(TextAlignPlugin);
   const value
     = useSelectionFragmentProp({
       defaultValue: 'start',
       getProp: node => node.align,
-    }) ?? 'left'
+    }) ?? 'left';
 
-  const [open, setOpen] = React.useState(false)
+  const [open, setOpen] = React.useState(false);
   const IconValue
-    = items.find(item => item.value === value)?.icon ?? AlignLeftIcon
+    = items.find(item => item.value === value)?.icon ?? AlignLeftIcon;
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen} modal={false} {...props}>
@@ -63,8 +63,8 @@ export function AlignToolbarButton(props: DropdownMenuProps) {
         <DropdownMenuRadioGroup
           value={value}
           onValueChange={(value) => {
-            tf.textAlign.setNodes(value as Alignment)
-            editor.tf.focus()
+            tf.textAlign.setNodes(value as Alignment);
+            editor.tf.focus();
           }}
         >
           {items.map(({ icon: Icon, value: itemValue }) => (
@@ -79,5 +79,5 @@ export function AlignToolbarButton(props: DropdownMenuProps) {
         </DropdownMenuRadioGroup>
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }

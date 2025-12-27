@@ -1,24 +1,24 @@
-import type { RefObject } from 'react'
-import type { HeaderTabItemHandle, HeaderTabItemProps } from './types'
-import { useSortable } from '@dnd-kit/sortable'
-import { CSS } from '@dnd-kit/utilities'
+import type { RefObject } from 'react';
+import type { HeaderTabItemHandle, HeaderTabItemProps } from './types';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
-import { useEffect, useImperativeHandle, useRef } from 'react'
+import { useEffect, useImperativeHandle, useRef } from 'react';
 
-import IconX from '~icons/lucide/x'
-import { useNotesStore } from '~/features/notes/store'
+import IconX from '~icons/lucide/x';
+import { useNotesStore } from '~/features/notes/store';
 
-import { cn } from '~/lib/utils'
+import { cn } from '~/lib/utils';
 
 export function HeaderTabItem({ ref, noteId, isActive, isPinned, onActivate, onClose, compact }: HeaderTabItemProps & { ref?: React.RefObject<HeaderTabItemHandle | null> }) {
-  const notes = useNotesStore(s => s.notes)
-  const note = notes.get(noteId)
-  const tabRef = useRef<HTMLDivElement>(null)
-  const buttonRef = useRef<HTMLButtonElement>(null)
+  const notes = useNotesStore(s => s.notes);
+  const note = notes.get(noteId);
+  const tabRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
 
   useImperativeHandle(ref, () => ({
     focus: () => buttonRef.current?.focus(),
-  }))
+  }));
 
   const {
     attributes,
@@ -30,27 +30,27 @@ export function HeaderTabItem({ ref, noteId, isActive, isPinned, onActivate, onC
   } = useSortable({
     id: noteId,
     data: { section: isPinned ? 'pinned' : 'open' },
-  })
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-  }
+  };
 
   useEffect(() => {
     if (isActive && tabRef.current) {
-      tabRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
+      tabRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
     }
-  }, [isActive])
+  }, [isActive]);
 
   if (!note)
-    return null
+    return null;
 
   return (
     <div
       ref={(node) => {
         setNodeRef(node);
-        (tabRef as RefObject<HTMLDivElement | null>).current = node
+        (tabRef as RefObject<HTMLDivElement | null>).current = node;
       }}
       style={style}
       aria-selected={isActive}
@@ -94,8 +94,8 @@ export function HeaderTabItem({ ref, noteId, isActive, isPinned, onActivate, onC
 
       <button
         onClick={(ev) => {
-          ev.stopPropagation()
-          onClose()
+          ev.stopPropagation();
+          onClose();
         }}
         tabIndex={-1}
         className={cn(
@@ -109,5 +109,5 @@ export function HeaderTabItem({ ref, noteId, isActive, isPinned, onActivate, onC
         <IconX className="size-3" />
       </button>
     </div>
-  )
+  );
 }

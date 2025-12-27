@@ -1,5 +1,5 @@
-import type { CollisionDetection, DragEndEvent, DragStartEvent } from '@dnd-kit/core'
-import type { Group, Note, SortOrder } from '~/features/notes/store'
+import type { CollisionDetection, DragEndEvent, DragStartEvent } from '@dnd-kit/core';
+import type { Group, Note, SortOrder } from '~/features/notes/store';
 import {
   closestCenter,
   DndContext,
@@ -9,43 +9,43 @@ import {
   useSensor,
   useSensors,
 
-} from '@dnd-kit/core'
-import { restrictToVerticalAxis } from '@dnd-kit/modifiers'
+} from '@dnd-kit/core';
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import {
   SortableContext,
   useSortable,
   verticalListSortingStrategy,
-} from '@dnd-kit/sortable'
-import { CSS } from '@dnd-kit/utilities'
-import { Link, useNavigate } from '@tanstack/react-router'
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { Link, useNavigate } from '@tanstack/react-router';
 
-import { useRef, useState } from 'react'
-import IconAppWindow from '~icons/lucide/app-window'
-import IconSort from '~icons/lucide/arrow-down-a-z'
-import IconArrowDownAZ from '~icons/lucide/arrow-down-a-z'
-import IconArrowUpZA from '~icons/lucide/arrow-up-z-a'
+import { useRef, useState } from 'react';
+import IconAppWindow from '~icons/lucide/app-window';
+import IconSort from '~icons/lucide/arrow-down-a-z';
+import IconArrowDownAZ from '~icons/lucide/arrow-down-a-z';
+import IconArrowUpZA from '~icons/lucide/arrow-up-z-a';
 
-import IconCheck from '~icons/lucide/check'
-import IconColumns from '~icons/lucide/columns-2'
-import IconCopy from '~icons/lucide/copy'
-import IconExternalLink from '~icons/lucide/external-link'
-import IconFolderInput from '~icons/lucide/folder-input'
-import IconFolderPlus from '~icons/lucide/folder-plus'
-import IconInfinity from '~icons/lucide/infinity'
-import IconListOrdered from '~icons/lucide/list-ordered'
-import IconMoreHorizontal from '~icons/lucide/more-horizontal'
-import IconPanelRight from '~icons/lucide/panel-right'
-import IconPencil from '~icons/lucide/pencil'
-import IconAdd from '~icons/lucide/plus'
-import IconStar from '~icons/lucide/star'
-import IconTrash from '~icons/lucide/trash-2'
-import { useSplitViewStore } from '~/features/layout/stores/split-view-store'
-import { useTabsStore } from '~/features/layout/stores/tabs-store'
-import { useNotesStore } from '~/features/notes/store'
-import { usePlatformLayout } from '~/hooks/use-platform'
-import { cn } from '~/lib/utils'
+import IconCheck from '~icons/lucide/check';
+import IconColumns from '~icons/lucide/columns-2';
+import IconCopy from '~icons/lucide/copy';
+import IconExternalLink from '~icons/lucide/external-link';
+import IconFolderInput from '~icons/lucide/folder-input';
+import IconFolderPlus from '~icons/lucide/folder-plus';
+import IconInfinity from '~icons/lucide/infinity';
+import IconListOrdered from '~icons/lucide/list-ordered';
+import IconMoreHorizontal from '~icons/lucide/more-horizontal';
+import IconPanelRight from '~icons/lucide/panel-right';
+import IconPencil from '~icons/lucide/pencil';
+import IconAdd from '~icons/lucide/plus';
+import IconStar from '~icons/lucide/star';
+import IconTrash from '~icons/lucide/trash-2';
+import { useSplitViewStore } from '~/features/layout/stores/split-view-store';
+import { useTabsStore } from '~/features/layout/stores/tabs-store';
+import { useNotesStore } from '~/features/notes/store';
+import { usePlatformLayout } from '~/hooks/use-platform';
+import { cn } from '~/lib/utils';
 
-import { useDragContext } from '~/providers/drag-context'
+import { useDragContext } from '~/providers/drag-context';
 import {
   ContextMenu,
   ContextMenuContent,
@@ -55,7 +55,7 @@ import {
   ContextMenuSubContent,
   ContextMenuSubTrigger,
   ContextMenuTrigger,
-} from '~/ui/context-menu'
+} from '~/ui/context-menu';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -65,8 +65,8 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from '~/ui/dropdown-menu'
-import { Popover, PopoverContent, PopoverTrigger } from '~/ui/popover'
+} from '~/ui/dropdown-menu';
+import { Popover, PopoverContent, PopoverTrigger } from '~/ui/popover';
 import {
   Sidebar,
   SidebarContent,
@@ -79,16 +79,16 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
-} from '~/ui/sidebar'
+} from '~/ui/sidebar';
 
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from '~/ui/tooltip'
+} from '~/ui/tooltip';
 
 interface DropIndicatorProps {
-  position?: 'top' | 'bottom'
+  position?: 'top' | 'bottom';
 }
 function DropIndicator({ position = 'top' }: DropIndicatorProps) {
   return (
@@ -101,21 +101,21 @@ function DropIndicator({ position = 'top' }: DropIndicatorProps) {
       <div className="w-full h-full bg-primary shadow-[0_0_8px_rgba(var(--primary),0.4)] rounded-full animate-in fade-in zoom-in-95 duration-200" />
       <div className="absolute -left-1 -top-1 size-2 rounded-full bg-primary shadow-[0_0_8px_rgba(var(--primary),0.4)]" />
     </div>
-  )
+  );
 }
 
 interface GroupDropZoneProps {
-  groupId: string
-  isVisible: boolean
+  groupId: string;
+  isVisible: boolean;
 }
 function GroupDropZone({ groupId, isVisible }: GroupDropZoneProps) {
   const { isOver, setNodeRef } = useDroppable({
     id: `${groupId}-end`,
     data: { type: 'group-end', groupId },
-  })
+  });
 
   if (!isVisible)
-    return null
+    return null;
 
   return (
     <div
@@ -132,37 +132,37 @@ function GroupDropZone({ groupId, isVisible }: GroupDropZoneProps) {
         <div className="absolute left-3 size-1.5 rounded-full bg-primary shadow-[0_0_8px_rgba(var(--primary),0.4)]" />
       )}
     </div>
-  )
+  );
 }
 
 function GroupsEndDropZone({ isVisible }: { isVisible: boolean }) {
   const { isOver, setNodeRef } = useDroppable({
     id: 'groups-end-list',
     data: { type: 'group-end-list' },
-  })
+  });
 
   if (!isVisible)
-    return null
+    return null;
 
   return (
     <div ref={setNodeRef} className="h-6 relative mt-1 flex items-center">
       {isOver && <DropIndicator position="top" />}
     </div>
-  )
+  );
 }
 
 function SidebarActionStrip() {
-  const addNote = useNotesStore(s => s.addNote)
-  const addGroup = useNotesStore(s => s.addGroup)
-  const sortData = useNotesStore(s => s.sortData)
-  const { openTab } = useTabsStore()
-  const navigate = useNavigate()
+  const addNote = useNotesStore(s => s.addNote);
+  const addGroup = useNotesStore(s => s.addGroup);
+  const sortData = useNotesStore(s => s.sortData);
+  const { openTab } = useTabsStore();
+  const navigate = useNavigate();
 
   const handleAddNote = () => {
-    const id = addNote()
-    openTab(id)
-    navigate({ to: '/notes' })
-  }
+    const id = addNote();
+    openTab(id);
+    navigate({ to: '/notes' });
+  };
 
   return (
     <div className="flex items-center justify-center gap-1 py-1">
@@ -199,58 +199,58 @@ function SidebarActionStrip() {
         <TooltipContent side="bottom" className="text-xs">Sort Alphabetically</TooltipContent>
       </Tooltip>
     </div>
-  )
+  );
 }
 
 interface NoteMenuContentProps {
-  note: Note
-  groupId: string | null
-  variant: 'context' | 'dropdown'
+  note: Note;
+  groupId: string | null;
+  variant: 'context' | 'dropdown';
 }
 function NoteMenuContent({ note, groupId, variant }: NoteMenuContentProps) {
-  const navigate = useNavigate()
-  const groups = useNotesStore(s => s.groups)
-  const duplicateNote = useNotesStore(s => s.duplicateNote)
-  const deleteNote = useNotesStore(s => s.deleteNote)
-  const moveNote = useNotesStore(s => s.moveNote)
-  const { openTab } = useTabsStore()
-  const { addPane } = useSplitViewStore()
+  const navigate = useNavigate();
+  const groups = useNotesStore(s => s.groups);
+  const duplicateNote = useNotesStore(s => s.duplicateNote);
+  const deleteNote = useNotesStore(s => s.deleteNote);
+  const moveNote = useNotesStore(s => s.moveNote);
+  const { openTab } = useTabsStore();
+  const { addPane } = useSplitViewStore();
 
-  const Item = variant === 'context' ? ContextMenuItem : DropdownMenuItem
-  const Separator = variant === 'context' ? ContextMenuSeparator : DropdownMenuSeparator
-  const Sub = variant === 'context' ? ContextMenuSub : DropdownMenuSub
-  const SubTrigger = variant === 'context' ? ContextMenuSubTrigger : DropdownMenuSubTrigger
-  const SubContent = variant === 'context' ? ContextMenuSubContent : DropdownMenuSubContent
+  const Item = variant === 'context' ? ContextMenuItem : DropdownMenuItem;
+  const Separator = variant === 'context' ? ContextMenuSeparator : DropdownMenuSeparator;
+  const Sub = variant === 'context' ? ContextMenuSub : DropdownMenuSub;
+  const SubTrigger = variant === 'context' ? ContextMenuSubTrigger : DropdownMenuSubTrigger;
+  const SubContent = variant === 'context' ? ContextMenuSubContent : DropdownMenuSubContent;
 
   const handleDuplicate = () => {
-    const newId = duplicateNote(note.id)
+    const newId = duplicateNote(note.id);
     if (newId) {
-      openTab(newId)
-      navigate({ to: '/notes' })
+      openTab(newId);
+      navigate({ to: '/notes' });
     }
-  }
+  };
 
   const handleDelete = () => {
-    deleteNote(note.id)
-  }
+    deleteNote(note.id);
+  };
 
   const handleOpenInNewTab = () => {
-    openTab(note.id)
-    navigate({ to: '/notes' })
-  }
+    openTab(note.id);
+    navigate({ to: '/notes' });
+  };
 
   const handleOpenInSplitView = () => {
-    addPane('right', note.id)
-    navigate({ to: '/notes' })
-  }
+    addPane('right', note.id);
+    navigate({ to: '/notes' });
+  };
 
   const handleMoveToGroup = (targetGroupId: string) => {
     if (groupId && groupId !== targetGroupId) {
-      moveNote(note.id, groupId, targetGroupId)
+      moveNote(note.id, groupId, targetGroupId);
     }
-  }
+  };
 
-  const availableGroups = groups.filter(g => g.id !== groupId)
+  const availableGroups = groups.filter(g => g.id !== groupId);
 
   return (
     <>
@@ -308,7 +308,7 @@ function NoteMenuContent({ note, groupId, variant }: NoteMenuContentProps) {
         Open in Side Peek
       </Item>
     </>
-  )
+  );
 }
 
 const DISPLAY_LIMITS = [
@@ -316,27 +316,27 @@ const DISPLAY_LIMITS = [
   { value: 10, label: 'Show 10 items' },
   { value: 20, label: 'Show 20 items' },
   { value: null, label: 'Show all' },
-] as const
+] as const;
 
-const SORT_OPTIONS: { value: SortOrder, label: string, icon: typeof IconArrowDownAZ }[] = [
+const SORT_OPTIONS: { value: SortOrder; label: string; icon: typeof IconArrowDownAZ }[] = [
   { value: 'manual', label: 'Manual', icon: IconListOrdered },
   { value: 'a-z', label: 'A → Z', icon: IconArrowDownAZ },
   { value: 'z-a', label: 'Z → A', icon: IconArrowUpZA },
-]
+];
 
 interface GroupMenuContentProps {
-  group: Group
-  variant: 'context' | 'dropdown'
+  group: Group;
+  variant: 'context' | 'dropdown';
 }
 function GroupMenuContent({ group, variant }: GroupMenuContentProps) {
-  const sortGroup = useNotesStore(s => s.sortGroup)
-  const setGroupDisplayLimit = useNotesStore(s => s.setGroupDisplayLimit)
+  const sortGroup = useNotesStore(s => s.sortGroup);
+  const setGroupDisplayLimit = useNotesStore(s => s.setGroupDisplayLimit);
 
-  const Item = variant === 'context' ? ContextMenuItem : DropdownMenuItem
-  const Separator = variant === 'context' ? ContextMenuSeparator : DropdownMenuSeparator
-  const Sub = variant === 'context' ? ContextMenuSub : DropdownMenuSub
-  const SubTrigger = variant === 'context' ? ContextMenuSubTrigger : DropdownMenuSubTrigger
-  const SubContent = variant === 'context' ? ContextMenuSubContent : DropdownMenuSubContent
+  const Item = variant === 'context' ? ContextMenuItem : DropdownMenuItem;
+  const Separator = variant === 'context' ? ContextMenuSeparator : DropdownMenuSeparator;
+  const Sub = variant === 'context' ? ContextMenuSub : DropdownMenuSub;
+  const SubTrigger = variant === 'context' ? ContextMenuSubTrigger : DropdownMenuSubTrigger;
+  const SubContent = variant === 'context' ? ContextMenuSubContent : DropdownMenuSubContent;
 
   return (
     <>
@@ -344,8 +344,8 @@ function GroupMenuContent({ group, variant }: GroupMenuContentProps) {
         Sort by
       </span>
       {SORT_OPTIONS.map((option) => {
-        const Icon = option.icon
-        const isActive = group.sortOrder === option.value
+        const Icon = option.icon;
+        const isActive = group.sortOrder === option.value;
         return (
           <Item
             key={option.value}
@@ -355,7 +355,7 @@ function GroupMenuContent({ group, variant }: GroupMenuContentProps) {
             {option.label}
             {isActive && <IconCheck className="size-3.5 ml-auto text-primary" />}
           </Item>
-        )
+        );
       })}
       <Separator />
       <Sub>
@@ -365,7 +365,7 @@ function GroupMenuContent({ group, variant }: GroupMenuContentProps) {
         </SubTrigger>
         <SubContent>
           {DISPLAY_LIMITS.map((option) => {
-            const isActive = group.displayLimit === option.value
+            const isActive = group.displayLimit === option.value;
             return (
               <Item
                 key={String(option.value)}
@@ -383,18 +383,18 @@ function GroupMenuContent({ group, variant }: GroupMenuContentProps) {
                 {option.label}
                 {isActive && <IconCheck className="size-3.5 ml-auto text-primary" />}
               </Item>
-            )
+            );
           })}
         </SubContent>
       </Sub>
     </>
-  )
+  );
 }
 
 interface HiddenNotesPopoverProps {
-  notes: Note[]
-  activeNoteId: string | null
-  onNoteSelect: (noteId: string) => void
+  notes: Note[];
+  activeNoteId: string | null;
+  onNoteSelect: (noteId: string) => void;
 }
 
 function HiddenNotesPopover({
@@ -402,14 +402,14 @@ function HiddenNotesPopover({
   activeNoteId,
   onNoteSelect,
 }: HiddenNotesPopoverProps) {
-  const navigate = useNavigate()
-  const { openTab } = useTabsStore()
+  const navigate = useNavigate();
+  const { openTab } = useTabsStore();
 
   const handleNoteClick = (noteId: string) => {
-    onNoteSelect(noteId)
-    openTab(noteId)
-    navigate({ to: '/notes' })
-  }
+    onNoteSelect(noteId);
+    openTab(noteId);
+    navigate({ to: '/notes' });
+  };
 
   return (
     <li className="relative">
@@ -467,7 +467,7 @@ function HiddenNotesPopover({
         </PopoverContent>
       </Popover>
     </li>
-  )
+  );
 }
 
 // TODO: Re-implement TOC extraction from Lexical serialized state
@@ -483,17 +483,17 @@ function NoteHeadings({ content }: NoteHeadingsProps) {
 */
 
 interface SortableNoteProps {
-  note: Note
-  groupId: string | null
-  isActive: boolean
-  onSelect: () => void
-  activeDragType: 'note' | 'group' | null
+  note: Note;
+  groupId: string | null;
+  isActive: boolean;
+  onSelect: () => void;
+  activeDragType: 'note' | 'group' | null;
 }
 function SortableNote({ note, groupId, isActive, onSelect, activeDragType }: SortableNoteProps) {
-  const navigate = useNavigate()
-  const updateNote = useNotesStore(s => s.updateNote)
-  const [isHovered, setIsHovered] = useState(false)
-  const [dropdownOpen, setDropdownOpen] = useState(false)
+  const navigate = useNavigate();
+  const updateNote = useNotesStore(s => s.updateNote);
+  const [isHovered, setIsHovered] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const {
     attributes,
@@ -506,26 +506,26 @@ function SortableNote({ note, groupId, isActive, onSelect, activeDragType }: Sor
   } = useSortable({
     id: note.id,
     data: { type: 'note', groupId },
-  })
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-  }
+  };
 
   const handleClick = (ev: React.MouseEvent) => {
     // prevent "open in new tab"
     if (ev.metaKey || ev.ctrlKey)
-      ev.preventDefault()
+      ev.preventDefault();
 
-    onSelect()
-    navigate({ to: '/notes' })
-  }
+    onSelect();
+    navigate({ to: '/notes' });
+  };
 
   // TOC temporarily disabled - needs Lexical state parsing
-  const hasHeadings = false // note.content?.some(b => b.type === "h1" || b.type === "h2" || b.type === "h3");
-  const showIndicator = isOver && !isDragging && activeDragType === 'note'
-  const showDotsButton = isHovered || dropdownOpen
+  const hasHeadings = false; // note.content?.some(b => b.type === "h1" || b.type === "h2" || b.type === "h3");
+  const showIndicator = isOver && !isDragging && activeDragType === 'note';
+  const showDotsButton = isHovered || dropdownOpen;
 
   return (
     <ContextMenu>
@@ -558,7 +558,7 @@ function SortableNote({ note, groupId, isActive, onSelect, activeDragType }: Sor
                 onClick={handleClick}
                 draggable={false}
                 onDragStart={(ev) => {
-                  ev.preventDefault()
+                  ev.preventDefault();
                 }}
               />
             )}
@@ -573,9 +573,9 @@ function SortableNote({ note, groupId, isActive, onSelect, activeDragType }: Sor
                 <TooltipTrigger render={(
                   <button
                     onClick={(ev) => {
-                      ev.preventDefault()
-                      ev.stopPropagation()
-                      updateNote(note.id, { showTOC: !note.showTOC })
+                      ev.preventDefault();
+                      ev.stopPropagation();
+                      updateNote(note.id, { showTOC: !note.showTOC });
                     }}
                     className={cn(
                       'p-1 rounded-sm cursor-pointer',
@@ -638,20 +638,20 @@ function SortableNote({ note, groupId, isActive, onSelect, activeDragType }: Sor
         <NoteMenuContent note={note} groupId={groupId} variant="context" />
       </ContextMenuContent>
     </ContextMenu>
-  )
+  );
 }
 
 interface SortableGroupProps {
-  group: Group
-  notes: Note[]
-  activeNoteId: string | null
-  isDragSelected: boolean
-  showDropBackground: boolean
-  onNoteSelect: (noteId: string) => void
-  onToggleCollapse: () => void
-  onAddNote: () => void
-  activeDragType: 'note' | 'group' | null
-  isLast: boolean
+  group: Group;
+  notes: Note[];
+  activeNoteId: string | null;
+  isDragSelected: boolean;
+  showDropBackground: boolean;
+  onNoteSelect: (noteId: string) => void;
+  onToggleCollapse: () => void;
+  onAddNote: () => void;
+  activeDragType: 'note' | 'group' | null;
+  isLast: boolean;
 }
 function SortableGroup({
   group,
@@ -675,14 +675,14 @@ function SortableGroup({
   } = useSortable({
     id: group.id,
     data: { type: 'group' },
-  })
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-  }
+  };
 
-  const showTopIndicator = isOver && !isDragging && activeDragType === 'group'
+  const showTopIndicator = isOver && !isDragging && activeDragType === 'group';
 
   return (
     <SidebarGroup
@@ -709,8 +709,8 @@ function SortableGroup({
           >
             <button
               onClick={(e) => {
-                e.stopPropagation()
-                onToggleCollapse()
+                e.stopPropagation();
+                onToggleCollapse();
               }}
               className="flex-1 min-w-0 h-full px-2 flex items-center text-left cursor-grab active:cursor-grabbing outline-none focus-visible:ring-2 focus-visible:ring-sidebar-ring rounded-md"
               {...attributes}
@@ -788,29 +788,29 @@ function SortableGroup({
         </SidebarGroupContent>
       )}
     </SidebarGroup>
-  )
+  );
 }
 
 export function AppSidebar() {
-  const layout = usePlatformLayout()
-  const navigate = useNavigate()
-  const groups = useNotesStore(s => s.groups)
-  const notes = useNotesStore(s => s.notes)
-  const addNote = useNotesStore(s => s.addNote)
-  const toggleGroupCollapse = useNotesStore(s => s.toggleGroupCollapse)
-  const reorderGroups = useNotesStore(s => s.reorderGroups)
-  const moveNote = useNotesStore(s => s.moveNote)
-  const reorderNotesInGroup = useNotesStore(s => s.reorderNotesInGroup)
-  const { openTab, activeTabId } = useTabsStore()
-  const dragContext = useDragContext()
+  const layout = usePlatformLayout();
+  const navigate = useNavigate();
+  const groups = useNotesStore(s => s.groups);
+  const notes = useNotesStore(s => s.notes);
+  const addNote = useNotesStore(s => s.addNote);
+  const toggleGroupCollapse = useNotesStore(s => s.toggleGroupCollapse);
+  const reorderGroups = useNotesStore(s => s.reorderGroups);
+  const moveNote = useNotesStore(s => s.moveNote);
+  const reorderNotesInGroup = useNotesStore(s => s.reorderNotesInGroup);
+  const { openTab, activeTabId } = useTabsStore();
+  const dragContext = useDragContext();
 
-  const [activeDragId, setActiveDragId] = useState<string | null>(null)
-  const [activeDragType, setActiveDragType] = useState<'note' | 'group' | null>(null)
-  const activeDragTypeRef = useRef<'note' | 'group' | null>(null)
-  const sidebarContentRef = useRef<HTMLDivElement>(null)
+  const [activeDragId, setActiveDragId] = useState<string | null>(null);
+  const [activeDragType, setActiveDragType] = useState<'note' | 'group' | null>(null);
+  const activeDragTypeRef = useRef<'note' | 'group' | null>(null);
+  const sidebarContentRef = useRef<HTMLDivElement>(null);
 
-  const draggingGroupId = activeDragType === 'group' ? activeDragId : null
-  const isDraggingGroup = activeDragType === 'group'
+  const draggingGroupId = activeDragType === 'group' ? activeDragId : null;
+  const isDraggingGroup = activeDragType === 'group';
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -818,34 +818,34 @@ export function AppSidebar() {
         distance: 5,
       },
     }),
-  )
+  );
 
   // Only restrict to vertical axis when dragging groups, not notes
   const conditionalVerticalRestriction = (args: Parameters<typeof restrictToVerticalAxis>[0]) => {
     if (activeDragTypeRef.current === 'group') {
-      return restrictToVerticalAxis(args)
+      return restrictToVerticalAxis(args);
     }
 
-    return args.transform
-  }
+    return args.transform;
+  };
 
   const collisionDetection: CollisionDetection = (args) => {
-    const activeType = args.active.data.current?.type ?? activeDragTypeRef.current
+    const activeType = args.active.data.current?.type ?? activeDragTypeRef.current;
 
     // Check if pointer is within sidebar
     if (sidebarContentRef.current && args.pointerCoordinates) {
-      const rect = sidebarContentRef.current.getBoundingClientRect()
-      const { x, y } = args.pointerCoordinates
+      const rect = sidebarContentRef.current.getBoundingClientRect();
+      const { x, y } = args.pointerCoordinates;
 
       const isInside = (
         x >= rect.left
         && x <= rect.right
         && y >= rect.top
         && y <= rect.bottom
-      )
+      );
 
       if (!isInside)
-        return []
+        return [];
     }
 
     const droppableContainers
@@ -853,107 +853,107 @@ export function AppSidebar() {
         ? args.droppableContainers.filter(
             container => container.data.current?.type === 'group',
           )
-        : args.droppableContainers
+        : args.droppableContainers;
 
-    return closestCenter({ ...args, droppableContainers })
-  }
+    return closestCenter({ ...args, droppableContainers });
+  };
 
   const handleDragStart = (event: DragStartEvent) => {
-    const { active } = event
-    setActiveDragId(active.id as string)
-    const type = active.data.current?.type ?? null
-    setActiveDragType(type)
-    activeDragTypeRef.current = type
+    const { active } = event;
+    setActiveDragId(active.id as string);
+    const type = active.data.current?.type ?? null;
+    setActiveDragType(type);
+    activeDragTypeRef.current = type;
 
     // Broadcast to split view if dragging a note
     if (type === 'note' && dragContext) {
-      dragContext.startDrag(active.id as string, 'sidebar')
+      dragContext.startDrag(active.id as string, 'sidebar');
     }
-  }
+  };
 
   const handleDragCancel = () => {
-    setActiveDragId(null)
-    setActiveDragType(null)
-    activeDragTypeRef.current = null
-    dragContext?.endDrag()
-  }
+    setActiveDragId(null);
+    setActiveDragType(null);
+    activeDragTypeRef.current = null;
+    dragContext?.endDrag();
+  };
 
   const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event
+    const { active, over } = event;
 
-    setActiveDragId(null)
-    setActiveDragType(null)
-    activeDragTypeRef.current = null
+    setActiveDragId(null);
+    setActiveDragType(null);
+    activeDragTypeRef.current = null;
 
-    dragContext?.endDrag()
+    dragContext?.endDrag();
 
     if (!over || active.id === over.id)
-      return
+      return;
 
-    const activeType = active.data.current?.type
-    const overType = over.data.current?.type
+    const activeType = active.data.current?.type;
+    const overType = over.data.current?.type;
 
     // Reorder groups
     if (activeType === 'group') {
       if (overType === 'group') {
-        reorderGroups(active.id as string, over.id as string)
+        reorderGroups(active.id as string, over.id as string);
       }
       else if (overType === 'group-end-list') {
-        const lastGroup = groups[groups.length - 1]
+        const lastGroup = groups[groups.length - 1];
         if (lastGroup && active.id !== lastGroup.id) {
-          reorderGroups(active.id as string, lastGroup.id)
+          reorderGroups(active.id as string, lastGroup.id);
         }
       }
-      return
+      return;
     }
 
     // Reorder or move notes
     if (activeType === 'note') {
-      const activeGroupId = active.data.current?.groupId
+      const activeGroupId = active.data.current?.groupId;
 
       if (overType === 'note') {
-        const overGroupId = over.data.current?.groupId
+        const overGroupId = over.data.current?.groupId;
 
         if (activeGroupId === overGroupId) {
           // Reorder within same group
-          reorderNotesInGroup(activeGroupId, active.id as string, over.id as string)
+          reorderNotesInGroup(activeGroupId, active.id as string, over.id as string);
         }
         else {
           // Move to different group
-          moveNote(active.id as string, activeGroupId, overGroupId, over.id as string)
+          moveNote(active.id as string, activeGroupId, overGroupId, over.id as string);
         }
       }
       else if (overType === 'group') {
         // Drop on group header - add to end of that group
         if (activeGroupId !== over.id) {
-          moveNote(active.id as string, activeGroupId, over.id as string)
+          moveNote(active.id as string, activeGroupId, over.id as string);
         }
       }
       else if (overType === 'group-end') {
         // Drop at end of group
-        const targetGroupId = over.data.current?.groupId
+        const targetGroupId = over.data.current?.groupId;
         if (activeGroupId !== targetGroupId) {
-          moveNote(active.id as string, activeGroupId, targetGroupId)
+          moveNote(active.id as string, activeGroupId, targetGroupId);
         }
       }
     }
-  }
+  };
 
   const getDragOverlayContent = () => {
     if (!activeDragId || activeDragType !== 'note')
-      return null
+      return null;
 
-    const note = notes.get(activeDragId)
+    const note = notes.get(activeDragId);
     if (!note)
-      return null
+      return null;
 
     return (
       <div className="flex items-center gap-2 px-3 py-1.5 bg-background border rounded-md shadow-lg text-sm z-50 pointer-events-none">
         <span>{note.emoji}</span>
         <span>{note.title}</span>
       </div>
-    )
-  }
+    );
+  };
 
   return (
     <Sidebar
@@ -989,7 +989,7 @@ export function AppSidebar() {
               {groups.map((group, index) => {
                 const groupNotes = group.noteIds
                   .map(id => notes.get(id))
-                  .filter((n): n is Note => n !== undefined)
+                  .filter((n): n is Note => n !== undefined);
 
                 return (
                   <SortableGroup
@@ -1002,14 +1002,14 @@ export function AppSidebar() {
                     onNoteSelect={openTab}
                     onToggleCollapse={() => toggleGroupCollapse(group.id)}
                     onAddNote={() => {
-                      const id = addNote(group.id)
-                      openTab(id)
-                      navigate({ to: '/notes' })
+                      const id = addNote(group.id);
+                      openTab(id);
+                      navigate({ to: '/notes' });
                     }}
                     activeDragType={activeDragType}
                     isLast={index === groups.length - 1}
                   />
-                )
+                );
               })}
             </SortableContext>
             <GroupsEndDropZone isVisible={activeDragType === 'group'} />
@@ -1023,5 +1023,5 @@ export function AppSidebar() {
 
       <SidebarRail />
     </Sidebar>
-  )
+  );
 }

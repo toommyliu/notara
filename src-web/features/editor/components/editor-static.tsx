@@ -1,10 +1,10 @@
-import type { VariantProps } from 'class-variance-authority'
+import type { VariantProps } from 'class-variance-authority';
 
-import type { PlateStaticProps } from 'platejs/static'
-import { cva } from 'class-variance-authority'
-import { PlateStatic } from 'platejs/static'
+import type { PlateStaticProps } from 'platejs/static';
+import { cva } from 'class-variance-authority';
+import { PlateStatic } from 'platejs/static';
 
-import { cn } from '~/lib/utils'
+import { cn } from '~/lib/utils';
 
 export const editorVariants = cva(
   cn(
@@ -38,7 +38,7 @@ export const editorVariants = cva(
       },
     },
   },
-)
+);
 
 export function EditorStatic({
   className,
@@ -50,5 +50,5 @@ export function EditorStatic({
       className={cn(editorVariants({ variant }), className)}
       {...props}
     />
-  )
+  );
 }

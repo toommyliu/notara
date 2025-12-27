@@ -1,19 +1,19 @@
-import { Command as CommandPrimitive } from 'cmdk'
-import { CheckIcon, SearchIcon } from 'lucide-react'
+import { Command as CommandPrimitive } from 'cmdk';
+import { CheckIcon, SearchIcon } from 'lucide-react';
 
-import * as React from 'react'
-import { cn } from '~/lib/utils'
+import * as React from 'react';
+import { cn } from '~/lib/utils';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '~/ui/dialog'
+} from '~/ui/dialog';
 import {
   InputGroup,
   InputGroupAddon,
-} from '~/ui/input-group'
+} from '~/ui/input-group';
 
 function Command({
   className,
@@ -28,7 +28,7 @@ function Command({
       )}
       {...props}
     />
-  )
+  );
 }
 
 function CommandDialog({
@@ -39,11 +39,11 @@ function CommandDialog({
   showCloseButton = false,
   ...props
 }: Omit<React.ComponentProps<typeof Dialog>, 'children'> & {
-  title?: string
-  description?: string
-  className?: string
-  showCloseButton?: boolean
-  children: React.ReactNode
+  title?: string;
+  description?: string;
+  className?: string;
+  showCloseButton?: boolean;
+  children: React.ReactNode;
 }) {
   return (
     <Dialog {...props}>
@@ -58,7 +58,7 @@ function CommandDialog({
         {children}
       </DialogContent>
     </Dialog>
-  )
+  );
 }
 
 function CommandInput({
@@ -81,7 +81,7 @@ function CommandInput({
         </InputGroupAddon>
       </InputGroup>
     </div>
-  )
+  );
 }
 
 function CommandList({
@@ -97,7 +97,7 @@ function CommandList({
       )}
       {...props}
     />
-  )
+  );
 }
 
 function CommandEmpty({
@@ -110,7 +110,7 @@ function CommandEmpty({
       className={cn('py-6 text-center text-sm', className)}
       {...props}
     />
-  )
+  );
 }
 
 function CommandGroup({
@@ -123,7 +123,7 @@ function CommandGroup({
       className={cn('text-foreground [&_[cmdk-group-heading]]:text-muted-foreground overflow-hidden p-1 [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium', className)}
       {...props}
     />
-  )
+  );
 }
 
 function CommandSeparator({
@@ -136,7 +136,7 @@ function CommandSeparator({
       className={cn('bg-border -mx-1 h-px', className)}
       {...props}
     />
-  )
+  );
 }
 
 function CommandItem({
@@ -156,7 +156,7 @@ function CommandItem({
       {children}
       <CheckIcon className="ml-auto opacity-0 group-has-[[data-slot=command-shortcut]]/command-item:hidden group-data-[checked=true]/command-item:opacity-100" />
     </CommandPrimitive.Item>
-  )
+  );
 }
 
 function CommandShortcut({
@@ -169,7 +169,7 @@ function CommandShortcut({
       className={cn('text-muted-foreground group-data-selected/command-item:text-foreground ml-auto text-xs tracking-widest', className)}
       {...props}
     />
-  )
+  );
 }
 
 export {
@@ -182,4 +182,4 @@ export {
   CommandList,
   CommandSeparator,
   CommandShortcut,
-}
+};

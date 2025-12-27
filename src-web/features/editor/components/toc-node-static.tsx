@@ -1,13 +1,13 @@
-import type { Heading } from '@platejs/toc'
+import type { Heading } from '@platejs/toc';
 
-import type { SlateEditor, TElement } from 'platejs'
-import type { SlateElementProps } from 'platejs/static'
-import { BaseTocPlugin, isHeading } from '@platejs/toc'
-import { cva } from 'class-variance-authority'
-import { NodeApi } from 'platejs'
-import { SlateElement } from 'platejs/static'
+import type { SlateEditor, TElement } from 'platejs';
+import type { SlateElementProps } from 'platejs/static';
+import { BaseTocPlugin, isHeading } from '@platejs/toc';
+import { cva } from 'class-variance-authority';
+import { NodeApi } from 'platejs';
+import { SlateElement } from 'platejs/static';
 
-import { Button } from '~/ui/button'
+import { Button } from '~/ui/button';
 
 const headingItemVariants = cva(
   'block h-auto w-full cursor-pointer truncate rounded-none px-0.5 py-1.5 text-left font-medium text-muted-foreground underline decoration-[0.5px] underline-offset-4 hover:bg-accent hover:text-muted-foreground',
@@ -20,11 +20,11 @@ const headingItemVariants = cva(
       },
     },
   },
-)
+);
 
 export function TocElementStatic(props: SlateElementProps) {
-  const { editor } = props
-  const headingList = getHeadingList(editor)
+  const { editor } = props;
+  const headingList = getHeadingList(editor);
 
   return (
     <SlateElement {...props} className="mb-1 p-0">
@@ -51,7 +51,7 @@ export function TocElementStatic(props: SlateElementProps) {
       </div>
       {props.children}
     </SlateElement>
-  )
+  );
 }
 
 const headingDepth: Record<string, number> = {
@@ -61,38 +61,38 @@ const headingDepth: Record<string, number> = {
   h4: 4,
   h5: 5,
   h6: 6,
-}
+};
 
 function getHeadingList(editor?: SlateEditor) {
   if (!editor)
-    return []
+    return [];
 
-  const options = editor.getOptions(BaseTocPlugin)
+  const options = editor.getOptions(BaseTocPlugin);
 
   if (options.queryHeading) {
-    return options.queryHeading(editor)
+    return options.queryHeading(editor);
   }
 
-  const headingList: Heading[] = []
+  const headingList: Heading[] = [];
 
   const values = editor.api.nodes<TElement>({
     at: [],
     match: n => isHeading(n),
-  })
+  });
 
   if (!values)
-    return []
+    return [];
 
   Array.from(values).forEach(([node, path]) => {
-    const { type } = node
-    const title = NodeApi.string(node)
-    const depth = headingDepth[type]
-    const id = node.id as string
+    const { type } = node;
+    const title = NodeApi.string(node);
+    const depth = headingDepth[type];
+    const id = node.id as string;
 
     if (title) {
-      headingList.push({ id, depth, path, title, type })
+      headingList.push({ id, depth, path, title, type });
     }
-  })
+  });
 
-  return headingList
+  return headingList;
 }

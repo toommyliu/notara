@@ -1,1 +1,1 @@
-export { NoteEditor } from './editor'
+export { NoteEditor } from './editor';

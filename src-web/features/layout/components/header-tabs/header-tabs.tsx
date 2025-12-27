@@ -1,6 +1,6 @@
-import type { CollisionDetection, DragEndEvent, DragStartEvent } from '@dnd-kit/core'
-import type { CSSProperties, WheelEvent } from 'react'
-import type { HeaderTabItemHandle } from './types'
+import type { CollisionDetection, DragEndEvent, DragStartEvent } from '@dnd-kit/core';
+import type { CSSProperties, WheelEvent } from 'react';
+import type { HeaderTabItemHandle } from './types';
 import {
   closestCenter,
   DndContext,
@@ -9,200 +9,200 @@ import {
   useSensor,
   useSensors,
 
-} from '@dnd-kit/core'
-import { horizontalListSortingStrategy, SortableContext } from '@dnd-kit/sortable'
-import { useNavigate } from '@tanstack/react-router'
+} from '@dnd-kit/core';
+import { horizontalListSortingStrategy, SortableContext } from '@dnd-kit/sortable';
+import { useNavigate } from '@tanstack/react-router';
 
-import { useCallback, useEffect, useRef, useState } from 'react'
-import IconArrowLeftRight from '~icons/lucide/arrow-left-right'
-import IconArrowUpDown from '~icons/lucide/arrow-up-down'
+import { useCallback, useEffect, useRef, useState } from 'react';
+import IconArrowLeftRight from '~icons/lucide/arrow-left-right';
+import IconArrowUpDown from '~icons/lucide/arrow-up-down';
 
-import IconChevronDown from '~icons/lucide/chevron-down'
-import IconColumns from '~icons/lucide/columns-2'
-import IconPlus from '~icons/lucide/plus'
-import IconRows from '~icons/lucide/rows-2'
-import IconX from '~icons/lucide/x'
-import { useIsSplitView, useSplitViewStore } from '~/features/layout/stores/split-view-store'
-import { useTabsStore } from '~/features/layout/stores/tabs-store'
+import IconChevronDown from '~icons/lucide/chevron-down';
+import IconColumns from '~icons/lucide/columns-2';
+import IconPlus from '~icons/lucide/plus';
+import IconRows from '~icons/lucide/rows-2';
+import IconX from '~icons/lucide/x';
+import { useIsSplitView, useSplitViewStore } from '~/features/layout/stores/split-view-store';
+import { useTabsStore } from '~/features/layout/stores/tabs-store';
 
-import { useNotesStore } from '~/features/notes/store'
-import { cn } from '~/lib/utils'
-import { useDragContext } from '~/providers/drag-context'
+import { useNotesStore } from '~/features/notes/store';
+import { cn } from '~/lib/utils';
+import { useDragContext } from '~/providers/drag-context';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '~/ui/dropdown-menu'
+} from '~/ui/dropdown-menu';
 
-import { HeaderTabItem } from './header-tab-item'
+import { HeaderTabItem } from './header-tab-item';
 
-import { SplitTabItem } from './split-tab-item'
+import { SplitTabItem } from './split-tab-item';
 
 export function HeaderTabs() {
-  const { pinnedTabs, openTabs, activeTabId, setActiveTab, closeTab, reorderTabs, isTabBarVisible, tabGroups, removeFromGroup } = useTabsStore()
-  const notes = useNotesStore(s => s.notes)
-  const groups = useNotesStore(s => s.groups)
-  const addNote = useNotesStore(s => s.addNote)
-  const { swapPanes, orientation, setOrientation } = useSplitViewStore()
-  const isSplitView = useIsSplitView()
-  const dragContext = useDragContext()
-  const navigate = useNavigate()
+  const { pinnedTabs, openTabs, activeTabId, setActiveTab, closeTab, reorderTabs, isTabBarVisible, tabGroups, removeFromGroup } = useTabsStore();
+  const notes = useNotesStore(s => s.notes);
+  const groups = useNotesStore(s => s.groups);
+  const addNote = useNotesStore(s => s.addNote);
+  const { swapPanes, orientation, setOrientation } = useSplitViewStore();
+  const isSplitView = useIsSplitView();
+  const dragContext = useDragContext();
+  const navigate = useNavigate();
 
-  const [activeDragId, setActiveDragId] = useState<string | null>(null)
+  const [activeDragId, setActiveDragId] = useState<string | null>(null);
 
-  const tabRefs = useRef<Map<string, HeaderTabItemHandle>>(new Map())
+  const tabRefs = useRef<Map<string, HeaderTabItemHandle>>(new Map());
 
-  const getGroupForTab = (noteId: string) => tabGroups.find(g => g.includes(noteId))
+  const getGroupForTab = (noteId: string) => tabGroups.find(g => g.includes(noteId));
 
   const processTabs = (tabIds: string[]) => {
-    const processed: string[] = []
-    const seenInGroup = new Set<string>()
+    const processed: string[] = [];
+    const seenInGroup = new Set<string>();
 
     for (const id of tabIds) {
       if (seenInGroup.has(id))
-        continue
+        continue;
 
-      const group = getGroupForTab(id)
+      const group = getGroupForTab(id);
       if (group) {
-        processed.push(id)
-        group.forEach(gid => seenInGroup.add(gid))
+        processed.push(id);
+        group.forEach(gid => seenInGroup.add(gid));
       }
       else {
-        processed.push(id)
+        processed.push(id);
       }
     }
-    return processed
-  }
+    return processed;
+  };
 
-  const visiblePinned = processTabs(pinnedTabs)
+  const visiblePinned = processTabs(pinnedTabs);
 
-  const processedInPinned = new Set<string>()
+  const processedInPinned = new Set<string>();
   visiblePinned.forEach((id) => {
-    const group = getGroupForTab(id)
+    const group = getGroupForTab(id);
     if (group) {
-      group.forEach(gid => processedInPinned.add(gid))
+      group.forEach(gid => processedInPinned.add(gid));
     }
     else {
-      processedInPinned.add(id)
+      processedInPinned.add(id);
     }
-  })
+  });
 
-  const visibleOpen = processTabs(openTabs.filter(id => !processedInPinned.has(id)))
-  const allVisibleTabs = [...visiblePinned, ...visibleOpen]
+  const visibleOpen = processTabs(openTabs.filter(id => !processedInPinned.has(id)));
+  const allVisibleTabs = [...visiblePinned, ...visibleOpen];
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: { distance: 5 },
     }),
-  )
+  );
 
-  const tabListRef = useRef<HTMLDivElement>(null)
+  const tabListRef = useRef<HTMLDivElement>(null);
   const collisionDetection: CollisionDetection = (args) => {
     // Check if pointer is within tab bar area with some vertical buffer (20px)
     if (tabListRef.current && args.pointerCoordinates) {
-      const rect = tabListRef.current.getBoundingClientRect()
-      const { x, y } = args.pointerCoordinates
+      const rect = tabListRef.current.getBoundingClientRect();
+      const { x, y } = args.pointerCoordinates;
 
       const isInside = (
         x >= rect.left
         && x <= rect.right
         && y >= rect.top - 20
         && y <= rect.bottom + 20
-      )
+      );
 
       if (!isInside)
-        return [] // Allow drag to escape for split-view
+        return []; // Allow drag to escape for split-view
     }
 
-    return closestCenter(args)
-  }
+    return closestCenter(args);
+  };
 
-  const scrollContainerRef = useRef<HTMLDivElement>(null)
-  const [showLeftFade, setShowLeftFade] = useState(false)
-  const [showRightFade, setShowRightFade] = useState(false)
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [showLeftFade, setShowLeftFade] = useState(false);
+  const [showRightFade, setShowRightFade] = useState(false);
 
   const updateFades = useCallback(() => {
     if (scrollContainerRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current
-      setShowLeftFade(scrollLeft > 10)
-      setShowRightFade(scrollLeft + clientWidth < scrollWidth - 10)
+      const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
+      setShowLeftFade(scrollLeft > 10);
+      setShowRightFade(scrollLeft + clientWidth < scrollWidth - 10);
     }
-  }, [allVisibleTabs.length])
+  }, [allVisibleTabs.length]);
 
   useEffect(() => {
-    const container = scrollContainerRef.current
+    const container = scrollContainerRef.current;
     if (container) {
-      updateFades()
-      window.addEventListener('resize', updateFades)
-      return () => window.removeEventListener('resize', updateFades)
+      updateFades();
+      window.addEventListener('resize', updateFades);
+      return () => window.removeEventListener('resize', updateFades);
     }
-  }, [updateFades, allVisibleTabs.length])
+  }, [updateFades, allVisibleTabs.length]);
 
   const handleDragStart = (ev: DragStartEvent) => {
-    const noteId = ev.active.id as string
-    setActiveDragId(noteId)
-    dragContext?.startDrag(noteId, 'tabs')
-  }
+    const noteId = ev.active.id as string;
+    setActiveDragId(noteId);
+    dragContext?.startDrag(noteId, 'tabs');
+  };
 
   const handleDragEnd = (ev: DragEndEvent) => {
-    const { active, over } = ev
-    setActiveDragId(null)
+    const { active, over } = ev;
+    setActiveDragId(null);
 
-    dragContext?.endDrag()
+    dragContext?.endDrag();
 
     if (!over || active.id === over.id)
-      return
+      return;
 
-    const activeSection = active.data.current?.section as 'pinned' | 'open'
-    const overSection = over.data.current?.section as 'pinned' | 'open'
+    const activeSection = active.data.current?.section as 'pinned' | 'open';
+    const overSection = over.data.current?.section as 'pinned' | 'open';
 
     if (activeSection === overSection)
-      reorderTabs(active.id as string, over.id as string, activeSection)
-  }
+      reorderTabs(active.id as string, over.id as string, activeSection);
+  };
 
   const handleDragCancel = () => {
-    setActiveDragId(null)
-    dragContext?.endDrag()
-  }
+    setActiveDragId(null);
+    dragContext?.endDrag();
+  };
 
   const handleNewTab = () => {
-    const firstGroup = groups[0]
+    const firstGroup = groups[0];
     if (firstGroup) {
-      const newNoteId = addNote(firstGroup.id, 'Untitled', '📄')
-      setActiveTab(newNoteId)
-      navigate({ to: '/notes' })
+      const newNoteId = addNote(firstGroup.id, 'Untitled', '📄');
+      setActiveTab(newNoteId);
+      navigate({ to: '/notes' });
     }
-  }
+  };
 
   const handleWheel = (ev: WheelEvent) => {
     if (scrollContainerRef.current && ev.deltaY !== 0) {
-      ev.preventDefault()
-      scrollContainerRef.current.scrollLeft += ev.deltaY
-      updateFades()
+      ev.preventDefault();
+      scrollContainerRef.current.scrollLeft += ev.deltaY;
+      updateFades();
     }
-  }
+  };
 
   const handleScroll = () => {
-    updateFades()
-  }
+    updateFades();
+  };
 
   const handleCloseSplit = () => {
     if (!activeTabId)
-      return
+      return;
 
-    removeFromGroup(activeTabId)
-  }
+    removeFromGroup(activeTabId);
+  };
 
   if (!isTabBarVisible)
-    return null
+    return null;
 
-  const hasTabs = pinnedTabs.length > 0 || openTabs.length > 0
+  const hasTabs = pinnedTabs.length > 0 || openTabs.length > 0;
   if (!hasTabs)
-    return null
+    return null;
 
-  const draggedNote = activeDragId ? notes.get(activeDragId) : null
+  const draggedNote = activeDragId ? notes.get(activeDragId) : null;
 
   return (
     <DndContext
@@ -240,17 +240,17 @@ export function HeaderTabs() {
           >
             <SortableContext items={allVisibleTabs} strategy={horizontalListSortingStrategy}>
               {visiblePinned.map((noteId) => {
-                const group = getGroupForTab(noteId)
+                const group = getGroupForTab(noteId);
                 if (group) {
                   return (
                     <SplitTabItem
                       key={noteId}
                       ref={(handle) => {
                         if (handle) {
-                          tabRefs.current.set(noteId, handle)
+                          tabRefs.current.set(noteId, handle);
                         }
                         else {
-                          tabRefs.current.delete(noteId)
+                          tabRefs.current.delete(noteId);
                         }
                       }}
                       noteId={noteId}
@@ -258,36 +258,36 @@ export function HeaderTabs() {
                       isPinned={true}
                       noteIds={group}
                       onActivatePane={(id) => {
-                        setActiveTab(id)
-                        navigate({ to: '/notes' })
+                        setActiveTab(id);
+                        navigate({ to: '/notes' });
                       }}
                       onActivate={() => setActiveTab(noteId)}
                       onClose={() => closeTab(noteId)}
                       onClosePane={id => removeFromGroup(id)}
                     />
-                  )
+                  );
                 }
                 return (
                   <HeaderTabItem
                     key={noteId}
                     ref={(handle) => {
                       if (handle) {
-                        tabRefs.current.set(noteId, handle)
+                        tabRefs.current.set(noteId, handle);
                       }
                       else {
-                        tabRefs.current.delete(noteId)
+                        tabRefs.current.delete(noteId);
                       }
                     }}
                     noteId={noteId}
                     isActive={activeTabId === noteId}
                     isPinned={true}
                     onActivate={() => {
-                      setActiveTab(noteId)
-                      navigate({ to: '/notes' })
+                      setActiveTab(noteId);
+                      navigate({ to: '/notes' });
                     }}
                     onClose={() => closeTab(noteId)}
                   />
-                )
+                );
               })}
 
               {visiblePinned.length > 0 && visibleOpen.length > 0 && (
@@ -295,17 +295,17 @@ export function HeaderTabs() {
               )}
 
               {visibleOpen.map((noteId) => {
-                const group = getGroupForTab(noteId)
+                const group = getGroupForTab(noteId);
                 if (group) {
                   return (
                     <SplitTabItem
                       key={noteId}
                       ref={(handle) => {
                         if (handle) {
-                          tabRefs.current.set(noteId, handle)
+                          tabRefs.current.set(noteId, handle);
                         }
                         else {
-                          tabRefs.current.delete(noteId)
+                          tabRefs.current.delete(noteId);
                         }
                       }}
                       noteId={noteId}
@@ -313,33 +313,33 @@ export function HeaderTabs() {
                       isPinned={false}
                       noteIds={group}
                       onActivatePane={(id) => {
-                        setActiveTab(id)
-                        navigate({ to: '/notes' })
+                        setActiveTab(id);
+                        navigate({ to: '/notes' });
                       }}
                       onActivate={() => setActiveTab(noteId)}
                       onClose={() => closeTab(noteId)}
                       onClosePane={id => removeFromGroup(id)}
                     />
-                  )
+                  );
                 }
                 return (
                   <HeaderTabItem
                     key={noteId}
                     ref={(handle) => {
                       if (handle)
-                        tabRefs.current.set(noteId, handle)
-                      else tabRefs.current.delete(noteId)
+                        tabRefs.current.set(noteId, handle);
+                      else tabRefs.current.delete(noteId);
                     }}
                     noteId={noteId}
                     isActive={activeTabId === noteId}
                     isPinned={false}
                     onActivate={() => {
-                      setActiveTab(noteId)
-                      navigate({ to: '/notes' })
+                      setActiveTab(noteId);
+                      navigate({ to: '/notes' });
                     }}
                     onClose={() => closeTab(noteId)}
                   />
-                )
+                );
               })}
             </SortableContext>
           </div>
@@ -406,21 +406,21 @@ export function HeaderTabs() {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" sideOffset={8} className="w-48">
               {pinnedTabs.map((noteId) => {
-                const note = notes.get(noteId)
+                const note = notes.get(noteId);
                 if (!note)
-                  return null
+                  return null;
                 return (
                   <DropdownMenuItem
                     key={noteId}
                     onClick={() => {
-                      setActiveTab(noteId)
-                      navigate({ to: '/notes' })
+                      setActiveTab(noteId);
+                      navigate({ to: '/notes' });
                     }}
                   >
                     <span className="mr-2 text-xs">{note.emoji}</span>
                     <span className="truncate">{note.title}</span>
                   </DropdownMenuItem>
-                )
+                );
               })}
             </DropdownMenuContent>
           </DropdownMenu>
@@ -451,5 +451,5 @@ export function HeaderTabs() {
         )}
       </DragOverlay>
     </DndContext>
-  )
+  );
 }

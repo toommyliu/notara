@@ -1,21 +1,21 @@
-'use client'
+'use client';
 
-import type { TComboboxInputElement, TMentionElement } from 'platejs'
+import type { TComboboxInputElement, TMentionElement } from 'platejs';
 
-import type { PlateElementProps } from 'platejs/react'
-import { getMentionOnSelectItem } from '@platejs/mention'
+import type { PlateElementProps } from 'platejs/react';
+import { getMentionOnSelectItem } from '@platejs/mention';
 
-import { IS_APPLE, KEYS } from 'platejs'
+import { IS_APPLE, KEYS } from 'platejs';
 import {
   PlateElement,
   useFocused,
   useReadOnly,
   useSelected,
-} from 'platejs/react'
-import * as React from 'react'
+} from 'platejs/react';
+import * as React from 'react';
 
-import { useMounted } from '~/hooks/use-mounted'
-import { cn } from '~/lib/utils'
+import { useMounted } from '~/hooks/use-mounted';
+import { cn } from '~/lib/utils';
 
 import {
   InlineCombobox,
@@ -24,19 +24,19 @@ import {
   InlineComboboxGroup,
   InlineComboboxInput,
   InlineComboboxItem,
-} from './inline-combobox'
+} from './inline-combobox';
 
 export function MentionElement(
   props: PlateElementProps<TMentionElement> & {
-    prefix?: string
+    prefix?: string;
   },
 ) {
-  const element = props.element
+  const element = props.element;
 
-  const selected = useSelected()
-  const focused = useFocused()
-  const mounted = useMounted()
-  const readOnly = useReadOnly()
+  const selected = useSelected();
+  const focused = useFocused();
+  const mounted = useMounted();
+  const readOnly = useReadOnly();
 
   return (
     <PlateElement
@@ -72,16 +72,16 @@ export function MentionElement(
         </>
       )}
     </PlateElement>
-  )
+  );
 }
 
-const onSelectItem = getMentionOnSelectItem()
+const onSelectItem = getMentionOnSelectItem();
 
 export function MentionInputElement(
   props: PlateElementProps<TComboboxInputElement>,
 ) {
-  const { editor, element } = props
-  const [search, setSearch] = React.useState('')
+  const { editor, element } = props;
+  const [search, setSearch] = React.useState('');
 
   return (
     <PlateElement {...props} as="span">
@@ -115,7 +115,7 @@ export function MentionInputElement(
 
       {props.children}
     </PlateElement>
-  )
+  );
 }
 
 const MENTIONABLES = [
@@ -193,4 +193,4 @@ const MENTIONABLES = [
   { key: '47', text: 'Bren Derlin' },
   { key: '48', text: 'Brendol Hux' },
   { key: '49', text: 'BT-1' },
-]
+];

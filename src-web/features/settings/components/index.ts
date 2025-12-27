@@ -1,2 +1,2 @@
-export { SettingsDialogContent } from './settings-dialog'
-export { SettingsTrigger } from './settings-trigger'
+export { SettingsDialogContent } from './settings-dialog';
+export { SettingsTrigger } from './settings-trigger';

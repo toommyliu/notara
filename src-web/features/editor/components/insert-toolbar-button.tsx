@@ -1,8 +1,8 @@
-'use client'
+'use client';
 
-import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu'
+import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
 
-import type { PlateEditor } from 'platejs/react'
+import type { PlateEditor } from 'platejs/react';
 
 import {
   CalendarIcon,
@@ -26,35 +26,35 @@ import {
   SquareIcon,
   TableIcon,
   TableOfContentsIcon,
-} from 'lucide-react'
-import { KEYS } from 'platejs'
-import { useEditorRef } from 'platejs/react'
-import * as React from 'react'
+} from 'lucide-react';
+import { KEYS } from 'platejs';
+import { useEditorRef } from 'platejs/react';
+import * as React from 'react';
 
 import {
   insertBlock,
   insertInlineElement,
-} from '~/features/editor/transforms'
+} from '~/features/editor/transforms';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '~/ui/dropdown-menu'
+} from '~/ui/dropdown-menu';
 
-import { ToolbarButton, ToolbarMenuGroup } from '~/ui/toolbar'
+import { ToolbarButton, ToolbarMenuGroup } from '~/ui/toolbar';
 
 interface Group {
-  group: string
-  items: Item[]
+  group: string;
+  items: Item[];
 }
 
 interface Item {
-  icon: React.ReactNode
-  value: string
-  onSelect: (editor: PlateEditor, value: string) => void
-  focusEditor?: boolean
-  label?: string
+  icon: React.ReactNode;
+  value: string;
+  onSelect: (editor: PlateEditor, value: string) => void;
+  focusEditor?: boolean;
+  label?: string;
 }
 
 const groups: Group[] = [
@@ -104,7 +104,7 @@ const groups: Group[] = [
     ].map(item => ({
       ...item,
       onSelect: (editor, value) => {
-        insertBlock(editor, value)
+        insertBlock(editor, value);
       },
     })),
   },
@@ -134,7 +134,7 @@ const groups: Group[] = [
     ].map(item => ({
       ...item,
       onSelect: (editor, value) => {
-        insertBlock(editor, value)
+        insertBlock(editor, value);
       },
     })),
   },
@@ -154,7 +154,7 @@ const groups: Group[] = [
     ].map(item => ({
       ...item,
       onSelect: (editor, value) => {
-        insertBlock(editor, value)
+        insertBlock(editor, value);
       },
     })),
   },
@@ -185,7 +185,7 @@ const groups: Group[] = [
     ].map(item => ({
       ...item,
       onSelect: (editor, value) => {
-        insertBlock(editor, value)
+        insertBlock(editor, value);
       },
     })),
   },
@@ -212,15 +212,15 @@ const groups: Group[] = [
     ].map(item => ({
       ...item,
       onSelect: (editor, value) => {
-        insertInlineElement(editor, value)
+        insertInlineElement(editor, value);
       },
     })),
   },
-]
+];
 
 export function InsertToolbarButton(props: DropdownMenuProps) {
-  const editor = useEditorRef()
-  const [open, setOpen] = React.useState(false)
+  const editor = useEditorRef();
+  const [open, setOpen] = React.useState(false);
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen} modal={false} {...props}>
@@ -237,8 +237,8 @@ export function InsertToolbarButton(props: DropdownMenuProps) {
                 key={value}
                 className="min-w-[180px]"
                 onSelect={() => {
-                  onSelect(editor, value)
-                  editor.tf.focus()
+                  onSelect(editor, value);
+                  editor.tf.focus();
                 }}
               >
                 {icon}
@@ -249,5 +249,5 @@ export function InsertToolbarButton(props: DropdownMenuProps) {
         ))}
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }

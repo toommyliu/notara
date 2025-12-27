@@ -1,11 +1,11 @@
-import { useState } from 'react'
+import { useState } from 'react';
 
-import IconKeyboard from '~icons/lucide/keyboard'
+import IconKeyboard from '~icons/lucide/keyboard';
 
-import IconPalette from '~icons/lucide/palette'
-import { useSettingsStore } from '~/features/settings/stores/settings-store'
+import IconPalette from '~icons/lucide/palette';
+import { useSettingsStore } from '~/features/settings/stores/settings-store';
 
-import { cn } from '~/lib/utils'
+import { cn } from '~/lib/utils';
 
 import {
   Dialog,
@@ -13,20 +13,20 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '~/ui/dialog'
-import { GeneralTab } from './settings-general-tab'
-import { ShortcutsTab } from './settings-shortcut-tab'
+} from '~/ui/dialog';
+import { GeneralTab } from './settings-general-tab';
+import { ShortcutsTab } from './settings-shortcut-tab';
 
-type SettingsTab = 'general' | 'shortcuts'
+type SettingsTab = 'general' | 'shortcuts';
 
 export function SettingsDialogContent() {
-  const { isOpen, setOpen } = useSettingsStore()
-  const [activeTab, setActiveTab] = useState<SettingsTab>('general')
+  const { isOpen, setOpen } = useSettingsStore();
+  const [activeTab, setActiveTab] = useState<SettingsTab>('general');
 
-  const tabs: { id: SettingsTab, label: string, icon: typeof IconPalette }[] = [
+  const tabs: { id: SettingsTab; label: string; icon: typeof IconPalette }[] = [
     { id: 'general', label: 'General', icon: IconPalette },
     { id: 'shortcuts', label: 'Shortcuts', icon: IconKeyboard },
-  ]
+  ];
 
   return (
     <Dialog open={isOpen} onOpenChange={setOpen}>
@@ -44,8 +44,8 @@ export function SettingsDialogContent() {
           className="flex gap-1 p-1 bg-muted/50 rounded-lg"
         >
           {tabs.map((tab) => {
-            const Icon = tab.icon
-            const isActive = activeTab === tab.id
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
 
             return (
               <button
@@ -65,7 +65,7 @@ export function SettingsDialogContent() {
                 <Icon className="size-4" />
                 {tab.label}
               </button>
-            )
+            );
           })}
         </div>
 
@@ -79,5 +79,5 @@ export function SettingsDialogContent() {
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

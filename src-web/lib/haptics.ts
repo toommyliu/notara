@@ -1,9 +1,9 @@
-import { invoke } from '@tauri-apps/api/core'
+import { invoke } from '@tauri-apps/api/core';
 
-const CMD_PERFORM = 'plugin:notara-mac-haptics|perform'
-const CMD_IS_SUPPORTED = 'plugin:notara-mac-haptics|is_supported'
+const CMD_PERFORM = 'plugin:notara-mac-haptics|perform';
+const CMD_IS_SUPPORTED = 'plugin:notara-mac-haptics|is_supported';
 
-let pluginSupported: boolean | null = null
+let pluginSupported: boolean | null = null;
 
 /**
  * Represents the different types of haptic feedback patterns.
@@ -37,9 +37,9 @@ export async function isSupported(): Promise<boolean> {
   if (pluginSupported === null) {
     pluginSupported = await invoke<boolean>(CMD_IS_SUPPORTED).catch(
       _ => false,
-    )
+    );
   }
-  return pluginSupported
+  return pluginSupported;
 }
 
 /**
@@ -62,5 +62,5 @@ export async function perform(
     performanceTime, // Tauri converts Rust snake_case to JS camelCase
   }).catch(error =>
     console.error('Error performing haptic feedback: ', error),
-  )
+  );
 }

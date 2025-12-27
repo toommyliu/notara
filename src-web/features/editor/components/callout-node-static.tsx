@@ -1,8 +1,8 @@
-import type { SlateElementProps } from 'platejs/static'
+import type { SlateElementProps } from 'platejs/static';
 
-import { SlateElement } from 'platejs/static'
+import { SlateElement } from 'platejs/static';
 
-import { cn } from '~/lib/utils'
+import { cn } from '~/lib/utils';
 
 export function CalloutElementStatic({
   children,
@@ -32,5 +32,5 @@ export function CalloutElementStatic({
         <div className="w-full">{children}</div>
       </div>
     </SlateElement>
-  )
+  );
 }

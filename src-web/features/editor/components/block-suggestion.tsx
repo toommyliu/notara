@@ -1,19 +1,19 @@
-'use client'
+'use client';
 
-import type { TResolvedSuggestion } from '@platejs/suggestion'
+import type { TResolvedSuggestion } from '@platejs/suggestion';
 
-import type { NodeEntry, Path, TElement, TSuggestionText } from 'platejs'
+import type { NodeEntry, Path, TElement, TSuggestionText } from 'platejs';
 
-import type { TComment } from './comment'
-import type { TDiscussion } from '~/features/editor/plugins/discussion-kit'
+import type { TComment } from './comment';
+import type { TDiscussion } from '~/features/editor/plugins/discussion-kit';
 import {
   acceptSuggestion,
   getSuggestionKey,
   keyId2SuggestionId,
   rejectSuggestion,
-} from '@platejs/suggestion'
-import { SuggestionPlugin } from '@platejs/suggestion/react'
-import { CheckIcon, XIcon } from 'lucide-react'
+} from '@platejs/suggestion';
+import { SuggestionPlugin } from '@platejs/suggestion/react';
+import { CheckIcon, XIcon } from 'lucide-react';
 import {
   ElementApi,
   KEYS,
@@ -22,30 +22,30 @@ import {
 
   TextApi,
 
-} from 'platejs'
+} from 'platejs';
 
-import { useEditorPlugin, usePluginOption } from 'platejs/react'
-import * as React from 'react'
+import { useEditorPlugin, usePluginOption } from 'platejs/react';
+import * as React from 'react';
 import {
   discussionPlugin,
 
-} from '~/features/editor/plugins/discussion-kit'
-import { suggestionPlugin } from '~/features/editor/plugins/suggestion-kit'
-import { Avatar, AvatarFallback, AvatarImage } from '~/ui/avatar'
+} from '~/features/editor/plugins/discussion-kit';
+import { suggestionPlugin } from '~/features/editor/plugins/suggestion-kit';
+import { Avatar, AvatarFallback, AvatarImage } from '~/ui/avatar';
 
-import { Button } from '~/ui/button'
+import { Button } from '~/ui/button';
 import {
   Comment,
   CommentCreateForm,
   formatCommentDate,
 
-} from './comment'
+} from './comment';
 
 export interface ResolvedSuggestion extends TResolvedSuggestion {
-  comments: TComment[]
+  comments: TComment[];
 }
 
-const BLOCK_SUGGESTION = '__block__'
+const BLOCK_SUGGESTION = '__block__';
 
 const TYPE_TEXT_MAP: Record<string, (node?: TElement) => string> = {
   [KEYS.audio]: () => 'Audio',
@@ -66,55 +66,55 @@ const TYPE_TEXT_MAP: Record<string, (node?: TElement) => string> = {
   [KEYS.mediaEmbed]: () => 'Media',
   [KEYS.p]: (node) => {
     if (node?.[KEYS.listType] === KEYS.listTodo)
-      return 'Todo List'
+      return 'Todo List';
     if (node?.[KEYS.listType] === KEYS.ol)
-      return 'Ordered List'
+      return 'Ordered List';
     if (node?.[KEYS.listType] === KEYS.ul)
-      return 'List'
+      return 'List';
 
-    return 'Paragraph'
+    return 'Paragraph';
   },
   [KEYS.table]: () => 'Table',
   [KEYS.toc]: () => 'Table of Contents',
   [KEYS.toggle]: () => 'Toggle',
   [KEYS.video]: () => 'Video',
-}
+};
 
 export function BlockSuggestionCard({
   idx,
   isLast,
   suggestion,
 }: {
-  idx: number
-  isLast: boolean
-  suggestion: ResolvedSuggestion
+  idx: number;
+  isLast: boolean;
+  suggestion: ResolvedSuggestion;
 }) {
-  const { api, editor } = useEditorPlugin(SuggestionPlugin)
+  const { api, editor } = useEditorPlugin(SuggestionPlugin);
 
-  const userInfo = usePluginOption(discussionPlugin, 'user', suggestion.userId)
+  const userInfo = usePluginOption(discussionPlugin, 'user', suggestion.userId);
 
   const accept = (suggestion: ResolvedSuggestion) => {
     api.suggestion.withoutSuggestions(() => {
-      acceptSuggestion(editor, suggestion)
-    })
-  }
+      acceptSuggestion(editor, suggestion);
+    });
+  };
 
   const reject = (suggestion: ResolvedSuggestion) => {
     api.suggestion.withoutSuggestions(() => {
-      rejectSuggestion(editor, suggestion)
-    })
-  }
+      rejectSuggestion(editor, suggestion);
+    });
+  };
 
-  const [hovering, setHovering] = React.useState(false)
+  const [hovering, setHovering] = React.useState(false);
 
   const suggestionText2Array = (text: string) => {
     if (text === BLOCK_SUGGESTION)
-      return ['line breaks']
+      return ['line breaks'];
 
-    return text.split(BLOCK_SUGGESTION).filter(Boolean)
-  }
+    return text.split(BLOCK_SUGGESTION).filter(Boolean);
+  };
 
-  const [editingId, setEditingId] = React.useState<string | null>(null)
+  const [editingId, setEditingId] = React.useState<string | null>(null);
 
   return (
     <div
@@ -252,87 +252,87 @@ export function BlockSuggestionCard({
 
       {!isLast && <div className="h-px w-full bg-muted" />}
     </div>
-  )
+  );
 }
 
 export function useResolveSuggestion(suggestionNodes: NodeEntry<TElement | TSuggestionText>[], blockPath: Path) {
-  const discussions = usePluginOption(discussionPlugin, 'discussions')
+  const discussions = usePluginOption(discussionPlugin, 'discussions');
 
   const { api, editor, getOption, setOption }
-    = useEditorPlugin(suggestionPlugin)
+    = useEditorPlugin(suggestionPlugin);
 
   suggestionNodes.forEach(([node]) => {
-    const id = api.suggestion.nodeId(node)
-    const map = getOption('uniquePathMap')
+    const id = api.suggestion.nodeId(node);
+    const map = getOption('uniquePathMap');
 
     if (!id)
-      return
+      return;
 
-    const previousPath = map.get(id)
+    const previousPath = map.get(id);
 
     // If there are no suggestion nodes in the corresponding path in the map, then update it.
     if (PathApi.isPath(previousPath)) {
-      const nodes = api.suggestion.node({ id, at: previousPath, isText: true })
-      const parentNode = api.node(previousPath)
-      let lineBreakId: string | null = null
+      const nodes = api.suggestion.node({ id, at: previousPath, isText: true });
+      const parentNode = api.node(previousPath);
+      let lineBreakId: string | null = null;
 
       if (parentNode && ElementApi.isElement(parentNode[0])) {
-        lineBreakId = api.suggestion.nodeId(parentNode[0]) ?? null
+        lineBreakId = api.suggestion.nodeId(parentNode[0]) ?? null;
       }
 
       if (!nodes && lineBreakId !== id) {
-        setOption('uniquePathMap', new Map(map).set(id, blockPath))
+        setOption('uniquePathMap', new Map(map).set(id, blockPath));
       }
     }
     else {
-      setOption('uniquePathMap', new Map(map).set(id, blockPath))
+      setOption('uniquePathMap', new Map(map).set(id, blockPath));
     }
-  })
+  });
 
   const resolvedSuggestion: ResolvedSuggestion[] = React.useMemo(() => {
-    const map = getOption('uniquePathMap')
+    const map = getOption('uniquePathMap');
 
     if (suggestionNodes.length === 0)
-      return []
+      return [];
 
     const suggestionIds = new Set(
       suggestionNodes
         .flatMap(([node]) => {
           if (TextApi.isText(node)) {
-            const dataList = api.suggestion.dataList(node)
+            const dataList = api.suggestion.dataList(node);
             const includeUpdate = dataList.some(
               data => data.type === 'update',
-            )
+            );
 
             if (!includeUpdate) {
-              return api.suggestion.nodeId(node) ?? []
+              return api.suggestion.nodeId(node) ?? [];
             }
 
             return dataList
               .filter(data => data.type === 'update')
-              .map(d => d.id)
+              .map(d => d.id);
           }
           if (ElementApi.isElement(node)) {
-            return api.suggestion.nodeId(node) ?? []
+            return api.suggestion.nodeId(node) ?? [];
           }
 
-          return []
+          return [];
         })
         .filter(Boolean),
-    )
+    );
 
-    const res: ResolvedSuggestion[] = []
+    const res: ResolvedSuggestion[] = [];
 
     suggestionIds.forEach((id) => {
       if (!id)
-        return
+        return;
 
-      const path = map.get(id)
+      const path = map.get(id);
 
       if (!path || !PathApi.isPath(path))
-        return
+        return;
       if (!PathApi.equals(path, blockPath))
-        return
+        return;
 
       const entries = [
         ...editor.api.nodes<TElement | TSuggestionText>({
@@ -342,90 +342,90 @@ export function useResolveSuggestion(suggestionNodes: NodeEntry<TElement | TSugg
             (n[KEYS.suggestion] && n[getSuggestionKey(id)])
             || api.suggestion.nodeId(n as TElement) === id,
         }),
-      ]
+      ];
 
       // move line break to the end
       entries.sort(([, path1], [, path2]) =>
         PathApi.isChild(path1, path2) ? -1 : 1,
-      )
+      );
 
-      let newText = ''
-      let text = ''
-      let properties: any = {}
-      let newProperties: any = {}
+      let newText = '';
+      let text = '';
+      let properties: any = {};
+      let newProperties: any = {};
 
       // overlapping suggestion
       entries.forEach(([node]) => {
         if (TextApi.isText(node)) {
-          const dataList = api.suggestion.dataList(node)
+          const dataList = api.suggestion.dataList(node);
 
           dataList.forEach((data) => {
             if (data.id === id) {
               switch (data.type) {
                 case 'insert': {
-                  newText += node.text
+                  newText += node.text;
 
-                  break
+                  break;
                 }
                 case 'remove': {
-                  text += node.text
+                  text += node.text;
 
-                  break
+                  break;
                 }
                 case 'update': {
                   properties = {
                     ...properties,
                     ...data.properties,
-                  }
+                  };
 
                   newProperties = {
                     ...newProperties,
                     ...data.newProperties,
-                  }
+                  };
 
-                  newText += node.text
+                  newText += node.text;
 
-                  break
+                  break;
                 }
                 // No default
               }
             }
-          })
+          });
         }
         else {
           const lineBreakData = api.suggestion.isBlockSuggestion(node)
             ? node.suggestion
-            : undefined
+            : undefined;
 
           if (lineBreakData?.id === keyId2SuggestionId(id)) {
             if (lineBreakData.type === 'insert') {
               newText += lineBreakData.isLineBreak
                 ? BLOCK_SUGGESTION
-                : BLOCK_SUGGESTION + TYPE_TEXT_MAP[node.type](node)
+                : BLOCK_SUGGESTION + TYPE_TEXT_MAP[node.type](node);
             }
             else if (lineBreakData.type === 'remove') {
               text += lineBreakData.isLineBreak
                 ? BLOCK_SUGGESTION
-                : BLOCK_SUGGESTION + TYPE_TEXT_MAP[node.type](node)
+                : BLOCK_SUGGESTION + TYPE_TEXT_MAP[node.type](node);
             }
           }
         }
-      })
+      });
 
       if (entries.length === 0)
-        return
+        return;
 
-      const nodeData = api.suggestion.suggestionData(entries[0][0])
+      const nodeData = api.suggestion.suggestionData(entries[0][0]);
 
       if (!nodeData)
-        return
+        return;
 
       // const comments = data?.discussions.find((d) => d.id === id)?.comments;
       const comments
-        = discussions.find((s: TDiscussion) => s.id === id)?.comments || []
-      const createdAt = new Date(nodeData.createdAt)
+        = discussions.find((s: TDiscussion) => s.id === id)?.comments || [];
+      const createdAt = new Date(nodeData.createdAt);
 
-      const keyId = getSuggestionKey(id)
+      const keyId = getSuggestionKey(id);
 
       if (nodeData.type === 'update') {
         res.push({
@@ -438,7 +438,7 @@ export function useResolveSuggestion(suggestionNodes: NodeEntry<TElement | TSugg
           suggestionId: keyId2SuggestionId(id),
           type: 'update',
           userId: nodeData.userId,
-        })
+        });
       }
       else if (newText.length > 0 && text.length > 0) {
         res.push({
@@ -450,7 +450,7 @@ export function useResolveSuggestion(suggestionNodes: NodeEntry<TElement | TSugg
           text,
           type: 'replace',
           userId: nodeData.userId,
-        })
+        });
       }
       else if (newText.length > 0) {
         res.push({
@@ -461,7 +461,7 @@ export function useResolveSuggestion(suggestionNodes: NodeEntry<TElement | TSugg
           suggestionId: keyId2SuggestionId(id),
           type: 'insert',
           userId: nodeData.userId,
-        })
+        });
       }
       else if (text.length > 0) {
         res.push({
@@ -472,11 +472,11 @@ export function useResolveSuggestion(suggestionNodes: NodeEntry<TElement | TSugg
           text,
           type: 'remove',
           userId: nodeData.userId,
-        })
+        });
       }
-    })
+    });
 
-    return res
+    return res;
   }, [
     api.suggestion,
     blockPath,
@@ -484,11 +484,11 @@ export function useResolveSuggestion(suggestionNodes: NodeEntry<TElement | TSugg
     editor.api,
     getOption,
     suggestionNodes,
-  ])
+  ]);
 
-  return resolvedSuggestion
+  return resolvedSuggestion;
 }
 
 export function isResolvedSuggestion(suggestion: ResolvedSuggestion | TDiscussion): suggestion is ResolvedSuggestion {
-  return 'suggestionId' in suggestion
+  return 'suggestionId' in suggestion;
 }

@@ -1,16 +1,16 @@
-import { useEffect, useRef, useState } from 'react'
-import { useSplitViewStore } from '~/features/layout/stores/split-view-store'
-import { useTabsStore } from '~/features/layout/stores/tabs-store'
-import { cn } from '~/lib/utils'
-import { useDragContext } from '~/providers/drag-context'
+import { useEffect, useRef, useState } from 'react';
+import { useSplitViewStore } from '~/features/layout/stores/split-view-store';
+import { useTabsStore } from '~/features/layout/stores/tabs-store';
+import { cn } from '~/lib/utils';
+import { useDragContext } from '~/providers/drag-context';
 
 interface SplitDropZoneProps {
-  position: 'left' | 'right' | 'top' | 'bottom' | 'center'
-  paneId?: string // Required for position === "center"
-  anchorNoteId?: string // The note to group with if creating a new split
-  onHoverChange?: (isHovering: boolean) => void
-  contentPadding?: number // px
-  contentWidth?: number // max-width px (e.g. 768 for max-w-3xl)
+  position: 'left' | 'right' | 'top' | 'bottom' | 'center';
+  paneId?: string; // Required for position === "center"
+  anchorNoteId?: string; // The note to group with if creating a new split
+  onHoverChange?: (isHovering: boolean) => void;
+  contentPadding?: number; // px
+  contentWidth?: number; // max-width px (e.g. 768 for max-w-3xl)
 }
 
 export function SplitDropZone({
@@ -21,94 +21,94 @@ export function SplitDropZone({
   contentPadding = 48,
   contentWidth = 768,
 }: SplitDropZoneProps) {
-  const dragContext = useDragContext()
-  const { panes, addPane, openInPane } = useSplitViewStore()
-  const { addToGroup } = useTabsStore()
+  const dragContext = useDragContext();
+  const { panes, addPane, openInPane } = useSplitViewStore();
+  const { addToGroup } = useTabsStore();
 
-  const zoneRef = useRef<HTMLDivElement>(null)
-  const [isHovering, setIsHovering] = useState(false)
+  const zoneRef = useRef<HTMLDivElement>(null);
+  const [isHovering, setIsHovering] = useState(false);
 
   useEffect(() => {
-    onHoverChange?.(isHovering)
-  }, [isHovering, onHoverChange])
+    onHoverChange?.(isHovering);
+  }, [isHovering, onHoverChange]);
 
-  const draggedNoteIdRef = useRef<string | null>(null)
-  const shouldShow = dragContext?.isDragging && (position === 'center' || panes.length < 2)
+  const draggedNoteIdRef = useRef<string | null>(null);
+  const shouldShow = dragContext?.isDragging && (position === 'center' || panes.length < 2);
 
   useEffect(() => {
     if (dragContext?.draggedNoteId) {
-      draggedNoteIdRef.current = dragContext.draggedNoteId
+      draggedNoteIdRef.current = dragContext.draggedNoteId;
     }
-  }, [dragContext?.draggedNoteId])
+  }, [dragContext?.draggedNoteId]);
 
   useEffect(() => {
     if (!shouldShow) {
-      setIsHovering(false)
-      return
+      setIsHovering(false);
+      return;
     }
 
     const handleMouseMove = (ev: MouseEvent) => {
       if (!zoneRef.current)
-        return
+        return;
 
-      const rect = zoneRef.current.getBoundingClientRect()
+      const rect = zoneRef.current.getBoundingClientRect();
       const isOver = (
         ev.clientX >= rect.left
         && ev.clientX <= rect.right
         && ev.clientY >= rect.top
         && ev.clientY <= rect.bottom
-      )
-      setIsHovering(isOver)
-    }
+      );
+      setIsHovering(isOver);
+    };
 
-    window.addEventListener('mousemove', handleMouseMove)
-    return () => window.removeEventListener('mousemove', handleMouseMove)
-  }, [shouldShow])
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, [shouldShow]);
 
   useEffect(() => {
     if (!shouldShow)
-      return
+      return;
 
     const handlePointerUp = () => {
       if (isHovering && draggedNoteIdRef.current && dragContext?.isDragging) {
-        const noteId = draggedNoteIdRef.current
-        draggedNoteIdRef.current = null
+        const noteId = draggedNoteIdRef.current;
+        draggedNoteIdRef.current = null;
 
         if (position === 'center' && paneId) {
-          openInPane(paneId, noteId)
+          openInPane(paneId, noteId);
         }
         else if (position !== 'center') {
           if (anchorNoteId) {
-            addToGroup(noteId, anchorNoteId)
+            addToGroup(noteId, anchorNoteId);
           }
-          addPane(position, noteId)
+          addPane(position, noteId);
         }
       }
-    }
+    };
 
-    window.addEventListener('pointerup', handlePointerUp, { capture: true })
-    return () => window.removeEventListener('pointerup', handlePointerUp, { capture: true })
-  }, [shouldShow, isHovering, position, addPane, openInPane, paneId, dragContext?.isDragging, anchorNoteId, addToGroup])
+    window.addEventListener('pointerup', handlePointerUp, { capture: true });
+    return () => window.removeEventListener('pointerup', handlePointerUp, { capture: true });
+  }, [shouldShow, isHovering, position, addPane, openInPane, paneId, dragContext?.isDragging, anchorNoteId, addToGroup]);
 
   useEffect(() => {
     if (!dragContext?.isDragging) {
       const timer = setTimeout(() => {
-        draggedNoteIdRef.current = null
-      }, 100)
-      return () => clearTimeout(timer)
+        draggedNoteIdRef.current = null;
+      }, 100);
+      return () => clearTimeout(timer);
     }
-  }, [dragContext?.isDragging])
+  }, [dragContext?.isDragging]);
 
   if (!shouldShow)
-    return null
+    return null;
 
   // trigger area configuration, w.r.t. to the content width
-  const halfContentWidth = contentWidth / 2
+  const halfContentWidth = contentWidth / 2;
   const triggerWidth = position === 'center'
     ? '100%'
     : (position === 'left' || position === 'right')
         ? `calc(50vw - min(50vw, ${halfContentWidth}px) + ${contentPadding}px)`
-        : `calc(50vh - min(50vh, ${halfContentWidth}px) + ${contentPadding}px)`
+        : `calc(50vh - min(50vh, ${halfContentWidth}px) + ${contentPadding}px)`;
 
   return (
     <>
@@ -153,5 +153,5 @@ export function SplitDropZone({
                 </span>
             </div> */}
     </>
-  )
+  );
 }

@@ -1,12 +1,12 @@
-'use client'
+'use client';
 
-import type { PlateElementProps } from 'platejs/react'
+import type { PlateElementProps } from 'platejs/react';
 
-import { useTocElement, useTocElementState } from '@platejs/toc/react'
-import { cva } from 'class-variance-authority'
-import { PlateElement } from 'platejs/react'
+import { useTocElement, useTocElementState } from '@platejs/toc/react';
+import { cva } from 'class-variance-authority';
+import { PlateElement } from 'platejs/react';
 
-import { Button } from '~/ui/button'
+import { Button } from '~/ui/button';
 
 const headingItemVariants = cva(
   'block h-auto w-full cursor-pointer truncate rounded-none px-0.5 py-1.5 text-left font-medium text-muted-foreground underline decoration-[0.5px] underline-offset-4 hover:bg-accent hover:text-muted-foreground',
@@ -19,12 +19,12 @@ const headingItemVariants = cva(
       },
     },
   },
-)
+);
 
 export function TocElement(props: PlateElementProps) {
-  const state = useTocElementState()
-  const { props: btnProps } = useTocElement(state)
-  const { headingList } = state
+  const state = useTocElementState();
+  const { props: btnProps } = useTocElement(state);
+  const { headingList } = state;
 
   return (
     <PlateElement {...props} className="mb-1 p-0">
@@ -53,5 +53,5 @@ export function TocElement(props: PlateElementProps) {
       </div>
       {props.children}
     </PlateElement>
-  )
+  );
 }

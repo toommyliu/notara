@@ -1,31 +1,31 @@
-import type { RefObject } from 'react'
-import type { HeaderTabItemHandle, SplitTabItemProps } from './types'
-import { useSortable } from '@dnd-kit/sortable'
-import { CSS } from '@dnd-kit/utilities'
+import type { RefObject } from 'react';
+import type { HeaderTabItemHandle, SplitTabItemProps } from './types';
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
-import { useEffect, useImperativeHandle, useRef } from 'react'
+import { useEffect, useImperativeHandle, useRef } from 'react';
 
-import IconX from '~icons/lucide/x'
-import { useTabsStore } from '~/features/layout/stores/tabs-store'
-import { useNotesStore } from '~/features/notes/store'
-import { cn } from '~/lib/utils'
+import IconX from '~icons/lucide/x';
+import { useTabsStore } from '~/features/layout/stores/tabs-store';
+import { useNotesStore } from '~/features/notes/store';
+import { cn } from '~/lib/utils';
 
 export function SplitTabItem({ ref, noteId, isActive, isPinned, noteIds, onActivatePane, onClosePane }: SplitTabItemProps & { ref?: React.RefObject<HeaderTabItemHandle | null> }) {
-  const notes = useNotesStore(s => s.notes)
-  const tabRef = useRef<HTMLDivElement>(null)
-  const buttonRefs = useRef<Map<string, HTMLButtonElement>>(new Map())
-  const activeTabId = useTabsStore(s => s.activeTabId)
+  const notes = useNotesStore(s => s.notes);
+  const tabRef = useRef<HTMLDivElement>(null);
+  const buttonRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
+  const activeTabId = useTabsStore(s => s.activeTabId);
 
   useImperativeHandle(ref, () => ({
     focus: () => {
       if (activeTabId && buttonRefs.current.has(activeTabId)) {
-        buttonRefs.current.get(activeTabId)?.focus()
+        buttonRefs.current.get(activeTabId)?.focus();
       }
       else if (noteIds.length > 0) {
-        buttonRefs.current.get(noteIds[0])?.focus()
+        buttonRefs.current.get(noteIds[0])?.focus();
       }
     },
-  }))
+  }));
 
   const {
     setNodeRef,
@@ -37,24 +37,24 @@ export function SplitTabItem({ ref, noteId, isActive, isPinned, noteIds, onActiv
   } = useSortable({
     id: noteId,
     data: { section: isPinned ? 'pinned' : 'open' },
-  })
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-  }
+  };
 
   useEffect(() => {
     if (isActive && tabRef.current) {
-      tabRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' })
+      tabRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
     }
-  }, [isActive])
+  }, [isActive]);
 
   return (
     <div
       ref={(node) => {
         setNodeRef(node);
-        (tabRef as RefObject<HTMLDivElement | null>).current = node
+        (tabRef as RefObject<HTMLDivElement | null>).current = node;
       }}
       style={style}
       className={cn(
@@ -71,8 +71,8 @@ export function SplitTabItem({ ref, noteId, isActive, isPinned, noteIds, onActiv
       role="tab"
     >
       {noteIds.map((id, index) => {
-        const note = notes.get(id)
-        const isPaneActive = id === activeTabId
+        const note = notes.get(id);
+        const isPaneActive = id === activeTabId;
 
         return (
           <div key={id} className="group/pane relative flex items-center h-full">
@@ -87,12 +87,12 @@ export function SplitTabItem({ ref, noteId, isActive, isPinned, noteIds, onActiv
             <button
               ref={(el) => {
                 if (el)
-                  buttonRefs.current.set(id, el)
-                else buttonRefs.current.delete(id)
+                  buttonRefs.current.set(id, el);
+                else buttonRefs.current.delete(id);
               }}
               onClick={(ev) => {
-                ev.stopPropagation()
-                onActivatePane(id)
+                ev.stopPropagation();
+                onActivatePane(id);
               }}
               className={cn(
                 'flex items-center gap-2 pl-2 pr-6 py-1 rounded-[calc(var(--radius-md)-2px)] transition-all h-full outline-none',
@@ -108,8 +108,8 @@ export function SplitTabItem({ ref, noteId, isActive, isPinned, noteIds, onActiv
 
             <button
               onClick={(ev) => {
-                ev.stopPropagation()
-                onClosePane(id)
+                ev.stopPropagation();
+                onClosePane(id);
               }}
               tabIndex={-1}
               className={cn(
@@ -123,8 +123,8 @@ export function SplitTabItem({ ref, noteId, isActive, isPinned, noteIds, onActiv
               <IconX className="size-3" />
             </button>
           </div>
-        )
+        );
       })}
     </div>
-  )
+  );
 }

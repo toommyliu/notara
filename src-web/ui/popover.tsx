@@ -1,14 +1,14 @@
-import { Popover as PopoverPrimitive } from '@base-ui/react/popover'
-import * as React from 'react'
+import { Popover as PopoverPrimitive } from '@base-ui/react/popover';
+import * as React from 'react';
 
-import { cn } from '~/lib/utils'
+import { cn } from '~/lib/utils';
 
 function Popover({ ...props }: PopoverPrimitive.Root.Props) {
-  return <PopoverPrimitive.Root data-slot="popover" {...props} />
+  return <PopoverPrimitive.Root data-slot="popover" {...props} />;
 }
 
 function PopoverTrigger({ ...props }: PopoverPrimitive.Trigger.Props) {
-  return <PopoverPrimitive.Trigger data-slot="popover-trigger" {...props} />
+  return <PopoverPrimitive.Trigger data-slot="popover-trigger" {...props} />;
 }
 
 function PopoverContent({
@@ -26,63 +26,63 @@ function PopoverContent({
     PopoverPrimitive.Positioner.Props,
     'align' | 'alignOffset' | 'side' | 'sideOffset'
   > & {
-    onOpenAutoFocus?: (event: Event) => void
-    onCloseAutoFocus?: (event: Event) => void
-    onEscapeKeyDown?: (event: KeyboardEvent) => void
+    onOpenAutoFocus?: (event: Event) => void;
+    onCloseAutoFocus?: (event: Event) => void;
+    onEscapeKeyDown?: (event: KeyboardEvent) => void;
   }) {
-  const popupRef = React.useRef<HTMLDivElement>(null)
+  const popupRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
     if (!onOpenAutoFocus)
-      return
+      return;
 
-    const popup = popupRef.current
+    const popup = popupRef.current;
     if (!popup)
-      return
+      return;
 
     const handleFocus = (e: FocusEvent) => {
-      onOpenAutoFocus(e)
-    }
+      onOpenAutoFocus(e);
+    };
 
-    popup.addEventListener('focusin', handleFocus, { once: true, capture: true })
-    return () => popup.removeEventListener('focusin', handleFocus, { capture: true })
-  }, [onOpenAutoFocus])
+    popup.addEventListener('focusin', handleFocus, { once: true, capture: true });
+    return () => popup.removeEventListener('focusin', handleFocus, { capture: true });
+  }, [onOpenAutoFocus]);
 
   React.useEffect(() => {
     if (!onCloseAutoFocus)
-      return
+      return;
 
-    const popup = popupRef.current
+    const popup = popupRef.current;
     if (!popup)
-      return
+      return;
 
     const handleFocusOut = (e: FocusEvent) => {
       if (!popup.contains(e.relatedTarget as Node)) {
-        onCloseAutoFocus(e)
+        onCloseAutoFocus(e);
       }
-    }
+    };
 
-    popup.addEventListener('focusout', handleFocusOut)
-    return () => popup.removeEventListener('focusout', handleFocusOut)
-  }, [onCloseAutoFocus])
+    popup.addEventListener('focusout', handleFocusOut);
+    return () => popup.removeEventListener('focusout', handleFocusOut);
+  }, [onCloseAutoFocus]);
 
   React.useEffect(() => {
     if (!onEscapeKeyDown)
-      return
+      return;
 
-    const popup = popupRef.current
+    const popup = popupRef.current;
     if (!popup)
-      return
+      return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        onEscapeKeyDown(e)
+        onEscapeKeyDown(e);
       }
-    }
+    };
 
-    popup.addEventListener('keydown', handleKeyDown)
-    return () => popup.removeEventListener('keydown', handleKeyDown)
-  }, [onEscapeKeyDown])
+    popup.addEventListener('keydown', handleKeyDown);
+    return () => popup.removeEventListener('keydown', handleKeyDown);
+  }, [onEscapeKeyDown]);
 
   return (
     <PopoverPrimitive.Portal>
@@ -104,7 +104,7 @@ function PopoverContent({
         />
       </PopoverPrimitive.Positioner>
     </PopoverPrimitive.Portal>
-  )
+  );
 }
 
 function PopoverHeader({ className, ...props }: React.ComponentProps<'div'>) {
@@ -114,7 +114,7 @@ function PopoverHeader({ className, ...props }: React.ComponentProps<'div'>) {
       className={cn('flex flex-col gap-0.5 text-sm', className)}
       {...props}
     />
-  )
+  );
 }
 
 function PopoverTitle({ className, ...props }: PopoverPrimitive.Title.Props) {
@@ -124,7 +124,7 @@ function PopoverTitle({ className, ...props }: PopoverPrimitive.Title.Props) {
       className={cn('font-medium', className)}
       {...props}
     />
-  )
+  );
 }
 
 function PopoverDescription({
@@ -137,7 +137,7 @@ function PopoverDescription({
       className={cn('text-muted-foreground', className)}
       {...props}
     />
-  )
+  );
 }
 
 function PopoverPositioner({
@@ -150,7 +150,7 @@ function PopoverPositioner({
       className={cn('isolate z-50', className)}
       {...props}
     />
-  )
+  );
 }
 
 export {
@@ -161,4 +161,4 @@ export {
   PopoverPositioner,
   PopoverTitle,
   PopoverTrigger,
-}
+};

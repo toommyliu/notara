@@ -1,24 +1,24 @@
-'use client'
+'use client';
 
 import {
   useLinkToolbarButton,
   useLinkToolbarButtonState,
-} from '@platejs/link/react'
+} from '@platejs/link/react';
 
-import { Link } from 'lucide-react'
-import * as React from 'react'
+import { Link } from 'lucide-react';
+import * as React from 'react';
 
-import { ToolbarButton } from '~/ui/toolbar'
+import { ToolbarButton } from '~/ui/toolbar';
 
 export function LinkToolbarButton(
   props: React.ComponentProps<typeof ToolbarButton>,
 ) {
-  const state = useLinkToolbarButtonState()
-  const { props: buttonProps } = useLinkToolbarButton(state)
+  const state = useLinkToolbarButtonState();
+  const { props: buttonProps } = useLinkToolbarButton(state);
 
   return (
     <ToolbarButton {...props} {...buttonProps} data-plate-focus tooltip="Link">
       <Link />
     </ToolbarButton>
-  )
+  );
 }

@@ -1,18 +1,18 @@
-import { createRootRoute, Outlet } from '@tanstack/react-router'
-import { listen } from '@tauri-apps/api/event'
-import { lazy, Suspense, useEffect, useMemo } from 'react'
+import { createRootRoute, Outlet } from '@tanstack/react-router';
+import { listen } from '@tauri-apps/api/event';
+import { lazy, Suspense, useEffect, useMemo } from 'react';
 
-import { AppHeader, AppSidebar, IconRibbon, TitlebarSpacer } from '~/features/layout'
-import { useSplitViewStore } from '~/features/layout/stores/split-view-store'
-import { useTabsStore } from '~/features/layout/stores/tabs-store'
+import { AppHeader, AppSidebar, IconRibbon, TitlebarSpacer } from '~/features/layout';
+import { useSplitViewStore } from '~/features/layout/stores/split-view-store';
+import { useTabsStore } from '~/features/layout/stores/tabs-store';
 
-import { useNotesStore } from '~/features/notes/store'
-import { SettingsDialogContent } from '~/features/settings'
-import { useSettingsStore } from '~/features/settings/stores/settings-store'
-import { useHotKeys } from '~/hooks/use-hotkey'
+import { useNotesStore } from '~/features/notes/store';
+import { SettingsDialogContent } from '~/features/settings';
+import { useSettingsStore } from '~/features/settings/stores/settings-store';
+import { useHotKeys } from '~/hooks/use-hotkey';
 
-import { useIsTauri } from '~/hooks/use-tauri'
-import { SidebarInset, SidebarProvider, useSidebar } from '~/ui/sidebar'
+import { useIsTauri } from '~/hooks/use-tauri';
+import { SidebarInset, SidebarProvider, useSidebar } from '~/ui/sidebar';
 
 const TanStackRouterDevtools = import.meta.env.DEV
   ? lazy(() =>
@@ -20,7 +20,7 @@ const TanStackRouterDevtools = import.meta.env.DEV
         default: mod.TanStackRouterDevtools,
       })),
     )
-  : () => null
+  : () => null;
 
 function MainContent() {
   return (
@@ -30,40 +30,40 @@ function MainContent() {
         <Outlet />
       </div>
     </SidebarInset>
-  )
+  );
 }
 
 function AppShell() {
-  const { toggleSidebar } = useSidebar()
-  const { toggleTabBar, cycleTab } = useTabsStore()
-  const addNote = useNotesStore(s => s.addNote)
-  const { cyclePane } = useSplitViewStore()
-  const { open: openSettings } = useSettingsStore()
-  const isTauri = useIsTauri()
+  const { toggleSidebar } = useSidebar();
+  const { toggleTabBar, cycleTab } = useTabsStore();
+  const addNote = useNotesStore(s => s.addNote);
+  const { cyclePane } = useSplitViewStore();
+  const { open: openSettings } = useSettingsStore();
+  const isTauri = useIsTauri();
 
   // Tauri event listeners for menu actions
   useEffect(() => {
     if (typeof window === 'undefined' || !isTauri)
-      return
+      return;
 
-    const unlisteners: (() => void)[] = []
+    const unlisteners: (() => void)[] = [];
 
     listen('toggle-sidebar', () => toggleSidebar())
       .then(fn => unlisteners.push(fn))
-      .catch(() => { })
+      .catch(() => { });
 
     listen('open-settings', () => openSettings())
       .then(fn => unlisteners.push(fn))
-      .catch(() => { })
+      .catch(() => { });
 
     listen('new-note', () => addNote())
       .then(fn => unlisteners.push(fn))
-      .catch(() => { })
+      .catch(() => { });
 
     return () => {
-      unlisteners.forEach(fn => fn())
-    }
-  }, [isTauri, toggleSidebar, openSettings, addNote])
+      unlisteners.forEach(fn => fn());
+    };
+  }, [isTauri, toggleSidebar, openSettings, addNote]);
 
   const hotkeyHandlers = useMemo(() => ({
     'toggle-sidebar': () => toggleSidebar(),
@@ -74,9 +74,9 @@ function AppShell() {
     'cycle-pane-backward': () => cyclePane(-1),
     'new-note': () => addNote(),
     'open-settings': () => openSettings(),
-  } as const), [toggleSidebar, toggleTabBar, cycleTab, cyclePane, addNote, openSettings])
+  } as const), [toggleSidebar, toggleTabBar, cycleTab, cyclePane, addNote, openSettings]);
 
-  useHotKeys(hotkeyHandlers)
+  useHotKeys(hotkeyHandlers);
 
   return (
     <>
@@ -91,7 +91,7 @@ function AppShell() {
         </Suspense>
       )}
     </>
-  )
+  );
 }
 
 export const Route = createRootRoute({
@@ -100,4 +100,4 @@ export const Route = createRootRoute({
       <AppShell />
     </SidebarProvider>
   ),
-})
+});

@@ -1,22 +1,22 @@
-'use client'
+'use client';
 
-import type { TDateElement } from 'platejs'
-import type { PlateElementProps } from 'platejs/react'
+import type { TDateElement } from 'platejs';
+import type { PlateElementProps } from 'platejs/react';
 
-import { PlateElement, useReadOnly } from 'platejs/react'
+import { PlateElement, useReadOnly } from 'platejs/react';
 
-import { cn } from '~/lib/utils'
-import { Calendar } from '~/ui/calendar'
+import { cn } from '~/lib/utils';
+import { Calendar } from '~/ui/calendar';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '~/ui/popover'
+} from '~/ui/popover';
 
 export function DateElement(props: PlateElementProps<TDateElement>) {
-  const { editor, element } = props
+  const { editor, element } = props;
 
-  const readOnly = useReadOnly()
+  const readOnly = useReadOnly();
 
   const trigger = (
     <span
@@ -29,42 +29,42 @@ export function DateElement(props: PlateElementProps<TDateElement>) {
       {element.date
         ? (
             (() => {
-              const today = new Date()
-              const elementDate = new Date(element.date)
+              const today = new Date();
+              const elementDate = new Date(element.date);
               const isToday
                 = elementDate.getDate() === today.getDate()
                   && elementDate.getMonth() === today.getMonth()
-                  && elementDate.getFullYear() === today.getFullYear()
+                  && elementDate.getFullYear() === today.getFullYear();
 
               const isYesterday
                 = new Date(today.setDate(today.getDate() - 1)).toDateString()
-                  === elementDate.toDateString()
+                  === elementDate.toDateString();
               const isTomorrow
                 = new Date(today.setDate(today.getDate() + 2)).toDateString()
-                  === elementDate.toDateString()
+                  === elementDate.toDateString();
 
               if (isToday)
-                return 'Today'
+                return 'Today';
               if (isYesterday)
-                return 'Yesterday'
+                return 'Yesterday';
               if (isTomorrow)
-                return 'Tomorrow'
+                return 'Tomorrow';
 
               return elementDate.toLocaleDateString(undefined, {
                 day: 'numeric',
                 month: 'long',
                 year: 'numeric',
-              })
+              });
             })()
           )
         : (
             <span>Pick a date</span>
           )}
     </span>
-  )
+  );
 
   if (readOnly) {
-    return trigger
+    return trigger;
   }
 
   return (
@@ -83,12 +83,12 @@ export function DateElement(props: PlateElementProps<TDateElement>) {
             selected={new Date(element.date as string)}
             onSelect={(date) => {
               if (!date)
-                return
+                return;
 
               editor.tf.setNodes(
                 { date: date.toDateString() },
                 { at: element },
-              )
+              );
             }}
             mode="single"
             initialFocus
@@ -97,5 +97,5 @@ export function DateElement(props: PlateElementProps<TDateElement>) {
       </Popover>
       {props.children}
     </PlateElement>
-  )
+  );
 }

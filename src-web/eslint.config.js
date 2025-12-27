@@ -1,4 +1,4 @@
-import antfu from '@antfu/eslint-config'
+import antfu from '@antfu/eslint-config';
 
 export default antfu({
   react: true,
@@ -6,11 +6,13 @@ export default antfu({
   stylistic: {
     indent: 2,
     quotes: 'single',
-    semi: false,
+    semi: true,
   },
+  unicorn: true,
+  formatters: true,
   ignores: [
     'dist',
     'node_modules',
     '*.gen.ts',
   ],
-})
+});

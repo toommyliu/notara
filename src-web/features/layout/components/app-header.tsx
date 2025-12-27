@@ -1,23 +1,23 @@
-import IconLock from '~icons/lucide/lock'
-import { usePageHeaderStore } from '~/features/layout/stores/page-header-store'
-import { useTabsStore } from '~/features/layout/stores/tabs-store'
-import { usePlatformLayout } from '~/hooks/use-platform'
+import IconLock from '~icons/lucide/lock';
+import { usePageHeaderStore } from '~/features/layout/stores/page-header-store';
+import { useTabsStore } from '~/features/layout/stores/tabs-store';
+import { usePlatformLayout } from '~/hooks/use-platform';
 
-import { Separator } from '~/ui/separator'
+import { Separator } from '~/ui/separator';
 
-import { SidebarTrigger } from '~/ui/sidebar'
-import { AppTitlebar } from './app-titlebar'
-import { HeaderTabs } from './header-tabs'
+import { SidebarTrigger } from '~/ui/sidebar';
+import { AppTitlebar } from './app-titlebar';
+import { HeaderTabs } from './header-tabs';
 
 export function AppHeader() {
-  const layout = usePlatformLayout()
-  const { config } = usePageHeaderStore()
-  const { title, emoji, isPrivate, actions } = config
-  const { isTabBarVisible, pinnedTabs, openTabs } = useTabsStore()
+  const layout = usePlatformLayout();
+  const { config } = usePageHeaderStore();
+  const { title, emoji, isPrivate, actions } = config;
+  const { isTabBarVisible, pinnedTabs, openTabs } = useTabsStore();
 
-  const showTabs = isTabBarVisible && (pinnedTabs.length > 0 || openTabs.length > 0)
+  const showTabs = isTabBarVisible && (pinnedTabs.length > 0 || openTabs.length > 0);
 
-  const hasTrafficLights = layout.isMac && !layout.isFullscreen
+  const hasTrafficLights = layout.isMac && !layout.isFullscreen;
 
   return (
     <AppTitlebar className="border-b border-border/40 overscroll-none select-none" noLeftInset={!hasTrafficLights}>
@@ -58,5 +58,5 @@ export function AppHeader() {
         )}
       </div>
     </AppTitlebar>
-  )
+  );
 }

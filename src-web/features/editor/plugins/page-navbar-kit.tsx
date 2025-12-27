@@ -1,8 +1,8 @@
-'use client'
+'use client';
 
-import { createPlatePlugin } from 'platejs/react'
+import { createPlatePlugin } from 'platejs/react';
 
-import { PageNavBar } from '~/features/editor/components/page-navbar'
+import { PageNavBar } from '~/features/editor/components/page-navbar';
 
 export const PageNavBarKit = [
   createPlatePlugin({
@@ -11,4 +11,4 @@ export const PageNavBarKit = [
       beforeEditable: () => <PageNavBar />,
     },
   }),
-]
+];

@@ -1,16 +1,16 @@
-'use client'
+'use client';
 
-import type { CursorData, CursorOverlayState } from '@platejs/selection/react'
+import type { CursorData, CursorOverlayState } from '@platejs/selection/react';
 import {
 
   useCursorOverlay,
-} from '@platejs/selection/react'
-import { RangeApi } from 'platejs'
+} from '@platejs/selection/react';
+import { RangeApi } from 'platejs';
 
-import { cn } from '~/lib/utils'
+import { cn } from '~/lib/utils';
 
 export function CursorOverlay() {
-  const { cursors } = useCursorOverlay()
+  const { cursors } = useCursorOverlay();
 
   return (
     <>
@@ -18,7 +18,7 @@ export function CursorOverlay() {
         <Cursor key={cursor.id} {...cursor} />
       ))}
     </>
-  )
+  );
 }
 
 function Cursor({
@@ -28,8 +28,8 @@ function Cursor({
   selection,
   selectionRects,
 }: CursorOverlayState<CursorData>) {
-  const { style, selectionStyle = style } = data ?? ({} as CursorData)
-  const isCursor = RangeApi.isCollapsed(selection)
+  const { style, selectionStyle = style } = data ?? ({} as CursorData);
+  const isCursor = RangeApi.isCollapsed(selection);
 
   return (
     <>
@@ -57,5 +57,5 @@ function Cursor({
         />
       )}
     </>
-  )
+  );
 }

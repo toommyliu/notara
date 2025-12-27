@@ -1,15 +1,15 @@
-'use client'
+'use client';
 
-import { useEditorUi } from '~/features/editor/contexts/editor-ui-context'
+import { useEditorUi } from '~/features/editor/contexts/editor-ui-context';
 
-import { cn } from '~/lib/utils'
-import { Toolbar } from '~/ui/toolbar'
+import { cn } from '~/lib/utils';
+import { Toolbar } from '~/ui/toolbar';
 
 export function FixedToolbar(props: React.ComponentProps<typeof Toolbar>) {
-  const { showFixedToolbar } = useEditorUi()
+  const { showFixedToolbar } = useEditorUi();
 
   if (!showFixedToolbar) {
-    return null
+    return null;
   }
 
   return (
@@ -20,5 +20,5 @@ export function FixedToolbar(props: React.ComponentProps<typeof Toolbar>) {
         props.className,
       )}
     />
-  )
+  );
 }

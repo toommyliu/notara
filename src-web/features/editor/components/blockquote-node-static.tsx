@@ -1,5 +1,5 @@
-import type { SlateElementProps } from 'platejs/static'
-import { SlateElement } from 'platejs/static'
+import type { SlateElementProps } from 'platejs/static';
+import { SlateElement } from 'platejs/static';
 
 export function BlockquoteElementStatic(props: SlateElementProps) {
   return (
@@ -8,5 +8,5 @@ export function BlockquoteElementStatic(props: SlateElementProps) {
       className="my-1 border-l-2 pl-6 italic"
       {...props}
     />
-  )
+  );
 }

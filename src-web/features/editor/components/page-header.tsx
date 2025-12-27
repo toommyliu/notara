@@ -1,9 +1,9 @@
-import * as React from 'react'
+import * as React from 'react';
 
-import IconImage from '~icons/lucide/image'
+import IconImage from '~icons/lucide/image';
 
-import IconSmile from '~icons/lucide/smile'
-import { cn } from '~/lib/utils'
+import IconSmile from '~icons/lucide/smile';
+import { cn } from '~/lib/utils';
 
 import {
   EmojiPicker,
@@ -12,16 +12,16 @@ import {
   EmojiPickerFooter,
   EmojiPickerSearch,
   EmojiPickerSkinToneDropdown,
-} from '~/ui/emoji-picker'
+} from '~/ui/emoji-picker';
 
 export interface PageHeaderProps {
-  title?: string
-  icon?: string
-  coverUrl?: string
-  onTitleChange?: (title: string) => void
-  onIconChange?: (icon: string) => void
-  onCoverChange?: (url: string | null) => void
-  className?: string
+  title?: string;
+  icon?: string;
+  coverUrl?: string;
+  onTitleChange?: (title: string) => void;
+  onIconChange?: (icon: string) => void;
+  onCoverChange?: (url: string | null) => void;
+  className?: string;
 }
 
 export function PageHeader({
@@ -33,73 +33,73 @@ export function PageHeader({
   onCoverChange,
   className,
 }: PageHeaderProps) {
-  const [showIconPicker, setShowIconPicker] = React.useState(false)
-  const titleRef = React.useRef<HTMLDivElement>(null)
-  const pickerRef = React.useRef<HTMLDivElement>(null)
-  const triggerRef = React.useRef<HTMLButtonElement>(null)
+  const [showIconPicker, setShowIconPicker] = React.useState(false);
+  const titleRef = React.useRef<HTMLDivElement>(null);
+  const pickerRef = React.useRef<HTMLDivElement>(null);
+  const triggerRef = React.useRef<HTMLButtonElement>(null);
 
   React.useEffect(() => {
     if (!showIconPicker)
-      return
+      return;
 
     const handleClickOutside = (ev: MouseEvent) => {
-      const target = ev.target as Node
+      const target = ev.target as Node;
       if (
         pickerRef.current
         && !pickerRef.current.contains(target)
         && triggerRef.current
         && !triggerRef.current.contains(target)
       ) {
-        setShowIconPicker(false)
+        setShowIconPicker(false);
       }
-    }
+    };
 
     const handleKeyDown = (ev: KeyboardEvent) => {
       if (ev.key === 'Escape') {
-        setShowIconPicker(false)
-        triggerRef.current?.focus()
+        setShowIconPicker(false);
+        triggerRef.current?.focus();
       }
-    }
+    };
 
     const timeoutId = setTimeout(() => {
-      document.addEventListener('mousedown', handleClickOutside)
-      document.addEventListener('keydown', handleKeyDown)
-    }, 0)
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleKeyDown);
+    }, 0);
 
     return () => {
-      clearTimeout(timeoutId)
-      document.removeEventListener('mousedown', handleClickOutside)
-      document.removeEventListener('keydown', handleKeyDown)
-    }
-  }, [showIconPicker])
+      clearTimeout(timeoutId);
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [showIconPicker]);
 
   const handleTitleInput = React.useCallback(
     (ev: React.FormEvent<HTMLDivElement>) => {
-      const newTitle = ev.currentTarget.textContent || ''
-      onTitleChange?.(newTitle)
+      const newTitle = ev.currentTarget.textContent || '';
+      onTitleChange?.(newTitle);
     },
     [onTitleChange],
-  )
+  );
 
   const handleTitleKeyDown = React.useCallback((ev: React.KeyboardEvent<HTMLDivElement>) => {
     if (ev.key === 'Enter') {
       ev.preventDefault();
-      (ev.target as HTMLDivElement).blur()
+      (ev.target as HTMLDivElement).blur();
     }
-  }, [])
+  }, []);
 
   const handleIconSelect = React.useCallback(
     (emoji: string) => {
-      onIconChange?.(emoji)
-      setShowIconPicker(false)
+      onIconChange?.(emoji);
+      setShowIconPicker(false);
     },
     [onIconChange],
-  )
+  );
 
   const handleRemoveIcon = React.useCallback(() => {
-    onIconChange?.('')
-    setShowIconPicker(false)
-  }, [onIconChange])
+    onIconChange?.('');
+    setShowIconPicker(false);
+  }, [onIconChange]);
 
   return (
     <div className={cn('relative w-full group', className)}>
@@ -124,7 +124,7 @@ export function PageHeader({
             <div className="flex h-12 items-center justify-end px-16 opacity-0 transition-opacity duration-200 group-hover:opacity-100 sm:px-[max(64px,calc(50%-350px))]">
               <button
                 onClick={() => {
-                  onCoverChange?.('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&q=80')
+                  onCoverChange?.('https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=1200&q=80');
                 }}
                 className="flex items-center gap-1.5 rounded-md px-2 py-1 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
               >
@@ -222,5 +222,5 @@ export function PageHeader({
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -1,10 +1,10 @@
-'use client'
+'use client';
 
-import { AIChatPlugin } from '@platejs/ai/react'
-import { BlockSelectionPlugin } from '@platejs/selection/react'
-import { getPluginTypes, isHotkey, KEYS } from 'platejs'
+import { AIChatPlugin } from '@platejs/ai/react';
+import { BlockSelectionPlugin } from '@platejs/selection/react';
+import { getPluginTypes, isHotkey, KEYS } from 'platejs';
 
-import { BlockSelection } from '~/features/editor/components/block-selection'
+import { BlockSelection } from '~/features/editor/components/block-selection';
 
 export const BlockSelectionKit = [
   BlockSelectionPlugin.configure(({ editor }) => ({
@@ -16,17 +16,17 @@ export const BlockSelectionKit = [
         ),
       onKeyDownSelecting: (editor, e) => {
         if (isHotkey('mod+j')(e)) {
-          editor.getApi(AIChatPlugin).aiChat.show()
+          editor.getApi(AIChatPlugin).aiChat.show();
         }
       },
     },
     render: {
       belowRootNodes: (props) => {
         if (!props.attributes.className?.includes('slate-selectable'))
-          return null
+          return null;
 
-        return <BlockSelection {...(props as any)} />
+        return <BlockSelection {...(props as any)} />;
       },
     },
   })),
-]
+];

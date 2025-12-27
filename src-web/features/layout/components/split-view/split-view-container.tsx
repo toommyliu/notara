@@ -1,83 +1,83 @@
-import type { ReactNode } from 'react'
-import type { GroupImperativeHandle, Layout } from 'react-resizable-panels'
-import type { Pane } from '~/features/layout/stores/split-view-store'
-import type { Note } from '~/features/notes/store'
+import type { ReactNode } from 'react';
+import type { GroupImperativeHandle, Layout } from 'react-resizable-panels';
+import type { Pane } from '~/features/layout/stores/split-view-store';
+import type { Note } from '~/features/notes/store';
 
-import { useCallback, useRef, useState } from 'react'
-import { Group, Panel, Separator } from 'react-resizable-panels'
+import { useCallback, useRef, useState } from 'react';
+import { Group, Panel, Separator } from 'react-resizable-panels';
 
-import { useSplitViewStore } from '~/features/layout/stores/split-view-store'
-import { useTabsStore } from '~/features/layout/stores/tabs-store'
-import { useNotesStore } from '~/features/notes/store'
-import { HapticFeedbackPattern, useHaptics } from '~/hooks/use-haptics'
-import { cn } from '~/lib/utils'
-import { useDragContext } from '~/providers/drag-context'
+import { useSplitViewStore } from '~/features/layout/stores/split-view-store';
+import { useTabsStore } from '~/features/layout/stores/tabs-store';
+import { useNotesStore } from '~/features/notes/store';
+import { HapticFeedbackPattern, useHaptics } from '~/hooks/use-haptics';
+import { cn } from '~/lib/utils';
+import { useDragContext } from '~/providers/drag-context';
 
-import { SplitDropZone } from './split-drop-zone'
+import { SplitDropZone } from './split-drop-zone';
 
 interface SplitViewContainerProps {
-  renderPane: (pane: Pane, isActive: boolean) => ReactNode
-  renderPreview?: (note: Note) => ReactNode
-  contentPadding?: number
+  renderPane: (pane: Pane, isActive: boolean) => ReactNode;
+  renderPreview?: (note: Note) => ReactNode;
+  contentPadding?: number;
 }
 
-const SNAP_THRESHOLD = 5 // Snap when within 5% of 50%
-const ESCAPE_THRESHOLD = 8 // Must drag past 8% to escape snap
+const SNAP_THRESHOLD = 5; // Snap when within 5% of 50%
+const ESCAPE_THRESHOLD = 8; // Must drag past 8% to escape snap
 
 export function SplitViewContainer({ renderPane, renderPreview, contentPadding }: SplitViewContainerProps) {
-  const activeTabId = useTabsStore(s => s.activeTabId)
-  const setActiveTab = useTabsStore(s => s.setActiveTab)
-  const { panes, activePaneId, setActivePane, orientation } = useSplitViewStore()
-  const [hoverSide, setHoverSide] = useState<'left' | 'right' | 'top' | 'bottom' | null>(null)
-  const groupRef = useRef<GroupImperativeHandle>(null)
-  const isSnappedRef = useRef(false)
-  const { perform } = useHaptics()
+  const activeTabId = useTabsStore(s => s.activeTabId);
+  const setActiveTab = useTabsStore(s => s.setActiveTab);
+  const { panes, activePaneId, setActivePane, orientation } = useSplitViewStore();
+  const [hoverSide, setHoverSide] = useState<'left' | 'right' | 'top' | 'bottom' | null>(null);
+  const groupRef = useRef<GroupImperativeHandle>(null);
+  const isSnappedRef = useRef(false);
+  const { perform } = useHaptics();
 
-  const dragContext = useDragContext()
-  const notes = useNotesStore(s => s.notes)
+  const dragContext = useDragContext();
+  const notes = useNotesStore(s => s.notes);
 
   const draggedNote = dragContext?.isDragging && dragContext.draggedNoteId
     ? notes.get(dragContext.draggedNoteId) ?? null
-    : null
+    : null;
 
   const triggerHaptic = useCallback(() => {
-    perform(HapticFeedbackPattern.Generic)
-  }, [perform])
+    perform(HapticFeedbackPattern.Generic);
+  }, [perform]);
 
   const handleLayoutChange = useCallback((layout: Layout) => {
-    const panelIds = Object.keys(layout)
+    const panelIds = Object.keys(layout);
     if (panelIds.length !== 2 || panes.length !== 2)
-      return
+      return;
 
-    const [pane1Id, pane2Id] = panelIds
-    const firstSize = layout[pane1Id]
-    const diff = Math.abs(firstSize - 50)
+    const [pane1Id, pane2Id] = panelIds;
+    const firstSize = layout[pane1Id];
+    const diff = Math.abs(firstSize - 50);
 
     if (isSnappedRef.current) {
       // Already snapped - only escape if dragged past escape threshold
       if (diff > ESCAPE_THRESHOLD) {
-        isSnappedRef.current = false
+        isSnappedRef.current = false;
       }
       else if (diff > 0.1) {
         // Keep it locked at center
-        groupRef.current?.setLayout({ [pane1Id]: 50, [pane2Id]: 50 })
+        groupRef.current?.setLayout({ [pane1Id]: 50, [pane2Id]: 50 });
       }
     }
     else {
       // Not snapped - check if we should snap
       if (diff > 0.5 && diff < SNAP_THRESHOLD) {
-        isSnappedRef.current = true
-        groupRef.current?.setLayout({ [pane1Id]: 50, [pane2Id]: 50 })
-        triggerHaptic()
+        isSnappedRef.current = true;
+        groupRef.current?.setLayout({ [pane1Id]: 50, [pane2Id]: 50 });
+        triggerHaptic();
       }
     }
-  }, [panes, triggerHaptic])
+  }, [panes, triggerHaptic]);
   // Determine preview orientation based on hover side
-  const isVerticalPreview = hoverSide === 'top' || hoverSide === 'bottom'
+  const isVerticalPreview = hoverSide === 'top' || hoverSide === 'bottom';
 
   // Get the current note for the split preview
-  const activePane = panes.find(p => p.id === activePaneId)
-  const currentNote = activePane?.noteId ? notes.get(activePane.noteId) ?? null : null
+  const activePane = panes.find(p => p.id === activePaneId);
+  const currentNote = activePane?.noteId ? notes.get(activePane.noteId) ?? null : null;
 
   return (
     <div className="relative flex-1 min-h-0 flex overflow-hidden">
@@ -105,11 +105,11 @@ export function SplitViewContainer({ renderPane, renderPreview, contentPadding }
               isPreviewingSplit={hoverSide !== null}
               onActivate={() => {
                 if (activePaneId !== pane.id) {
-                  setActivePane(pane.id)
+                  setActivePane(pane.id);
                 }
 
                 if (pane.noteId && activeTabId !== pane.noteId) {
-                  setActiveTab(pane.noteId)
+                  setActiveTab(pane.noteId);
                 }
               }}
             >
@@ -190,13 +190,13 @@ export function SplitViewContainer({ renderPane, renderPreview, contentPadding }
         onHoverChange={isHovering => setHoverSide(isHovering ? 'bottom' : null)}
       />
     </div>
-  )
+  );
 }
 
 interface NotePreviewProps {
-  note: Note
-  orientation: 'horizontal' | 'vertical'
-  renderPreview?: (note: Note) => ReactNode
+  note: Note;
+  orientation: 'horizontal' | 'vertical';
+  renderPreview?: (note: Note) => ReactNode;
 }
 
 function NotePreview({ note, orientation, renderPreview }: NotePreviewProps) {
@@ -213,7 +213,7 @@ function NotePreview({ note, orientation, renderPreview }: NotePreviewProps) {
           {renderPreview(note)}
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -268,23 +268,23 @@ function NotePreview({ note, orientation, renderPreview }: NotePreviewProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 interface SplitPaneProps {
-  pane: Pane
-  isActive: boolean
-  isFirst: boolean
-  paneCount: number
-  orientation: 'horizontal' | 'vertical'
-  isPreviewingSplit?: boolean
-  onActivate: () => void
-  children: ReactNode
+  pane: Pane;
+  isActive: boolean;
+  isFirst: boolean;
+  paneCount: number;
+  orientation: 'horizontal' | 'vertical';
+  isPreviewingSplit?: boolean;
+  onActivate: () => void;
+  children: ReactNode;
 }
 
 function SplitPane({ pane, isActive, isFirst, paneCount, orientation, isPreviewingSplit, onActivate, children }: SplitPaneProps) {
-  const isSplit = paneCount > 1
-  const showFrame = isSplit || isPreviewingSplit
+  const isSplit = paneCount > 1;
+  const showFrame = isSplit || isPreviewingSplit;
 
   return (
     <>
@@ -336,5 +336,5 @@ function SplitPane({ pane, isActive, isFirst, paneCount, orientation, isPreviewi
         </div>
       </Panel>
     </>
-  )
+  );
 }

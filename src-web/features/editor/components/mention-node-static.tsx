@@ -1,18 +1,18 @@
-import type { TMentionElement } from 'platejs'
-import type { SlateElementProps } from 'platejs/static'
+import type { TMentionElement } from 'platejs';
+import type { SlateElementProps } from 'platejs/static';
 
-import { KEYS } from 'platejs'
-import { SlateElement } from 'platejs/static'
+import { KEYS } from 'platejs';
+import { SlateElement } from 'platejs/static';
 
-import { cn } from '~/lib/utils'
+import { cn } from '~/lib/utils';
 
 export function MentionElementStatic(
   props: SlateElementProps<TMentionElement> & {
-    prefix?: string
+    prefix?: string;
   },
 ) {
-  const { prefix } = props
-  const element = props.element
+  const { prefix } = props;
+  const element = props.element;
 
   return (
     <SlateElement
@@ -32,5 +32,5 @@ export function MentionElementStatic(
       {prefix}
       {element.value}
     </SlateElement>
-  )
+  );
 }

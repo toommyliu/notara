@@ -1,79 +1,79 @@
-import type { Modifier, ShortcutBinding, ShortcutId } from '@notara/shortcuts'
+import type { Modifier, ShortcutBinding, ShortcutId } from '@notara/shortcuts';
 import {
   SHORTCUT_LABELS,
 
-} from '@notara/shortcuts'
+} from '@notara/shortcuts';
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react';
 
-import IconRotateCcw from '~icons/lucide/rotate-ccw'
-import { formatBindingForDisplay, useShortcutsStore } from '~/features/settings/stores/shortcuts-store'
-import { getKeyFromEvent } from '~/lib/keyboard'
+import IconRotateCcw from '~icons/lucide/rotate-ccw';
+import { formatBindingForDisplay, useShortcutsStore } from '~/features/settings/stores/shortcuts-store';
+import { getKeyFromEvent } from '~/lib/keyboard';
 
-import { cn } from '~/lib/utils'
+import { cn } from '~/lib/utils';
 
 interface ShortcutRowProps {
-  id: ShortcutId
-  binding: ShortcutBinding
-  isRecording: boolean
-  onStartRecording: () => void
-  onCancelRecording: () => void
+  id: ShortcutId;
+  binding: ShortcutBinding;
+  isRecording: boolean;
+  onStartRecording: () => void;
+  onCancelRecording: () => void;
 }
 
 function ShortcutRow({ id, binding, isRecording, onStartRecording, onCancelRecording }: ShortcutRowProps) {
-  const { setBinding } = useShortcutsStore()
+  const { setBinding } = useShortcutsStore();
 
   useEffect(() => {
     if (!isRecording)
-      return
+      return;
 
     const handleKeyDown = (ev: KeyboardEvent) => {
-      ev.preventDefault()
-      ev.stopPropagation()
+      ev.preventDefault();
+      ev.stopPropagation();
 
       if (ev.key === 'Escape') {
-        onCancelRecording()
-        return
+        onCancelRecording();
+        return;
       }
 
       // Ignore modifier-only presses
       if (['Meta', 'Control', 'Shift', 'Alt'].includes(ev.key)) {
-        return
+        return;
       }
 
-      const modifiers: Modifier[] = []
+      const modifiers: Modifier[] = [];
       if (ev.metaKey)
-        modifiers.push('meta')
+        modifiers.push('meta');
       if (ev.ctrlKey)
-        modifiers.push('ctrl')
+        modifiers.push('ctrl');
       if (ev.shiftKey)
-        modifiers.push('shift')
+        modifiers.push('shift');
       if (ev.altKey)
-        modifiers.push('alt')
+        modifiers.push('alt');
 
       // Require at least one modifier for most keys
-      const isFunctionKey = /^F([1-9]|1[0-2])$/.test(ev.key)
+      const isFunctionKey = /^F([1-9]|1[0-2])$/.test(ev.key);
       if (modifiers.length === 0 && !isFunctionKey) {
-        return
+        return;
       }
 
-      const key = getKeyFromEvent(ev)
+      const key = getKeyFromEvent(ev);
 
       // Skip if still a modifier or invalid
       if (['Meta', 'Control', 'Shift', 'Alt', 'Dead'].includes(key)) {
-        return
+        return;
       }
 
-      setBinding(id, { key, modifiers })
-      onCancelRecording()
-    }
+      setBinding(id, { key, modifiers });
+      onCancelRecording();
+    };
 
-    window.addEventListener('keydown', handleKeyDown, true)
-    return () => window.removeEventListener('keydown', handleKeyDown, true)
-  }, [isRecording, id, setBinding, onCancelRecording])
+    window.addEventListener('keydown', handleKeyDown, true);
+    return () => window.removeEventListener('keydown', handleKeyDown, true);
+  }, [isRecording, id, setBinding, onCancelRecording]);
 
-  const label = SHORTCUT_LABELS[id]
-  const displayText = isRecording ? 'Press shortcut... (Esc to cancel)' : formatBindingForDisplay(binding)
+  const label = SHORTCUT_LABELS[id];
+  const displayText = isRecording ? 'Press shortcut... (Esc to cancel)' : formatBindingForDisplay(binding);
 
   return (
     <div className="flex items-center justify-between py-2">
@@ -96,22 +96,22 @@ function ShortcutRow({ id, binding, isRecording, onStartRecording, onCancelRecor
         {displayText}
       </button>
     </div>
-  )
+  );
 }
 
 export function ShortcutsTab() {
-  const { bindings, resetToDefaults } = useShortcutsStore()
-  const [recordingId, setRecordingId] = useState<ShortcutId | null>(null)
+  const { bindings, resetToDefaults } = useShortcutsStore();
+  const [recordingId, setRecordingId] = useState<ShortcutId | null>(null);
 
   const handleStartRecording = useCallback((id: ShortcutId) => {
-    setRecordingId(id)
-  }, [])
+    setRecordingId(id);
+  }, []);
 
   const handleCancelRecording = useCallback(() => {
-    setRecordingId(null)
-  }, [])
+    setRecordingId(null);
+  }, []);
 
-  const shortcutIds = Object.keys(bindings) as ShortcutId[]
+  const shortcutIds = Object.keys(bindings) as ShortcutId[];
 
   return (
     <div className="space-y-3">
@@ -131,8 +131,8 @@ export function ShortcutsTab() {
 
         <button
           onClick={() => {
-            resetToDefaults()
-            setRecordingId(null)
+            resetToDefaults();
+            setRecordingId(null);
           }}
           className={cn(
             'mt-3 w-full flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-medium',
@@ -145,5 +145,5 @@ export function ShortcutsTab() {
         </button>
       </div>
     </div>
-  )
+  );
 }

@@ -12,24 +12,24 @@ export const LAYOUT_INSENSITIVE_CODES: Record<string, string> = {
   Backslash: '\\',
   Minus: '-',
   Equal: '=',
-}
+};
 
 export function getKeyFromEvent(ev: KeyboardEvent): string {
   // Check layout-insensitive codes first
-  const mappedKey = LAYOUT_INSENSITIVE_CODES[ev.code]
+  const mappedKey = LAYOUT_INSENSITIVE_CODES[ev.code];
   if (mappedKey)
-    return mappedKey
+    return mappedKey;
 
   // Handle letter keys via code when Alt is pressed (macOS produces special chars)
   if (ev.altKey || ev.ctrlKey) {
-    const letterMatch = ev.code.match(/^Key([A-Z])$/)
+    const letterMatch = ev.code.match(/^Key([A-Z])$/);
     if (letterMatch)
-      return letterMatch[1].toLowerCase()
+      return letterMatch[1].toLowerCase();
 
-    const digitMatch = ev.code.match(/^Digit(\d)$/)
+    const digitMatch = ev.code.match(/^Digit(\d)$/);
     if (digitMatch)
-      return digitMatch[1]
+      return digitMatch[1];
   }
 
-  return ev.key
+  return ev.key;
 }

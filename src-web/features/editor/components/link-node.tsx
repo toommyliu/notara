@@ -1,13 +1,13 @@
-'use client'
+'use client';
 
-import type { TInlineSuggestionData, TLinkElement } from 'platejs'
-import type { PlateElementProps } from 'platejs/react'
+import type { TInlineSuggestionData, TLinkElement } from 'platejs';
+import type { PlateElementProps } from 'platejs/react';
 
-import { getLinkAttributes } from '@platejs/link'
-import { SuggestionPlugin } from '@platejs/suggestion/react'
-import { PlateElement } from 'platejs/react'
+import { getLinkAttributes } from '@platejs/link';
+import { SuggestionPlugin } from '@platejs/suggestion/react';
+import { PlateElement } from 'platejs/react';
 
-import { cn } from '~/lib/utils'
+import { cn } from '~/lib/utils';
 
 export function LinkElement(props: PlateElementProps<TLinkElement>) {
   const suggestionData = props.editor
@@ -15,7 +15,7 @@ export function LinkElement(props: PlateElementProps<TLinkElement>) {
     .suggestion
     .suggestionData(props.element) as
     | TInlineSuggestionData
-    | undefined
+    | undefined;
 
   return (
     <PlateElement
@@ -30,11 +30,11 @@ export function LinkElement(props: PlateElementProps<TLinkElement>) {
         ...props.attributes,
         ...getLinkAttributes(props.editor, props.element),
         onMouseOver: (e) => {
-          e.stopPropagation()
+          e.stopPropagation();
         },
       }}
     >
       {props.children}
     </PlateElement>
-  )
+  );
 }

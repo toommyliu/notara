@@ -1,20 +1,20 @@
-import { Menu as MenuPrimitive } from '@base-ui/react/menu'
-import * as React from 'react'
+import { Menu as MenuPrimitive } from '@base-ui/react/menu';
+import * as React from 'react';
 
-import IconCheck from '~icons/lucide/check'
-import IconChevronRight from '~icons/lucide/chevron-right'
-import { cn } from '~/lib/utils'
+import IconCheck from '~icons/lucide/check';
+import IconChevronRight from '~icons/lucide/chevron-right';
+import { cn } from '~/lib/utils';
 
 function DropdownMenu({ ...props }: MenuPrimitive.Root.Props) {
-  return <MenuPrimitive.Root data-slot="dropdown-menu" {...props} />
+  return <MenuPrimitive.Root data-slot="dropdown-menu" {...props} />;
 }
 
 function DropdownMenuPortal({ ...props }: MenuPrimitive.Portal.Props) {
-  return <MenuPrimitive.Portal data-slot="dropdown-menu-portal" {...props} />
+  return <MenuPrimitive.Portal data-slot="dropdown-menu-portal" {...props} />;
 }
 
 function DropdownMenuTrigger({ ...props }: MenuPrimitive.Trigger.Props) {
-  return <MenuPrimitive.Trigger data-slot="dropdown-menu-trigger" {...props} />
+  return <MenuPrimitive.Trigger data-slot="dropdown-menu-trigger" {...props} />;
 }
 
 function DropdownMenuContent({
@@ -30,28 +30,28 @@ function DropdownMenuContent({
     MenuPrimitive.Positioner.Props,
     'align' | 'alignOffset' | 'side' | 'sideOffset'
   > & {
-    onCloseAutoFocus?: (event: Event) => void
+    onCloseAutoFocus?: (event: Event) => void;
   }) {
-  const popupRef = React.useRef<HTMLDivElement>(null)
+  const popupRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
     if (!onCloseAutoFocus)
-      return
+      return;
 
-    const popup = popupRef.current
+    const popup = popupRef.current;
     if (!popup)
-      return
+      return;
 
     const handleFocusOut = (e: FocusEvent) => {
       // Only trigger when focus leaves the popup entirely
       if (!popup.contains(e.relatedTarget as Node)) {
-        onCloseAutoFocus(e)
+        onCloseAutoFocus(e);
       }
-    }
+    };
 
-    popup.addEventListener('focusout', handleFocusOut)
-    return () => popup.removeEventListener('focusout', handleFocusOut)
-  }, [onCloseAutoFocus])
+    popup.addEventListener('focusout', handleFocusOut);
+    return () => popup.removeEventListener('focusout', handleFocusOut);
+  }, [onCloseAutoFocus]);
 
   return (
     <MenuPrimitive.Portal>
@@ -70,11 +70,11 @@ function DropdownMenuContent({
         />
       </MenuPrimitive.Positioner>
     </MenuPrimitive.Portal>
-  )
+  );
 }
 
 function DropdownMenuGroup({ ...props }: MenuPrimitive.Group.Props) {
-  return <MenuPrimitive.Group data-slot="dropdown-menu-group" {...props} />
+  return <MenuPrimitive.Group data-slot="dropdown-menu-group" {...props} />;
 }
 
 function DropdownMenuLabel({
@@ -82,7 +82,7 @@ function DropdownMenuLabel({
   inset,
   ...props
 }: MenuPrimitive.GroupLabel.Props & {
-  inset?: boolean
+  inset?: boolean;
 }) {
   return (
     <MenuPrimitive.GroupLabel
@@ -91,7 +91,7 @@ function DropdownMenuLabel({
       className={cn('text-muted-foreground px-1.5 py-1 text-xs font-medium data-[inset]:pl-8', className)}
       {...props}
     />
-  )
+  );
 }
 
 function DropdownMenuItem({
@@ -102,9 +102,9 @@ function DropdownMenuItem({
   onClick,
   ...props
 }: MenuPrimitive.Item.Props & {
-  inset?: boolean
-  variant?: 'default' | 'destructive'
-  onSelect?: (event: Event) => void
+  inset?: boolean;
+  variant?: 'default' | 'destructive';
+  onSelect?: (event: Event) => void;
 }) {
   return (
     <MenuPrimitive.Item
@@ -116,16 +116,16 @@ function DropdownMenuItem({
         className,
       )}
       onClick={(e) => {
-        onClick?.(e)
-        onSelect?.(e.nativeEvent)
+        onClick?.(e);
+        onSelect?.(e.nativeEvent);
       }}
       {...props}
     />
-  )
+  );
 }
 
 function DropdownMenuSub({ ...props }: MenuPrimitive.SubmenuRoot.Props) {
-  return <MenuPrimitive.SubmenuRoot data-slot="dropdown-menu-sub" {...props} />
+  return <MenuPrimitive.SubmenuRoot data-slot="dropdown-menu-sub" {...props} />;
 }
 
 function DropdownMenuSubTrigger({
@@ -134,7 +134,7 @@ function DropdownMenuSubTrigger({
   children,
   ...props
 }: MenuPrimitive.SubmenuTrigger.Props & {
-  inset?: boolean
+  inset?: boolean;
 }) {
   return (
     <MenuPrimitive.SubmenuTrigger
@@ -149,7 +149,7 @@ function DropdownMenuSubTrigger({
       {children}
       <IconChevronRight className="ml-auto" />
     </MenuPrimitive.SubmenuTrigger>
-  )
+  );
 }
 
 function DropdownMenuSubContent({
@@ -170,7 +170,7 @@ function DropdownMenuSubContent({
       sideOffset={sideOffset}
       {...props}
     />
-  )
+  );
 }
 
 function DropdownMenuCheckboxItem({
@@ -199,7 +199,7 @@ function DropdownMenuCheckboxItem({
       </span>
       {children}
     </MenuPrimitive.CheckboxItem>
-  )
+  );
 }
 
 function DropdownMenuRadioGroup({ ...props }: MenuPrimitive.RadioGroup.Props) {
@@ -208,7 +208,7 @@ function DropdownMenuRadioGroup({ ...props }: MenuPrimitive.RadioGroup.Props) {
       data-slot="dropdown-menu-radio-group"
       {...props}
     />
-  )
+  );
 }
 
 function DropdownMenuRadioItem({
@@ -235,7 +235,7 @@ function DropdownMenuRadioItem({
       </span>
       {children}
     </MenuPrimitive.RadioItem>
-  )
+  );
 }
 
 function DropdownMenuSeparator({
@@ -248,7 +248,7 @@ function DropdownMenuSeparator({
       className={cn('bg-border -mx-1 my-1 h-px', className)}
       {...props}
     />
-  )
+  );
 }
 
 function DropdownMenuShortcut({
@@ -261,7 +261,7 @@ function DropdownMenuShortcut({
       className={cn('text-muted-foreground group-focus/dropdown-menu-item:text-accent-foreground ml-auto text-xs tracking-widest', className)}
       {...props}
     />
-  )
+  );
 }
 
 export {
@@ -280,4 +280,4 @@ export {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-}
+};

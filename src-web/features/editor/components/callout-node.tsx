@@ -1,15 +1,15 @@
-'use client'
+'use client';
 
-import { useCalloutEmojiPicker } from '@platejs/callout/react'
+import { useCalloutEmojiPicker } from '@platejs/callout/react';
 
-import { useEmojiDropdownMenuState } from '@platejs/emoji/react'
-import { PlateElement } from 'platejs/react'
-import * as React from 'react'
+import { useEmojiDropdownMenuState } from '@platejs/emoji/react';
+import { PlateElement } from 'platejs/react';
+import * as React from 'react';
 
-import { cn } from '~/lib/utils'
-import { Button } from '~/ui/button'
+import { cn } from '~/lib/utils';
+import { Button } from '~/ui/button';
 
-import { EmojiPicker, EmojiPopover } from './emoji-toolbar-button'
+import { EmojiPicker, EmojiPopover } from './emoji-toolbar-button';
 
 export function CalloutElement({
   attributes,
@@ -19,13 +19,13 @@ export function CalloutElement({
 }: React.ComponentProps<typeof PlateElement>) {
   const { emojiPickerState, isOpen, setIsOpen } = useEmojiDropdownMenuState({
     closeOnSelect: true,
-  })
+  });
 
   const { emojiToolbarDropdownProps, props: calloutProps }
     = useCalloutEmojiPicker({
       isOpen,
       setIsOpen,
-    })
+    });
 
   return (
     <PlateElement
@@ -61,5 +61,5 @@ export function CalloutElement({
         <div className="w-full">{children}</div>
       </div>
     </PlateElement>
-  )
+  );
 }
