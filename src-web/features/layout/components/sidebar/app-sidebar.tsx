@@ -12,6 +12,8 @@ import {
   useDroppable,
   useSensor,
   useSensors,
+  DragOverEvent,
+  Modifier,
 } from '@dnd-kit/core';
 import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import {
@@ -45,6 +47,7 @@ import IconTrash from '~icons/lucide/trash-2';
 import { useTabsStore } from '~/features/layout/stores/tabs-store';
 import { useNotesStore } from '~/features/notes/store';
 import { usePlatformLayout } from '~/hooks/use-platform';
+import { HapticFeedbackPattern, useHaptics } from '~/hooks/use-haptics';
 import { cn } from '~/lib/utils';
 
 import { useDragContext } from '~/providers/drag-context';
@@ -92,13 +95,10 @@ function DropIndicator({ position = 'top' }: DropIndicatorProps) {
   return (
     <div
       className={cn(
-        'absolute left-2 right-2 h-0.5 z-20 pointer-events-none',
-        position === 'top' ? '-top-px' : '-bottom-px',
+        'absolute left-2 right-2 h-1 z-20 pointer-events-none bg-blue-300',
+        position === 'top' ? '-top-0.5' : '-bottom-0.5',
       )}
-    >
-      <div className="w-full h-full bg-primary shadow-[0_0_8px_rgba(var(--primary),0.4)] rounded-full animate-in fade-in zoom-in-95 duration-200" />
-      <div className="absolute -left-1 -top-1 size-2 rounded-full bg-primary shadow-[0_0_8px_rgba(var(--primary),0.4)]" />
-    </div>
+    />
   );
 }
 
@@ -120,13 +120,10 @@ function GroupDropZone({ groupId, isVisible }: GroupDropZoneProps) {
         className={cn(
           'absolute left-4 right-4 h-px transition-all duration-200',
           isOver
-            ? 'bg-primary shadow-[0_0_8px_rgba(var(--primary),0.4)] h-0.5'
+            ? 'bg-blue-300 h-1'
             : 'bg-border/20',
         )}
       />
-      {isOver && (
-        <div className="absolute left-3 size-1.5 rounded-full bg-primary shadow-[0_0_8px_rgba(var(--primary),0.4)]" />
-      )}
     </div>
   );
 }
@@ -854,6 +851,9 @@ export function AppSidebar() {
   );
   const activeDragTypeRef = useRef<'note' | 'group' | null>(null);
   const sidebarContentRef = useRef<HTMLDivElement>(null);
+  const lastOverId = useRef<string | null>(null);
+
+  const { perform } = useHaptics();
 
   const draggingGroupId = activeDragType === 'group' ? activeDragId : null;
   const isDraggingGroup = activeDragType === 'group';
@@ -867,14 +867,38 @@ export function AppSidebar() {
   );
 
   // Only restrict to vertical axis when dragging groups, not notes
-  const conditionalVerticalRestriction = (
-    args: Parameters<typeof restrictToVerticalAxis>[0],
-  ) => {
-    if (activeDragTypeRef.current === 'group') {
-      return restrictToVerticalAxis(args);
+  const conditionalVerticalRestriction: Modifier = (args) => {
+    // Restricting to sidebar bounds
+    const { transform, draggingNodeRect } = args;
+
+    if (!sidebarContentRef.current || !draggingNodeRect) {
+      return transform;
     }
 
-    return args.transform;
+    const value = { ...transform };
+
+    if (activeDragTypeRef.current === 'group') {
+      const verticalTransform = restrictToVerticalAxis(args);
+      value.x = verticalTransform.x;
+      value.y = verticalTransform.y;
+    }
+
+    const containerRect = sidebarContentRef.current.getBoundingClientRect();
+    const minTop = containerRect.top;
+    const maxBottom = containerRect.bottom;
+
+    const minY = minTop - draggingNodeRect.top;
+    const maxY = maxBottom - draggingNodeRect.bottom;
+
+    value.y = Math.max(minY, Math.min(value.y, maxY));
+
+    // Also restrict X for notes/groups so they don't fly off too far
+    const minX = containerRect.left - draggingNodeRect.left;
+    const maxX = containerRect.right - draggingNodeRect.right;
+
+    value.x = Math.max(minX, Math.min(value.x, maxX));
+
+    return value;
   };
 
   const collisionDetection: CollisionDetection = (args) => {
@@ -913,12 +937,15 @@ export function AppSidebar() {
     if (type === 'note' && dragContext) {
       dragContext.startDrag(active.id as string, 'sidebar');
     }
+
+    perform(HapticFeedbackPattern.Alignment);
   };
 
   const handleDragCancel = () => {
     setActiveDragId(null);
     setActiveDragType(null);
     activeDragTypeRef.current = null;
+    lastOverId.current = null;
     dragContext?.endDrag();
   };
 
@@ -928,6 +955,7 @@ export function AppSidebar() {
     setActiveDragId(null);
     setActiveDragType(null);
     activeDragTypeRef.current = null;
+    lastOverId.current = null;
 
     dragContext?.endDrag();
 
@@ -987,6 +1015,15 @@ export function AppSidebar() {
     }
   };
 
+  const handleDragOver = (event: DragOverEvent) => {
+    const { over } = event;
+
+    if (over && over.id !== lastOverId.current) {
+      lastOverId.current = over.id as string;
+      perform(HapticFeedbackPattern.Alignment);
+    }
+  };
+
   const getDragOverlayContent = () => {
     if (!activeDragId || activeDragType !== 'note') return null;
 
@@ -1030,6 +1067,7 @@ export function AppSidebar() {
             onDragStart={handleDragStart}
             onDragEnd={handleDragEnd}
             onDragCancel={handleDragCancel}
+            onDragOver={handleDragOver}
           >
             <SortableContext
               items={groups.map((g) => g.id)}

@@ -12,6 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '~/ui/dropdown-menu';
+import { Separator } from '~/ui/separator';
 
 import IconLock from '~icons/lucide/lock';
 import IconFiles from '~icons/lucide/folder-open';
@@ -155,6 +156,8 @@ export function AppHeader() {
             {actions}
           </div>
         )}
+
+        <Separator orientation="vertical" className="h-4 mr-1 bg-border/60 self-center!" />
 
         {/* Right-side actions */}
         <div className="flex items-center gap-1 shrink-0 pr-3 pl-2 pointer-events-auto">
