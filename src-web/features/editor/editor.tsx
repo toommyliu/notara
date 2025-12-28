@@ -4,7 +4,7 @@ import { useNotesStore } from '~/features/notes/store';
 
 import { Editor, EditorContainer } from './components/editor';
 import { EditorUIProvider } from './contexts/editor-ui-context';
-import { BaseEditorKit } from './editor-base-kit';
+import { EditorKit } from './editor-kit';
 
 interface NoteEditorProps {
   noteId: string;
@@ -16,7 +16,7 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
 
   const editor = usePlateEditor({
     id: noteId,
-    plugins: BaseEditorKit,
+    plugins: EditorKit,
     value: note?.content ?? undefined,
   });
 
@@ -33,7 +33,7 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
         }}
       >
         <EditorContainer>
-          <Editor placeholder="Start writing..." />
+          <Editor placeholder="Type '/' to open commands..." />
         </EditorContainer>
       </Plate>
     </EditorUIProvider>
