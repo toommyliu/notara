@@ -100,7 +100,7 @@ export function HeaderTabItem({
       <span
         className={cn(
           'text-[13px] font-medium relative z-10 pointer-events-none truncate',
-          compact ? 'max-w-[70px]' : 'max-w-[140px]',
+          compact ? 'max-w-17.5' : 'max-w-50',
         )}
       >
         {note.title}

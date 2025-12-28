@@ -49,6 +49,8 @@ export function HeaderTabs() {
     isTabBarVisible,
     tabGroups,
     removeFromGroup,
+    splitView,
+    closeSplitPair,
   } = useTabsStore();
 
   const notes = useNotesStore((s) => s.notes);
@@ -61,8 +63,20 @@ export function HeaderTabs() {
 
   const tabRefs = useRef<Map<string, HeaderTabItemHandle>>(new Map());
 
-  const getGroupForTab = (noteId: string) =>
-    tabGroups.find((g) => g.includes(noteId));
+  const splitPair = splitView.splitPair;
+
+  const getGroupForTab = (noteId: string) => {
+    if (splitPair && splitPair.includes(noteId)) return splitPair;
+    return tabGroups.find((g) => g.includes(noteId));
+  };
+
+  const handleClosePane = (id: string) => {
+    if (splitPair && splitPair.includes(id)) {
+      closeSplitPair();
+    } else {
+      removeFromGroup(id);
+    }
+  };
 
   const processTabs = (tabIds: string[]) => {
     const processed: string[] = [];
@@ -270,7 +284,7 @@ export function HeaderTabs() {
 
                       }}
                       onClose={() => closeTab(noteId)}
-                      onClosePane={(id) => removeFromGroup(id)}
+                      onClosePane={handleClosePane}
                     />
                   );
                 }
@@ -328,7 +342,7 @@ export function HeaderTabs() {
 
                       }}
                       onClose={() => closeTab(noteId)}
-                      onClosePane={(id) => removeFromGroup(id)}
+                      onClosePane={handleClosePane}
                     />
                   );
                 }

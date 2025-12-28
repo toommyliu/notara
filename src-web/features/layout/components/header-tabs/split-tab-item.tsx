@@ -71,38 +71,28 @@ export function SplitTabItem({
       }}
       style={style}
       className={cn(
-        'group relative flex items-center select-none shrink-0 rounded-md outline-none px-1.5 py-0.5',
-        'transition-all duration-200 ease-out cursor-grab active:cursor-grabbing',
+        'group relative flex items-center select-none shrink-0 rounded-md outline-none p-0.5 gap-0.5',
+        'transition-all duration-200 ease-out cursor-grab active:cursor-grabbing ring-1 ring-transparent',
         isActive
-          ? 'bg-muted/30 ring-1 ring-border/50 shadow-[0_1px_2px_rgba(0,0,0,0.05)]'
-          : 'bg-muted/15',
+          ? 'bg-background ring-border/60 shadow-[0_1px_2px_rgba(0,0,0,0.05)]'
+          : 'bg-muted/30 hover:bg-muted/50 hover:ring-border/40',
         isDragging && 'opacity-50',
       )}
       {...attributes}
       {...listeners}
       data-no-drag
-      role="tab"
+      role="presentation"
+      tabIndex={-1}
     >
-      {noteIds.map((id, index) => {
+      {noteIds.map((id) => {
         const note = notes.get(id);
         const isPaneActive = id === activeTabId;
 
         return (
           <div
             key={id}
-            className="group/pane relative flex items-center h-full"
+            className="group/pane relative flex items-center"
           >
-            {index > 0 && (
-              <div
-                className={cn(
-                  'w-px h-3.5 bg-border/20 mx-1 transition-opacity duration-150',
-                  isPaneActive || noteIds[index - 1] === activeTabId
-                    ? 'opacity-0'
-                    : 'opacity-100',
-                )}
-              />
-            )}
-
             <button
               ref={(el) => {
                 if (el) buttonRefs.current.set(id, el);
@@ -112,16 +102,18 @@ export function SplitTabItem({
                 ev.stopPropagation();
                 onActivatePane(id);
               }}
+              role="tab"
+              aria-selected={isPaneActive}
               className={cn(
-                'flex items-center gap-2 pl-2 pr-6 py-1 rounded-[calc(var(--radius-md)-2px)] transition-all h-full outline-none',
+                'flex items-center gap-2 pl-2.5 pr-7 py-0.5 rounded-sm transition-all outline-none',
                 'focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset',
                 isPaneActive
-                  ? 'bg-background text-foreground shadow-[0_1px_2px_rgba(0,0,0,0.05),0_0_1px_rgba(0,0,0,0.1)]'
-                  : 'text-muted-foreground/70 hover:text-foreground hover:bg-background/20',
+                  ? 'bg-muted/50 text-foreground font-medium'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/40',
               )}
             >
               <span className="text-[14px] shrink-0">{note?.emoji}</span>
-              <span className="text-[13px] font-medium truncate max-w-[110px]">
+              <span className="text-[13px] font-medium truncate max-w-[100px]">
                 {note?.title}
               </span>
             </button>
@@ -133,10 +125,10 @@ export function SplitTabItem({
               }}
               tabIndex={-1}
               className={cn(
-                'absolute right-1 top-1/2 -translate-y-1/2 z-10 p-0.5 rounded-sm transition-all duration-200',
-                'text-muted-foreground/50 hover:text-foreground hover:bg-muted/60',
+                'absolute right-1.5 top-1/2 -translate-y-1/2 z-10 p-0.5 rounded-sm transition-all duration-150',
+                'text-muted-foreground/40 hover:text-foreground hover:bg-muted/60',
                 'focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:outline-none',
-                isActive && isPaneActive
+                isPaneActive
                   ? 'opacity-100'
                   : 'opacity-0 group-hover/pane:opacity-100',
               )}

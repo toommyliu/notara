@@ -1,15 +1,18 @@
 import type { PropsWithChildren } from 'react';
 import { createContext, use, useCallback, useState } from 'react';
+import type { SplitDropZone } from '~/features/layout/types';
 
 interface DragState {
   isDragging: boolean;
   draggedNoteId: string | null;
   source: 'sidebar' | 'tabs' | null;
+  splitDropTarget: SplitDropZone | null;
 }
 
 interface DragContextValue extends DragState {
   startDrag: (noteId: string, source: 'sidebar' | 'tabs') => void;
   endDrag: () => void;
+  setSplitDropTarget: (zone: SplitDropZone | null) => void;
 }
 
 const DragContext = createContext<DragContextValue | null>(null);
@@ -29,6 +32,7 @@ export function DragProvider({ children }: DragProviderProps) {
     isDragging: false,
     draggedNoteId: null,
     source: null,
+    splitDropTarget: null,
   });
 
   const startDrag = useCallback(
@@ -37,6 +41,7 @@ export function DragProvider({ children }: DragProviderProps) {
         isDragging: true,
         draggedNoteId: noteId,
         source,
+        splitDropTarget: null,
       });
     },
     [],
@@ -47,7 +52,12 @@ export function DragProvider({ children }: DragProviderProps) {
       isDragging: false,
       draggedNoteId: null,
       source: null,
+      splitDropTarget: null,
     });
+  }, []);
+
+  const setSplitDropTarget = useCallback((zone: SplitDropZone | null) => {
+    setDragState((prev) => ({ ...prev, splitDropTarget: zone }));
   }, []);
 
   return (
@@ -56,9 +66,11 @@ export function DragProvider({ children }: DragProviderProps) {
         ...dragState,
         startDrag,
         endDrag,
+        setSplitDropTarget,
       }}
     >
       {children}
     </DragContext>
   );
 }
+

@@ -5,12 +5,23 @@ import { AppTitlebar } from './app-titlebar';
 import { HeaderTabs } from './header-tabs';
 import { Tooltip, TooltipContent, TooltipTrigger } from '~/ui/tooltip';
 import { Avatar, AvatarFallback } from '~/ui/avatar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '~/ui/dropdown-menu';
 
 import IconLock from '~icons/lucide/lock';
 import IconFiles from '~icons/lucide/folder-open';
 import IconSearch from '~icons/lucide/search';
 import IconStar from '~icons/lucide/star';
 import IconSettings from '~icons/lucide/settings';
+import IconArrowLeftRight from '~icons/lucide/arrow-left-right';
+import IconFlipHorizontal from '~icons/lucide/flip-horizontal-2';
+import IconX from '~icons/lucide/x';
+import IconColumns from '~icons/lucide/columns-2';
 
 import { usePageHeaderStore } from '~/features/layout/stores/page-header-store';
 import { useTabsStore } from '~/features/layout/stores/tabs-store';
@@ -65,8 +76,18 @@ export function AppHeader() {
   const location = useLocation();
   const { config } = usePageHeaderStore();
   const { title, emoji, isPrivate, actions } = config;
-  const { isTabBarVisible, pinnedTabs, openTabs } = useTabsStore();
+  const {
+    isTabBarVisible,
+    pinnedTabs,
+    openTabs,
+    splitView,
+    swapPanes,
+    toggleOrientation,
+    closeSplitPair,
+  } = useTabsStore();
   const { open } = useSettingsStore();
+
+  const hasSplitPair = !!splitView.splitPair;
 
   const showTabs =
     isTabBarVisible && (pinnedTabs.length > 0 || openTabs.length > 0);
@@ -116,7 +137,7 @@ export function AppHeader() {
           <div className="flex items-center gap-2 shrink-0 mr-2">
             {emoji && <span className="text-base shrink-0">{emoji}</span>}
             {title && (
-              <span className="truncate font-medium text-sm max-w-[150px]">
+              <span className="truncate font-medium text-sm max-w-37.5">
                 {title}
               </span>
             )}
@@ -136,7 +157,39 @@ export function AppHeader() {
         )}
 
         {/* Right-side actions */}
-        <div className="flex items-center gap-1 shrink-0 pr-3 pl-2">
+        <div className="flex items-center gap-1 shrink-0 pr-3 pl-2 pointer-events-auto">
+          {hasSplitPair && (
+            <DropdownMenu>
+              <Tooltip>
+                <TooltipTrigger render={
+                  <DropdownMenuTrigger
+                    render={
+                      <button className="flex items-center justify-center p-1.5 rounded-md transition-colors text-muted-foreground hover:text-foreground hover:bg-muted/50">
+                        <IconColumns className="size-4" />
+                      </button>
+                    }
+                  />
+                } />
+                <TooltipContent side="bottom" className="text-xs">Split View</TooltipContent>
+              </Tooltip>
+              <DropdownMenuContent align="end" sideOffset={8} className="min-w-44">
+                <DropdownMenuItem onClick={swapPanes}>
+                  <IconArrowLeftRight className="size-4" />
+                  Swap Panes
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={toggleOrientation}>
+                  <IconFlipHorizontal className="size-4" />
+                  Toggle Orientation
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem variant="destructive" onClick={closeSplitPair}>
+                  <IconX className="size-4" />
+                  Close Split
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+
           <Tooltip>
             <TooltipTrigger render={
               <button
