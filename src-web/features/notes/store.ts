@@ -1,13 +1,18 @@
+import type { Value } from 'platejs';
+
 import { arrayMove } from '@dnd-kit/sortable';
 import { create } from 'zustand';
+
+export const DEFAULT_GROUP_ID = 'group-private';
 
 export interface Note {
   id: string;
   title: string;
   emoji: string;
-  // TODO:
-  content?: any[] | null;
+  content: Value | null;
   showTOC?: boolean;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export type SortOrder = 'manual' | 'a-z' | 'z-a' | 'newest' | 'oldest';
@@ -58,22 +63,14 @@ type NotesStore = NotesState &
   };
 
 const INITIAL_NOTES: Note[] = [
-  { id: 'note-1', title: 'My First Note', emoji: '📝', content: null },
-  { id: 'note-2', title: 'Project Ideas', emoji: '💡', content: null },
-  { id: 'note-3', title: 'Meeting Notes', emoji: '📋', content: null },
-  { id: 'note-4', title: 'Reading List', emoji: '📚', content: null },
-  { id: 'note-5', title: 'Travel Plans', emoji: '✈️', content: null },
+  { id: 'note-1', title: 'My First Note', emoji: '📝', content: null, createdAt: new Date(), updatedAt: new Date() },
+  { id: 'note-2', title: 'Project Ideas', emoji: '💡', content: null, createdAt: new Date(), updatedAt: new Date() },
+  { id: 'note-3', title: 'Meeting Notes', emoji: '📋', content: null, createdAt: new Date(), updatedAt: new Date() },
+  { id: 'note-4', title: 'Reading List', emoji: '📚', content: null, createdAt: new Date(), updatedAt: new Date() },
+  { id: 'note-5', title: 'Travel Plans', emoji: '✈️', content: null, createdAt: new Date(), updatedAt: new Date() },
 ];
 
 const INITIAL_GROUPS: Group[] = [
-  {
-    id: 'group-ungrouped',
-    title: 'Ungrouped',
-    isCollapsed: false,
-    noteIds: [],
-    sortOrder: 'manual',
-    displayLimit: null,
-  },
   {
     id: 'group-private',
     title: 'Private',
@@ -106,11 +103,12 @@ export const useNotesStore = create<NotesStore>()((set, get) => ({
 
   addNote: (groupId, title = 'Untitled', emoji = '📝') => {
     const id = `note-${crypto.randomUUID()}`;
-    const targetGroupId = groupId || 'group-ungrouped';
+    const targetGroupId = groupId || DEFAULT_GROUP_ID;
+    const now = new Date();
 
     set((s) => {
       const newNotes = new Map(s.notes);
-      newNotes.set(id, { id, title, emoji, content: null });
+      newNotes.set(id, { id, title, emoji, content: null, createdAt: now, updatedAt: now });
 
       return {
         notes: newNotes,
@@ -130,7 +128,7 @@ export const useNotesStore = create<NotesStore>()((set, get) => ({
       if (!note) return s;
 
       const newNotes = new Map(s.notes);
-      newNotes.set(noteId, { ...note, ...updates });
+      newNotes.set(noteId, { ...note, ...updates, updatedAt: new Date() });
       return { notes: newNotes };
     }),
 
@@ -139,11 +137,14 @@ export const useNotesStore = create<NotesStore>()((set, get) => ({
     if (!note) return null;
 
     const newId = `note-${crypto.randomUUID()}`;
+    const now = new Date();
     const newNote: Note = {
       ...note,
       id: newId,
       title: `${note.title} (copy)`,
       content: note.content ? structuredClone(note.content) : null,
+      createdAt: now,
+      updatedAt: now,
     };
 
     set((s) => {

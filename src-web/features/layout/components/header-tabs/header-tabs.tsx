@@ -42,6 +42,7 @@ export function HeaderTabs() {
   const {
     pinnedTabs,
     openTabs,
+    openTab,
     activeTabId,
     setActiveTab,
     closeTab,
@@ -189,7 +190,7 @@ export function HeaderTabs() {
     const firstGroup = groups[0];
     if (firstGroup) {
       const newNoteId = addNote(firstGroup.id, 'Untitled', '📄');
-      setActiveTab(newNoteId);
+      openTab(newNoteId);
 
       navigate({ to: '/notes' });
     }
