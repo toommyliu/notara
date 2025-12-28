@@ -5,12 +5,13 @@ import { createRoot } from 'react-dom/client';
 import { DragProvider } from '~/providers/drag-context';
 import { ThemeProvider } from '~/providers/theme';
 
-import { routeTree } from '~/routeTree.gen';
 import { TooltipProvider } from '~/ui/tooltip';
+
+import { routeTree } from '~/routeTree.gen';
 
 const router = createRouter({ routeTree });
 
-if (import.meta.env.REACT_SCAN === 'true') {
+if (import.meta.env.VITE_REACT_SCAN === 'true') {
   void import('react-scan')
     .then(({ scan }) => {
       scan({ enabled: true });

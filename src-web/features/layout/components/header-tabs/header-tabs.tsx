@@ -21,28 +21,80 @@ import { useNavigate } from '@tanstack/react-router';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 
+import IconCheck from '~icons/lucide/check';
 import IconChevronDown from '~icons/lucide/chevron-down';
 import IconPlus from '~icons/lucide/plus';
-import IconCheck from '~icons/lucide/check';
 import IconSearch from '~icons/lucide/search';
 
 import { useTabsStore } from '~/features/layout/stores/tabs-store';
-import { useNotesStore } from '~/features/notes/store';
-import { useDragContext } from '~/providers/drag-context';
+import {
+  useNoteMetadata,
+  useNotesStore,
+  useNoteTitles,
+} from '~/features/notes/store';
 
+import { cn } from '~/lib/utils';
+
+import { useDragContext } from '~/providers/drag-context';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger,
   DropdownMenuLabel,
   DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from '~/ui/dropdown-menu';
 import { Input } from '~/ui/input';
 import { HeaderTabItem } from './header-tab-item';
+
 import { SplitTabItem } from './split-tab-item';
 
-import { cn } from '~/lib/utils';
+interface TabDropdownItemProps {
+  noteId: string;
+  isActive: boolean;
+  onClick: () => void;
+}
+
+function TabDropdownItem({ noteId, isActive, onClick }: TabDropdownItemProps) {
+  const note = useNoteMetadata(noteId);
+  if (!note) {
+    return null;
+  }
+  return (
+    <DropdownMenuItem onClick={onClick} className="gap-2">
+      <span className="text-sm shrink-0">{note.emoji}</span>
+      <span
+        className={cn(
+          'truncate flex-1 font-medium',
+          !isActive && 'text-muted-foreground text-normal',
+        )}
+      >
+        {note.title}
+      </span>
+      {isActive && <IconCheck className="size-3.5 text-primary ml-auto" />}
+    </DropdownMenuItem>
+  );
+}
+
+interface TabDragOverlayContentProps {
+  noteId: string | null;
+}
+
+function TabDragOverlayContent({ noteId }: TabDragOverlayContentProps) {
+  const note = useNoteMetadata(noteId ?? '');
+  if (!noteId || !note) {
+    return null;
+  }
+  return (
+    <div
+      className="flex items-center gap-1.5 px-2.5 py-1 bg-background border rounded-md shadow-lg text-sm whitespace-nowrap z-50 pointer-events-none"
+      data-no-drag
+    >
+      <span>{note.emoji}</span>
+      <span className="font-medium">{note.title}</span>
+    </div>
+  );
+}
 
 export function HeaderTabs() {
   const {
@@ -60,9 +112,11 @@ export function HeaderTabs() {
     closeSplitPair,
   } = useTabsStore();
 
-  const notes = useNotesStore((s) => s.notes);
-  const groups = useNotesStore((s) => s.groups);
-  const addNote = useNotesStore((s) => s.addNote);
+  const groups = useNotesStore(s => s.groups);
+  const addNote = useNotesStore(s => s.addNote);
+
+  const allTabIds = [...new Set([...pinnedTabs, ...openTabs])];
+  const noteTitles = useNoteTitles(allTabIds);
   const dragContext = useDragContext();
   const navigate = useNavigate();
 
@@ -74,14 +128,16 @@ export function HeaderTabs() {
   const splitPair = splitView.splitPair;
 
   const getGroupForTab = (noteId: string) => {
-    if (splitPair && splitPair.includes(noteId)) return splitPair;
-    return tabGroups.find((g) => g.includes(noteId));
+    if (splitPair && splitPair.includes(noteId))
+      return splitPair;
+    return tabGroups.find(g => g.includes(noteId));
   };
 
   const handleClosePane = (id: string) => {
     if (splitPair && splitPair.includes(id)) {
       closeSplitPair();
-    } else {
+    }
+    else {
       removeFromGroup(id);
     }
   };
@@ -91,13 +147,15 @@ export function HeaderTabs() {
     const seenInGroup = new Set<string>();
 
     for (const id of tabIds) {
-      if (seenInGroup.has(id)) continue;
+      if (seenInGroup.has(id))
+        continue;
 
       const group = getGroupForTab(id);
       if (group) {
         processed.push(id);
-        group.forEach((gid) => seenInGroup.add(gid));
-      } else {
+        group.forEach(gid => seenInGroup.add(gid));
+      }
+      else {
         processed.push(id);
       }
     }
@@ -110,28 +168,30 @@ export function HeaderTabs() {
   visiblePinned.forEach((id) => {
     const group = getGroupForTab(id);
     if (group) {
-      group.forEach((gid) => processedInPinned.add(gid));
-    } else {
+      group.forEach(gid => processedInPinned.add(gid));
+    }
+    else {
       processedInPinned.add(id);
     }
   });
 
   const visibleOpen = processTabs(
-    openTabs.filter((id) => !processedInPinned.has(id)),
+    openTabs.filter(id => !processedInPinned.has(id)),
   );
   const allVisibleTabs = [...visiblePinned, ...visibleOpen];
 
   const filterTabs = (ids: string[]) => {
-    if (!searchQuery) return ids;
+    if (!searchQuery)
+      return ids;
     const query = searchQuery.toLowerCase();
     return ids.filter((id) => {
-      const note = notes.get(id);
-      return note?.title.toLowerCase().includes(query);
+      const title = noteTitles.get(id);
+      return title?.toLowerCase().includes(query);
     });
   };
 
   const filteredPinned = filterTabs(pinnedTabs);
-  const filteredOpen = filterTabs(openTabs.filter((id) => !pinnedTabs.includes(id)));
+  const filteredOpen = filterTabs(openTabs.filter(id => !pinnedTabs.includes(id)));
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -145,13 +205,14 @@ export function HeaderTabs() {
       const rect = tabListRef.current.getBoundingClientRect();
       const { x, y } = args.pointerCoordinates;
 
-      const isInside =
-        x >= rect.left &&
-        x <= rect.right &&
-        y >= rect.top - 20 &&
-        y <= rect.bottom + 20;
+      const isInside
+        = x >= rect.left
+          && x <= rect.right
+          && y >= rect.top - 20
+          && y <= rect.bottom + 20;
 
-      if (!isInside) return [];
+      if (!isInside)
+        return [];
     }
 
     return closestCenter(args);
@@ -163,8 +224,8 @@ export function HeaderTabs() {
 
   const updateFades = useCallback(() => {
     if (scrollContainerRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } =
-        scrollContainerRef.current;
+      const { scrollLeft, scrollWidth, clientWidth }
+        = scrollContainerRef.current;
       setShowLeftFade(scrollLeft > 10);
       setShowRightFade(scrollLeft + clientWidth < scrollWidth - 10);
     }
@@ -191,7 +252,8 @@ export function HeaderTabs() {
 
     dragContext?.endDrag();
 
-    if (!over || active.id === over.id) return;
+    if (!over || active.id === over.id)
+      return;
 
     const activeSection = active.data.current?.section as 'pinned' | 'open';
     const overSection = over.data.current?.section as 'pinned' | 'open';
@@ -227,12 +289,12 @@ export function HeaderTabs() {
     updateFades();
   };
 
-  if (!isTabBarVisible) return null;
+  if (!isTabBarVisible)
+    return null;
 
   const hasTabs = pinnedTabs.length > 0 || openTabs.length > 0;
-  if (!hasTabs) return null;
-
-  const draggedNote = activeDragId ? notes.get(activeDragId) : null;
+  if (!hasTabs)
+    return null;
 
   return (
     <DndContext
@@ -286,7 +348,8 @@ export function HeaderTabs() {
                       ref={(handle) => {
                         if (handle) {
                           tabRefs.current.set(noteId, handle);
-                        } else {
+                        }
+                        else {
                           tabRefs.current.delete(noteId);
                         }
                       }}
@@ -301,7 +364,6 @@ export function HeaderTabs() {
                       }}
                       onActivate={() => {
                         setActiveTab(noteId);
-
                       }}
                       onClose={() => closeTab(noteId)}
                       onClosePane={handleClosePane}
@@ -314,7 +376,8 @@ export function HeaderTabs() {
                     ref={(handle) => {
                       if (handle) {
                         tabRefs.current.set(noteId, handle);
-                      } else {
+                      }
+                      else {
                         tabRefs.current.delete(noteId);
                       }
                     }}
@@ -344,7 +407,8 @@ export function HeaderTabs() {
                       ref={(handle) => {
                         if (handle) {
                           tabRefs.current.set(noteId, handle);
-                        } else {
+                        }
+                        else {
                           tabRefs.current.delete(noteId);
                         }
                       }}
@@ -359,7 +423,6 @@ export function HeaderTabs() {
                       }}
                       onActivate={() => {
                         setActiveTab(noteId);
-
                       }}
                       onClose={() => closeTab(noteId)}
                       onClosePane={handleClosePane}
@@ -370,7 +433,8 @@ export function HeaderTabs() {
                   <HeaderTabItem
                     key={noteId}
                     ref={(handle) => {
-                      if (handle) tabRefs.current.set(noteId, handle);
+                      if (handle)
+                        tabRefs.current.set(noteId, handle);
                       else tabRefs.current.delete(noteId);
                     }}
                     noteId={noteId}
@@ -410,8 +474,8 @@ export function HeaderTabs() {
                     placeholder="Search tabs..."
                     className="h-8 pl-8 text-xs"
                     value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    onKeyDown={(e) => e.stopPropagation()}
+                    onChange={e => setSearchQuery(e.target.value)}
+                    onKeyDown={e => e.stopPropagation()}
                     autoFocus
                   />
                 </div>
@@ -420,28 +484,18 @@ export function HeaderTabs() {
                 {filteredPinned.length > 0 && (
                   <>
                     <DropdownMenuLabel>Pinned</DropdownMenuLabel>
-                    {filteredPinned.map((noteId) => {
-                      const note = notes.get(noteId);
-                      if (!note) return null;
-                      const isActive = activeTabId === noteId;
-                      return (
-                        <DropdownMenuItem
-                          key={noteId}
-                          onClick={() => {
-                            setActiveTab(noteId);
-                            setSearchQuery('');
-                            navigate({ to: '/notes' });
-                          }}
-                          className="gap-2"
-                        >
-                          <span className="text-sm shrink-0">{note.emoji}</span>
-                          <span className={cn("truncate flex-1 font-medium", !isActive && "text-muted-foreground text-normal")}>
-                            {note.title}
-                          </span>
-                          {isActive && <IconCheck className="size-3.5 text-primary ml-auto" />}
-                        </DropdownMenuItem>
-                      );
-                    })}
+                    {filteredPinned.map(noteId => (
+                      <TabDropdownItem
+                        key={noteId}
+                        noteId={noteId}
+                        isActive={activeTabId === noteId}
+                        onClick={() => {
+                          setActiveTab(noteId);
+                          setSearchQuery('');
+                          navigate({ to: '/notes' });
+                        }}
+                      />
+                    ))}
                     {filteredOpen.length > 0 && <DropdownMenuSeparator />}
                   </>
                 )}
@@ -449,35 +503,25 @@ export function HeaderTabs() {
                 {filteredOpen.length > 0 && (
                   <>
                     {(filteredPinned.length > 0) && <DropdownMenuLabel>Open</DropdownMenuLabel>}
-                    {filteredOpen.map((noteId) => {
-                      const note = notes.get(noteId);
-                      if (!note) return null;
-                      const isActive = activeTabId === noteId;
-                      return (
-                        <DropdownMenuItem
-                          key={noteId}
-                          onClick={() => {
-                            setActiveTab(noteId);
-                            setSearchQuery('');
-                            navigate({ to: '/notes' });
-                          }}
-                          className="gap-2"
-                        >
-                          <span className="text-sm shrink-0">{note.emoji}</span>
-                          <span className={cn("truncate flex-1 font-medium", !isActive && "text-muted-foreground text-normal")}>
-                            {note.title}
-                          </span>
-                          {isActive && <IconCheck className="size-3.5 text-primary ml-auto" />}
-                        </DropdownMenuItem>
-                      );
-                    })}
+                    {filteredOpen.map(noteId => (
+                      <TabDropdownItem
+                        key={noteId}
+                        noteId={noteId}
+                        isActive={activeTabId === noteId}
+                        onClick={() => {
+                          setActiveTab(noteId);
+                          setSearchQuery('');
+                          navigate({ to: '/notes' });
+                        }}
+                      />
+                    ))}
                   </>
                 )}
 
                 {filteredPinned.length === 0 && filteredOpen.length === 0 && (
-                   <div className="p-4 text-xs text-center text-muted-foreground">
-                     {searchQuery ? 'No results found' : 'No open tabs'}
-                   </div>
+                  <div className="p-4 text-xs text-center text-muted-foreground">
+                    {searchQuery ? 'No results found' : 'No open tabs'}
+                  </div>
                 )}
               </div>
             </DropdownMenuContent>
@@ -498,15 +542,7 @@ export function HeaderTabs() {
       </div>
 
       <DragOverlay dropAnimation={null}>
-        {draggedNote && (
-          <div
-            className="flex items-center gap-1.5 px-2.5 py-1 bg-background border rounded-md shadow-lg text-sm whitespace-nowrap z-50 pointer-events-none"
-            data-no-drag
-          >
-            <span>{draggedNote.emoji}</span>
-            <span className="font-medium">{draggedNote.title}</span>
-          </div>
-        )}
+        <TabDragOverlayContent noteId={activeDragId} />
       </DragOverlay>
     </DndContext>
   );

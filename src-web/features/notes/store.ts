@@ -2,6 +2,7 @@ import type { Value } from 'platejs';
 
 import { arrayMove } from '@dnd-kit/sortable';
 import { create } from 'zustand';
+import { useShallow } from 'zustand/react/shallow';
 
 export const DEFAULT_GROUP_ID = 'group-private';
 
@@ -57,8 +58,8 @@ interface NotesActions {
   sortData: () => void;
 }
 
-type NotesStore = NotesState &
-  NotesActions & {
+type NotesStore = NotesState
+  & NotesActions & {
     activeNote: Note | null;
   };
 
@@ -91,7 +92,7 @@ const INITIAL_GROUPS: Group[] = [
 
 export const useNotesStore = create<NotesStore>()((set, get) => ({
   groups: INITIAL_GROUPS,
-  notes: new Map(INITIAL_NOTES.map((n) => [n.id, n])),
+  notes: new Map(INITIAL_NOTES.map(n => [n.id, n])),
   activeNoteId: 'note-1',
 
   get activeNote() {
@@ -99,7 +100,7 @@ export const useNotesStore = create<NotesStore>()((set, get) => ({
     return activeNoteId ? (notes.get(activeNoteId) ?? null) : null;
   },
 
-  selectNote: (noteId) => set({ activeNoteId: noteId }),
+  selectNote: noteId => set({ activeNoteId: noteId }),
 
   addNote: (groupId, title = 'Untitled', emoji = '📝') => {
     const id = `note-${crypto.randomUUID()}`;
@@ -112,7 +113,7 @@ export const useNotesStore = create<NotesStore>()((set, get) => ({
 
       return {
         notes: newNotes,
-        groups: s.groups.map((g) =>
+        groups: s.groups.map(g =>
           g.id === targetGroupId ? { ...g, noteIds: [...g.noteIds, id] } : g,
         ),
         activeNoteId: id,
@@ -125,7 +126,8 @@ export const useNotesStore = create<NotesStore>()((set, get) => ({
   updateNote: (noteId, updates) =>
     set((s) => {
       const note = s.notes.get(noteId);
-      if (!note) return s;
+      if (!note)
+        return s;
 
       const newNotes = new Map(s.notes);
       newNotes.set(noteId, { ...note, ...updates, updatedAt: new Date() });
@@ -134,7 +136,8 @@ export const useNotesStore = create<NotesStore>()((set, get) => ({
 
   duplicateNote: (noteId) => {
     const note = get().notes.get(noteId);
-    if (!note) return null;
+    if (!note)
+      return null;
 
     const newId = `note-${crypto.randomUUID()}`;
     const now = new Date();
@@ -168,28 +171,28 @@ export const useNotesStore = create<NotesStore>()((set, get) => ({
     return newId;
   },
 
-  deleteNote: (noteId) =>
+  deleteNote: noteId =>
     set((s) => {
       const newNotes = new Map(s.notes);
       newNotes.delete(noteId);
 
-      const groups = s.groups.map((g) => ({
+      const groups = s.groups.map(g => ({
         ...g,
-        noteIds: g.noteIds.filter((id) => id !== noteId),
+        noteIds: g.noteIds.filter(id => id !== noteId),
       }));
 
       // Update active note if we deleted the active one
       let activeNoteId = s.activeNoteId;
       if (activeNoteId === noteId) {
-        const allNoteIds = groups.flatMap((g) => g.noteIds);
+        const allNoteIds = groups.flatMap(g => g.noteIds);
         activeNoteId = allNoteIds[0] ?? null;
       }
 
       return { notes: newNotes, groups, activeNoteId };
     }),
 
-  addGroup: (title) =>
-    set((s) => ({
+  addGroup: title =>
+    set(s => ({
       groups: [
         ...s.groups,
         {
@@ -203,42 +206,46 @@ export const useNotesStore = create<NotesStore>()((set, get) => ({
       ],
     })),
 
-  toggleGroupCollapse: (groupId) =>
-    set((s) => ({
-      groups: s.groups.map((g) =>
+  toggleGroupCollapse: groupId =>
+    set(s => ({
+      groups: s.groups.map(g =>
         g.id === groupId ? { ...g, isCollapsed: !g.isCollapsed } : g,
       ),
     })),
 
   reorderGroups: (activeId, overId) =>
     set((s) => {
-      const oldIndex = s.groups.findIndex((g) => g.id === activeId);
-      const newIndex = s.groups.findIndex((g) => g.id === overId);
+      const oldIndex = s.groups.findIndex(g => g.id === activeId);
+      const newIndex = s.groups.findIndex(g => g.id === overId);
 
-      if (oldIndex === -1 || newIndex === -1) return s;
+      if (oldIndex === -1 || newIndex === -1)
+        return s;
 
       return { groups: arrayMove(s.groups, oldIndex, newIndex) };
     }),
 
   moveNote: (noteId, fromGroupId, toGroupId, overNoteId) =>
-    set((s) => ({
+    set(s => ({
       groups: s.groups.map((group) => {
-        if (group.id === fromGroupId)
+        if (group.id === fromGroupId) {
           return {
             ...group,
-            noteIds: group.noteIds.filter((id) => id !== noteId),
+            noteIds: group.noteIds.filter(id => id !== noteId),
           };
+        }
 
         if (group.id === toGroupId) {
-          const newNoteIds = group.noteIds.filter((id) => id !== noteId);
+          const newNoteIds = group.noteIds.filter(id => id !== noteId);
           if (overNoteId) {
             const overIndex = newNoteIds.indexOf(overNoteId);
             if (overIndex !== -1) {
               newNoteIds.splice(overIndex, 0, noteId);
-            } else {
+            }
+            else {
               newNoteIds.push(noteId);
             }
-          } else {
+          }
+          else {
             newNoteIds.push(noteId);
           }
 
@@ -249,14 +256,16 @@ export const useNotesStore = create<NotesStore>()((set, get) => ({
     })),
 
   reorderNotesInGroup: (groupId, activeId, overId) =>
-    set((s) => ({
+    set(s => ({
       groups: s.groups.map((group) => {
-        if (group.id !== groupId) return group;
+        if (group.id !== groupId)
+          return group;
 
         const oldIndex = group.noteIds.indexOf(activeId);
         const newIndex = group.noteIds.indexOf(overId);
 
-        if (oldIndex === -1 || newIndex === -1) return group;
+        if (oldIndex === -1 || newIndex === -1)
+          return group;
 
         return {
           ...group,
@@ -275,14 +284,14 @@ export const useNotesStore = create<NotesStore>()((set, get) => ({
       // Sort notes within each group alphabetically
       const sortedGroupsWithSortedNotes = sortedGroups.map((group) => {
         const groupNotes = group.noteIds
-          .map((id) => s.notes.get(id))
+          .map(id => s.notes.get(id))
           .filter((n): n is Note => n !== undefined);
 
         groupNotes.sort((a, b) => a.title.localeCompare(b.title));
 
         return {
           ...group,
-          noteIds: groupNotes.map((n) => n.id),
+          noteIds: groupNotes.map(n => n.id),
         };
       });
 
@@ -290,34 +299,65 @@ export const useNotesStore = create<NotesStore>()((set, get) => ({
     }),
 
   sortGroup: (groupId, sortOrder) =>
-    set((s) => ({
+    set(s => ({
       groups: s.groups.map((group) => {
-        if (group.id !== groupId) return group;
+        if (group.id !== groupId)
+          return group;
 
-        if (sortOrder === 'manual') return { ...group, sortOrder };
+        if (sortOrder === 'manual')
+          return { ...group, sortOrder };
 
         const groupNotes = group.noteIds
-          .map((id) => s.notes.get(id))
+          .map(id => s.notes.get(id))
           .filter((n): n is Note => n !== undefined);
 
         if (sortOrder === 'a-z') {
           groupNotes.sort((a, b) => a.title.localeCompare(b.title));
-        } else if (sortOrder === 'z-a') {
+        }
+        else if (sortOrder === 'z-a') {
           groupNotes.sort((a, b) => b.title.localeCompare(a.title));
         }
 
         return {
           ...group,
           sortOrder,
-          noteIds: groupNotes.map((n) => n.id),
+          noteIds: groupNotes.map(n => n.id),
         };
       }),
     })),
 
   setGroupDisplayLimit: (groupId, limit) =>
-    set((s) => ({
-      groups: s.groups.map((g) =>
+    set(s => ({
+      groups: s.groups.map(g =>
         g.id === groupId ? { ...g, displayLimit: limit } : g,
       ),
     })),
 }));
+
+export type NoteMetadata = Pick<Note, 'id' | 'title' | 'emoji'>;
+
+export function useNoteMetadata(noteId: string): NoteMetadata | null {
+  return useNotesStore(
+    useShallow((s) => {
+      const note = s.notes.get(noteId);
+      if (!note)
+        return null;
+      return { id: note.id, title: note.title, emoji: note.emoji };
+    }),
+  );
+}
+
+export function useNoteTitles(noteIds: string[]): Map<string, string> {
+  return useNotesStore(
+    useShallow((s) => {
+      const result = new Map<string, string>();
+      for (const id of noteIds) {
+        const note = s.notes.get(id);
+        if (note) {
+          result.set(id, note.title);
+        }
+      }
+      return result;
+    }),
+  );
+}

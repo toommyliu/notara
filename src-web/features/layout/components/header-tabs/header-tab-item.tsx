@@ -6,7 +6,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { useEffect, useImperativeHandle, useRef } from 'react';
 
 import IconX from '~icons/lucide/x';
-import { useNotesStore } from '~/features/notes/store';
+import { useNoteMetadata } from '~/features/notes/store';
 
 import { cn } from '~/lib/utils';
 
@@ -21,8 +21,7 @@ export function HeaderTabItem({
 }: HeaderTabItemProps & {
   ref?: ((handle: HeaderTabItemHandle | null) => void) | React.RefObject<HeaderTabItemHandle | null>;
 }) {
-  const notes = useNotesStore((s) => s.notes);
-  const note = notes.get(noteId);
+  const note = useNoteMetadata(noteId);
   const tabRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
 

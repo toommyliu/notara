@@ -7,8 +7,74 @@ import { useEffect, useImperativeHandle, useRef } from 'react';
 
 import IconX from '~icons/lucide/x';
 import { useTabsStore } from '~/features/layout/stores/tabs-store';
-import { useNotesStore } from '~/features/notes/store';
+import { useNoteMetadata } from '~/features/notes/store';
 import { cn } from '~/lib/utils';
+
+interface SplitPaneProps {
+  noteId: string;
+  isPaneActive: boolean;
+  onActivatePane: (id: string) => void;
+  onClosePane: (id: string) => void;
+  buttonRef: (id: string, el: HTMLButtonElement | null) => void;
+}
+
+function SplitPane({
+  noteId,
+  isPaneActive,
+  onActivatePane,
+  onClosePane,
+  buttonRef,
+}: SplitPaneProps) {
+  const note = useNoteMetadata(noteId);
+
+  if (!note)
+    return null;
+
+  return (
+    <div className="group/pane relative flex items-center">
+      <button
+        ref={el => buttonRef(noteId, el)}
+        onClick={(ev) => {
+          ev.stopPropagation();
+          onActivatePane(noteId);
+        }}
+        role="tab"
+        aria-selected={isPaneActive}
+        className={cn(
+          'flex items-center gap-2 pl-2.5 pr-7 py-0.5 rounded-sm transition-all outline-none',
+          'focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset',
+          isPaneActive
+            ? 'bg-muted/50 text-foreground font-medium'
+            : 'text-muted-foreground hover:text-foreground hover:bg-muted/40',
+        )}
+      >
+        <span className="text-[14px] shrink-0">{note.emoji}</span>
+        <span className="text-[13px] font-medium truncate max-w-[100px]">
+          {note.title}
+        </span>
+      </button>
+
+      <button
+        onClick={(ev) => {
+          ev.stopPropagation();
+          onClosePane(noteId);
+        }}
+        tabIndex={-1}
+        className={cn(
+          'absolute right-1.5 top-1/2 -translate-y-1/2 z-10 p-0.5 rounded-sm transition-all duration-150',
+          'text-muted-foreground/40 hover:text-foreground hover:bg-muted/60',
+          'focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:outline-none',
+          isPaneActive
+            ? 'opacity-100'
+            : 'opacity-0 group-hover/pane:opacity-100',
+        )}
+        aria-label="Close pane"
+      >
+        <IconX className="size-3" />
+      </button>
+    </div>
+  );
+}
 
 export function SplitTabItem({
   ref,
@@ -21,16 +87,22 @@ export function SplitTabItem({
 }: SplitTabItemProps & {
   ref?: ((handle: HeaderTabItemHandle | null) => void) | React.RefObject<HeaderTabItemHandle | null>;
 }) {
-  const notes = useNotesStore((s) => s.notes);
   const tabRef = useRef<HTMLDivElement>(null);
   const buttonRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
-  const activeTabId = useTabsStore((s) => s.activeTabId);
+  const activeTabId = useTabsStore(s => s.activeTabId);
+
+  const handleButtonRef = (id: string, el: HTMLButtonElement | null) => {
+    if (el)
+      buttonRefs.current.set(id, el);
+    else buttonRefs.current.delete(id);
+  };
 
   useImperativeHandle(ref, () => ({
     focus: () => {
       if (activeTabId && buttonRefs.current.has(activeTabId)) {
         buttonRefs.current.get(activeTabId)?.focus();
-      } else if (noteIds.length > 0) {
+      }
+      else if (noteIds.length > 0) {
         buttonRefs.current.get(noteIds[0])?.focus();
       }
     },
@@ -84,61 +156,16 @@ export function SplitTabItem({
       role="presentation"
       tabIndex={-1}
     >
-      {noteIds.map((id) => {
-        const note = notes.get(id);
-        const isPaneActive = id === activeTabId;
-
-        return (
-          <div
-            key={id}
-            className="group/pane relative flex items-center"
-          >
-            <button
-              ref={(el) => {
-                if (el) buttonRefs.current.set(id, el);
-                else buttonRefs.current.delete(id);
-              }}
-              onClick={(ev) => {
-                ev.stopPropagation();
-                onActivatePane(id);
-              }}
-              role="tab"
-              aria-selected={isPaneActive}
-              className={cn(
-                'flex items-center gap-2 pl-2.5 pr-7 py-0.5 rounded-sm transition-all outline-none',
-                'focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset',
-                isPaneActive
-                  ? 'bg-muted/50 text-foreground font-medium'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/40',
-              )}
-            >
-              <span className="text-[14px] shrink-0">{note?.emoji}</span>
-              <span className="text-[13px] font-medium truncate max-w-[100px]">
-                {note?.title}
-              </span>
-            </button>
-
-            <button
-              onClick={(ev) => {
-                ev.stopPropagation();
-                onClosePane(id);
-              }}
-              tabIndex={-1}
-              className={cn(
-                'absolute right-1.5 top-1/2 -translate-y-1/2 z-10 p-0.5 rounded-sm transition-all duration-150',
-                'text-muted-foreground/40 hover:text-foreground hover:bg-muted/60',
-                'focus-visible:ring-2 focus-visible:ring-ring/70 focus-visible:outline-none',
-                isPaneActive
-                  ? 'opacity-100'
-                  : 'opacity-0 group-hover/pane:opacity-100',
-              )}
-              aria-label="Close pane"
-            >
-              <IconX className="size-3" />
-            </button>
-          </div>
-        );
-      })}
+      {noteIds.map(id => (
+        <SplitPane
+          key={id}
+          noteId={id}
+          isPaneActive={id === activeTabId}
+          onActivatePane={onActivatePane}
+          onClosePane={onClosePane}
+          buttonRef={handleButtonRef}
+        />
+      ))}
     </div>
   );
 }
