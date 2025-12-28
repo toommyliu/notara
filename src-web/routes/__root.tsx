@@ -9,18 +9,18 @@ import {
   AppSidebar,
   TitlebarSpacer,
 } from '~/features/layout';
-import { useSplitViewStore } from '~/features/layout/stores/split-view-store';
 import { useTabsStore } from '~/features/layout/stores/tabs-store';
 
 import { useNotesStore } from '~/features/notes/store';
 import { SettingsDialogContent } from '~/features/settings';
 import { useSettingsStore } from '~/features/settings/stores/settings-store';
 import { useHotKeys } from '~/hooks/use-hotkey';
-
 import { useIsTauri } from '~/hooks/use-tauri';
+
 import { SidebarInset, SidebarProvider, useSidebar } from '~/ui/sidebar';
 
-const TanStackRouterDevtools = import.meta.env.DEV
+const DEV = import.meta.env.DEV;
+const TanStackRouterDevtools = DEV
   ? lazy(() =>
       import('@tanstack/react-router-devtools').then((mod) => ({
         default: mod.TanStackRouterDevtools,
@@ -43,7 +43,6 @@ function AppShell() {
   const { toggleSidebar } = useSidebar();
   const { toggleTabBar, cycleTab } = useTabsStore();
   const addNote = useNotesStore((s) => s.addNote);
-  const { cyclePane } = useSplitViewStore();
   const { open: openSettings } = useSettingsStore();
   const isTauri = useIsTauri();
 
@@ -77,12 +76,10 @@ function AppShell() {
         'toggle-tab-bar': () => toggleTabBar(),
         'cycle-tab-forward': () => cycleTab(1),
         'cycle-tab-backward': () => cycleTab(-1),
-        'cycle-pane-forward': () => cyclePane(1),
-        'cycle-pane-backward': () => cyclePane(-1),
         'new-note': () => addNote(),
         'open-settings': () => openSettings(),
       }) as const,
-    [toggleSidebar, toggleTabBar, cycleTab, cyclePane, addNote, openSettings],
+    [toggleSidebar, toggleTabBar, cycleTab, addNote, openSettings],
   );
 
   useHotKeys(hotkeyHandlers);
@@ -93,7 +90,7 @@ function AppShell() {
       <AppSidebar />
       <MainContent />
       <SettingsDialogContent />
-      {import.meta.env.DEV && (
+      {DEV && (
         <Suspense fallback={null}>
           <TanStackRouterDevtools position="bottom-right" />
         </Suspense>

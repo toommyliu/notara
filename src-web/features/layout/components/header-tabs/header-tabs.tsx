@@ -20,34 +20,23 @@ import {
 import { useNavigate } from '@tanstack/react-router';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import IconArrowLeftRight from '~icons/lucide/arrow-left-right';
-import IconArrowUpDown from '~icons/lucide/arrow-up-down';
 
 import IconChevronDown from '~icons/lucide/chevron-down';
-import IconColumns from '~icons/lucide/columns-2';
 import IconPlus from '~icons/lucide/plus';
-import IconRows from '~icons/lucide/rows-2';
-import IconX from '~icons/lucide/x';
-import {
-  useIsSplitView,
-  useSplitViewStore,
-} from '~/features/layout/stores/split-view-store';
-import { useTabsStore } from '~/features/layout/stores/tabs-store';
 
+import { useTabsStore } from '~/features/layout/stores/tabs-store';
 import { useNotesStore } from '~/features/notes/store';
-import { cn } from '~/lib/utils';
 import { useDragContext } from '~/providers/drag-context';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '~/ui/dropdown-menu';
-
 import { HeaderTabItem } from './header-tab-item';
-
 import { SplitTabItem } from './split-tab-item';
+
+import { cn } from '~/lib/utils';
 
 export function HeaderTabs() {
   const {
@@ -61,11 +50,10 @@ export function HeaderTabs() {
     tabGroups,
     removeFromGroup,
   } = useTabsStore();
+
   const notes = useNotesStore((s) => s.notes);
   const groups = useNotesStore((s) => s.groups);
   const addNote = useNotesStore((s) => s.addNote);
-  const { swapPanes, orientation, setOrientation } = useSplitViewStore();
-  const isSplitView = useIsSplitView();
   const dragContext = useDragContext();
   const navigate = useNavigate();
 
@@ -119,7 +107,6 @@ export function HeaderTabs() {
 
   const tabListRef = useRef<HTMLDivElement>(null);
   const collisionDetection: CollisionDetection = (args) => {
-    // Check if pointer is within tab bar area with some vertical buffer (20px)
     if (tabListRef.current && args.pointerCoordinates) {
       const rect = tabListRef.current.getBoundingClientRect();
       const { x, y } = args.pointerCoordinates;
@@ -130,7 +117,7 @@ export function HeaderTabs() {
         y >= rect.top - 20 &&
         y <= rect.bottom + 20;
 
-      if (!isInside) return []; // Allow drag to escape for split-view
+      if (!isInside) return [];
     }
 
     return closestCenter(args);
@@ -189,6 +176,7 @@ export function HeaderTabs() {
     if (firstGroup) {
       const newNoteId = addNote(firstGroup.id, 'Untitled', '📄');
       setActiveTab(newNoteId);
+
       navigate({ to: '/notes' });
     }
   };
@@ -203,12 +191,6 @@ export function HeaderTabs() {
 
   const handleScroll = () => {
     updateFades();
-  };
-
-  const handleCloseSplit = () => {
-    if (!activeTabId) return;
-
-    removeFromGroup(activeTabId);
   };
 
   if (!isTabBarVisible) return null;
@@ -242,15 +224,15 @@ export function HeaderTabs() {
             style={
               {
                 overscrollBehavior: 'contain',
-                maskImage: `linear-gradient(to right, 
-                            ${showLeftFade ? 'transparent' : 'black'} 0px, 
-                            black 40px, 
-                            black calc(100% - 40px), 
+                maskImage: `linear-gradient(to right,
+                            ${showLeftFade ? 'transparent' : 'black'} 0px,
+                            black 40px,
+                            black calc(100% - 40px),
                             ${showRightFade ? 'transparent' : 'black'} 100%)`,
-                WebkitMaskImage: `linear-gradient(to right, 
-                            ${showLeftFade ? 'transparent' : 'black'} 0px, 
-                            black 40px, 
-                            black calc(100% - 40px), 
+                WebkitMaskImage: `linear-gradient(to right,
+                            ${showLeftFade ? 'transparent' : 'black'} 0px,
+                            black 40px,
+                            black calc(100% - 40px),
                             ${showRightFade ? 'transparent' : 'black'} 100%)`,
               } as CSSProperties
             }
@@ -280,9 +262,13 @@ export function HeaderTabs() {
                       noteIds={group}
                       onActivatePane={(id) => {
                         setActiveTab(id);
+
                         navigate({ to: '/notes' });
                       }}
-                      onActivate={() => setActiveTab(noteId)}
+                      onActivate={() => {
+                        setActiveTab(noteId);
+
+                      }}
                       onClose={() => closeTab(noteId)}
                       onClosePane={(id) => removeFromGroup(id)}
                     />
@@ -303,6 +289,7 @@ export function HeaderTabs() {
                     isPinned={true}
                     onActivate={() => {
                       setActiveTab(noteId);
+
                       navigate({ to: '/notes' });
                     }}
                     onClose={() => closeTab(noteId)}
@@ -333,9 +320,13 @@ export function HeaderTabs() {
                       noteIds={group}
                       onActivatePane={(id) => {
                         setActiveTab(id);
+
                         navigate({ to: '/notes' });
                       }}
-                      onActivate={() => setActiveTab(noteId)}
+                      onActivate={() => {
+                        setActiveTab(noteId);
+
+                      }}
                       onClose={() => closeTab(noteId)}
                       onClosePane={(id) => removeFromGroup(id)}
                     />
@@ -353,6 +344,7 @@ export function HeaderTabs() {
                     isPinned={false}
                     onActivate={() => {
                       setActiveTab(noteId);
+
                       navigate({ to: '/notes' });
                     }}
                     onClose={() => closeTab(noteId)}
@@ -364,54 +356,6 @@ export function HeaderTabs() {
         </div>
 
         <div className="flex items-center gap-1 ml-1 shrink-0 px-1 py-0.5 relative z-20">
-          {isSplitView && (
-            <DropdownMenu>
-              <DropdownMenuTrigger
-                className={cn(
-                  'p-1.5 rounded-md transition-colors outline-none mr-0.5',
-                  'text-muted-foreground/60 hover:text-foreground hover:bg-muted/40',
-                  'focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset',
-                )}
-                aria-label="Split options"
-              >
-                <IconColumns className="size-3.5" />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" sideOffset={8} className="w-48">
-                <DropdownMenuItem onClick={() => swapPanes()}>
-                  {orientation === 'horizontal' ? (
-                    <IconArrowLeftRight className="size-3.5 mr-2" />
-                  ) : (
-                    <IconArrowUpDown className="size-3.5 mr-2" />
-                  )}
-                  Swap Panes
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() =>
-                    setOrientation(
-                      orientation === 'horizontal' ? 'vertical' : 'horizontal',
-                    )
-                  }
-                >
-                  {orientation === 'horizontal' ? (
-                    <>
-                      <IconRows className="size-3.5 mr-2" />
-                      Split Horizontally
-                    </>
-                  ) : (
-                    <>
-                      <IconColumns className="size-3.5 mr-2" />
-                      Split Vertically
-                    </>
-                  )}
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleCloseSplit}>
-                  <IconX className="size-3.5 mr-2" />
-                  Close Split View
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
 
           <DropdownMenu>
             <DropdownMenuTrigger
@@ -433,6 +377,7 @@ export function HeaderTabs() {
                     key={noteId}
                     onClick={() => {
                       setActiveTab(noteId);
+
                       navigate({ to: '/notes' });
                     }}
                   >

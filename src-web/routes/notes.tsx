@@ -1,17 +1,12 @@
-import type { Pane } from '~/features/layout/stores/split-view-store';
-import type { Note } from '~/features/notes/store';
+
 
 import { createFileRoute } from '@tanstack/react-router';
 import { lazy, Suspense } from 'react';
 
-import { SplitViewContainer } from '~/features/layout';
+import { useTabsStore } from '~/features/layout/stores/tabs-store';
 
 const NoteEditor = lazy(() =>
   import('~/features/editor').then(mod => ({ default: mod.NoteEditor })),
-);
-
-const StaticNotePreview = lazy(() =>
-  import('~/features/editor').then(mod => ({ default: mod.StaticNotePreview })),
 );
 
 export const Route = createFileRoute('/notes')({
@@ -19,26 +14,19 @@ export const Route = createFileRoute('/notes')({
 });
 
 function NotesPage() {
-  const renderPane = (pane: Pane, _isActive: boolean) => {
-    if (!pane.noteId) {
-      return (
-        <div className="flex-1 flex items-center justify-center text-muted-foreground">
-          No note selected
-        </div>
-      );
-    }
-    return (
-      <Suspense fallback={<div className="flex-1" />}>
-        <NoteEditor key={pane.noteId} noteId={pane.noteId} />
-      </Suspense>
-    );
-  };
+  const activeTabId = useTabsStore(s => s.activeTabId);
 
-  const renderPreview = (note: Note) => (
+  if (!activeTabId) {
+    return (
+      <div className="flex-1 flex items-center justify-center text-muted-foreground">
+        No note selected
+      </div>
+    );
+  }
+
+  return (
     <Suspense fallback={<div className="flex-1" />}>
-      <StaticNotePreview note={note} />
+      <NoteEditor key={activeTabId} noteId={activeTabId} />
     </Suspense>
   );
-
-  return <SplitViewContainer renderPane={renderPane} renderPreview={renderPreview} />;
 }

@@ -2,11 +2,13 @@
 
 import * as React from 'react';
 
+
 import IconGlobe from '~icons/lucide/globe';
 import IconLock from '~icons/lucide/lock';
 import IconMoreHorizontal from '~icons/lucide/more-horizontal';
 import IconSmile from '~icons/lucide/smile';
 import IconStar from '~icons/lucide/star';
+
 
 import { cn } from '~/lib/utils';
 
@@ -56,6 +58,8 @@ export function PageNavBar({
   const [editDropdownOpen, setEditDropdownOpen] = React.useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = React.useState(false);
   const [isHovered, setIsHovered] = React.useState(false);
+
+
 
   const titleRef = React.useRef<HTMLDivElement>(null);
   const editDropdownRef = React.useRef<HTMLDivElement>(null);
@@ -291,6 +295,8 @@ export function PageNavBar({
         >
           <IconStar className={cn('size-4', isStarred && 'fill-yellow-500 text-yellow-500')} />
         </Toggle>
+
+
 
         <DropdownMenu open={dropdownOpen} onOpenChange={setDropdownOpen}>
           <DropdownMenuTrigger

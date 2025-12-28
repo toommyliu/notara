@@ -29,7 +29,7 @@ import IconArrowDownAZ from '~icons/lucide/arrow-down-a-z';
 import IconArrowUpZA from '~icons/lucide/arrow-up-z-a';
 
 import IconCheck from '~icons/lucide/check';
-import IconColumns from '~icons/lucide/columns-2';
+
 import IconCopy from '~icons/lucide/copy';
 import IconExternalLink from '~icons/lucide/external-link';
 import IconFolderInput from '~icons/lucide/folder-input';
@@ -42,7 +42,6 @@ import IconPencil from '~icons/lucide/pencil';
 import IconAdd from '~icons/lucide/plus';
 import IconStar from '~icons/lucide/star';
 import IconTrash from '~icons/lucide/trash-2';
-import { useSplitViewStore } from '~/features/layout/stores/split-view-store';
 import { useTabsStore } from '~/features/layout/stores/tabs-store';
 import { useNotesStore } from '~/features/notes/store';
 import { usePlatformLayout } from '~/hooks/use-platform';
@@ -93,7 +92,7 @@ function DropIndicator({ position = 'top' }: DropIndicatorProps) {
   return (
     <div
       className={cn(
-        'absolute left-2 right-2 h-[2px] z-20 pointer-events-none',
+        'absolute left-2 right-2 h-0.5 z-20 pointer-events-none',
         position === 'top' ? '-top-px' : '-bottom-px',
       )}
     >
@@ -121,7 +120,7 @@ function GroupDropZone({ groupId, isVisible }: GroupDropZoneProps) {
         className={cn(
           'absolute left-4 right-4 h-px transition-all duration-200',
           isOver
-            ? 'bg-primary shadow-[0_0_8px_rgba(var(--primary),0.4)] h-[2px]'
+            ? 'bg-primary shadow-[0_0_8px_rgba(var(--primary),0.4)] h-0.5'
             : 'bg-border/20',
         )}
       />
@@ -152,13 +151,12 @@ function SidebarActionStrip() {
   const addGroup = useNotesStore((s) => s.addGroup);
   const sortData = useNotesStore((s) => s.sortData);
   const { openTab } = useTabsStore();
-  const { openInActivePane } = useSplitViewStore();
+
   const navigate = useNavigate();
 
   const handleAddNote = () => {
     const id = addNote();
     openTab(id);
-    openInActivePane(id);
     navigate({ to: '/notes' });
   };
 
@@ -217,8 +215,8 @@ function NoteMenuContent({ note, groupId, variant }: NoteMenuContentProps) {
   const duplicateNote = useNotesStore((s) => s.duplicateNote);
   const deleteNote = useNotesStore((s) => s.deleteNote);
   const moveNote = useNotesStore((s) => s.moveNote);
+
   const { openTab } = useTabsStore();
-  const { addPane, openInActivePane } = useSplitViewStore();
 
   const Item = variant === 'context' ? ContextMenuItem : DropdownMenuItem;
   const Separator =
@@ -233,7 +231,6 @@ function NoteMenuContent({ note, groupId, variant }: NoteMenuContentProps) {
     const newId = duplicateNote(note.id);
     if (newId) {
       openTab(newId);
-      openInActivePane(newId);
       navigate({ to: '/notes' });
     }
   };
@@ -244,14 +241,10 @@ function NoteMenuContent({ note, groupId, variant }: NoteMenuContentProps) {
 
   const handleOpenInNewTab = () => {
     openTab(note.id);
-    openInActivePane(note.id);
     navigate({ to: '/notes' });
   };
 
-  const handleOpenInSplitView = () => {
-    addPane('right', note.id);
-    navigate({ to: '/notes' });
-  };
+
 
   const handleMoveToGroup = (targetGroupId: string) => {
     if (groupId && groupId !== targetGroupId) {
@@ -306,10 +299,7 @@ function NoteMenuContent({ note, groupId, variant }: NoteMenuContentProps) {
         <IconAppWindow className="size-4" />
         Open in New Window
       </Item>
-      <Item onClick={handleOpenInSplitView}>
-        <IconColumns className="size-4" />
-        Open in Split View
-      </Item>
+
       <Item disabled>
         <IconPanelRight className="size-4" />
         Open in Side Peek
@@ -420,12 +410,12 @@ function HiddenNotesPopover({
 }: HiddenNotesPopoverProps) {
   const navigate = useNavigate();
   const { openTab } = useTabsStore();
-  const { openInActivePane } = useSplitViewStore();
+
 
   const handleNoteClick = (noteId: string) => {
     onNoteSelect(noteId);
     openTab(noteId);
-    openInActivePane(noteId);
+
     navigate({ to: '/notes' });
   };
 
@@ -855,7 +845,7 @@ export function AppSidebar() {
   const moveNote = useNotesStore((s) => s.moveNote);
   const reorderNotesInGroup = useNotesStore((s) => s.reorderNotesInGroup);
   const { openTab, activeTabId } = useTabsStore();
-  const { openInActivePane } = useSplitViewStore();
+
   const dragContext = useDragContext();
 
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
@@ -1060,13 +1050,13 @@ export function AppSidebar() {
                     showDropBackground={!isDraggingGroup}
                     onNoteSelect={(noteId) => {
                       openTab(noteId);
-                      openInActivePane(noteId);
+
                     }}
                     onToggleCollapse={() => toggleGroupCollapse(group.id)}
                     onAddNote={() => {
                       const id = addNote(group.id);
                       openTab(id);
-                      openInActivePane(id);
+
                       navigate({ to: '/notes' });
                     }}
                     activeDragType={activeDragType}
