@@ -2,8 +2,6 @@ import { createRouter, RouterProvider } from '@tanstack/react-router';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 
-// import { scan } from "react-scan";
-
 import { DragProvider } from '~/providers/drag-context';
 import { ThemeProvider } from '~/providers/theme';
 
@@ -12,9 +10,13 @@ import { TooltipProvider } from '~/ui/tooltip';
 
 const router = createRouter({ routeTree });
 
-// scan({
-//   enabled: import.meta.env.REACT_SCAN === "true",
-// });
+if (import.meta.env.REACT_SCAN === 'true') {
+  void import('react-scan')
+    .then(({ scan }) => {
+      scan({ enabled: true });
+    })
+    .catch(() => {});
+}
 
 createRoot(document.getElementById('root') as HTMLElement).render(
   <StrictMode>

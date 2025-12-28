@@ -6,7 +6,7 @@ import { getModKeyLabel } from '~/hooks/use-platform';
 import { SidebarMenuButton } from '~/ui/sidebar';
 
 export function SettingsTrigger() {
-  const { open } = useSettingsStore();
+  const open = useSettingsStore((s) => s.open);
 
   const tooltip = `Settings (${getModKeyLabel()},)`;
 

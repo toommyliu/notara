@@ -92,7 +92,7 @@ export function AppHeader() {
   const showTabs =
     isTabBarVisible && (pinnedTabs.length > 0 || openTabs.length > 0);
 
-  const hasTrafficLights = layout.isMac && !layout.isFullscreen;
+  const hasTrafficLights = layout.isTauri && layout.isMac && !layout.isFullscreen;
 
   return (
     <AppTitlebar
