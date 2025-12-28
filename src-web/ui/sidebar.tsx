@@ -10,7 +10,6 @@ import IconPanelLeft from '~icons/lucide/panel-left';
 import { useIsMobile } from '~/hooks/use-mobile';
 import { usePlatformLayout } from '~/hooks/use-platform';
 import { cn } from '~/lib/utils';
-import { Button } from './button';
 import { Input } from './input';
 import { Separator } from './separator';
 import {
@@ -21,6 +20,7 @@ import {
   SheetTitle,
 } from './sheet';
 import { Skeleton } from './skeleton';
+import { Toggle } from './toggle';
 import { Tooltip, TooltipContent, TooltipTrigger } from './tooltip';
 
 const SIDEBAR_COOKIE_NAME = 'sidebar_state';
@@ -282,25 +282,23 @@ function SidebarTrigger({
   className,
   onClick,
   ...props
-}: React.ComponentProps<typeof Button>) {
-  const { toggleSidebar } = useSidebar();
+}: React.ComponentProps<typeof Toggle>) {
+  const { toggleSidebar, state } = useSidebar();
 
   return (
-    <Button
+    <Toggle
       data-sidebar="trigger"
       data-slot="sidebar-trigger"
-      variant="ghost"
       size="icon-sm"
+      pressed={state === 'expanded'}
+      onPressedChange={() => toggleSidebar()}
       className={cn(className)}
-      onClick={(event) => {
-        onClick?.(event);
-        toggleSidebar();
-      }}
+      onClick={onClick}
       {...props}
     >
       <IconPanelLeft />
       <span className="sr-only">Toggle Sidebar</span>
-    </Button>
+    </Toggle>
   );
 }
 

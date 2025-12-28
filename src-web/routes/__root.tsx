@@ -5,7 +5,6 @@ import { lazy, Suspense, useEffect, useMemo } from 'react';
 import {
   AppHeader,
   AppSidebar,
-  IconRibbon,
   TitlebarSpacer,
 } from '~/features/layout';
 import { useSplitViewStore } from '~/features/layout/stores/split-view-store';
@@ -88,7 +87,6 @@ function AppShell() {
 
   return (
     <>
-      <IconRibbon />
       <AppHeader />
       <AppSidebar />
       <MainContent />

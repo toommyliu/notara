@@ -6,11 +6,11 @@ import { useEffect, useMemo, useState } from 'react';
 import { useIsTauri } from '~/hooks/use-tauri';
 
 const TITLEBAR_HEIGHT = 40;
-const MAC_LEFT_INSET = 72;
-const BASE_LEFT_INSET = 12;
-const WIN_LINUX_RIGHT_INSET = 138;
-const BASE_RIGHT_INSET = 12;
-const RIBBON_WIDTH = 48;
+const MAC_LEFT_INSET = 64; // Traffic lights
+const BASE_LEFT_INSET = 0;
+const WIN_LINUX_RIGHT_INSET = 138; // idk
+const BASE_RIGHT_INSET = 0;
+const RIBBON_WIDTH = 0;
 
 const MACOS = 'macos';
 const WINDOWS = 'windows';

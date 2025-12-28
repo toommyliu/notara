@@ -91,7 +91,7 @@
   --amber: oklch(0.75 0.14 75);
   --amber-muted: oklch(0.65 0.1 75);
 
-  --sidebar-ribbon-width: 48px;
+  --sidebar-ribbon-width: 0px;
 
   --brand: oklch(0.623 0.214 259.815);
 
@@ -285,94 +285,6 @@
   .split-divider:hover,
   .split-divider[data-resize-handle-state='drag'] {
     background: color-mix(in oklch, var(--border) 50%, transparent);
-  }
-
-  /* Inline Markdown Formatting */
-  .inline-code {
-    font-family:
-      ui-monospace, 'SF Mono', 'Cascadia Code', 'Source Code Pro', Menlo,
-      Consolas, monospace;
-    font-size: 0.875em;
-    background: var(--muted);
-    padding: 0.125em 0.375em;
-    border-radius: 4px;
-    color: var(--foreground);
-  }
-
-  .inline-link {
-    color: var(--amber);
-    text-decoration: underline;
-    text-decoration-color: color-mix(in oklch, var(--amber) 40%, transparent);
-    text-underline-offset: 2px;
-    transition: text-decoration-color 0.15s ease;
-  }
-
-  .inline-link:hover {
-    text-decoration-color: var(--amber);
-  }
-
-  /* Internal wiki-style links [[link]] */
-  .internal-link {
-    background: linear-gradient(
-      transparent 60%,
-      color-mix(in oklch, var(--amber) 20%, transparent) 60%
-    );
-    color: inherit;
-    text-decoration: none;
-    border-radius: 2px;
-    padding: 0 2px;
-    margin: 0 -2px;
-  }
-
-  .internal-link:hover {
-    background: linear-gradient(
-      transparent 50%,
-      color-mix(in oklch, var(--amber) 35%, transparent) 50%
-    );
-  }
-
-  /* Hide native text selection when custom block selection is active */
-  .blocks-selected *::selection {
-    background: transparent;
-  }
-
-  /* Shiki syntax highlighting container */
-  .shiki-container,
-  .shiki-container pre,
-  .shiki-container code,
-  .shiki-container .shiki {
-    margin: 0;
-    padding: 0;
-    background: transparent !important;
-    font-family:
-      ui-monospace, 'SF Mono', 'Cascadia Code', 'Source Code Pro', Menlo,
-      Consolas, monospace;
-    font-size: inherit;
-    line-height: inherit;
-    white-space: inherit;
-    word-wrap: inherit;
-  }
-
-  /* Ensure code blocks don't add extra spacing */
-  .shiki-container pre {
-    display: block;
-  }
-
-  .shiki-container code {
-    display: block;
-  }
-
-  /* Override any Shiki theme that sets backgrounds */
-  .shiki-container .shiki,
-  .shiki-container .shiki span {
-    background: transparent !important;
-  }
-
-  /* Line height for code blocks */
-  .shiki-container .line {
-    min-height: 1.5rem;
-    line-height: 1.5rem;
-    display: block;
   }
 }
 
