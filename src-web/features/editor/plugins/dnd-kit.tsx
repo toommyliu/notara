@@ -3,9 +3,6 @@
 import { DndPlugin } from '@platejs/dnd';
 import { PlaceholderPlugin } from '@platejs/media/react';
 
-import { DndProvider } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
-
 import { BlockDraggable } from '~/features/editor/components/block-draggable';
 
 export const DndKit = [
@@ -20,9 +17,7 @@ export const DndKit = [
     },
     render: {
       aboveNodes: BlockDraggable,
-      aboveSlate: ({ children }) => (
-        <DndProvider backend={HTML5Backend}>{children}</DndProvider>
-      ),
+      // DndProvider is now provided at app root level to support split view
     },
   }),
 ];

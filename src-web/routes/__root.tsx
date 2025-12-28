@@ -1,6 +1,8 @@
 import { createRootRoute, Outlet } from '@tanstack/react-router';
 import { listen } from '@tauri-apps/api/event';
 import { lazy, Suspense, useEffect, useMemo } from 'react';
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
 
 import {
   AppHeader,
@@ -102,8 +104,10 @@ function AppShell() {
 
 export const Route = createRootRoute({
   component: () => (
-    <SidebarProvider>
-      <AppShell />
-    </SidebarProvider>
+    <DndProvider backend={HTML5Backend}>
+      <SidebarProvider>
+        <AppShell />
+      </SidebarProvider>
+    </DndProvider>
   ),
 });

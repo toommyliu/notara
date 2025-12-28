@@ -152,11 +152,13 @@ function SidebarActionStrip() {
   const addGroup = useNotesStore((s) => s.addGroup);
   const sortData = useNotesStore((s) => s.sortData);
   const { openTab } = useTabsStore();
+  const { openInActivePane } = useSplitViewStore();
   const navigate = useNavigate();
 
   const handleAddNote = () => {
     const id = addNote();
     openTab(id);
+    openInActivePane(id);
     navigate({ to: '/notes' });
   };
 
@@ -216,7 +218,7 @@ function NoteMenuContent({ note, groupId, variant }: NoteMenuContentProps) {
   const deleteNote = useNotesStore((s) => s.deleteNote);
   const moveNote = useNotesStore((s) => s.moveNote);
   const { openTab } = useTabsStore();
-  const { addPane } = useSplitViewStore();
+  const { addPane, openInActivePane } = useSplitViewStore();
 
   const Item = variant === 'context' ? ContextMenuItem : DropdownMenuItem;
   const Separator =
@@ -231,6 +233,7 @@ function NoteMenuContent({ note, groupId, variant }: NoteMenuContentProps) {
     const newId = duplicateNote(note.id);
     if (newId) {
       openTab(newId);
+      openInActivePane(newId);
       navigate({ to: '/notes' });
     }
   };
@@ -241,6 +244,7 @@ function NoteMenuContent({ note, groupId, variant }: NoteMenuContentProps) {
 
   const handleOpenInNewTab = () => {
     openTab(note.id);
+    openInActivePane(note.id);
     navigate({ to: '/notes' });
   };
 
@@ -416,10 +420,12 @@ function HiddenNotesPopover({
 }: HiddenNotesPopoverProps) {
   const navigate = useNavigate();
   const { openTab } = useTabsStore();
+  const { openInActivePane } = useSplitViewStore();
 
   const handleNoteClick = (noteId: string) => {
     onNoteSelect(noteId);
     openTab(noteId);
+    openInActivePane(noteId);
     navigate({ to: '/notes' });
   };
 
@@ -849,6 +855,7 @@ export function AppSidebar() {
   const moveNote = useNotesStore((s) => s.moveNote);
   const reorderNotesInGroup = useNotesStore((s) => s.reorderNotesInGroup);
   const { openTab, activeTabId } = useTabsStore();
+  const { openInActivePane } = useSplitViewStore();
   const dragContext = useDragContext();
 
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
@@ -1051,11 +1058,15 @@ export function AppSidebar() {
                     activeNoteId={activeTabId}
                     isDragSelected={draggingGroupId === group.id}
                     showDropBackground={!isDraggingGroup}
-                    onNoteSelect={openTab}
+                    onNoteSelect={(noteId) => {
+                      openTab(noteId);
+                      openInActivePane(noteId);
+                    }}
                     onToggleCollapse={() => toggleGroupCollapse(group.id)}
                     onAddNote={() => {
                       const id = addNote(group.id);
                       openTab(id);
+                      openInActivePane(id);
                       navigate({ to: '/notes' });
                     }}
                     activeDragType={activeDragType}
