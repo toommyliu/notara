@@ -114,7 +114,7 @@ export const TableElement = withHOC(
       <PlateElement
         {...props}
         className={cn(
-          'overflow-x-auto py-5',
+          'overflow-x-auto py-5 max-w-full',
           hasControls && '-ml-2 *:data-[slot=block-selection]:left-2',
         )}
         style={{ paddingLeft: marginLeft }}

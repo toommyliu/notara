@@ -158,7 +158,12 @@ export function PageNavBar({
 
   return (
     <div
-      className={cn('flex h-12 items-center justify-between px-3', className)}
+      className={cn(
+        'sticky top-0 z-10 flex h-12 items-center justify-between px-3',
+        'bg-background/80 backdrop-blur-md',
+        'mask-b-from-75% mask-b-to-100%',
+        className,
+      )}
       data-tauri-drag-region
     >
       {/* Left section */}
