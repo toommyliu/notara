@@ -65,6 +65,15 @@ export function PageHeader({ className }: PageHeaderProps) {
     };
   }, [showIconPicker]);
 
+  // Set initial title value (uncontrolled contentEditable)
+  React.useEffect(() => {
+    if (titleRef.current && noteTitle !== undefined) {
+      if (titleRef.current.textContent !== (noteTitle || '')) {
+        titleRef.current.textContent = noteTitle || '';
+      }
+    }
+  }, [noteId, noteTitle]); // Sync when noteTitle changes, but guard prevents reset
+
   const handleTitleInput = React.useCallback(
     (ev: React.FormEvent<HTMLDivElement>) => {
       const newTitle = ev.currentTarget.textContent || '';
@@ -244,9 +253,7 @@ export function PageHeader({ className }: PageHeaderProps) {
             'empty:before:pointer-events-none empty:before:absolute empty:before:content-[attr(data-placeholder)] empty:before:text-muted-foreground/30',
             'focus:before:content-none',
           )}
-        >
-          {noteTitle}
-        </div>
+        />
       </div>
     </div>
   );

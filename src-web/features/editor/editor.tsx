@@ -32,7 +32,7 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
           updateNote(noteId, { content: value });
         }}
       >
-        <EditorContainer>
+        <EditorContainer className="scrollbar-custom">
           <Editor placeholder="Type '/' to open commands..." />
         </EditorContainer>
       </Plate>
