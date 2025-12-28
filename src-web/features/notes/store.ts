@@ -1,4 +1,3 @@
-import type { SerializedEditorState } from 'lexical';
 import { arrayMove } from '@dnd-kit/sortable';
 import { create } from 'zustand';
 
@@ -6,7 +5,8 @@ export interface Note {
   id: string;
   title: string;
   emoji: string;
-  content?: SerializedEditorState | null;
+  // TODO:
+  content?: any[] | null;
   showTOC?: boolean;
 }
 

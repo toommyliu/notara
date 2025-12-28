@@ -18,7 +18,9 @@ export function SplitTabItem({
   noteIds,
   onActivatePane,
   onClosePane,
-}: SplitTabItemProps & { ref?: React.RefObject<HeaderTabItemHandle | null> }) {
+}: SplitTabItemProps & {
+  ref?: ((handle: HeaderTabItemHandle | null) => void) | React.RefObject<HeaderTabItemHandle | null>;
+}) {
   const notes = useNotesStore((s) => s.notes);
   const tabRef = useRef<HTMLDivElement>(null);
   const buttonRefs = useRef<Map<string, HTMLButtonElement>>(new Map());

@@ -18,7 +18,9 @@ export function HeaderTabItem({
   onActivate,
   onClose,
   compact,
-}: HeaderTabItemProps & { ref?: React.RefObject<HeaderTabItemHandle | null> }) {
+}: HeaderTabItemProps & {
+  ref?: ((handle: HeaderTabItemHandle | null) => void) | React.RefObject<HeaderTabItemHandle | null>;
+}) {
   const notes = useNotesStore((s) => s.notes);
   const note = notes.get(noteId);
   const tabRef = useRef<HTMLDivElement>(null);
