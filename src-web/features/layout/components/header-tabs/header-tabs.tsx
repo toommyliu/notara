@@ -23,16 +23,22 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import IconChevronDown from '~icons/lucide/chevron-down';
 import IconPlus from '~icons/lucide/plus';
+import IconCheck from '~icons/lucide/check';
+import IconSearch from '~icons/lucide/search';
 
 import { useTabsStore } from '~/features/layout/stores/tabs-store';
 import { useNotesStore } from '~/features/notes/store';
 import { useDragContext } from '~/providers/drag-context';
+
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
 } from '~/ui/dropdown-menu';
+import { Input } from '~/ui/input';
 import { HeaderTabItem } from './header-tab-item';
 import { SplitTabItem } from './split-tab-item';
 
@@ -61,6 +67,7 @@ export function HeaderTabs() {
   const navigate = useNavigate();
 
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const tabRefs = useRef<Map<string, HeaderTabItemHandle>>(new Map());
 
@@ -113,6 +120,18 @@ export function HeaderTabs() {
     openTabs.filter((id) => !processedInPinned.has(id)),
   );
   const allVisibleTabs = [...visiblePinned, ...visibleOpen];
+
+  const filterTabs = (ids: string[]) => {
+    if (!searchQuery) return ids;
+    const query = searchQuery.toLowerCase();
+    return ids.filter((id) => {
+      const note = notes.get(id);
+      return note?.title.toLowerCase().includes(query);
+    });
+  };
+
+  const filteredPinned = filterTabs(pinnedTabs);
+  const filteredOpen = filterTabs(openTabs.filter((id) => !pinnedTabs.includes(id)));
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -371,36 +390,96 @@ export function HeaderTabs() {
         </div>
 
         <div className="flex items-center gap-1 ml-1 shrink-0 px-1 py-0.5 relative z-20">
-
           <DropdownMenu>
             <DropdownMenuTrigger
               className={cn(
                 'p-1.5 rounded-md transition-colors outline-none',
                 'text-muted-foreground/60 hover:text-foreground hover:bg-muted/40',
                 'focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset',
+                'data-[state=open]:text-foreground data-[state=open]:bg-muted/40',
               )}
               aria-label="All tabs"
             >
               <IconChevronDown className="size-3.5" />
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" sideOffset={8} className="w-48">
-              {pinnedTabs.map((noteId) => {
-                const note = notes.get(noteId);
-                if (!note) return null;
-                return (
-                  <DropdownMenuItem
-                    key={noteId}
-                    onClick={() => {
-                      setActiveTab(noteId);
+            <DropdownMenuContent align="end" sideOffset={8} className="w-64 max-h-80 flex flex-col">
+              <div className="p-2 border-b sticky top-0 bg-popover z-10">
+                <div className="relative">
+                  <IconSearch className="absolute left-2 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
+                  <Input
+                    placeholder="Search tabs..."
+                    className="h-8 pl-8 text-xs"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={(e) => e.stopPropagation()}
+                    autoFocus
+                  />
+                </div>
+              </div>
+              <div className="overflow-y-auto flex-1">
+                {filteredPinned.length > 0 && (
+                  <>
+                    <DropdownMenuLabel>Pinned</DropdownMenuLabel>
+                    {filteredPinned.map((noteId) => {
+                      const note = notes.get(noteId);
+                      if (!note) return null;
+                      const isActive = activeTabId === noteId;
+                      return (
+                        <DropdownMenuItem
+                          key={noteId}
+                          onClick={() => {
+                            setActiveTab(noteId);
+                            setSearchQuery('');
+                            navigate({ to: '/notes' });
+                          }}
+                          className="gap-2"
+                        >
+                          <span className="text-sm shrink-0">{note.emoji}</span>
+                          <span className={cn("truncate flex-1 font-medium", !isActive && "text-muted-foreground text-normal")}>
+                            {note.title}
+                          </span>
+                          {isActive && <IconCheck className="size-3.5 text-primary ml-auto" />}
+                        </DropdownMenuItem>
+                      );
+                    })}
+                    {filteredOpen.length > 0 && <DropdownMenuSeparator />}
+                  </>
+                )}
 
-                      navigate({ to: '/notes' });
-                    }}
-                  >
-                    <span className="mr-2 text-xs">{note.emoji}</span>
-                    <span className="truncate">{note.title}</span>
-                  </DropdownMenuItem>
-                );
-              })}
+                {filteredOpen.length > 0 && (
+                  <>
+                    {(filteredPinned.length > 0) && <DropdownMenuLabel>Open</DropdownMenuLabel>}
+                    {filteredOpen.map((noteId) => {
+                      const note = notes.get(noteId);
+                      if (!note) return null;
+                      const isActive = activeTabId === noteId;
+                      return (
+                        <DropdownMenuItem
+                          key={noteId}
+                          onClick={() => {
+                            setActiveTab(noteId);
+                            setSearchQuery('');
+                            navigate({ to: '/notes' });
+                          }}
+                          className="gap-2"
+                        >
+                          <span className="text-sm shrink-0">{note.emoji}</span>
+                          <span className={cn("truncate flex-1 font-medium", !isActive && "text-muted-foreground text-normal")}>
+                            {note.title}
+                          </span>
+                          {isActive && <IconCheck className="size-3.5 text-primary ml-auto" />}
+                        </DropdownMenuItem>
+                      );
+                    })}
+                  </>
+                )}
+
+                {filteredPinned.length === 0 && filteredOpen.length === 0 && (
+                   <div className="p-4 text-xs text-center text-muted-foreground">
+                     {searchQuery ? 'No results found' : 'No open tabs'}
+                   </div>
+                )}
+              </div>
             </DropdownMenuContent>
           </DropdownMenu>
 
