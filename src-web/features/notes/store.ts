@@ -1,5 +1,4 @@
 import type { Value } from 'platejs';
-
 import { arrayMove } from '@dnd-kit/sortable';
 import { create } from 'zustand';
 import { useShallow } from 'zustand/react/shallow';
@@ -342,6 +341,7 @@ export function useNoteMetadata(noteId: string): NoteMetadata | null {
       const note = s.notes.get(noteId);
       if (!note)
         return null;
+
       return { id: note.id, title: note.title, emoji: note.emoji };
     }),
   );

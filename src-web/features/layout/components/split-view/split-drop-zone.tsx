@@ -7,6 +7,7 @@ import { cn } from '~/lib/utils';
 interface SplitDropZoneProps {
   isActive: boolean;
   draggedNoteId: string | null;
+  wasCancelled?: boolean;
   onZoneChange: (zone: SplitDropZone | null) => void;
   onDrop: (zone: SplitDropZone, noteId: string) => void;
   className?: string;
@@ -17,6 +18,7 @@ const EDGE_THRESHOLD = 80; // distance from edge to trigger zone (in pixels)
 export function SplitDropZoneOverlay({
   isActive,
   draggedNoteId,
+  wasCancelled = false,
   onZoneChange,
   onDrop,
   className,
@@ -25,6 +27,11 @@ export function SplitDropZoneOverlay({
   const [activeZone, setActiveZone] = useState<SplitDropZone | null>(null);
   const activeZoneRef = useRef<SplitDropZone | null>(null);
   const capturedNoteIdRef = useRef<string | null>(null);
+  const wasCancelledRef = useRef(false);
+
+  useEffect(() => {
+    wasCancelledRef.current = wasCancelled;
+  }, [wasCancelled]);
 
   const detectZone = useCallback(
     (clientX: number, clientY: number): SplitDropZone | null => {
@@ -57,8 +64,9 @@ export function SplitDropZoneOverlay({
       const zone = activeZoneRef.current;
       const noteId = capturedNoteIdRef.current;
 
-      if (zone && noteId)
+      if (zone && noteId && !wasCancelledRef.current) {
         onDrop(zone, noteId);
+      }
 
       setActiveZone(null);
       activeZoneRef.current = null;

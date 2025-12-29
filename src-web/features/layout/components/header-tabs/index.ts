@@ -4,5 +4,4 @@ export { SplitTabItem } from './split-tab-item';
 export type {
   HeaderTabItemHandle,
   HeaderTabItemProps,
-  SplitTabItemProps,
 } from './types';

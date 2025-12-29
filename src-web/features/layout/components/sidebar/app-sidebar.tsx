@@ -2,10 +2,10 @@ import type {
   CollisionDetection,
   DragEndEvent,
   DragOverEvent,
-
   DragStartEvent,
   Modifier,
 } from '@dnd-kit/core';
+import type { SortingStrategy } from '@dnd-kit/sortable';
 import type { Group, SortOrder } from '~/features/notes/store';
 import {
   closestCenter,
@@ -25,9 +25,8 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { Link, useNavigate } from '@tanstack/react-router';
 
-import { useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import IconAppWindow from '~icons/lucide/app-window';
-import IconSort from '~icons/lucide/arrow-down-a-z';
 import IconArrowDownAZ from '~icons/lucide/arrow-down-a-z';
 import IconArrowUpZA from '~icons/lucide/arrow-up-z-a';
 
@@ -45,7 +44,7 @@ import IconPencil from '~icons/lucide/pencil';
 import IconAdd from '~icons/lucide/plus';
 import IconStar from '~icons/lucide/star';
 import IconTrash from '~icons/lucide/trash-2';
-import { useTabsStore } from '~/features/layout/stores/tabs-store';
+import { useActiveNoteId, useTabsStore } from '~/features/layout/stores/tabs-store';
 import { useNoteMetadata, useNotesStore } from '~/features/notes/store';
 import { HapticFeedbackPattern, useHaptics } from '~/hooks/use-haptics';
 import { usePlatformLayout } from '~/hooks/use-platform';
@@ -150,13 +149,13 @@ function SidebarActionStrip() {
   const addNote = useNotesStore(s => s.addNote);
   const addGroup = useNotesStore(s => s.addGroup);
   const sortData = useNotesStore(s => s.sortData);
-  const { openTab } = useTabsStore();
+  const openNote = useTabsStore(s => s.openNote);
 
   const navigate = useNavigate();
 
   const handleAddNote = () => {
     const id = addNote();
-    openTab(id);
+    openNote(id);
     navigate({ to: '/notes' });
   };
 
@@ -193,7 +192,7 @@ function SidebarActionStrip() {
           onClick={sortData}
           className="flex items-center justify-center p-1 text-muted-foreground hover:text-foreground rounded-sm transition-colors duration-200 cursor-pointer"
         >
-          <IconSort className="size-4" />
+          <IconArrowDownAZ className="size-4" />
           <span className="sr-only">Sort</span>
         </TooltipTrigger>
         <TooltipContent side="bottom" className="text-xs">
@@ -216,7 +215,7 @@ function NoteMenuContent({ noteId, groupId, variant }: NoteMenuContentProps) {
   const deleteNote = useNotesStore(s => s.deleteNote);
   const moveNote = useNotesStore(s => s.moveNote);
 
-  const { openTab } = useTabsStore();
+  const openNote = useTabsStore(s => s.openNote);
 
   const Item = variant === 'context' ? ContextMenuItem : DropdownMenuItem;
   const Separator
@@ -230,7 +229,7 @@ function NoteMenuContent({ noteId, groupId, variant }: NoteMenuContentProps) {
   const handleDuplicate = () => {
     const newId = duplicateNote(noteId);
     if (newId) {
-      openTab(newId);
+      openNote(newId);
       navigate({ to: '/notes' });
     }
   };
@@ -240,7 +239,7 @@ function NoteMenuContent({ noteId, groupId, variant }: NoteMenuContentProps) {
   };
 
   const handleOpenInNewTab = () => {
-    openTab(noteId);
+    openNote(noteId);
     navigate({ to: '/notes' });
   };
 
@@ -440,11 +439,11 @@ function HiddenNotesPopover({
   onNoteSelect,
 }: HiddenNotesPopoverProps) {
   const navigate = useNavigate();
-  const { openTab } = useTabsStore();
+  const openNote = useTabsStore(s => s.openNote);
 
   const handleNoteClick = (noteId: string) => {
     onNoteSelect(noteId);
-    openTab(noteId);
+    openNote(noteId);
 
     navigate({ to: '/notes' });
   };
@@ -542,6 +541,8 @@ interface SortableNoteProps {
   isActive: boolean;
   onSelect: () => void;
   activeDragType: 'note' | 'group' | null;
+  activeDragId: string | null;
+  isSidebarFrozen: boolean;
 }
 function SortableNote({
   noteId,
@@ -549,11 +550,17 @@ function SortableNote({
   isActive,
   onSelect,
   activeDragType,
+  activeDragId,
+  isSidebarFrozen,
 }: SortableNoteProps) {
   const navigate = useNavigate();
   const note = useNoteMetadata(noteId);
   const [isHovered, setIsHovered] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dragContext = useDragContext();
+
+  const isFrozenDraggedItem = isSidebarFrozen && activeDragId === noteId;
+  const disableLayoutAnimation = isSidebarFrozen || dragContext.isOutsideSidebar;
 
   const {
     attributes,
@@ -566,11 +573,12 @@ function SortableNote({
   } = useSortable({
     id: noteId,
     data: { type: 'note', groupId },
+    animateLayoutChanges: () => !disableLayoutAnimation,
   });
 
   const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
+    transform: disableLayoutAnimation ? 'none' : CSS.Transform.toString(transform),
+    transition: disableLayoutAnimation ? 'none' : transition,
   };
 
   const handleClick = (ev: React.MouseEvent) => {
@@ -608,7 +616,7 @@ function SortableNote({
               'cursor-grab active:cursor-grabbing pr-8',
               'data-[active=true]:bg-background data-[active=true]:ring-1 data-[active=true]:ring-border/50 data-[active=true]:text-foreground data-[active=true]:shadow-sm',
               'group-hover/note:bg-sidebar-accent',
-              isDragging && 'opacity-30',
+              (isDragging || isFrozenDraggedItem) && 'opacity-30',
             )}
             {...attributes}
             {...listeners}
@@ -686,7 +694,9 @@ interface SortableGroupProps {
   onToggleCollapse: () => void;
   onAddNote: () => void;
   activeDragType: 'note' | 'group' | null;
-  isLast: boolean;
+  activeDragId: string | null;
+  isSidebarFrozen: boolean;
+  sortingStrategy: SortingStrategy;
 }
 function SortableGroup({
   group,
@@ -697,6 +707,9 @@ function SortableGroup({
   onToggleCollapse,
   onAddNote,
   activeDragType,
+  activeDragId,
+  isSidebarFrozen,
+  sortingStrategy,
 }: SortableGroupProps) {
   const {
     attributes,
@@ -805,7 +818,7 @@ function SortableGroup({
         <SidebarGroupContent className="mt-1">
           <SortableContext
             items={group.noteIds}
-            strategy={verticalListSortingStrategy}
+            strategy={sortingStrategy}
           >
             <SidebarMenu className="gap-1">
               {(group.displayLimit
@@ -819,6 +832,8 @@ function SortableGroup({
                   isActive={activeNoteId === noteId}
                   onSelect={() => onNoteSelect(noteId)}
                   activeDragType={activeDragType}
+                  activeDragId={activeDragId}
+                  isSidebarFrozen={isSidebarFrozen}
                 />
               ))}
               {group.displayLimit && group.noteIds.length > group.displayLimit && (
@@ -849,17 +864,28 @@ export function AppSidebar() {
   const reorderGroups = useNotesStore(s => s.reorderGroups);
   const moveNote = useNotesStore(s => s.moveNote);
   const reorderNotesInGroup = useNotesStore(s => s.reorderNotesInGroup);
-  const { openTab, activeTabId } = useTabsStore();
+  const openNote = useTabsStore(s => s.openNote);
+  const activeNoteId = useActiveNoteId();
 
   const dragContext = useDragContext();
+  const setIsOutsideSidebar = dragContext.setIsOutsideSidebar;
 
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
   const [activeDragType, setActiveDragType] = useState<'note' | 'group' | null>(
     null,
   );
+  const [hasHorizontalIntent, setHasHorizontalIntent] = useState(false);
   const activeDragTypeRef = useRef<'note' | 'group' | null>(null);
   const sidebarContentRef = useRef<HTMLDivElement>(null);
   const lastOverId = useRef<string | null>(null);
+  const disableSortingRef = useRef(false);
+  const dragStartXRef = useRef<number | null>(null);
+  const freezeSidebarDnDRef = useRef(false);
+  const horizontalIntentRef = useRef(false);
+  const isSplitDropActiveRef = useRef(false);
+
+  // Threshold in pixels - if user moves right more than this, assume editor-drop intent
+  const HORIZONTAL_INTENT_THRESHOLD = 30;
 
   const { perform } = useHaptics();
 
@@ -874,10 +900,24 @@ export function AppSidebar() {
     }),
   );
 
+  const conditionalSortingStrategy: SortingStrategy = useCallback(
+    (args) => {
+      if (disableSortingRef.current || freezeSidebarDnDRef.current)
+        return { x: 0, y: 0, scaleX: 1, scaleY: 1 };
+
+      return verticalListSortingStrategy(args);
+    },
+    [],
+  );
+
   // Only restrict to vertical axis when dragging groups, not notes
   const conditionalVerticalRestriction: Modifier = (args) => {
-    // Restricting to sidebar bounds
     const { transform, draggingNodeRect } = args;
+
+    // When the editor split-drop zones are active, freeze sidebar visuals.
+    if (freezeSidebarDnDRef.current) {
+      return { x: 0, y: 0, scaleX: 1, scaleY: 1 };
+    }
 
     if (!sidebarContentRef.current || !draggingNodeRect) {
       return transform;
@@ -889,6 +929,10 @@ export function AppSidebar() {
       const verticalTransform = restrictToVerticalAxis(args);
       value.x = verticalTransform.x;
       value.y = verticalTransform.y;
+    }
+    else if (activeDragTypeRef.current === 'note') {
+      // Notes should only move vertically inside the sidebar.
+      value.x = 0;
     }
 
     const containerRect = sidebarContentRef.current.getBoundingClientRect();
@@ -913,7 +957,10 @@ export function AppSidebar() {
     const activeType
       = args.active.data.current?.type ?? activeDragTypeRef.current;
 
-    // Check if pointer is within sidebar
+    if (freezeSidebarDnDRef.current)
+      return [];
+
+    // Check if pointer is within sidebar OR has moved significantly to the right (horizontal intent)
     if (sidebarContentRef.current && args.pointerCoordinates) {
       const rect = sidebarContentRef.current.getBoundingClientRect();
       const { x, y } = args.pointerCoordinates;
@@ -921,7 +968,12 @@ export function AppSidebar() {
       const isInside
         = x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom;
 
-      if (!isInside)
+      // Detect horizontal intent: if user moved right more than threshold, assume editor-drop
+      const hasHorizontalIntent
+        = dragStartXRef.current !== null
+          && (x - dragStartXRef.current) > HORIZONTAL_INTENT_THRESHOLD;
+
+      if (!isInside || hasHorizontalIntent)
         return [];
     }
 
@@ -942,6 +994,13 @@ export function AppSidebar() {
     setActiveDragType(type);
     activeDragTypeRef.current = type;
 
+    const activatorEvent = event.activatorEvent as PointerEvent;
+    dragStartXRef.current = activatorEvent.clientX;
+    horizontalIntentRef.current = false;
+    isSplitDropActiveRef.current = false;
+    freezeSidebarDnDRef.current = false;
+    setHasHorizontalIntent(false);
+
     // Broadcast to split view if dragging a note
     if (type === 'note' && dragContext) {
       dragContext.startDrag(active.id as string, 'sidebar');
@@ -955,7 +1014,13 @@ export function AppSidebar() {
     setActiveDragType(null);
     activeDragTypeRef.current = null;
     lastOverId.current = null;
-    dragContext?.endDrag();
+    disableSortingRef.current = false;
+    dragStartXRef.current = null;
+    freezeSidebarDnDRef.current = false;
+    horizontalIntentRef.current = false;
+    isSplitDropActiveRef.current = false;
+    setHasHorizontalIntent(false);
+    dragContext?.endDrag(true);
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -965,11 +1030,19 @@ export function AppSidebar() {
     setActiveDragType(null);
     activeDragTypeRef.current = null;
     lastOverId.current = null;
+    disableSortingRef.current = false;
+    dragStartXRef.current = null;
+    freezeSidebarDnDRef.current = false;
+    horizontalIntentRef.current = false;
+    isSplitDropActiveRef.current = false;
+    setHasHorizontalIntent(false);
 
+    const wasSplitDrop = dragContext?.splitDropTarget !== null;
     dragContext?.endDrag();
 
-    if (!over || active.id === over.id)
+    if (wasSplitDrop || !over || active.id === over.id) {
       return;
+    }
 
     const activeType = active.data.current?.type;
     const overType = over.data.current?.type;
@@ -1038,6 +1111,66 @@ export function AppSidebar() {
     }
   };
 
+  // Track actual cursor position with native mousemove when dragging notes
+  // (dnd-kit's event.delta is constrained by the restrictToVerticalAxis modifier)
+  useEffect(() => {
+    if (activeDragType !== 'note') {
+      return;
+    }
+
+    const handleMouseMove = (e: MouseEvent) => {
+      const container = sidebarContentRef.current;
+      if (!container)
+        return;
+
+      const rect = container.getBoundingClientRect();
+      const isInside
+        = e.clientX >= rect.left
+          && e.clientX <= rect.right
+          && e.clientY >= rect.top
+          && e.clientY <= rect.bottom;
+
+      const shouldDisable = !isInside;
+
+      const hasHorizontalIntent
+        = dragStartXRef.current !== null
+          && (e.clientX - dragStartXRef.current) > HORIZONTAL_INTENT_THRESHOLD;
+
+      if (horizontalIntentRef.current !== hasHorizontalIntent) {
+        horizontalIntentRef.current = hasHorizontalIntent;
+        setHasHorizontalIntent(hasHorizontalIntent);
+      }
+
+      freezeSidebarDnDRef.current
+        = activeDragTypeRef.current === 'note'
+          && (isSplitDropActiveRef.current || hasHorizontalIntent);
+
+      // Only update if the value changed to avoid infinite re-renders
+      if (disableSortingRef.current !== shouldDisable) {
+        disableSortingRef.current = shouldDisable;
+        setIsOutsideSidebar(shouldDisable);
+      }
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      disableSortingRef.current = false;
+      setIsOutsideSidebar(false);
+    };
+  }, [activeDragType, setIsOutsideSidebar]);
+
+  useEffect(() => {
+    isSplitDropActiveRef.current = dragContext.splitDropTarget !== null;
+    freezeSidebarDnDRef.current
+      = activeDragTypeRef.current === 'note'
+        && (isSplitDropActiveRef.current || horizontalIntentRef.current);
+  }, [activeDragType, dragContext.splitDropTarget]);
+
+  const isSidebarFrozen
+    = activeDragType === 'note'
+      && (dragContext.splitDropTarget !== null || hasHorizontalIntent);
+
   return (
     <Sidebar
       collapsible="offcanvas"
@@ -1071,35 +1204,42 @@ export function AppSidebar() {
           >
             <SortableContext
               items={groups.map(g => g.id)}
-              strategy={verticalListSortingStrategy}
+              strategy={conditionalSortingStrategy}
             >
-              {groups.map((group, index) => (
+              {groups.map(group => (
                 <SortableGroup
                   key={group.id}
                   group={group}
-                  activeNoteId={activeTabId}
+                  activeNoteId={activeNoteId}
                   isDragSelected={draggingGroupId === group.id}
                   showDropBackground={!isDraggingGroup}
+                  activeDragId={activeDragId}
+                  isSidebarFrozen={isSidebarFrozen}
                   onNoteSelect={(noteId) => {
-                    openTab(noteId);
+                    openNote(noteId);
                   }}
                   onToggleCollapse={() => toggleGroupCollapse(group.id)}
                   onAddNote={() => {
                     const id = addNote(group.id);
-                    openTab(id);
+                    openNote(id);
 
                     navigate({ to: '/notes' });
                   }}
                   activeDragType={activeDragType}
-                  isLast={index === groups.length - 1}
+                  sortingStrategy={conditionalSortingStrategy}
                 />
               ))}
             </SortableContext>
             <GroupsEndDropZone isVisible={activeDragType === 'group'} />
 
-            <DragOverlay dropAnimation={null}>
-              <SidebarDragOverlay noteId={activeDragId} isNoteDrag={activeDragType === 'note'} />
-            </DragOverlay>
+            {!isSidebarFrozen && (
+              <DragOverlay dropAnimation={null}>
+                <SidebarDragOverlay
+                  noteId={activeDragId}
+                  isNoteDrag={activeDragType === 'note'}
+                />
+              </DragOverlay>
+            )}
           </DndContext>
         </div>
       </SidebarContent>

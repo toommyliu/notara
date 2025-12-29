@@ -27,11 +27,8 @@ export function AppTitlebar({
         paddingLeft: noLeftInset ? 0 : layout.leftInset,
         paddingRight: layout.rightInset,
       }}
-      data-tauri-drag-region
     >
-      <div className="pointer-events-none h-full w-full flex items-center">
-        {children}
-      </div>
+      {children}
     </div>
   );
 }

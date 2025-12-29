@@ -1,5 +1,6 @@
 'use client';
 
+import type { Pane, PaneId } from '~/features/layout/stores/tabs-store';
 import { useCallback, useRef, useState } from 'react';
 
 import { useTabsStore } from '~/features/layout/stores/tabs-store';
@@ -9,8 +10,11 @@ import { cn } from '~/lib/utils';
 
 interface SplitViewContainerProps {
   children: React.ReactNode[];
+  paneId: PaneId;
+  pane: Extract<Pane, { type: 'split' }>;
   onPaneClick?: (paneIndex: 0 | 1) => void;
   className?: string;
+  onSizesChange?: (sizes: [number, number]) => void;
 }
 
 const SNAP_THRESHOLD = 3; // the threshold for snapping to 50%
@@ -18,18 +22,32 @@ const MIN_PANE_SIZE = 15; // 15%
 
 export function SplitViewContainer({
   children,
+  paneId,
+  pane,
   onPaneClick,
   className,
+  onSizesChange,
 }: SplitViewContainerProps) {
-  const splitView = useTabsStore((s) => s.splitView);
-  const setSplitSizes = useTabsStore((s) => s.setSplitSizes);
+  const setSplitSizes = useTabsStore(s => s.setSplitSizes);
+
+  const setSizes = useCallback(
+    (sizes: [number, number]) => {
+      if (onSizesChange) {
+        onSizesChange(sizes);
+        return;
+      }
+
+      setSplitSizes(paneId, sizes);
+    },
+    [onSizesChange, paneId, setSplitSizes],
+  );
 
   const containerRef = useRef<HTMLDivElement>(null);
   const [isResizing, setIsResizing] = useState(false);
   const [isHoveringHandle, setIsHoveringHandle] = useState(false);
   const { perform: performHaptic } = useHaptics();
 
-  const { enabled, orientation, sizes } = splitView;
+  const { orientation, sizes } = pane;
 
   const handleMouseDown = useCallback(
     (ev: React.MouseEvent) => {
@@ -37,7 +55,9 @@ export function SplitViewContainer({
       setIsResizing(true);
 
       const container = containerRef.current;
-      if (!container) return;
+      if (!container) {
+        return;
+      }
 
       const rect = container.getBoundingClientRect();
       const isVertical = orientation === 'vertical';
@@ -61,11 +81,12 @@ export function SplitViewContainer({
             performHaptic(HapticFeedbackPattern.Alignment);
           }
           percentage = 50;
-        } else {
+        }
+        else {
           lastSnappedTo50 = false;
         }
 
-        setSplitSizes([percentage, 100 - percentage]);
+        setSizes([percentage, 100 - percentage]);
       };
 
       const handleMouseUp = () => {
@@ -77,10 +98,10 @@ export function SplitViewContainer({
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
     },
-    [orientation, setSplitSizes, performHaptic],
+    [orientation, setSizes, performHaptic],
   );
 
-  if (!enabled || children.length < 2) {
+  if (children.length < 2) {
     return (
       <div className={cn('flex flex-1 min-h-0', className)}>
         {children[0]}
@@ -99,7 +120,7 @@ export function SplitViewContainer({
         className,
       )}
     >
-      {/* Pane 0 */}
+      {/* Pane 0 (left/top) */}
       <div
         className="relative min-h-0 min-w-0 overflow-hidden"
         style={{
@@ -121,19 +142,20 @@ export function SplitViewContainer({
         onKeyDown={(ev) => {
           const step = ev.shiftKey ? 10 : 2;
           if (
-            (isVertical && ev.key === 'ArrowLeft') ||
-            (!isVertical && ev.key === 'ArrowUp')
+            (isVertical && ev.key === 'ArrowLeft')
+            || (!isVertical && ev.key === 'ArrowUp')
           ) {
             ev.preventDefault();
             const newSize = Math.max(MIN_PANE_SIZE, sizes[0] - step);
-            setSplitSizes([newSize, 100 - newSize]);
-          } else if (
-            (isVertical && ev.key === 'ArrowRight') ||
-            (!isVertical && ev.key === 'ArrowDown')
+            setSizes([newSize, 100 - newSize]);
+          }
+          else if (
+            (isVertical && ev.key === 'ArrowRight')
+            || (!isVertical && ev.key === 'ArrowDown')
           ) {
             ev.preventDefault();
             const newSize = Math.min(100 - MIN_PANE_SIZE, sizes[0] + step);
-            setSplitSizes([newSize, 100 - newSize]);
+            setSizes([newSize, 100 - newSize]);
           }
         }}
         className={cn(
@@ -162,7 +184,7 @@ export function SplitViewContainer({
         />
       </div>
 
-      {/* Pane 1 */}
+      {/* Pane 1 (right/bottom) */}
       <div
         className="relative min-h-0 min-w-0 overflow-hidden"
         style={{

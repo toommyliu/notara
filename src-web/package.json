@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier .",
-    "format:write": "prettier . --write"
+    "format:write": "prettier . --write",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@ariakit/react": "^0.4.20",

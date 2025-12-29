@@ -41,15 +41,18 @@ function MainContent() {
 
 function AppShell() {
   const { toggleSidebar } = useSidebar();
-  const { toggleTabBar, cycleTab, cyclePane } = useTabsStore();
+  const toggleTabBar = useTabsStore(s => s.toggleTabBar);
+  const cyclePane = useTabsStore(s => s.cyclePane);
+  const cycleSide = useTabsStore(s => s.cycleSide);
   const addNote = useNotesStore(s => s.addNote);
   const { open: openSettings } = useSettingsStore();
   const isTauri = useIsTauri();
 
   // Tauri event listeners for menu actions
   useEffect(() => {
-    if (typeof window === 'undefined' || !isTauri)
+    if (typeof window === 'undefined' || !isTauri) {
       return;
+    }
 
     const unlisteners: (() => void)[] = [];
 
@@ -75,14 +78,14 @@ function AppShell() {
       ({
         'toggle-sidebar': () => toggleSidebar(),
         'toggle-tab-bar': () => toggleTabBar(),
-        'cycle-tab-forward': () => cycleTab(1),
-        'cycle-tab-backward': () => cycleTab(-1),
-        'cycle-pane-forward': () => cyclePane(1),
-        'cycle-pane-backward': () => cyclePane(-1),
+        'cycle-tab-forward': () => cyclePane(1),
+        'cycle-tab-backward': () => cyclePane(-1),
+        'cycle-pane-forward': () => cycleSide(1),
+        'cycle-pane-backward': () => cycleSide(-1),
         'new-note': () => addNote(),
         'open-settings': () => openSettings(),
       }) as const,
-    [toggleSidebar, toggleTabBar, cycleTab, cyclePane, addNote, openSettings],
+    [toggleSidebar, toggleTabBar, cyclePane, cycleSide, addNote, openSettings],
   );
 
   useHotKeys(hotkeyHandlers);

@@ -13,6 +13,7 @@ import { cn } from '~/lib/utils';
 export function HeaderTabItem({
   ref,
   noteId,
+  paneId,
   isActive,
   isPinned,
   onActivate,
@@ -37,7 +38,7 @@ export function HeaderTabItem({
     transition,
     isDragging,
   } = useSortable({
-    id: noteId,
+    id: paneId,
     data: { section: isPinned ? 'pinned' : 'open' },
   });
 
@@ -56,7 +57,8 @@ export function HeaderTabItem({
     }
   }, [isActive]);
 
-  if (!note) return null;
+  if (!note)
+    return null;
 
   return (
     <div

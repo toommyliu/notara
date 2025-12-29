@@ -1,42 +1,45 @@
 import type { RefObject } from 'react';
-import type { HeaderTabItemHandle, SplitTabItemProps } from './types';
+import type { Pane, PaneId } from '~/features/layout/stores/tabs-store';
+import type { HeaderTabItemHandle } from './types';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
 import { useEffect, useImperativeHandle, useRef } from 'react';
 
 import IconX from '~icons/lucide/x';
-import { useTabsStore } from '~/features/layout/stores/tabs-store';
 import { useNoteMetadata } from '~/features/notes/store';
 import { cn } from '~/lib/utils';
 
 interface SplitPaneProps {
   noteId: string;
+  side: 'left' | 'right';
   isPaneActive: boolean;
-  onActivatePane: (id: string) => void;
-  onClosePane: (id: string) => void;
-  buttonRef: (id: string, el: HTMLButtonElement | null) => void;
+  onActivateSide: (side: 'left' | 'right') => void;
+  onCloseNote: (noteId: string) => void;
+  buttonRef: (side: 'left' | 'right', el: HTMLButtonElement | null) => void;
 }
 
 function SplitPane({
   noteId,
+  side,
   isPaneActive,
-  onActivatePane,
-  onClosePane,
+  onActivateSide,
+  onCloseNote,
   buttonRef,
 }: SplitPaneProps) {
   const note = useNoteMetadata(noteId);
 
-  if (!note)
+  if (!note) {
     return null;
+  }
 
   return (
     <div className="group/pane relative flex items-center">
       <button
-        ref={el => buttonRef(noteId, el)}
+        ref={el => buttonRef(side, el)}
         onClick={(ev) => {
           ev.stopPropagation();
-          onActivatePane(noteId);
+          onActivateSide(side);
         }}
         role="tab"
         aria-selected={isPaneActive}
@@ -57,7 +60,7 @@ function SplitPane({
       <button
         onClick={(ev) => {
           ev.stopPropagation();
-          onClosePane(noteId);
+          onCloseNote(noteId);
         }}
         tabIndex={-1}
         className={cn(
@@ -76,34 +79,47 @@ function SplitPane({
   );
 }
 
+interface SplitTabItemProps {
+  paneId: PaneId;
+  pane: Extract<Pane, { type: 'split' }>;
+  isActive: boolean;
+  isPinned: boolean;
+  onActivate: () => void;
+  onActivateSide: (side: 'left' | 'right') => void;
+  onClose: () => void;
+  onCloseNote: (noteId: string) => void;
+  ref?: ((handle: HeaderTabItemHandle | null) => void) | React.RefObject<HeaderTabItemHandle | null>;
+}
+
 export function SplitTabItem({
   ref,
-  noteId,
+  paneId,
+  pane,
   isActive,
   isPinned,
-  noteIds,
-  onActivatePane,
-  onClosePane,
-}: SplitTabItemProps & {
-  ref?: ((handle: HeaderTabItemHandle | null) => void) | React.RefObject<HeaderTabItemHandle | null>;
-}) {
+  onActivateSide,
+  onCloseNote,
+}: SplitTabItemProps) {
   const tabRef = useRef<HTMLDivElement>(null);
-  const buttonRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
-  const activeTabId = useTabsStore(s => s.activeTabId);
+  const buttonRefs = useRef<Map<'left' | 'right', HTMLButtonElement>>(new Map());
 
-  const handleButtonRef = (id: string, el: HTMLButtonElement | null) => {
-    if (el)
-      buttonRefs.current.set(id, el);
-    else buttonRefs.current.delete(id);
+  const handleButtonRef = (side: 'left' | 'right', el: HTMLButtonElement | null) => {
+    if (el) {
+      buttonRefs.current.set(side, el);
+    }
+    else {
+      buttonRefs.current.delete(side);
+    }
   };
 
   useImperativeHandle(ref, () => ({
     focus: () => {
-      if (activeTabId && buttonRefs.current.has(activeTabId)) {
-        buttonRefs.current.get(activeTabId)?.focus();
+      const activeSide = pane.activeSide;
+      if (buttonRefs.current.has(activeSide)) {
+        buttonRefs.current.get(activeSide)?.focus();
       }
-      else if (noteIds.length > 0) {
-        buttonRefs.current.get(noteIds[0])?.focus();
+      else {
+        buttonRefs.current.get('left')?.focus();
       }
     },
   }));
@@ -116,7 +132,7 @@ export function SplitTabItem({
     attributes,
     listeners,
   } = useSortable({
-    id: noteId,
+    id: paneId,
     data: { section: isPinned ? 'pinned' : 'open' },
   });
 
@@ -156,16 +172,22 @@ export function SplitTabItem({
       role="presentation"
       tabIndex={-1}
     >
-      {noteIds.map(id => (
-        <SplitPane
-          key={id}
-          noteId={id}
-          isPaneActive={id === activeTabId}
-          onActivatePane={onActivatePane}
-          onClosePane={onClosePane}
-          buttonRef={handleButtonRef}
-        />
-      ))}
+      <SplitPane
+        noteId={pane.left}
+        side="left"
+        isPaneActive={pane.activeSide === 'left'}
+        onActivateSide={onActivateSide}
+        onCloseNote={onCloseNote}
+        buttonRef={handleButtonRef}
+      />
+      <SplitPane
+        noteId={pane.right}
+        side="right"
+        isPaneActive={pane.activeSide === 'right'}
+        onActivateSide={onActivateSide}
+        onCloseNote={onCloseNote}
+        buttonRef={handleButtonRef}
+      />
     </div>
   );
 }

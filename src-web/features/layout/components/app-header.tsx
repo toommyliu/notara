@@ -1,9 +1,5 @@
-import { useLocation, Link } from '@tanstack/react-router';
+import { Link, useLocation } from '@tanstack/react-router';
 
-import { SidebarTrigger } from '~/ui/sidebar';
-import { AppTitlebar } from './app-titlebar';
-import { HeaderTabs } from './header-tabs';
-import { Tooltip, TooltipContent, TooltipTrigger } from '~/ui/tooltip';
 import { Avatar, AvatarFallback } from '~/ui/avatar';
 import {
   DropdownMenu,
@@ -13,23 +9,32 @@ import {
   DropdownMenuTrigger,
 } from '~/ui/dropdown-menu';
 import { Separator } from '~/ui/separator';
+import { SidebarTrigger } from '~/ui/sidebar';
+import { Tooltip, TooltipContent, TooltipTrigger } from '~/ui/tooltip';
 
-import IconLock from '~icons/lucide/lock';
-import IconFiles from '~icons/lucide/folder-open';
-import IconSearch from '~icons/lucide/search';
-import IconStar from '~icons/lucide/star';
-import IconSettings from '~icons/lucide/settings';
 import IconArrowLeftRight from '~icons/lucide/arrow-left-right';
-import IconFlipHorizontal from '~icons/lucide/flip-horizontal-2';
-import IconX from '~icons/lucide/x';
 import IconColumns from '~icons/lucide/columns-2';
+import IconFiles from '~icons/lucide/folder-open';
+import IconFlipHorizontal from '~icons/lucide/flip-horizontal-2';
+import IconLock from '~icons/lucide/lock';
+import IconSearch from '~icons/lucide/search';
+import IconSettings from '~icons/lucide/settings';
+import IconStar from '~icons/lucide/star';
+import IconX from '~icons/lucide/x';
 
 import { usePageHeaderStore } from '~/features/layout/stores/page-header-store';
-import { useTabsStore } from '~/features/layout/stores/tabs-store';
-import { usePlatformLayout } from '~/hooks/use-platform';
+import {
+  useActivePane,
+  useOrderedPanes,
+  useTabsStore,
+} from '~/features/layout/stores/tabs-store';
 import { useSettingsStore } from '~/features/settings/';
+import { usePlatformLayout } from '~/hooks/use-platform';
 
 import { cn } from '~/lib/utils';
+
+import { AppTitlebar } from './app-titlebar';
+import { HeaderTabs } from './header-tabs';
 
 interface HeaderIconTabProps {
   icon: React.ReactNode;
@@ -44,9 +49,9 @@ function HeaderIconTab({ icon, label, isActive, onClick, to }: HeaderIconTabProp
     <button
       onClick={onClick}
       className={cn(
-        "flex items-center justify-center p-1.5 rounded-md transition-colors",
-        "text-muted-foreground hover:text-foreground hover:bg-muted/50",
-        isActive && "text-foreground bg-muted/80 shadow-sm"
+        'flex items-center justify-center p-1.5 rounded-md transition-colors',
+        'text-muted-foreground hover:text-foreground hover:bg-muted/50',
+        isActive && 'text-foreground bg-muted/80 shadow-sm',
       )}
     >
       {icon}
@@ -56,9 +61,11 @@ function HeaderIconTab({ icon, label, isActive, onClick, to }: HeaderIconTabProp
   if (to) {
     return (
       <Tooltip>
-        <TooltipTrigger render={
-          <Link to={to} className="flex">{content}</Link>
-        } />
+        <TooltipTrigger
+          render={(
+            <Link to={to} className="flex">{content}</Link>
+          )}
+        />
         <TooltipContent side="bottom" className="text-xs">{label}</TooltipContent>
       </Tooltip>
     );
@@ -77,23 +84,40 @@ export function AppHeader() {
   const location = useLocation();
   const { config } = usePageHeaderStore();
   const { title, emoji, isPrivate, actions } = config;
-  const {
-    isTabBarVisible,
-    pinnedTabs,
-    openTabs,
-    splitView,
-    swapPanes,
-    toggleOrientation,
-    closeSplitPair,
-  } = useTabsStore();
+
+  const isTabBarVisible = useTabsStore(s => s.isTabBarVisible);
+  const swapSides = useTabsStore(s => s.swapSides);
+  const toggleOrientation = useTabsStore(s => s.toggleOrientation);
+  const unsplitPane = useTabsStore(s => s.unsplitPane);
+  const activePaneId = useTabsStore(s => s.activePaneId);
+
+  const activePane = useActivePane();
+  const orderedPanes = useOrderedPanes();
+
   const { open } = useSettingsStore();
 
-  const hasSplitPair = !!splitView.splitPair;
-
-  const showTabs =
-    isTabBarVisible && (pinnedTabs.length > 0 || openTabs.length > 0);
+  const hasSplitPane = activePane?.type === 'split';
+  const showTabs = isTabBarVisible && orderedPanes.length > 0;
 
   const hasTrafficLights = layout.isTauri && layout.isMac && !layout.isFullscreen;
+
+  const handleSwapSides = () => {
+    if (activePaneId) {
+      swapSides(activePaneId);
+    }
+  };
+
+  const handleToggleOrientation = () => {
+    if (activePaneId) {
+      toggleOrientation(activePaneId);
+    }
+  };
+
+  const handleCloseSplit = () => {
+    if (activePaneId && activePane?.type === 'split') {
+      unsplitPane(activePaneId);
+    }
+  };
 
   return (
     <AppTitlebar
@@ -105,32 +129,32 @@ export function AppHeader() {
         <div
           className="flex items-center h-full py-2 border-r border-border/40 bg-sidebar pointer-events-auto"
           style={{
-             minWidth: "var(--sidebar-width)",
-             maxWidth: "var(--sidebar-width)",
-             width: "var(--sidebar-width)",
-             paddingLeft: hasTrafficLights ? (layout.isMac ? 80 : 12) : 12,
-             paddingRight: 4
+            minWidth: 'var(--sidebar-width)',
+            maxWidth: 'var(--sidebar-width)',
+            width: 'var(--sidebar-width)',
+            paddingLeft: hasTrafficLights ? (layout.isMac ? 80 : 12) : 12,
+            paddingRight: 4,
           }}
         >
           <div className="flex items-center gap-1 flex-1">
-             <HeaderIconTab
-               icon={<IconFiles className="size-4" />}
-               label="Files"
-               to="/notes"
-               isActive={location.pathname.startsWith('/notes')}
-             />
-             <HeaderIconTab
-               icon={<IconSearch className="size-4" />}
-               label="Search"
-             />
-             <HeaderIconTab
-               icon={<IconStar className="size-4" />}
-               label="Starred"
-             />
+            <HeaderIconTab
+              icon={<IconFiles className="size-4" />}
+              label="Files"
+              to="/notes"
+              isActive={location.pathname.startsWith('/notes')}
+            />
+            <HeaderIconTab
+              icon={<IconSearch className="size-4" />}
+              label="Search"
+            />
+            <HeaderIconTab
+              icon={<IconStar className="size-4" />}
+              label="Starred"
+            />
           </div>
         </div>
 
-        <div className="flex items-center h-full min-w-0 flex-1 pl-2">
+        <div className="flex items-center h-full min-w-0 flex-1 pl-2" data-no-drag>
           <HeaderTabs />
         </div>
 
@@ -161,31 +185,33 @@ export function AppHeader() {
 
         {/* Right-side actions */}
         <div className="flex items-center gap-1 shrink-0 pr-3 pl-2 pointer-events-auto">
-          {hasSplitPair && (
+          {hasSplitPane && (
             <DropdownMenu>
               <Tooltip>
-                <TooltipTrigger render={
-                  <DropdownMenuTrigger
-                    render={
-                      <button className="flex items-center justify-center p-1.5 rounded-md transition-colors text-muted-foreground hover:text-foreground hover:bg-muted/50">
-                        <IconColumns className="size-4" />
-                      </button>
-                    }
-                  />
-                } />
+                <TooltipTrigger
+                  render={(
+                    <DropdownMenuTrigger
+                      render={(
+                        <button className="flex items-center justify-center p-1.5 rounded-md transition-colors text-muted-foreground hover:text-foreground hover:bg-muted/50">
+                          <IconColumns className="size-4" />
+                        </button>
+                      )}
+                    />
+                  )}
+                />
                 <TooltipContent side="bottom" className="text-xs">Split View</TooltipContent>
               </Tooltip>
               <DropdownMenuContent align="end" sideOffset={8} className="min-w-44">
-                <DropdownMenuItem onClick={swapPanes}>
+                <DropdownMenuItem onClick={handleSwapSides}>
                   <IconArrowLeftRight className="size-4" />
                   Swap Panes
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={toggleOrientation}>
+                <DropdownMenuItem onClick={handleToggleOrientation}>
                   <IconFlipHorizontal className="size-4" />
                   Toggle Orientation
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem variant="destructive" onClick={closeSplitPair}>
+                <DropdownMenuItem variant="destructive" onClick={handleCloseSplit}>
                   <IconX className="size-4" />
                   Close Split
                 </DropdownMenuItem>
@@ -194,25 +220,29 @@ export function AppHeader() {
           )}
 
           <Tooltip>
-            <TooltipTrigger render={
-              <button
-                className="flex items-center justify-center p-1.5 rounded-md transition-colors text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                onClick={() => open()}
-              >
-                <IconSettings className="size-4" />
-              </button>
-            } />
+            <TooltipTrigger
+              render={(
+                <button
+                  className="flex items-center justify-center p-1.5 rounded-md transition-colors text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                  onClick={() => open()}
+                >
+                  <IconSettings className="size-4" />
+                </button>
+              )}
+            />
             <TooltipContent side="bottom" className="text-xs">Settings</TooltipContent>
           </Tooltip>
 
           <SidebarTrigger />
 
           <Tooltip>
-            <TooltipTrigger render={
-              <Avatar size="sm" className="cursor-pointer transition-transform hover:scale-105">
-                <AvatarFallback>U</AvatarFallback>
-              </Avatar>
-            } />
+            <TooltipTrigger
+              render={(
+                <Avatar size="sm" className="cursor-pointer transition-transform hover:scale-105">
+                  <AvatarFallback>U</AvatarFallback>
+                </Avatar>
+              )}
+            />
             <TooltipContent side="bottom" className="text-xs">Account</TooltipContent>
           </Tooltip>
         </div>
