@@ -7,14 +7,12 @@ import {
   SplitDropZoneOverlay,
   SplitViewContainer,
 } from '~/features/layout/components/split-view';
+import { useDragStore } from '~/features/layout/stores/drag-store';
 import {
   useActivePane,
   useTabsStore,
 } from '~/features/layout/stores/tabs-store';
-
 import { getOrientationFromZone, isDraggedTabFirst } from '~/features/layout/types';
-
-import { useDragContext } from '~/providers/drag-context';
 
 const NoteEditor = lazy(() =>
   import('~/features/editor').then(mod => ({ default: mod.NoteEditor })),
@@ -73,13 +71,11 @@ function NotesPage() {
   const openNote = useTabsStore(s => s.openNote);
   const setActiveSide = useTabsStore(s => s.setActiveSide);
 
-  const {
-    isDragging,
-    draggedNoteId,
-    wasCancelled,
-    splitDropTarget,
-    setSplitDropTarget,
-  } = useDragContext();
+  const isDragging = useDragStore(s => s.isDragging);
+  const draggedNoteId = useDragStore(s => s.draggedNoteId);
+  const wasCancelled = useDragStore(s => s.wasCancelled);
+  const splitDropTarget = useDragStore(s => s.splitDropTarget);
+  const setSplitDropTarget = useDragStore(s => s.setSplitDropTarget);
 
   const handleZoneChange = useCallback(
     (zone: SplitDropZone | null) => {

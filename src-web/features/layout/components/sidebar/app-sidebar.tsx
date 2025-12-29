@@ -44,13 +44,13 @@ import IconPencil from '~icons/lucide/pencil';
 import IconAdd from '~icons/lucide/plus';
 import IconStar from '~icons/lucide/star';
 import IconTrash from '~icons/lucide/trash-2';
+import { useDragStore } from '~/features/layout/stores/drag-store';
 import { useActiveNoteId, useTabsStore } from '~/features/layout/stores/tabs-store';
 import { useNoteMetadata, useNotesStore } from '~/features/notes/store';
 import { HapticFeedbackPattern, useHaptics } from '~/hooks/use-haptics';
 import { usePlatformLayout } from '~/hooks/use-platform';
-import { cn } from '~/lib/utils';
 
-import { useDragContext } from '~/providers/drag-context';
+import { cn } from '~/lib/utils';
 import {
   ContextMenu,
   ContextMenuContent,
@@ -557,10 +557,10 @@ function SortableNote({
   const note = useNoteMetadata(noteId);
   const [isHovered, setIsHovered] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const dragContext = useDragContext();
+  const isOutsideSidebar = useDragStore(s => s.isOutsideSidebar);
 
   const isFrozenDraggedItem = isSidebarFrozen && activeDragId === noteId;
-  const disableLayoutAnimation = isSidebarFrozen || dragContext.isOutsideSidebar;
+  const disableLayoutAnimation = isSidebarFrozen || isOutsideSidebar;
 
   const {
     attributes,
@@ -867,8 +867,10 @@ export function AppSidebar() {
   const openNote = useTabsStore(s => s.openNote);
   const activeNoteId = useActiveNoteId();
 
-  const dragContext = useDragContext();
-  const setIsOutsideSidebar = dragContext.setIsOutsideSidebar;
+  const setIsOutsideSidebar = useDragStore(s => s.setIsOutsideSidebar);
+  const startDrag = useDragStore(s => s.startDrag);
+  const endDrag = useDragStore(s => s.endDrag);
+  const splitDropTarget = useDragStore(s => s.splitDropTarget);
 
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
   const [activeDragType, setActiveDragType] = useState<'note' | 'group' | null>(
@@ -1002,8 +1004,8 @@ export function AppSidebar() {
     setHasHorizontalIntent(false);
 
     // Broadcast to split view if dragging a note
-    if (type === 'note' && dragContext) {
-      dragContext.startDrag(active.id as string, 'sidebar');
+    if (type === 'note') {
+      startDrag(active.id as string, 'sidebar');
     }
 
     perform(HapticFeedbackPattern.Alignment);
@@ -1020,7 +1022,7 @@ export function AppSidebar() {
     horizontalIntentRef.current = false;
     isSplitDropActiveRef.current = false;
     setHasHorizontalIntent(false);
-    dragContext?.endDrag(true);
+    endDrag(true);
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -1037,8 +1039,8 @@ export function AppSidebar() {
     isSplitDropActiveRef.current = false;
     setHasHorizontalIntent(false);
 
-    const wasSplitDrop = dragContext?.splitDropTarget !== null;
-    dragContext?.endDrag();
+    const wasSplitDrop = splitDropTarget !== null;
+    endDrag();
 
     if (wasSplitDrop || !over || active.id === over.id) {
       return;
@@ -1161,15 +1163,15 @@ export function AppSidebar() {
   }, [activeDragType, setIsOutsideSidebar]);
 
   useEffect(() => {
-    isSplitDropActiveRef.current = dragContext.splitDropTarget !== null;
+    isSplitDropActiveRef.current = splitDropTarget !== null;
     freezeSidebarDnDRef.current
       = activeDragTypeRef.current === 'note'
         && (isSplitDropActiveRef.current || horizontalIntentRef.current);
-  }, [activeDragType, dragContext.splitDropTarget]);
+  }, [activeDragType, splitDropTarget]);
 
   const isSidebarFrozen
     = activeDragType === 'note'
-      && (dragContext.splitDropTarget !== null || hasHorizontalIntent);
+      && (splitDropTarget !== null || hasHorizontalIntent);
 
   return (
     <Sidebar

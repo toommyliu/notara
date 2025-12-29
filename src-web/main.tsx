@@ -2,7 +2,6 @@ import { createRouter, RouterProvider } from '@tanstack/react-router';
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 
-import { DragProvider } from '~/providers/drag-context';
 import { ThemeProvider } from '~/providers/theme';
 
 import { routeTree } from '~/routeTree.gen';
@@ -22,11 +21,9 @@ if (import.meta.env.VITE_REACT_SCAN === 'true') {
 createRoot(document.getElementById('root') as HTMLElement).render(
   <StrictMode>
     <ThemeProvider>
-      <DragProvider>
-        <TooltipProvider delay={500}>
-          <RouterProvider router={router} />
-        </TooltipProvider>
-      </DragProvider>
+      <TooltipProvider delay={500}>
+        <RouterProvider router={router} />
+      </TooltipProvider>
     </ThemeProvider>
   </StrictMode>,
 );

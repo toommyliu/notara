@@ -27,12 +27,14 @@ import IconChevronDown from '~icons/lucide/chevron-down';
 import IconPlus from '~icons/lucide/plus';
 import IconSearch from '~icons/lucide/search';
 
+import { useDragStore } from '~/features/layout/stores/drag-store';
 import {
   getPaneNoteIds,
   useActiveNoteId,
   useOrderedPanes,
   useTabsStore,
 } from '~/features/layout/stores/tabs-store';
+
 import {
   useNoteMetadata,
   useNotesStore,
@@ -40,8 +42,6 @@ import {
 } from '~/features/notes/store';
 
 import { cn } from '~/lib/utils';
-
-import { useDragContext } from '~/providers/drag-context';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -123,7 +123,8 @@ export function HeaderTabs() {
     [orderedPanes],
   );
   const noteTitles = useNoteTitles(allNoteIds);
-  const dragContext = useDragContext();
+  const startDrag = useDragStore(s => s.startDrag);
+  const endDrag = useDragStore(s => s.endDrag);
   const navigate = useNavigate();
 
   const [activeDragId, setActiveDragId] = useState<string | null>(null);
@@ -186,14 +187,14 @@ export function HeaderTabs() {
     const pane = orderedPanes.find(p => p.id === paneId)?.pane;
     const noteId = pane?.type === 'single' ? pane.noteId : pane?.left;
     if (noteId) {
-      dragContext?.startDrag(noteId, 'tabs');
+      startDrag(noteId, 'tabs');
     }
   };
 
   const handleDragEnd = (ev: DragEndEvent) => {
     const { active, over } = ev;
     setActiveDragId(null);
-    dragContext?.endDrag();
+    endDrag();
 
     if (!over || active.id === over.id) {
       return;
@@ -204,7 +205,7 @@ export function HeaderTabs() {
 
   const handleDragCancel = () => {
     setActiveDragId(null);
-    dragContext?.endDrag(true);
+    endDrag(true);
   };
 
   const handleNewTab = () => {
