@@ -121,10 +121,11 @@ export function MediaToolbarButton({
         >
           <DropdownMenuTrigger
             render={<ToolbarSplitButtonSecondary />}
-          ></DropdownMenuTrigger>
+          >
+          </DropdownMenuTrigger>
 
           <DropdownMenuContent
-            onClick={(e) => e.stopPropagation()}
+            onClick={e => e.stopPropagation()}
             align="start"
             alignOffset={-32}
           >
@@ -173,7 +174,8 @@ function MediaUrlDialogContent({
   const [url, setUrl] = React.useState('');
 
   const embedMedia = React.useCallback(() => {
-    if (!isUrl(url)) return toast.error('Invalid URL');
+    if (!isUrl(url))
+      return toast.error('Invalid URL');
 
     setOpen(false);
     editor.tf.insertNodes({
@@ -201,9 +203,10 @@ function MediaUrlDialogContent({
           id="url"
           className="w-full"
           value={url}
-          onChange={(e) => setUrl(e.target.value)}
+          onChange={e => setUrl(e.target.value)}
           onKeyDown={(e) => {
-            if (e.key === 'Enter') embedMedia();
+            if (e.key === 'Enter')
+              embedMedia();
           }}
           placeholder=""
           type="url"

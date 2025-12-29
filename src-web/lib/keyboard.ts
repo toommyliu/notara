@@ -5,7 +5,7 @@ export const LAYOUT_INSENSITIVE_CODES: Record<string, string> = {
   BracketRight: ']',
   Backquote: '`',
   Semicolon: ';',
-  Quote: "'",
+  Quote: '\'',
   Comma: ',',
   Period: '.',
   Slash: '/',
@@ -17,15 +17,18 @@ export const LAYOUT_INSENSITIVE_CODES: Record<string, string> = {
 export function getKeyFromEvent(ev: KeyboardEvent): string {
   // Check layout-insensitive codes first
   const mappedKey = LAYOUT_INSENSITIVE_CODES[ev.code];
-  if (mappedKey) return mappedKey;
+  if (mappedKey)
+    return mappedKey;
 
   // Handle letter keys via code when Alt is pressed (macOS produces special chars)
   if (ev.altKey || ev.ctrlKey) {
     const letterMatch = ev.code.match(/^Key([A-Z])$/);
-    if (letterMatch) return letterMatch[1].toLowerCase();
+    if (letterMatch)
+      return letterMatch[1].toLowerCase();
 
     const digitMatch = ev.code.match(/^Digit(\d)$/);
-    if (digitMatch) return digitMatch[1];
+    if (digitMatch)
+      return digitMatch[1];
   }
 
   return ev.key;

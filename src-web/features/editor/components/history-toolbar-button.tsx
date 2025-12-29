@@ -12,7 +12,7 @@ export function RedoToolbarButton(
 ) {
   const editor = useEditorRef();
   const disabled = useEditorSelector(
-    (editor) => editor.history.redos.length === 0,
+    editor => editor.history.redos.length === 0,
     [],
   );
 
@@ -21,7 +21,7 @@ export function RedoToolbarButton(
       {...props}
       disabled={disabled}
       onClick={() => editor.redo()}
-      onMouseDown={(e) => e.preventDefault()}
+      onMouseDown={e => e.preventDefault()}
       tooltip="Redo"
     >
       <Redo2Icon />
@@ -34,7 +34,7 @@ export function UndoToolbarButton(
 ) {
   const editor = useEditorRef();
   const disabled = useEditorSelector(
-    (editor) => editor.history.undos.length === 0,
+    editor => editor.history.undos.length === 0,
     [],
   );
 
@@ -43,7 +43,7 @@ export function UndoToolbarButton(
       {...props}
       disabled={disabled}
       onClick={() => editor.undo()}
-      onMouseDown={(e) => e.preventDefault()}
+      onMouseDown={e => e.preventDefault()}
       tooltip="Undo"
     >
       <Undo2Icon />

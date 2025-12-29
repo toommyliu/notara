@@ -13,7 +13,7 @@ export function useHaptics() {
 
   useEffect(() => {
     checkSupported()
-      .then((supported) => setSupported(supported))
+      .then(supported => setSupported(supported))
       .catch(() => setSupported(false));
   }, []);
 

@@ -55,7 +55,7 @@ const defaultFilter: FilterFn = (
     [value, ...keywords, group, label].filter(Boolean),
   );
 
-  return Array.from(uniqueTerms).some((keyword) =>
+  return Array.from(uniqueTerms).some(keyword =>
     filterWords(keyword!, search),
   );
 };
@@ -95,7 +95,8 @@ function InlineCombobox({
     const currentUserId = editor.meta.userId;
 
     // If no userId (backwards compatibility or non-Yjs), allow
-    if (!elementUserId) return true;
+    if (!elementUserId)
+      return true;
 
     return elementUserId === currentUserId;
   }, [editor.meta.userId, element]);
@@ -120,11 +121,13 @@ function InlineCombobox({
   React.useEffect(() => {
     const path = editor.api.findPath(element);
 
-    if (!path) return;
+    if (!path)
+      return;
 
     const point = editor.api.before(path);
 
-    if (!point) return;
+    if (!point)
+      return;
 
     const pointRef = editor.api.pointRef(point);
     insertPoint.current = pointRef.current;
@@ -179,7 +182,7 @@ function InlineCombobox({
 
   const store = useComboboxStore({
     // open: ,
-    setValue: (newValue) => React.startTransition(() => setValue(newValue)),
+    setValue: newValue => React.startTransition(() => setValue(newValue)),
   });
 
   const items = store.useState('items');
@@ -198,8 +201,8 @@ function InlineCombobox({
     <span contentEditable={false}>
       <ComboboxProvider
         open={
-          (items.length > 0 || hasEmpty) &&
-          (!hideWhenNoValue || value.length > 0)
+          (items.length > 0 || hasEmpty)
+          && (!hideWhenNoValue || value.length > 0)
         }
         store={store}
       >
@@ -313,8 +316,8 @@ function InlineComboboxItem({
   group?: string;
   keywords?: string[];
   label?: string;
-} & ComboboxItemProps &
-  Required<Pick<ComboboxItemProps, 'value'>>) {
+} & ComboboxItemProps
+& Required<Pick<ComboboxItemProps, 'value'>>) {
   const { value } = props;
 
   const { filter, removeInput } = React.use(InlineComboboxContext);
@@ -330,7 +333,8 @@ function InlineComboboxItem({
     [filter, group, keywords, label, value, search],
   );
 
-  if (!visible) return null;
+  if (!visible)
+    return null;
 
   return (
     <ComboboxItem
@@ -360,7 +364,8 @@ function InlineComboboxEmpty({
     };
   }, [setHasEmpty]);
 
-  if (items.length > 0) return null;
+  if (items.length > 0)
+    return null;
 
   return (
     <div

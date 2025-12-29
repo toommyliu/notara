@@ -29,7 +29,8 @@ export function EmojiInputElement(props: PlateElementProps) {
   const isPending = value !== debouncedValue;
 
   const filteredEmojis = React.useMemo(() => {
-    if (debouncedValue.trim().length === 0) return [];
+    if (debouncedValue.trim().length === 0)
+      return [];
 
     return EmojiInlineIndexSearch.getInstance(data)
       .search(debouncedValue.replace(TRAILING_COLON_REGEX, ''))
@@ -52,13 +53,15 @@ export function EmojiInputElement(props: PlateElementProps) {
           {!isPending && <InlineComboboxEmpty>No results</InlineComboboxEmpty>}
 
           <InlineComboboxGroup>
-            {filteredEmojis.map((emoji) => (
+            {filteredEmojis.map(emoji => (
               <InlineComboboxItem
                 key={emoji.id}
                 value={emoji.name}
                 onClick={() => insertEmoji(editor, emoji)}
               >
-                {emoji.skins[0].native} {emoji.name}
+                {emoji.skins[0].native}
+                {' '}
+                {emoji.name}
               </InlineComboboxItem>
             ))}
           </InlineComboboxGroup>

@@ -36,7 +36,7 @@ export enum PerformanceTime {
 export async function isSupported(): Promise<boolean> {
   if (pluginSupported === null) {
     pluginSupported = await invoke<boolean>(CMD_IS_SUPPORTED).catch(
-      (_) => false,
+      _ => false,
     );
   }
   return pluginSupported;
@@ -60,7 +60,7 @@ export async function perform(
   await invoke<void>(CMD_PERFORM, {
     pattern,
     performanceTime, // Tauri converts Rust snake_case to JS camelCase
-  }).catch((error) =>
+  }).catch(error =>
     console.error('Error performing haptic feedback: ', error),
   );
 }

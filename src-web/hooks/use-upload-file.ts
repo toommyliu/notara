@@ -48,11 +48,12 @@ export function useUploadFile({
       onUploadComplete?.(res[0]);
 
       return uploadedFile;
-    } catch (error) {
+    }
+    catch (error) {
       const errorMessage = getErrorMessage(error);
 
-      const message =
-        errorMessage.length > 0
+      const message
+        = errorMessage.length > 0
           ? errorMessage
           : 'Something went wrong, please try again later.';
 
@@ -76,7 +77,7 @@ export function useUploadFile({
 
       const simulateProgress = async () => {
         while (progress < 100) {
-          await new Promise((resolve) => setTimeout(resolve, 50));
+          await new Promise(resolve => setTimeout(resolve, 50));
           progress += 2;
           setProgress(Math.min(progress, 100));
         }
@@ -87,7 +88,8 @@ export function useUploadFile({
       setUploadedFile(mockUploadedFile);
 
       return mockUploadedFile;
-    } finally {
+    }
+    finally {
       setProgress(0);
       setIsUploading(false);
       setUploadingFile(undefined);
@@ -103,14 +105,14 @@ export function useUploadFile({
   };
 }
 
-export const { uploadFiles, useUploadThing } =
-  generateReactHelpers<OurFileRouter>();
+export const { uploadFiles, useUploadThing }
+  = generateReactHelpers<OurFileRouter>();
 
 export function getErrorMessage(err: unknown) {
   const unknownError = 'Something went wrong, please try again later.';
 
   if (err instanceof z.ZodError) {
-    const errors = err.issues.map((issue) => issue.message);
+    const errors = err.issues.map(issue => issue.message);
 
     return errors.join('\n');
   }

@@ -55,8 +55,8 @@ export const PlaceholderElement = withHOC(
 
     const { api } = useEditorPlugin(PlaceholderPlugin);
 
-    const { isUploading, progress, uploadedFile, uploadFile, uploadingFile } =
-      useUploadFile();
+    const { isUploading, progress, uploadedFile, uploadFile, uploadingFile }
+      = useUploadFile();
 
     const loading = isUploading && uploadingFile;
 
@@ -90,7 +90,8 @@ export const PlaceholderElement = withHOC(
     );
 
     React.useEffect(() => {
-      if (!uploadedFile) return;
+      if (!uploadedFile)
+        return;
 
       const path = editor.api.findPath(element);
 
@@ -122,14 +123,16 @@ export const PlaceholderElement = withHOC(
 
     /** Paste and drop */
     React.useEffect(() => {
-      if (isReplaced.current) return;
+      if (isReplaced.current)
+        return;
 
       isReplaced.current = true;
       const currentFiles = api.placeholder.getUploadingFile(
         element.id as string,
       );
 
-      if (!currentFiles) return;
+      if (!currentFiles)
+        return;
 
       replaceCurrentPlaceholder(currentFiles);
 
@@ -160,7 +163,8 @@ export const PlaceholderElement = withHOC(
                   <div>–</div>
                   <div className="flex items-center">
                     <Loader2Icon className="mr-1 size-3.5 animate-spin text-muted-foreground" />
-                    {progress ?? 0}%
+                    {progress ?? 0}
+                    %
                   </div>
                 </div>
               )}
@@ -220,7 +224,8 @@ export function ImageProgress({
         <div className="absolute right-1 bottom-1 flex items-center space-x-2 rounded-full bg-black/50 px-1 py-0.5">
           <Loader2Icon className="size-3.5 animate-spin text-muted-foreground" />
           <span className="font-medium text-white text-xs">
-            {Math.round(progress)}%
+            {Math.round(progress)}
+            %
           </span>
         </div>
       )}
@@ -240,7 +245,8 @@ function formatBytes(
   const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
   const accurateSizes = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB'];
 
-  if (bytes === 0) return '0 Byte';
+  if (bytes === 0)
+    return '0 Byte';
 
   const i = Math.floor(Math.log(bytes) / Math.log(1024));
 

@@ -12,7 +12,8 @@ export const DndKit = [
       onDropFiles: ({ dragItem, editor, target }) => {
         editor
           .getTransforms(PlaceholderPlugin)
-          .insert.media(dragItem.files, { at: target, nextBlock: false });
+          .insert
+          .media(dragItem.files, { at: target, nextBlock: false });
       },
     },
     render: {

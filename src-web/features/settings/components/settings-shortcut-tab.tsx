@@ -30,7 +30,8 @@ function ShortcutRow({
   const { setBinding } = useShortcutsStore();
 
   useEffect(() => {
-    if (!isRecording) return;
+    if (!isRecording)
+      return;
 
     const handleKeyDown = (ev: KeyboardEvent) => {
       ev.preventDefault();
@@ -47,10 +48,14 @@ function ShortcutRow({
       }
 
       const modifiers: Modifier[] = [];
-      if (ev.metaKey) modifiers.push('meta');
-      if (ev.ctrlKey) modifiers.push('ctrl');
-      if (ev.shiftKey) modifiers.push('shift');
-      if (ev.altKey) modifiers.push('alt');
+      if (ev.metaKey)
+        modifiers.push('meta');
+      if (ev.ctrlKey)
+        modifiers.push('ctrl');
+      if (ev.shiftKey)
+        modifiers.push('shift');
+      if (ev.altKey)
+        modifiers.push('alt');
 
       // Require at least one modifier for most keys
       const isFunctionKey = /^F([1-9]|1[0-2])$/.test(ev.key);
@@ -120,7 +125,7 @@ export function ShortcutsTab() {
     <div className="space-y-3">
       <div className="bg-muted/30 rounded-xl p-3 border border-border/40">
         <div className="divide-y divide-border/40">
-          {shortcutIds.map((id) => (
+          {shortcutIds.map(id => (
             <ShortcutRow
               key={id}
               id={id}

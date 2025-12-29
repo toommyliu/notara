@@ -60,7 +60,7 @@ function EmojiPickerSearch({
         autoFocus
         type="text"
         value={value}
-        onChange={(e) => setValue(e.target.value)}
+        onChange={e => setValue(e.target.value)}
         className="outline-hidden placeholder:text-muted-foreground flex h-8 w-full rounded-md bg-transparent py-2 text-sm appearance-none disabled:cursor-not-allowed disabled:opacity-50"
         data-slot="emoji-picker-search"
         {...props}
@@ -147,7 +147,7 @@ function EmojiPickerCategoryNav({
 
   return (
     <div className={cn('flex items-center', className)} {...props}>
-      {EMOJI_CATEGORIES.map((category) => (
+      {EMOJI_CATEGORIES.map(category => (
         <Tooltip key={category.id}>
           <TooltipTrigger
             render={() => (
@@ -237,12 +237,12 @@ function EmojiPickerSkinToneDropdown({
               onClick={() => setIsOpen(!isOpen)}
               className="flex size-7 items-center justify-center rounded-sm text-base transition-colors hover:bg-accent"
             >
-              {skinToneVariations.find((v) => v.skinTone === skinTone)?.emoji ??
-                emoji}
+              {skinToneVariations.find(v => v.skinTone === skinTone)?.emoji
+                ?? emoji}
             </button>
             {isOpen && (
               <div className="absolute bottom-full right-0 mb-1 flex gap-0.5 rounded-md border border-border bg-popover p-1 shadow-lg animate-in fade-in-0 slide-in-from-bottom-2 duration-150">
-                {skinToneVariations.map((variation) => (
+                {skinToneVariations.map(variation => (
                   <button
                     key={variation.skinTone}
                     type="button"

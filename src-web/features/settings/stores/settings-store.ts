@@ -12,11 +12,11 @@ interface SettingsActions {
 }
 
 export const useSettingsStore = create<SettingsState & SettingsActions>()(
-  (set) => ({
+  set => ({
     isOpen: false,
     open: () => set({ isOpen: true }),
     close: () => set({ isOpen: false }),
-    setOpen: (open) => set({ isOpen: open }),
+    setOpen: open => set({ isOpen: open }),
   }),
 );
 

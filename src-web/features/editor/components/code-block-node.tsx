@@ -81,19 +81,20 @@ function CodeBlockCombobox() {
   const items = React.useMemo(
     () =>
       languages.filter(
-        (language) =>
-          !searchValue ||
-          language.label.toLowerCase().includes(searchValue.toLowerCase()),
+        language =>
+          !searchValue
+          || language.label.toLowerCase().includes(searchValue.toLowerCase()),
       ),
     [searchValue],
   );
 
-  if (readOnly) return null;
+  if (readOnly)
+    return null;
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger
-        render={
+        render={(
           <Button
             size="sm"
             variant="ghost"
@@ -101,10 +102,10 @@ function CodeBlockCombobox() {
             aria-expanded={open}
             role="combobox"
           />
-        }
+        )}
       >
-        {languages.find((language) => language.value === value)?.label ??
-          'Plain Text'}
+        {languages.find(language => language.value === value)?.label
+          ?? 'Plain Text'}
       </PopoverTrigger>
       <PopoverContent
         className="w-[200px] p-0"
@@ -114,14 +115,14 @@ function CodeBlockCombobox() {
           <CommandInput
             className="h-9"
             value={searchValue}
-            onValueChange={(value) => setSearchValue(value)}
+            onValueChange={value => setSearchValue(value)}
             placeholder="Search language..."
           />
           <CommandEmpty>No language found.</CommandEmpty>
 
           <CommandList className="h-[344px] overflow-y-auto">
             <CommandGroup>
-              {items.map((language) => (
+              {items.map(language => (
                 <CommandItem
                   key={language.label}
                   className="cursor-pointer"
@@ -177,11 +178,13 @@ function CopyButton({
       {...props}
     >
       <span className="sr-only">Copy</span>
-      {hasCopied ? (
-        <CheckIcon className="!size-3" />
-      ) : (
-        <CopyIcon className="!size-3" />
-      )}
+      {hasCopied
+        ? (
+            <CheckIcon className="!size-3" />
+          )
+        : (
+            <CopyIcon className="!size-3" />
+          )}
     </Button>
   );
 }

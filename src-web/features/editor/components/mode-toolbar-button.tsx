@@ -27,9 +27,11 @@ export function ModeToolbarButton(props: DropdownMenuProps) {
 
   let value = 'editing';
 
-  if (readOnly) value = 'viewing';
+  if (readOnly)
+    value = 'viewing';
 
-  if (isSuggesting) value = 'suggestion';
+  if (isSuggesting)
+    value = 'suggestion';
 
   const item: Record<string, { icon: React.ReactNode; label: string }> = {
     editing: {

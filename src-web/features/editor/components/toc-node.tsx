@@ -29,25 +29,27 @@ export function TocElement(props: PlateElementProps) {
   return (
     <PlateElement {...props} className="mb-1 p-0">
       <div contentEditable={false}>
-        {headingList.length > 0 ? (
-          headingList.map((item) => (
-            <Button
-              key={item.id}
-              variant="ghost"
-              className={headingItemVariants({
-                depth: item.depth as 1 | 2 | 3,
-              })}
-              onClick={(e) => btnProps.onClick(e, item, 'smooth')}
-              aria-current
-            >
-              {item.title}
-            </Button>
-          ))
-        ) : (
-          <div className="text-gray-500 text-sm">
-            Create a heading to display the table of contents.
-          </div>
-        )}
+        {headingList.length > 0
+          ? (
+              headingList.map(item => (
+                <Button
+                  key={item.id}
+                  variant="ghost"
+                  className={headingItemVariants({
+                    depth: item.depth as 1 | 2 | 3,
+                  })}
+                  onClick={e => btnProps.onClick(e, item, 'smooth')}
+                  aria-current
+                >
+                  {item.title}
+                </Button>
+              ))
+            )
+          : (
+              <div className="text-gray-500 text-sm">
+                Create a heading to display the table of contents.
+              </div>
+            )}
       </div>
       {props.children}
     </PlateElement>

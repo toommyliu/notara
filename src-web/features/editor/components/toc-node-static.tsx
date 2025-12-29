@@ -29,23 +29,25 @@ export function TocElementStatic(props: SlateElementProps) {
   return (
     <SlateElement {...props} className="mb-1 p-0">
       <div>
-        {headingList.length > 0 ? (
-          headingList.map((item) => (
-            <Button
-              key={item.title}
-              variant="ghost"
-              className={headingItemVariants({
-                depth: item.depth as 1 | 2 | 3,
-              })}
-            >
-              {item.title}
-            </Button>
-          ))
-        ) : (
-          <div className="text-gray-500 text-sm">
-            Create a heading to display the table of contents.
-          </div>
-        )}
+        {headingList.length > 0
+          ? (
+              headingList.map(item => (
+                <Button
+                  key={item.title}
+                  variant="ghost"
+                  className={headingItemVariants({
+                    depth: item.depth as 1 | 2 | 3,
+                  })}
+                >
+                  {item.title}
+                </Button>
+              ))
+            )
+          : (
+              <div className="text-gray-500 text-sm">
+                Create a heading to display the table of contents.
+              </div>
+            )}
       </div>
       {props.children}
     </SlateElement>
@@ -62,7 +64,8 @@ const headingDepth: Record<string, number> = {
 };
 
 function getHeadingList(editor?: SlateEditor) {
-  if (!editor) return [];
+  if (!editor)
+    return [];
 
   const options = editor.getOptions(BaseTocPlugin);
 
@@ -74,10 +77,11 @@ function getHeadingList(editor?: SlateEditor) {
 
   const values = editor.api.nodes<TElement>({
     at: [],
-    match: (n) => isHeading(n),
+    match: n => isHeading(n),
   });
 
-  if (!values) return [];
+  if (!values)
+    return [];
 
   Array.from(values).forEach(([node, path]) => {
     const { type } = node;

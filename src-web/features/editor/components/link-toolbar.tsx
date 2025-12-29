@@ -93,7 +93,8 @@ export function LinkFloatingToolbar({
     preventDefaultOnEnterKeydown: true,
   });
 
-  if (hidden) return null;
+  if (hidden)
+    return null;
 
   const input = (
     <div className="flex w-[330px] flex-col" {...inputProps}>
@@ -123,36 +124,38 @@ export function LinkFloatingToolbar({
     </div>
   );
 
-  const editContent = editState.isEditing ? (
-    input
-  ) : (
-    <div className="box-content flex items-center">
-      <button
-        className={buttonVariants({ size: 'sm', variant: 'ghost' })}
-        type="button"
-        {...editButtonProps}
-      >
-        Edit link
-      </button>
+  const editContent = editState.isEditing
+    ? (
+        input
+      )
+    : (
+        <div className="box-content flex items-center">
+          <button
+            className={buttonVariants({ size: 'sm', variant: 'ghost' })}
+            type="button"
+            {...editButtonProps}
+          >
+            Edit link
+          </button>
 
-      <Separator orientation="vertical" />
+          <Separator orientation="vertical" />
 
-      <LinkOpenButton />
+          <LinkOpenButton />
 
-      <Separator orientation="vertical" />
+          <Separator orientation="vertical" />
 
-      <button
-        className={buttonVariants({
-          size: 'sm',
-          variant: 'ghost',
-        })}
-        type="button"
-        {...unlinkButtonProps}
-      >
-        <Unlink width={18} />
-      </button>
-    </div>
-  );
+          <button
+            className={buttonVariants({
+              size: 'sm',
+              variant: 'ghost',
+            })}
+            type="button"
+            {...unlinkButtonProps}
+          >
+            <Unlink width={18} />
+          </button>
+        </div>
+      );
 
   return (
     <>

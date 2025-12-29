@@ -26,9 +26,9 @@ export function BlockSelection(props: PlateElementProps) {
   const isDragging = usePluginOption(DndPlugin, 'isDragging');
 
   if (
-    !isBlockSelected ||
-    props.plugin.key === 'tr' ||
-    props.plugin.key === 'table'
+    !isBlockSelected
+    || props.plugin.key === 'tr'
+    || props.plugin.key === 'table'
   ) {
     return null;
   }

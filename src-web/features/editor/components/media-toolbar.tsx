@@ -44,16 +44,16 @@ export function MediaToolbar({
   const selected = useSelected();
   const isFocusedLast = useFocusedLast();
   const selectionCollapsed = useEditorSelector(
-    (editor) => !editor.api.isExpanded(),
+    editor => !editor.api.isExpanded(),
     [],
   );
   const isImagePreviewOpen = useImagePreviewValue('isOpen', editor.id);
-  const open =
-    isFocusedLast &&
-    !readOnly &&
-    selected &&
-    selectionCollapsed &&
-    !isImagePreviewOpen;
+  const open
+    = isFocusedLast
+      && !readOnly
+      && selected
+      && selectionCollapsed
+      && !isImagePreviewOpen;
   const isEditing = useFloatingMediaValue('isEditing');
 
   React.useEffect(() => {
@@ -72,41 +72,43 @@ export function MediaToolbar({
 
       <PopoverContent
         className="w-auto p-1"
-        onOpenAutoFocus={(e) => e.preventDefault()}
+        onOpenAutoFocus={e => e.preventDefault()}
       >
-        {isEditing ? (
-          <div className="flex w-[330px] flex-col">
-            <div className="flex items-center">
-              <div className="flex items-center pr-1 pl-2 text-muted-foreground">
-                <Link className="size-4" />
+        {isEditing
+          ? (
+              <div className="flex w-[330px] flex-col">
+                <div className="flex items-center">
+                  <div className="flex items-center pr-1 pl-2 text-muted-foreground">
+                    <Link className="size-4" />
+                  </div>
+
+                  <FloatingMediaPrimitive.UrlInput
+                    className={inputVariants()}
+                    placeholder="Paste the embed link..."
+                    options={{ plugin }}
+                  />
+                </div>
               </div>
+            )
+          : (
+              <div className="box-content flex items-center">
+                <FloatingMediaPrimitive.EditButton
+                  className={buttonVariants({ size: 'sm', variant: 'ghost' })}
+                >
+                  Edit link
+                </FloatingMediaPrimitive.EditButton>
 
-              <FloatingMediaPrimitive.UrlInput
-                className={inputVariants()}
-                placeholder="Paste the embed link..."
-                options={{ plugin }}
-              />
-            </div>
-          </div>
-        ) : (
-          <div className="box-content flex items-center">
-            <FloatingMediaPrimitive.EditButton
-              className={buttonVariants({ size: 'sm', variant: 'ghost' })}
-            >
-              Edit link
-            </FloatingMediaPrimitive.EditButton>
+                <CaptionButton size="sm" variant="ghost">
+                  Caption
+                </CaptionButton>
 
-            <CaptionButton size="sm" variant="ghost">
-              Caption
-            </CaptionButton>
+                <Separator orientation="vertical" className="mx-1 h-6" />
 
-            <Separator orientation="vertical" className="mx-1 h-6" />
-
-            <Button size="sm" variant="ghost" {...buttonProps}>
-              <Trash2Icon />
-            </Button>
-          </div>
-        )}
+                <Button size="sm" variant="ghost" {...buttonProps}>
+                  <Trash2Icon />
+                </Button>
+              </div>
+            )}
       </PopoverContent>
     </Popover>
   );

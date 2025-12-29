@@ -76,7 +76,8 @@ export const suggestionPlugin = toTPlatePlugin<SuggestionConfig>(
         leaf = leaf.parentElement;
       }
 
-      if (!isSet) unsetActiveSuggestion();
+      if (!isSet)
+        unsetActiveSuggestion();
     },
   },
   render: {

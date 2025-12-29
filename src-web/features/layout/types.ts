@@ -30,4 +30,3 @@ export function getOrientationFromZone(
 export function isDraggedTabFirst(zone: SplitDropZone): boolean {
   return zone === 'left' || zone === 'top';
 }
-

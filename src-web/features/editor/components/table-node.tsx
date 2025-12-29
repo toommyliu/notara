@@ -154,7 +154,7 @@ function TableFloatingToolbar({
   const element = useElement<TTableElement>();
   const { props: buttonProps } = useRemoveNodeButton({ element });
   const collapsedInside = useEditorSelector(
-    (editor) => selected && editor.api.isCollapsed(),
+    editor => selected && editor.api.isCollapsed(),
     [selected],
   );
   const isFocusedLast = useFocusedLast();
@@ -168,15 +168,15 @@ function TableFloatingToolbar({
     >
       <PopoverAnchor>{children}</PopoverAnchor>
       <PopoverContent
-        onOpenAutoFocus={(e) => e.preventDefault()}
+        onOpenAutoFocus={e => e.preventDefault()}
         contentEditable={false}
         {...props}
-        render={
+        render={(
           <Toolbar
             className="scrollbar-hide flex w-auto max-w-[80vw] flex-row overflow-x-auto rounded-md border bg-popover p-1 shadow-md print:hidden"
             contentEditable={false}
           />
-        }
+        )}
       >
         <ToolbarGroup>
           <ColorDropdownMenu tooltip="Background color">
@@ -185,7 +185,7 @@ function TableFloatingToolbar({
           {canMerge && (
             <ToolbarButton
               onClick={() => tf.table.merge()}
-              onMouseDown={(e) => e.preventDefault()}
+              onMouseDown={e => e.preventDefault()}
               tooltip="Merge cells"
             >
               <CombineIcon />
@@ -194,7 +194,7 @@ function TableFloatingToolbar({
           {canSplit && (
             <ToolbarButton
               onClick={() => tf.table.split()}
-              onMouseDown={(e) => e.preventDefault()}
+              onMouseDown={e => e.preventDefault()}
               tooltip="Split cell"
             >
               <SquareSplitHorizontalIcon />
@@ -227,7 +227,7 @@ function TableFloatingToolbar({
               onClick={() => {
                 tf.insert.tableRow({ before: true });
               }}
-              onMouseDown={(e) => e.preventDefault()}
+              onMouseDown={e => e.preventDefault()}
               tooltip="Insert row before"
             >
               <ArrowUp />
@@ -236,7 +236,7 @@ function TableFloatingToolbar({
               onClick={() => {
                 tf.insert.tableRow();
               }}
-              onMouseDown={(e) => e.preventDefault()}
+              onMouseDown={e => e.preventDefault()}
               tooltip="Insert row after"
             >
               <ArrowDown />
@@ -245,7 +245,7 @@ function TableFloatingToolbar({
               onClick={() => {
                 tf.remove.tableRow();
               }}
-              onMouseDown={(e) => e.preventDefault()}
+              onMouseDown={e => e.preventDefault()}
               tooltip="Delete row"
             >
               <XIcon />
@@ -258,7 +258,7 @@ function TableFloatingToolbar({
               onClick={() => {
                 tf.insert.tableColumn({ before: true });
               }}
-              onMouseDown={(e) => e.preventDefault()}
+              onMouseDown={e => e.preventDefault()}
               tooltip="Insert column before"
             >
               <ArrowLeft />
@@ -267,7 +267,7 @@ function TableFloatingToolbar({
               onClick={() => {
                 tf.insert.tableColumn();
               }}
-              onMouseDown={(e) => e.preventDefault()}
+              onMouseDown={e => e.preventDefault()}
               tooltip="Insert column after"
             >
               <ArrowRight />
@@ -276,7 +276,7 @@ function TableFloatingToolbar({
               onClick={() => {
                 tf.remove.tableColumn();
               }}
-              onMouseDown={(e) => e.preventDefault()}
+              onMouseDown={e => e.preventDefault()}
               tooltip="Delete column"
             >
               <XIcon />
@@ -497,7 +497,8 @@ function RowDragHandle({ dragRef }: { dragRef: React.Ref<any> }) {
 function RowDropLine() {
   const { dropLine } = useDropLine();
 
-  if (!dropLine) return null;
+  if (!dropLine)
+    return null;
 
   return (
     <div
@@ -532,11 +533,11 @@ export function TableCellElement({
     'isSelectionAreaVisible',
   );
 
-  const { borders, colIndex, colSpan, minHeight, rowIndex, selected, width } =
-    useTableCellElement();
+  const { borders, colIndex, colSpan, minHeight, rowIndex, selected, width }
+    = useTableCellElement();
 
-  const { bottomProps, hiddenLeft, leftProps, rightProps } =
-    useTableCellElementResizable({
+  const { bottomProps, hiddenLeft, leftProps, rightProps }
+    = useTableCellElementResizable({
       colIndex,
       colSpan,
       rowIndex,
@@ -552,7 +553,7 @@ export function TableCellElement({
         isHeader && 'text-left *:m-0',
         'before:size-full',
         selected && 'before:z-10 before:bg-brand/5',
-        "before:absolute before:box-border before:select-none before:content-['']",
+        'before:absolute before:box-border before:select-none before:content-[\'\']',
         borders.bottom?.size && 'before:border-b before:border-b-border',
         borders.right?.size && 'before:border-r before:border-r-border',
         borders.left?.size && 'before:border-l before:border-l-border',
@@ -561,8 +562,8 @@ export function TableCellElement({
       style={
         {
           '--cellBackground': element.background,
-          maxWidth: width || 240,
-          minWidth: width || 120,
+          'maxWidth': width || 240,
+          'minWidth': width || 120,
         } as React.CSSProperties
       }
       attributes={{

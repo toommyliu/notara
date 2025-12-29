@@ -77,7 +77,8 @@ function SidebarProvider({
       const openState = typeof value === 'function' ? value(open) : value;
       if (setOpenProp) {
         setOpenProp(openState);
-      } else {
+      }
+      else {
         _setOpen(openState);
       }
 
@@ -89,7 +90,7 @@ function SidebarProvider({
 
   // Helper to toggle the sidebar.
   const toggleSidebar = React.useCallback(() => {
-    return isMobile ? setOpenMobile((open) => !open) : setOpen((open) => !open);
+    return isMobile ? setOpenMobile(open => !open) : setOpen(open => !open);
   }, [isMobile, setOpen, setOpenMobile]);
 
   // We add a state so that we can do data-state="expanded" or "collapsed".
@@ -332,7 +333,8 @@ function SidebarRail({ className, ...props }: React.ComponentProps<'button'>) {
         );
         const totalWidth = sidebarGap.getBoundingClientRect().width;
         startWidthRef.current = totalWidth - ribbonWidth;
-      } else {
+      }
+      else {
         startWidthRef.current = 256;
       }
       setResizing(true);
@@ -343,7 +345,8 @@ function SidebarRail({ className, ...props }: React.ComponentProps<'button'>) {
 
   const handlePointerMove = React.useCallback(
     (e: React.PointerEvent) => {
-      if (!isDragging) return;
+      if (!isDragging)
+        return;
 
       const delta = e.clientX - startXRef.current;
       if (Math.abs(delta) > 5) {
@@ -365,7 +368,8 @@ function SidebarRail({ className, ...props }: React.ComponentProps<'button'>) {
   );
 
   const handlePointerUp = React.useCallback(() => {
-    if (!isDragging) return;
+    if (!isDragging)
+      return;
     setIsDragging(false);
     setResizing(false);
     document.body.style.cursor = '';
@@ -602,8 +606,8 @@ function SidebarMenuButton({
   tooltip,
   className,
   ...props
-}: useRender.ComponentProps<'button'> &
-  React.ComponentProps<'button'> & {
+}: useRender.ComponentProps<'button'>
+  & React.ComponentProps<'button'> & {
     isActive?: boolean;
     tooltip?: string | React.ComponentProps<typeof TooltipContent>;
   } & VariantProps<typeof sidebarMenuButtonVariants>) {
@@ -653,8 +657,8 @@ function SidebarMenuAction({
   render,
   showOnHover = false,
   ...props
-}: useRender.ComponentProps<'button'> &
-  React.ComponentProps<'button'> & {
+}: useRender.ComponentProps<'button'>
+  & React.ComponentProps<'button'> & {
     showOnHover?: boolean;
   }) {
   return useRender({
@@ -663,8 +667,8 @@ function SidebarMenuAction({
       {
         className: cn(
           'text-sidebar-foreground ring-sidebar-ring hover:bg-sidebar-accent hover:text-sidebar-accent-foreground peer-hover/menu-button:text-sidebar-accent-foreground absolute top-1.5 right-1 aspect-square w-5 rounded-md p-0 peer-data-[size=default]/menu-button:top-1.5 peer-data-[size=lg]/menu-button:top-2.5 peer-data-[size=sm]/menu-button:top-1 focus-visible:ring-2 [&>svg]:size-4 flex items-center justify-center outline-hidden transition-transform group-data-[collapsible=icon]:hidden after:absolute after:-inset-2 md:after:hidden [&>svg]:shrink-0',
-          showOnHover &&
-            'peer-data-active/menu-button:text-sidebar-accent-foreground group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-open:opacity-100 md:opacity-0',
+          showOnHover
+          && 'peer-data-active/menu-button:text-sidebar-accent-foreground group-focus-within/menu-item:opacity-100 group-hover/menu-item:opacity-100 data-open:opacity-100 md:opacity-0',
           className,
         ),
       },
@@ -767,8 +771,8 @@ function SidebarMenuSubButton({
   isActive = false,
   className,
   ...props
-}: useRender.ComponentProps<'a'> &
-  React.ComponentProps<'a'> & {
+}: useRender.ComponentProps<'a'>
+  & React.ComponentProps<'a'> & {
     size?: 'sm' | 'md';
     isActive?: boolean;
   }) {

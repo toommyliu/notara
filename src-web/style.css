@@ -214,13 +214,10 @@
   }
 
   /* Disable transitions during resize */
-  [data-slot='sidebar-wrapper'][data-resizing='true']
-    [data-slot='sidebar-container'],
+  [data-slot='sidebar-wrapper'][data-resizing='true'] [data-slot='sidebar-container'],
   [data-slot='sidebar-wrapper'][data-resizing='true'] [data-slot='sidebar-gap'],
-  [data-slot='sidebar-wrapper'][data-resizing='true']
-    [data-slot='sidebar-rail'],
-  [data-slot='sidebar-wrapper'][data-resizing='true']
-    [data-slot='sidebar-header'] {
+  [data-slot='sidebar-wrapper'][data-resizing='true'] [data-slot='sidebar-rail'],
+  [data-slot='sidebar-wrapper'][data-resizing='true'] [data-slot='sidebar-header'] {
     transition: none !important;
   }
 

@@ -17,8 +17,8 @@ interface PageHeaderActions {
 }
 
 export const usePageHeaderStore = create<PageHeaderState & PageHeaderActions>()(
-  (set) => ({
+  set => ({
     config: {},
-    setConfig: (config) => set({ config }),
+    setConfig: config => set({ config }),
   }),
 );

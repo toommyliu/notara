@@ -21,8 +21,8 @@ function PopoverContent({
   onCloseAutoFocus,
   onEscapeKeyDown,
   ...props
-}: PopoverPrimitive.Popup.Props &
-  Pick<
+}: PopoverPrimitive.Popup.Props
+  & Pick<
     PopoverPrimitive.Positioner.Props,
     'align' | 'alignOffset' | 'side' | 'sideOffset'
   > & {
@@ -33,10 +33,12 @@ function PopoverContent({
   const popupRef = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
-    if (!onOpenAutoFocus) return;
+    if (!onOpenAutoFocus)
+      return;
 
     const popup = popupRef.current;
-    if (!popup) return;
+    if (!popup)
+      return;
 
     const handleFocus = (e: FocusEvent) => {
       onOpenAutoFocus(e);
@@ -51,10 +53,12 @@ function PopoverContent({
   }, [onOpenAutoFocus]);
 
   React.useEffect(() => {
-    if (!onCloseAutoFocus) return;
+    if (!onCloseAutoFocus)
+      return;
 
     const popup = popupRef.current;
-    if (!popup) return;
+    if (!popup)
+      return;
 
     const handleFocusOut = (e: FocusEvent) => {
       if (!popup.contains(e.relatedTarget as Node)) {
@@ -67,10 +71,12 @@ function PopoverContent({
   }, [onCloseAutoFocus]);
 
   React.useEffect(() => {
-    if (!onEscapeKeyDown) return;
+    if (!onEscapeKeyDown)
+      return;
 
     const popup = popupRef.current;
-    if (!popup) return;
+    if (!popup)
+      return;
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {

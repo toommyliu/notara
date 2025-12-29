@@ -35,7 +35,8 @@ export function bindingToAccelerator(binding: ShortcutBinding): string {
   }
 
   let key = binding.key;
-  if (key === ' ') key = 'Space';
+  if (key === ' ')
+    key = 'Space';
 
   parts.push(key.length === 1 ? key.toUpperCase() : key);
 
@@ -45,23 +46,38 @@ export function bindingToAccelerator(binding: ShortcutBinding): string {
 export function formatBindingForDisplay(binding: ShortcutBinding): string {
   const symbols: string[] = [];
 
-  if (binding.modifiers.includes('ctrl')) symbols.push('⌃');
-  if (binding.modifiers.includes('alt')) symbols.push('⌥');
-  if (binding.modifiers.includes('shift')) symbols.push('⇧');
-  if (binding.modifiers.includes('meta')) symbols.push('⌘');
+  if (binding.modifiers.includes('ctrl'))
+    symbols.push('⌃');
+  if (binding.modifiers.includes('alt'))
+    symbols.push('⌥');
+  if (binding.modifiers.includes('shift'))
+    symbols.push('⇧');
+  if (binding.modifiers.includes('meta'))
+    symbols.push('⌘');
 
   let key = binding.key;
-  if (key === 'Tab') key = '⇥';
-  else if (key === ' ') key = 'Space';
-  else if (key === 'ArrowUp') key = '↑';
-  else if (key === 'ArrowDown') key = '↓';
-  else if (key === 'ArrowLeft') key = '←';
-  else if (key === 'ArrowRight') key = '→';
-  else if (key === 'Enter') key = '↩';
-  else if (key === 'Backspace') key = '⌫';
-  else if (key === 'Escape') key = '⎋';
-  else if (key === '\\') key = '\\';
-  else if (key === 'Dead') key = '?';
+  if (key === 'Tab')
+    key = '⇥';
+  else if (key === ' ')
+    key = 'Space';
+  else if (key === 'ArrowUp')
+    key = '↑';
+  else if (key === 'ArrowDown')
+    key = '↓';
+  else if (key === 'ArrowLeft')
+    key = '←';
+  else if (key === 'ArrowRight')
+    key = '→';
+  else if (key === 'Enter')
+    key = '↩';
+  else if (key === 'Backspace')
+    key = '⌫';
+  else if (key === 'Escape')
+    key = '⎋';
+  else if (key === '\\')
+    key = '\\';
+  else if (key === 'Dead')
+    key = '?';
   else key = key.toUpperCase();
 
   symbols.push(key);
@@ -86,14 +102,15 @@ async function syncMenuAccelerators(
     }
 
     await invoke('update_menu_accelerators', { accelerators });
-  } catch (err) {
+  }
+  catch (err) {
     console.error('[shortcuts] Failed to sync menu accelerators:', err);
   }
 }
 
 export const useShortcutsStore = create<ShortcutsState & ShortcutsActions>()(
   persist(
-    (set) => ({
+    set => ({
       bindings: { ...DEFAULT_BINDINGS },
 
       setBinding: (id, binding) => {

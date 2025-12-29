@@ -52,7 +52,7 @@ export function MediaPreviewDialog() {
         'fixed top-0 left-0 z-50 h-screen w-screen select-none',
         !isOpen && 'hidden',
       )}
-      onContextMenu={(e) => e.stopPropagation()}
+      onContextMenu={e => e.stopPropagation()}
       {...maskLayerProps}
     >
       <div className="absolute inset-0 size-full bg-black opacity-30" />
@@ -66,7 +66,7 @@ export function MediaPreviewDialog() {
           />
           <div
             className="-translate-x-1/2 absolute bottom-0 left-1/2 z-40 flex w-fit justify-center gap-4 p-2 text-center text-white"
-            onClick={(e) => e.stopPropagation()}
+            onClick={e => e.stopPropagation()}
           >
             <div className="flex gap-1">
               <button
@@ -106,14 +106,17 @@ export function MediaPreviewDialog() {
                 <Minus className="size-4" />
               </button>
               <div className="mx-px">
-                {isEditingScale ? (
-                  <>
-                    <ScaleInput className="w-10 rounded px-1 text-slate-500 outline" />{' '}
-                    <span>%</span>
-                  </>
-                ) : (
-                  <span {...scaleTextProps}>{`${scale * 100}%`}</span>
-                )}
+                {isEditingScale
+                  ? (
+                      <>
+                        <ScaleInput className="w-10 rounded px-1 text-slate-500 outline" />
+                        {' '}
+                        <span>%</span>
+                      </>
+                    )
+                  : (
+                      <span {...scaleTextProps}>{`${scale * 100}%`}</span>
+                    )}
               </div>
               <button
                 className={cn(

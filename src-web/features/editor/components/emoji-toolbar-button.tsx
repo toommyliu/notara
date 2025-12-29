@@ -42,16 +42,16 @@ export function EmojiToolbarButton({
 }: {
   options?: EmojiDropdownMenuOptions;
 } & React.ComponentPropsWithoutRef<typeof ToolbarButton>) {
-  const { emojiPickerState, isOpen, setIsOpen } =
-    useEmojiDropdownMenuState(options);
+  const { emojiPickerState, isOpen, setIsOpen }
+    = useEmojiDropdownMenuState(options);
 
   return (
     <EmojiPopover
-      control={
+      control={(
         <ToolbarButton pressed={isOpen} tooltip="Emoji" isDropdown {...props}>
           <SmileIcon />
         </ToolbarButton>
-      }
+      )}
       isOpen={isOpen}
       setIsOpen={setIsOpen}
     >
@@ -282,8 +282,8 @@ function EmojiPickerContent({
                 className="relative flex flex-wrap"
                 style={{ height: section.getRows().length * buttonSize.value }}
               >
-                {isCategoryVisible(categoryId) &&
-                  section
+                {isCategoryVisible(categoryId)
+                  && section
                     .getRows()
                     .map((row: GridRow) => (
                       <RowOfButtons
@@ -371,7 +371,7 @@ function EmojiPickerSearchBar({
         <input
           className="block w-full appearance-none rounded-full border-0 bg-muted px-10 py-2 text-sm outline-none placeholder:text-muted-foreground focus-visible:outline-none"
           value={searchValue}
-          onChange={(event) => setSearch(event.target.value)}
+          onChange={event => setSearch(event.target.value)}
           placeholder={i18n.search}
           aria-label="Search"
           autoComplete="off"
@@ -501,14 +501,14 @@ function EmojiPickerNavigation({
             .map(({ id }) => (
               <Tooltip key={id}>
                 <TooltipTrigger
-                  render={
+                  render={(
                     <Button
                       size="sm"
                       variant="ghost"
                       className={cn(
                         'h-fit rounded-full fill-current p-1.5 text-muted-foreground hover:bg-muted hover:text-muted-foreground',
-                        id === focusedCategory &&
-                          'pointer-events-none bg-accent fill-current text-accent-foreground',
+                        id === focusedCategory
+                        && 'pointer-events-none bg-accent fill-current text-accent-foreground',
                       )}
                       onClick={() => {
                         onClick(id);
@@ -516,7 +516,7 @@ function EmojiPickerNavigation({
                       aria-label={i18n.categories[id]}
                       type="button"
                     />
-                  }
+                  )}
                 >
                   <span className="inline-flex size-5 items-center justify-center">
                     {icons.categories[id].outline}

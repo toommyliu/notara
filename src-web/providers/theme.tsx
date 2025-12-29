@@ -24,8 +24,8 @@ const initialState: ThemeProviderState = {
   setTheme: () => null,
 };
 
-export const ThemeProviderContext =
-  createContext<ThemeProviderState>(initialState);
+export const ThemeProviderContext
+  = createContext<ThemeProviderState>(initialState);
 
 export function ThemeProvider({
   children,
@@ -47,9 +47,9 @@ export function ThemeProvider({
     const applyTheme = (override?: 'light' | 'dark') => {
       root.classList.remove('light', 'dark');
 
-      const effectiveTheme =
-        override ||
-        (theme === 'system' ? (mediaQuery.matches ? 'dark' : 'light') : theme);
+      const effectiveTheme
+        = override
+          || (theme === 'system' ? (mediaQuery.matches ? 'dark' : 'light') : theme);
 
       root.classList.add(effectiveTheme);
       setResolvedTheme(effectiveTheme);
@@ -73,7 +73,7 @@ export function ThemeProvider({
           .onThemeChanged(({ payload: systemTheme }) => {
             applyTheme(systemTheme);
           })
-          .then((fn) => (unlisten = fn));
+          .then(fn => (unlisten = fn));
       }
 
       return () => {

@@ -1,5 +1,25 @@
 import { Link, useLocation } from '@tanstack/react-router';
 
+import IconArrowLeftRight from '~icons/lucide/arrow-left-right';
+import IconColumns from '~icons/lucide/columns-2';
+import IconFlipHorizontal from '~icons/lucide/flip-horizontal-2';
+import IconFiles from '~icons/lucide/folder-open';
+import IconLock from '~icons/lucide/lock';
+
+import IconSearch from '~icons/lucide/search';
+import IconSettings from '~icons/lucide/settings';
+import IconStar from '~icons/lucide/star';
+import IconX from '~icons/lucide/x';
+import { usePageHeaderStore } from '~/features/layout/stores/page-header-store';
+import {
+  useActivePane,
+  useOrderedPanes,
+  useTabsStore,
+} from '~/features/layout/stores/tabs-store';
+import { useSettingsStore } from '~/features/settings/';
+import { usePlatformLayout } from '~/hooks/use-platform';
+import { cn } from '~/lib/utils';
+
 import { Avatar, AvatarFallback } from '~/ui/avatar';
 import {
   DropdownMenu,
@@ -10,28 +30,8 @@ import {
 } from '~/ui/dropdown-menu';
 import { Separator } from '~/ui/separator';
 import { SidebarTrigger } from '~/ui/sidebar';
+
 import { Tooltip, TooltipContent, TooltipTrigger } from '~/ui/tooltip';
-
-import IconArrowLeftRight from '~icons/lucide/arrow-left-right';
-import IconColumns from '~icons/lucide/columns-2';
-import IconFiles from '~icons/lucide/folder-open';
-import IconFlipHorizontal from '~icons/lucide/flip-horizontal-2';
-import IconLock from '~icons/lucide/lock';
-import IconSearch from '~icons/lucide/search';
-import IconSettings from '~icons/lucide/settings';
-import IconStar from '~icons/lucide/star';
-import IconX from '~icons/lucide/x';
-
-import { usePageHeaderStore } from '~/features/layout/stores/page-header-store';
-import {
-  useActivePane,
-  useOrderedPanes,
-  useTabsStore,
-} from '~/features/layout/stores/tabs-store';
-import { useSettingsStore } from '~/features/settings/';
-import { usePlatformLayout } from '~/hooks/use-platform';
-
-import { cn } from '~/lib/utils';
 
 import { AppTitlebar } from './app-titlebar';
 import { HeaderTabs } from './header-tabs';

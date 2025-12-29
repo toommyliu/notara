@@ -31,7 +31,8 @@ export const BlockDraggable: RenderNodeWrapper = (props) => {
   const { editor, element, path } = props;
 
   const enabled = React.useMemo(() => {
-    if (editor.dom.readOnly) return false;
+    if (editor.dom.readOnly)
+      return false;
 
     if (path.length === 1 && !isType(editor, element, UNDRAGGABLE_KEYS)) {
       return true;
@@ -64,17 +65,18 @@ export const BlockDraggable: RenderNodeWrapper = (props) => {
     return false;
   }, [editor, element, path]);
 
-  if (!enabled) return;
+  if (!enabled)
+    return;
 
-  return (props) => <Draggable {...props} />;
+  return props => <Draggable {...props} />;
 };
 
 function Draggable(props: PlateElementProps) {
   const { children, editor, element, path } = props;
   const blockSelectionApi = editor.getApi(BlockSelectionPlugin).blockSelection;
 
-  const { isAboutToDrag, isDragging, nodeRef, previewRef, handleRef } =
-    useDraggable({
+  const { isAboutToDrag, isDragging, nodeRef, previewRef, handleRef }
+    = useDraggable({
       element,
       onDropHandler: (_, { dragItem }) => {
         const id = (dragItem as { id: string[] | string }).id;
@@ -125,7 +127,8 @@ function Draggable(props: PlateElementProps) {
           : 'group',
       )}
       onMouseEnter={() => {
-        if (isDragging) return;
+        if (isDragging)
+          return;
         setDragButtonTop(calcDragButtonTop(editor, element));
       }}
     >
@@ -174,11 +177,11 @@ function Draggable(props: PlateElementProps) {
       <div
         ref={nodeRef}
         className="slate-blockWrapper flow-root"
-        onContextMenu={(event) =>
+        onContextMenu={event =>
           editor
             .getApi(BlockSelectionPlugin)
-            .blockSelection.addOnContextMenu({ element, event })
-        }
+            .blockSelection
+            .addOnContextMenu({ element, event })}
       >
         <MemoizedChildren>{children}</MemoizedChildren>
         <DropLine />
@@ -238,7 +241,7 @@ const DragHandle = React.memo(
     return (
       <Tooltip>
         <TooltipTrigger
-          render={
+          render={(
             <div
               className="flex size-full items-center justify-center"
               onClick={(e) => {
@@ -248,14 +251,16 @@ const DragHandle = React.memo(
               onMouseDown={(e) => {
                 resetPreview();
 
-                if ((e.button !== 0 && e.button !== 2) || e.shiftKey) return;
+                if ((e.button !== 0 && e.button !== 2) || e.shiftKey)
+                  return;
 
                 const blockSelection = editor
                   .getApi(BlockSelectionPlugin)
-                  .blockSelection.getNodes({ sort: true });
+                  .blockSelection
+                  .getNodes({ sort: true });
 
-                let selectionNodes =
-                  blockSelection.length > 0
+                let selectionNodes
+                  = blockSelection.length > 0
                     ? blockSelection
                     : editor.api.blocks({ mode: 'highest' });
 
@@ -283,19 +288,22 @@ const DragHandle = React.memo(
 
                 editor
                   .getApi(BlockSelectionPlugin)
-                  .blockSelection.set(
-                    blocks.map((block) => block.id as string),
+                  .blockSelection
+                  .set(
+                    blocks.map(block => block.id as string),
                   );
               }}
               onMouseEnter={() => {
-                if (isDragging) return;
+                if (isDragging)
+                  return;
 
                 const blockSelection = editor
                   .getApi(BlockSelectionPlugin)
-                  .blockSelection.getNodes({ sort: true });
+                  .blockSelection
+                  .getNodes({ sort: true });
 
-                let selectedBlocks =
-                  blockSelection.length > 0
+                let selectedBlocks
+                  = blockSelection.length > 0
                     ? blockSelection
                     : editor.api.blocks({ mode: 'highest' });
 
@@ -311,16 +319,17 @@ const DragHandle = React.memo(
                 );
 
                 const ids = processedBlocks.map(
-                  (block) => block[0].id as string,
+                  block => block[0].id as string,
                 );
 
                 if (ids.length > 1 && ids.includes(element.id as string)) {
                   const previewTop = calculatePreviewTop(editor, {
-                    blocks: processedBlocks.map((block) => block[0]),
+                    blocks: processedBlocks.map(block => block[0]),
                     element,
                   });
                   setPreviewTop(previewTop);
-                } else {
+                }
+                else {
                   setPreviewTop(0);
                 }
               }}
@@ -330,7 +339,7 @@ const DragHandle = React.memo(
               data-plate-prevent-deselect
               role="button"
             />
-          }
+          )}
         >
           <GripVertical className="text-muted-foreground" />
         </TooltipTrigger>
@@ -344,7 +353,8 @@ const DropLine = React.memo(
   ({ className, ...props }: React.ComponentProps<'div'>) => {
     const { dropLine } = useDropLine();
 
-    if (!dropLine) return null;
+    if (!dropLine)
+      return null;
 
     return (
       <div
@@ -376,8 +386,8 @@ function createDragPreviewElements(
   const removeDataAttributes = (element: HTMLElement) => {
     Array.from(element.attributes).forEach((attr) => {
       if (
-        attr.name.startsWith('data-slate') ||
-        attr.name.startsWith('data-block-id')
+        attr.name.startsWith('data-slate')
+        || attr.name.startsWith('data-block-id')
       ) {
         element.removeAttribute(attr.name);
       }
@@ -483,29 +493,29 @@ function calculatePreviewTop(
   );
 
   // Calculate distance from first selected node to editor top
-  const firstNodeToEditorDistance =
-    firstDomNode.getBoundingClientRect().top -
-    editable.getBoundingClientRect().top -
-    editorPaddingTop;
+  const firstNodeToEditorDistance
+    = firstDomNode.getBoundingClientRect().top
+      - editable.getBoundingClientRect().top
+      - editorPaddingTop;
 
   // Get margin top of first selected node
   const firstMarginTopString = window.getComputedStyle(firstDomNode).marginTop;
   const marginTop = Number(firstMarginTopString.replace('px', ''));
 
   // Calculate distance from current node to editor top
-  const currentToEditorDistance =
-    child.getBoundingClientRect().top -
-    editable.getBoundingClientRect().top -
-    editorPaddingTop;
+  const currentToEditorDistance
+    = child.getBoundingClientRect().top
+      - editable.getBoundingClientRect().top
+      - editorPaddingTop;
 
   const currentMarginTopString = window.getComputedStyle(child).marginTop;
   const currentMarginTop = Number(currentMarginTopString.replace('px', ''));
 
-  const previewElementsTopDistance =
-    currentToEditorDistance -
-    firstNodeToEditorDistance +
-    marginTop -
-    currentMarginTop;
+  const previewElementsTopDistance
+    = currentToEditorDistance
+      - firstNodeToEditorDistance
+      + marginTop
+      - currentMarginTop;
 
   return previewElementsTopDistance;
 }

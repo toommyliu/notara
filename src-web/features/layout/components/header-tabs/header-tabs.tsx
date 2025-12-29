@@ -138,7 +138,7 @@ export function HeaderTabs() {
   );
 
   const tabListRef = useRef<HTMLDivElement>(null);
-  const collisionDetection: CollisionDetection = args => {
+  const collisionDetection: CollisionDetection = (args) => {
     if (tabListRef.current && args.pointerCoordinates) {
       const rect = tabListRef.current.getBoundingClientRect();
       const { x, y } = args.pointerCoordinates;
@@ -282,7 +282,7 @@ export function HeaderTabs() {
       return (
         <SplitTabItem
           key={id}
-          ref={handle => {
+          ref={(handle) => {
             if (handle) {
               tabRefs.current.set(id, handle);
             }
@@ -305,7 +305,7 @@ export function HeaderTabs() {
     return (
       <HeaderTabItem
         key={id}
-        ref={handle => {
+        ref={(handle) => {
           if (handle) {
             tabRefs.current.set(id, handle);
           }

@@ -8,7 +8,7 @@ import { SlashInputElement } from '~/features/editor/components/slash-node';
 export const SlashKit = [
   SlashPlugin.configure({
     options: {
-      triggerQuery: (editor) =>
+      triggerQuery: editor =>
         !editor.api.some({
           match: { type: editor.getType(KEYS.codeBlock) },
         }),

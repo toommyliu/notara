@@ -36,20 +36,26 @@ export function SplitDropZoneOverlay({
   const detectZone = useCallback(
     (clientX: number, clientY: number): SplitDropZone | null => {
       const container = containerRef.current;
-      if (!container) return null;
+      if (!container)
+        return null;
 
       const rect = container.getBoundingClientRect();
       const x = clientX - rect.left;
       const y = clientY - rect.top;
 
       // Check if inside container
-      if (x < 0 || x > rect.width || y < 0 || y > rect.height) return null;
+      if (x < 0 || x > rect.width || y < 0 || y > rect.height)
+        return null;
 
       // Check edges in order of priority
-      if (x < EDGE_THRESHOLD) return 'left';
-      if (x > rect.width - EDGE_THRESHOLD) return 'right';
-      if (y < EDGE_THRESHOLD) return 'top';
-      if (y > rect.height - EDGE_THRESHOLD) return 'bottom';
+      if (x < EDGE_THRESHOLD)
+        return 'left';
+      if (x > rect.width - EDGE_THRESHOLD)
+        return 'right';
+      if (y < EDGE_THRESHOLD)
+        return 'top';
+      if (y > rect.height - EDGE_THRESHOLD)
+        return 'bottom';
 
       return 'center';
     },
@@ -97,7 +103,8 @@ export function SplitDropZoneOverlay({
     };
   }, [isActive, draggedNoteId, detectZone, onZoneChange, onDrop]);
 
-  if (!isActive) return null;
+  if (!isActive)
+    return null;
 
   return (
     <div
@@ -205,4 +212,3 @@ function SplitPreviewLine({ zone }: { zone: SplitDropZone }) {
     </div>
   );
 }
-

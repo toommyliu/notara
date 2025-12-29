@@ -54,7 +54,8 @@ export function FontSizeToolbarButton() {
 
     const [block] = editor.api.block<TElement>() || [];
 
-    if (!block?.type) return DEFAULT_FONT_SIZE;
+    if (!block?.type)
+      return DEFAULT_FONT_SIZE;
 
     return block.type in FONT_SIZE_MAP
       ? FONT_SIZE_MAP[block.type as keyof typeof FONT_SIZE_MAP]
@@ -65,8 +66,8 @@ export function FontSizeToolbarButton() {
     const newSize = toUnitLess(inputValue);
 
     if (
-      Number.parseInt(newSize, 10) < 1 ||
-      Number.parseInt(newSize, 10) > 100
+      Number.parseInt(newSize, 10) < 1
+      || Number.parseInt(newSize, 10) > 100
     ) {
       editor.tf.focus();
 
@@ -95,7 +96,7 @@ export function FontSizeToolbarButton() {
 
       <Popover open={isFocused} modal={false}>
         <PopoverTrigger
-          render={
+          render={(
             <input
               className={cn(
                 'h-full w-10 shrink-0 bg-transparent px-1 text-center text-sm hover:bg-muted',
@@ -105,7 +106,7 @@ export function FontSizeToolbarButton() {
                 setIsFocused(false);
                 handleInputChange();
               }}
-              onChange={(e) => setInputValue(e.target.value)}
+              onChange={e => setInputValue(e.target.value)}
               onFocus={() => {
                 setIsFocused(true);
                 setInputValue(toUnitLess(cursorFontSize));
@@ -119,13 +120,14 @@ export function FontSizeToolbarButton() {
               data-plate-focus="true"
               type="text"
             />
-          }
-        ></PopoverTrigger>
+          )}
+        >
+        </PopoverTrigger>
         <PopoverContent
           className="w-10 px-px py-1"
-          onOpenAutoFocus={(e) => e.preventDefault()}
+          onOpenAutoFocus={e => e.preventDefault()}
         >
-          {FONT_SIZES.map((size) => (
+          {FONT_SIZES.map(size => (
             <button
               key={size}
               className={cn(

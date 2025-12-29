@@ -11,7 +11,7 @@ export function CursorOverlay() {
 
   return (
     <>
-      {cursors.map((cursor) => (
+      {cursors.map(cursor => (
         <Cursor key={cursor.id} {...cursor} />
       ))}
     </>

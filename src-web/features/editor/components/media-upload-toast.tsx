@@ -16,7 +16,8 @@ function useUploadErrorToast() {
   const uploadError = usePluginOption(PlaceholderPlugin, 'error');
 
   React.useEffect(() => {
-    if (!uploadError) return;
+    if (!uploadError)
+      return;
 
     const { code, data } = uploadError;
 
@@ -24,7 +25,7 @@ function useUploadErrorToast() {
       case UploadErrorCode.INVALID_FILE_SIZE: {
         toast.error(
           `The size of files ${data.files
-            .map((f) => f.name)
+            .map(f => f.name)
             .join(', ')} is invalid`,
         );
 
@@ -33,7 +34,7 @@ function useUploadErrorToast() {
       case UploadErrorCode.INVALID_FILE_TYPE: {
         toast.error(
           `The type of files ${data.files
-            .map((f) => f.name)
+            .map(f => f.name)
             .join(', ')} is invalid`,
         );
 
@@ -42,7 +43,7 @@ function useUploadErrorToast() {
       case UploadErrorCode.TOO_LARGE: {
         toast.error(
           `The size of files ${data.files
-            .map((f) => f.name)
+            .map(f => f.name)
             .join(', ')} is too large than ${data.maxFileSize}`,
         );
 

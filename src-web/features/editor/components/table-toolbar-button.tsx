@@ -36,7 +36,7 @@ import { ToolbarButton } from '~/ui/toolbar';
 
 export function TableToolbarButton(props: DropdownMenuProps) {
   const tableSelected = useEditorSelector(
-    (editor) => editor.api.some({ match: { type: KEYS.table } }),
+    editor => editor.api.some({ match: { type: KEYS.table } }),
     [],
   );
 
@@ -221,8 +221,8 @@ function TablePicker() {
 
     for (let i = 0; i < newGrid.length; i++) {
       for (let j = 0; j < newGrid[i].length; j++) {
-        newGrid[i][j] =
-          i >= 0 && i <= rowIndex && j >= 0 && j <= colIndex ? 1 : 0;
+        newGrid[i][j]
+          = i >= 0 && i <= rowIndex && j >= 0 && j <= colIndex ? 1 : 0;
       }
     }
 
@@ -259,7 +259,10 @@ function TablePicker() {
       </div>
 
       <div className="text-center text-current text-xs">
-        {tablePicker.size.rowCount} x{tablePicker.size.colCount}
+        {tablePicker.size.rowCount}
+        {' '}
+        x
+        {tablePicker.size.colCount}
       </div>
     </div>
   );

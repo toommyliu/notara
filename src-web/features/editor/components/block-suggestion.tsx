@@ -49,9 +49,12 @@ const TYPE_TEXT_MAP: Record<string, (node?: TElement) => string> = {
   [KEYS.img]: () => 'Image',
   [KEYS.mediaEmbed]: () => 'Media',
   [KEYS.p]: (node) => {
-    if (node?.[KEYS.listType] === KEYS.listTodo) return 'Todo List';
-    if (node?.[KEYS.listType] === KEYS.ol) return 'Ordered List';
-    if (node?.[KEYS.listType] === KEYS.ul) return 'List';
+    if (node?.[KEYS.listType] === KEYS.listTodo)
+      return 'Todo List';
+    if (node?.[KEYS.listType] === KEYS.ol)
+      return 'Ordered List';
+    if (node?.[KEYS.listType] === KEYS.ul)
+      return 'List';
 
     return 'Paragraph';
   },
@@ -89,7 +92,8 @@ export function BlockSuggestionCard({
   const [hovering, setHovering] = React.useState(false);
 
   const suggestionText2Array = (text: string) => {
-    if (text === BLOCK_SUGGESTION) return ['line breaks'];
+    if (text === BLOCK_SUGGESTION)
+      return ['line breaks'];
 
     return text.split(BLOCK_SUGGESTION).filter(Boolean);
   };
@@ -122,8 +126,8 @@ export function BlockSuggestionCard({
 
         <div className="relative mt-1 mb-4 pl-[32px]">
           <div className="flex flex-col gap-2">
-            {suggestion.type === 'remove' &&
-              suggestionText2Array(suggestion.text!).map((text, index) => (
+            {suggestion.type === 'remove'
+              && suggestionText2Array(suggestion.text!).map((text, index) => (
                 <div key={index} className="flex items-center gap-2">
                   <span className="text-muted-foreground text-sm">Delete:</span>
 
@@ -133,8 +137,8 @@ export function BlockSuggestionCard({
                 </div>
               ))}
 
-            {suggestion.type === 'insert' &&
-              suggestionText2Array(suggestion.newText!).map((text, index) => (
+            {suggestion.type === 'insert'
+              && suggestionText2Array(suggestion.newText!).map((text, index) => (
                 <div key={index} className="flex items-center gap-2">
                   <span className="text-muted-foreground text-sm">Add:</span>
 
@@ -176,14 +180,14 @@ export function BlockSuggestionCard({
             {suggestion.type === 'update' && (
               <div className="flex items-center gap-2">
                 <span className="text-muted-foreground text-sm">
-                  {Object.keys(suggestion.properties).map((key) => (
+                  {Object.keys(suggestion.properties).map(key => (
                     <span key={key}>
                       Un
                       {key}
                     </span>
                   ))}
 
-                  {Object.keys(suggestion.newProperties).map((key) => (
+                  {Object.keys(suggestion.newProperties).map(key => (
                     <span key={key}>
                       {key.charAt(0).toUpperCase() + key.slice(1)}
                     </span>
@@ -241,14 +245,15 @@ export function useResolveSuggestion(
 ) {
   const discussions = usePluginOption(discussionPlugin, 'discussions');
 
-  const { api, editor, getOption, setOption } =
-    useEditorPlugin(suggestionPlugin);
+  const { api, editor, getOption, setOption }
+    = useEditorPlugin(suggestionPlugin);
 
   suggestionNodes.forEach(([node]) => {
     const id = api.suggestion.nodeId(node);
     const map = getOption('uniquePathMap');
 
-    if (!id) return;
+    if (!id)
+      return;
 
     const previousPath = map.get(id);
 
@@ -265,7 +270,8 @@ export function useResolveSuggestion(
       if (!nodes && lineBreakId !== id) {
         setOption('uniquePathMap', new Map(map).set(id, blockPath));
       }
-    } else {
+    }
+    else {
       setOption('uniquePathMap', new Map(map).set(id, blockPath));
     }
   });
@@ -273,7 +279,8 @@ export function useResolveSuggestion(
   const resolvedSuggestion: ResolvedSuggestion[] = React.useMemo(() => {
     const map = getOption('uniquePathMap');
 
-    if (suggestionNodes.length === 0) return [];
+    if (suggestionNodes.length === 0)
+      return [];
 
     const suggestionIds = new Set(
       suggestionNodes
@@ -281,7 +288,7 @@ export function useResolveSuggestion(
           if (TextApi.isText(node)) {
             const dataList = api.suggestion.dataList(node);
             const includeUpdate = dataList.some(
-              (data) => data.type === 'update',
+              data => data.type === 'update',
             );
 
             if (!includeUpdate) {
@@ -289,8 +296,8 @@ export function useResolveSuggestion(
             }
 
             return dataList
-              .filter((data) => data.type === 'update')
-              .map((d) => d.id);
+              .filter(data => data.type === 'update')
+              .map(d => d.id);
           }
           if (ElementApi.isElement(node)) {
             return api.suggestion.nodeId(node) ?? [];
@@ -304,20 +311,23 @@ export function useResolveSuggestion(
     const res: ResolvedSuggestion[] = [];
 
     suggestionIds.forEach((id) => {
-      if (!id) return;
+      if (!id)
+        return;
 
       const path = map.get(id);
 
-      if (!path || !PathApi.isPath(path)) return;
-      if (!PathApi.equals(path, blockPath)) return;
+      if (!path || !PathApi.isPath(path))
+        return;
+      if (!PathApi.equals(path, blockPath))
+        return;
 
       const entries = [
         ...editor.api.nodes<TElement | TSuggestionText>({
           at: [],
           mode: 'all',
-          match: (n) =>
-            (n[KEYS.suggestion] && n[getSuggestionKey(id)]) ||
-            api.suggestion.nodeId(n as TElement) === id,
+          match: n =>
+            (n[KEYS.suggestion] && n[getSuggestionKey(id)])
+            || api.suggestion.nodeId(n as TElement) === id,
         }),
       ];
 
@@ -368,7 +378,8 @@ export function useResolveSuggestion(
               }
             }
           });
-        } else {
+        }
+        else {
           const lineBreakData = api.suggestion.isBlockSuggestion(node)
             ? node.suggestion
             : undefined;
@@ -378,7 +389,8 @@ export function useResolveSuggestion(
               newText += lineBreakData.isLineBreak
                 ? BLOCK_SUGGESTION
                 : BLOCK_SUGGESTION + TYPE_TEXT_MAP[node.type](node);
-            } else if (lineBreakData.type === 'remove') {
+            }
+            else if (lineBreakData.type === 'remove') {
               text += lineBreakData.isLineBreak
                 ? BLOCK_SUGGESTION
                 : BLOCK_SUGGESTION + TYPE_TEXT_MAP[node.type](node);
@@ -387,15 +399,17 @@ export function useResolveSuggestion(
         }
       });
 
-      if (entries.length === 0) return;
+      if (entries.length === 0)
+        return;
 
       const nodeData = api.suggestion.suggestionData(entries[0][0]);
 
-      if (!nodeData) return;
+      if (!nodeData)
+        return;
 
       // const comments = data?.discussions.find((d) => d.id === id)?.comments;
-      const comments =
-        discussions.find((s: TDiscussion) => s.id === id)?.comments || [];
+      const comments
+        = discussions.find((s: TDiscussion) => s.id === id)?.comments || [];
       const createdAt = new Date(nodeData.createdAt);
 
       const keyId = getSuggestionKey(id);
@@ -412,7 +426,8 @@ export function useResolveSuggestion(
           type: 'update',
           userId: nodeData.userId,
         });
-      } else if (newText.length > 0 && text.length > 0) {
+      }
+      else if (newText.length > 0 && text.length > 0) {
         res.push({
           comments,
           createdAt,
@@ -423,7 +438,8 @@ export function useResolveSuggestion(
           type: 'replace',
           userId: nodeData.userId,
         });
-      } else if (newText.length > 0) {
+      }
+      else if (newText.length > 0) {
         res.push({
           comments,
           createdAt,
@@ -433,7 +449,8 @@ export function useResolveSuggestion(
           type: 'insert',
           userId: nodeData.userId,
         });
-      } else if (text.length > 0) {
+      }
+      else if (text.length > 0) {
         res.push({
           comments,
           createdAt,

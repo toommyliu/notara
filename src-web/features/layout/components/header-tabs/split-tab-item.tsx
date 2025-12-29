@@ -1,6 +1,6 @@
 import type { RefObject } from 'react';
-import type { Pane, PaneId } from '~/features/layout/stores/tabs-store';
 import type { HeaderTabItemHandle } from './types';
+import type { Pane, PaneId } from '~/features/layout/stores/tabs-store';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 

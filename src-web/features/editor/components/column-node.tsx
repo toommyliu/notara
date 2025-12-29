@@ -120,17 +120,18 @@ const ColumnDragHandle = React.memo(() => {
 function DropLine() {
   const { dropLine } = useDropLine({ orientation: 'horizontal' });
 
-  if (!dropLine) return null;
+  if (!dropLine)
+    return null;
 
   return (
     <div
       className={cn(
         'slate-dropLine',
         'absolute bg-brand/50',
-        dropLine === 'left' &&
-          'group-first/column:-left-1 inset-y-0 left-[-10.5px] w-1',
-        dropLine === 'right' &&
-          'group-last/column:-right-1 inset-y-0 right-[-11px] w-1',
+        dropLine === 'left'
+        && 'group-first/column:-left-1 inset-y-0 left-[-10.5px] w-1',
+        dropLine === 'right'
+        && 'group-last/column:-right-1 inset-y-0 right-[-11px] w-1',
       )}
     />
   );
@@ -153,7 +154,7 @@ function ColumnFloatingToolbar({ children }: React.PropsWithChildren) {
   const { props: buttonProps } = useRemoveNodeButton({ element });
   const selected = useSelected();
   const isCollapsed = useEditorSelector(
-    (editor) => editor.api.isCollapsed(),
+    editor => editor.api.isCollapsed(),
     [],
   );
   const isFocusedLast = useFocusedLast();
@@ -172,7 +173,7 @@ function ColumnFloatingToolbar({ children }: React.PropsWithChildren) {
       <PopoverPositioner>{children}</PopoverPositioner>
       <PopoverContent
         className="w-auto p-1"
-        onOpenAutoFocus={(e) => e.preventDefault()}
+        onOpenAutoFocus={e => e.preventDefault()}
         align="center"
         side="top"
         sideOffset={10}
