@@ -22,7 +22,6 @@ import { useNavigate } from '@tanstack/react-router';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import IconCheck from '~icons/lucide/check';
 import IconChevronDown from '~icons/lucide/chevron-down';
 import IconPlus from '~icons/lucide/plus';
 import IconSearch from '~icons/lucide/search';
@@ -35,17 +34,12 @@ import {
   useTabsStore,
 } from '~/features/layout/stores/tabs-store';
 
-import {
-  useNoteMetadata,
-  useNotesStore,
-  useNoteTitles,
-} from '~/features/notes/store';
+import { useNotesStore, useNoteTitles } from '~/features/notes/store';
 
 import { cn } from '~/lib/utils';
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
@@ -54,53 +48,8 @@ import { Input } from '~/ui/input';
 import { HeaderTabItem } from './header-tab-item';
 
 import { SplitTabItem } from './split-tab-item';
-
-interface TabDropdownItemProps {
-  noteId: string;
-  isActive: boolean;
-  onClick: () => void;
-}
-
-function TabDropdownItem({ noteId, isActive, onClick }: TabDropdownItemProps) {
-  const note = useNoteMetadata(noteId);
-  if (!note) {
-    return null;
-  }
-  return (
-    <DropdownMenuItem onClick={onClick} className="gap-2">
-      <span className="text-sm shrink-0">{note.emoji}</span>
-      <span
-        className={cn(
-          'truncate flex-1 font-medium',
-          !isActive && 'text-muted-foreground text-normal',
-        )}
-      >
-        {note.title}
-      </span>
-      {isActive && <IconCheck className="size-3.5 text-primary ml-auto" />}
-    </DropdownMenuItem>
-  );
-}
-
-interface TabDragOverlayContentProps {
-  noteId: string | null;
-}
-
-function TabDragOverlayContent({ noteId }: TabDragOverlayContentProps) {
-  const note = useNoteMetadata(noteId ?? '');
-  if (!noteId || !note) {
-    return null;
-  }
-  return (
-    <div
-      className="flex items-center gap-1.5 px-2.5 py-1 bg-background border rounded-md shadow-lg text-sm whitespace-nowrap z-50 pointer-events-none"
-      data-no-drag
-    >
-      <span>{note.emoji}</span>
-      <span className="font-medium">{note.title}</span>
-    </div>
-  );
-}
+import { TabDragOverlay } from './tab-drag-overlay';
+import { TabDropdownItem } from './tab-dropdown-item';
 
 export function HeaderTabs() {
   const orderedPanes = useOrderedPanes();
@@ -474,7 +423,7 @@ export function HeaderTabs() {
       </div>
 
       <DragOverlay dropAnimation={null}>
-        <TabDragOverlayContent noteId={activeDragId} />
+        <TabDragOverlay noteId={activeDragId} />
       </DragOverlay>
     </DndContext>
   );

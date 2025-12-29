@@ -150,14 +150,6 @@ function ZoneIndicator({ zone, activeZone }: ZoneIndicatorProps) {
 
   return (
     <div className={cn(baseClasses, positionClasses, activeClasses)}>
-      {isActive && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className="px-3 py-1.5 rounded-md bg-primary/90 text-primary-foreground text-sm font-medium shadow-lg animate-in fade-in zoom-in-95 duration-200">
-            {getZoneLabel(zone)}
-          </span>
-        </div>
-      )}
-
       {isActive && zone !== 'center' && <SplitPreviewLine zone={zone} />}
     </div>
   );
@@ -177,22 +169,6 @@ function getPositionClasses(zone: SplitDropZone): string {
       return 'inset-4';
   }
 }
-
-function getZoneLabel(zone: SplitDropZone): string {
-  switch (zone) {
-    case 'left':
-      return 'Split Left';
-    case 'right':
-      return 'Split Right';
-    case 'top':
-      return 'Split Top';
-    case 'bottom':
-      return 'Split Bottom';
-    case 'center':
-      return 'Replace';
-  }
-}
-
 function SplitPreviewLine({ zone }: { zone: SplitDropZone }) {
   const isVertical = zone === 'left' || zone === 'right';
 
