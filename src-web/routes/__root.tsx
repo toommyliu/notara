@@ -10,10 +10,10 @@ import {
   TitlebarSpacer,
 } from '~/features/layout';
 import { useTabsStore } from '~/features/layout/stores/tabs-store';
-
 import { useNotesStore } from '~/features/notes/store';
 import { SettingsDialogContent } from '~/features/settings';
 import { useSettingsStore } from '~/features/settings/stores/settings-store';
+
 import { useHotKeys } from '~/hooks/use-hotkey';
 import { useIsTauri } from '~/hooks/use-tauri';
 
@@ -22,7 +22,7 @@ import { SidebarInset, SidebarProvider, useSidebar } from '~/ui/sidebar';
 const DEV = import.meta.env.DEV;
 const TanStackRouterDevtools = DEV
   ? lazy(() =>
-      import('@tanstack/react-router-devtools').then((mod) => ({
+      import('@tanstack/react-router-devtools').then(mod => ({
         default: mod.TanStackRouterDevtools,
       })),
     )
@@ -41,31 +41,32 @@ function MainContent() {
 
 function AppShell() {
   const { toggleSidebar } = useSidebar();
-  const { toggleTabBar, cycleTab } = useTabsStore();
-  const addNote = useNotesStore((s) => s.addNote);
+  const { toggleTabBar, cycleTab, cyclePane } = useTabsStore();
+  const addNote = useNotesStore(s => s.addNote);
   const { open: openSettings } = useSettingsStore();
   const isTauri = useIsTauri();
 
   // Tauri event listeners for menu actions
   useEffect(() => {
-    if (typeof window === 'undefined' || !isTauri) return;
+    if (typeof window === 'undefined' || !isTauri)
+      return;
 
     const unlisteners: (() => void)[] = [];
 
     listen('toggle-sidebar', () => toggleSidebar())
-      .then((fn) => unlisteners.push(fn))
+      .then(fn => unlisteners.push(fn))
       .catch(() => {});
 
     listen('open-settings', () => openSettings())
-      .then((fn) => unlisteners.push(fn))
+      .then(fn => unlisteners.push(fn))
       .catch(() => {});
 
     listen('new-note', () => addNote())
-      .then((fn) => unlisteners.push(fn))
+      .then(fn => unlisteners.push(fn))
       .catch(() => {});
 
     return () => {
-      unlisteners.forEach((fn) => fn());
+      unlisteners.forEach(fn => fn());
     };
   }, [isTauri, toggleSidebar, openSettings, addNote]);
 
@@ -76,10 +77,12 @@ function AppShell() {
         'toggle-tab-bar': () => toggleTabBar(),
         'cycle-tab-forward': () => cycleTab(1),
         'cycle-tab-backward': () => cycleTab(-1),
+        'cycle-pane-forward': () => cyclePane(1),
+        'cycle-pane-backward': () => cyclePane(-1),
         'new-note': () => addNote(),
         'open-settings': () => openSettings(),
       }) as const,
-    [toggleSidebar, toggleTabBar, cycleTab, addNote, openSettings],
+    [toggleSidebar, toggleTabBar, cycleTab, cyclePane, addNote, openSettings],
   );
 
   useHotKeys(hotkeyHandlers);

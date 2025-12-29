@@ -5,9 +5,9 @@ import { createRoot } from 'react-dom/client';
 import { DragProvider } from '~/providers/drag-context';
 import { ThemeProvider } from '~/providers/theme';
 
-import { TooltipProvider } from '~/ui/tooltip';
-
 import { routeTree } from '~/routeTree.gen';
+
+import { TooltipProvider } from '~/ui/tooltip';
 
 const router = createRouter({ routeTree });
 

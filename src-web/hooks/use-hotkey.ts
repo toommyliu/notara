@@ -1,6 +1,6 @@
 import type { Modifier, ShortcutBinding, ShortcutId } from '@notara/shortcuts';
-
 import { useEffect, useRef } from 'react';
+
 import { useShortcutsStore } from '~/features/settings/stores/shortcuts-store';
 import { getKeyFromEvent } from '~/lib/keyboard';
 
@@ -13,24 +13,27 @@ function eventMatchesBinding(
   const wantsShift = binding.modifiers.includes('shift' as Modifier);
   const wantsAlt = binding.modifiers.includes('alt' as Modifier);
 
-  const modifiersMatch =
-    (wantsMeta ? ev.metaKey : !ev.metaKey) &&
-    (wantsCtrl ? ev.ctrlKey : !ev.ctrlKey) &&
-    (wantsShift ? ev.shiftKey : !ev.shiftKey) &&
-    (wantsAlt ? ev.altKey : !ev.altKey);
+  const modifiersMatch
+    = (wantsMeta ? ev.metaKey : !ev.metaKey)
+      && (wantsCtrl ? ev.ctrlKey : !ev.ctrlKey)
+      && (wantsShift ? ev.shiftKey : !ev.shiftKey)
+      && (wantsAlt ? ev.altKey : !ev.altKey);
 
-  if (!modifiersMatch) return false;
+  if (!modifiersMatch)
+    return false;
 
   const eventKey = getKeyFromEvent(ev);
   return eventKey.toLowerCase() === binding.key.toLowerCase();
 }
 
 function isInputElement(target: EventTarget | null): boolean {
-  if (!(target instanceof HTMLElement)) return false;
+  if (!(target instanceof HTMLElement))
+    return false;
+
   return (
-    target.tagName === 'INPUT' ||
-    target.tagName === 'TEXTAREA' ||
-    target.isContentEditable
+    target.tagName === 'INPUT'
+    || target.tagName === 'TEXTAREA'
+    || target.isContentEditable
   );
 }
 
@@ -54,12 +57,15 @@ export function useHotKeys(
   } = options;
 
   const handlersRef = useRef(handlers);
-  handlersRef.current = handlers;
+  useEffect(() => {
+    handlersRef.current = handlers;
+  });
 
   const lastFiredRef = useRef<number>(0);
 
   useEffect(() => {
-    if (!enabled) return;
+    if (!enabled)
+      return;
 
     const handleKeyDown = (ev: KeyboardEvent) => {
       if (!allowInInput && isInputElement(ev.target)) {
@@ -71,13 +77,16 @@ export function useHotKeys(
         return;
       }
 
-      if (document.activeElement?.closest('[data-disable-hotkey]')) return;
+      if (document.activeElement?.closest('[data-disable-hotkey]'))
+        return;
 
       for (const [action, callback] of Object.entries(handlersRef.current)) {
-        if (!callback) continue;
+        if (!callback)
+          continue;
 
         const binding = bindings[action as ShortcutId];
-        if (!binding) continue;
+        if (!binding)
+          continue;
 
         if (eventMatchesBinding(ev, binding)) {
           if (!allowDefault) {
@@ -86,7 +95,8 @@ export function useHotKeys(
           }
 
           const now = Date.now();
-          if (now - lastFiredRef.current < debounceMs) return;
+          if (now - lastFiredRef.current < debounceMs)
+            return;
 
           lastFiredRef.current = now;
 
