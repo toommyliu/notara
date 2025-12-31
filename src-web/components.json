@@ -19,8 +19,5 @@
     "ui": "~/ui",
     "lib": "~/lib",
     "hooks": "~/hooks"
-  },
-  "registries": {
-    "@plate": "https://platejs.org/r/{name}.json"
   }
 }
