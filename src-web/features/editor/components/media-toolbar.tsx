@@ -9,6 +9,7 @@ import {
   useImagePreviewValue,
 } from '@platejs/media/react';
 
+import { PopoverPortal } from '@radix-ui/react-popover';
 import { cva } from 'class-variance-authority';
 import { Link, Trash2Icon } from 'lucide-react';
 import {
@@ -20,12 +21,12 @@ import {
   useRemoveNodeButton,
   useSelected,
 } from 'platejs/react';
-import * as React from 'react';
 
+import * as React from 'react';
 import { Button, buttonVariants } from '~/ui/button';
 import { Popover, PopoverContent, PopoverPositioner } from '~/ui/popover';
-import { Separator } from '~/ui/separator';
 
+import { Separator } from '~/ui/separator';
 import { CaptionButton } from './caption';
 
 const inputVariants = cva(
@@ -50,10 +51,10 @@ export function MediaToolbar({
   const isImagePreviewOpen = useImagePreviewValue('isOpen', editor.id);
   const open
     = isFocusedLast
-      && !readOnly
-      && selected
-      && selectionCollapsed
-      && !isImagePreviewOpen;
+    && !readOnly
+    && selected
+    && selectionCollapsed
+    && !isImagePreviewOpen;
   const isEditing = useFloatingMediaValue('isEditing');
 
   React.useEffect(() => {
@@ -68,14 +69,15 @@ export function MediaToolbar({
 
   return (
     <Popover open={open} modal={false}>
-      <PopoverPositioner>{children}</PopoverPositioner>
+      <PopoverPortal>
+        <PopoverPositioner>{children}</PopoverPositioner>
 
-      <PopoverContent
-        className="w-auto p-1"
-        onOpenAutoFocus={e => e.preventDefault()}
-      >
-        {isEditing
-          ? (
+        <PopoverContent
+          className="w-auto p-1"
+          onOpenAutoFocus={e => e.preventDefault()}
+        >
+          {isEditing
+            ? (
               <div className="flex w-[330px] flex-col">
                 <div className="flex items-center">
                   <div className="flex items-center pr-1 pl-2 text-muted-foreground">
@@ -90,7 +92,7 @@ export function MediaToolbar({
                 </div>
               </div>
             )
-          : (
+            : (
               <div className="box-content flex items-center">
                 <FloatingMediaPrimitive.EditButton
                   className={buttonVariants({ size: 'sm', variant: 'ghost' })}
@@ -109,7 +111,8 @@ export function MediaToolbar({
                 </Button>
               </div>
             )}
-      </PopoverContent>
+        </PopoverContent>
+      </PopoverPortal>
     </Popover>
   );
 }

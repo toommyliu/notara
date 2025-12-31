@@ -60,7 +60,6 @@ const TYPE_TEXT_MAP: Record<string, (node?: TElement) => string> = {
   [KEYS.table]: () => 'Table',
   [KEYS.toc]: () => 'Table of Contents',
   [KEYS.toggle]: () => 'Toggle',
-  [KEYS.video]: () => 'Video',
 };
 
 export function BlockSuggestionCard({

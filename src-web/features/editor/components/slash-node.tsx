@@ -13,6 +13,7 @@ import {
   Heading2Icon,
   Heading3Icon,
   LightbulbIcon,
+  Link2Icon,
   ListIcon,
   ListOrdered,
   PilcrowIcon,
@@ -126,6 +127,12 @@ const groups: Group[] = [
         keywords: ['note'],
         label: 'Callout',
         value: KEYS.callout,
+      },
+      {
+        icon: <Link2Icon />,
+        keywords: ['embed', 'url', 'link', 'website'],
+        label: 'Embed Link',
+        value: KEYS.mediaEmbed,
       },
     ].map(item => ({
       ...item,

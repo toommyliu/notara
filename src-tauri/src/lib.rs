@@ -171,12 +171,12 @@ pub fn run() {
                 }
             });
 
-            #[cfg(debug_assertions)]
-            {
-                let window = app.get_webview_window("main").unwrap();
-                let _ = window.center();
-                window.open_devtools();
-            }
+            // #[cfg(debug_assertions)]
+            // {
+            //     let window = app.get_webview_window("main").unwrap();
+            //     let _ = window.center();
+            //     window.open_devtools();
+            // }
 
             Ok(())
         })

@@ -49,10 +49,10 @@ const insertBlockMap: Record<
       type: KEYS.img,
     }),
   [KEYS.mediaEmbed]: editor =>
-    insertMedia(editor, {
-      select: true,
-      type: KEYS.mediaEmbed,
-    }),
+    editor.tf.insertNodes(
+      { type: KEYS.mediaEmbed, url: '', children: [{ text: '' }] },
+      { select: true },
+    ),
   [KEYS.table]: editor =>
     editor.getTransforms(TablePlugin).insert.table({}, { select: true }),
   [KEYS.toc]: editor => insertToc(editor, { select: true }),
