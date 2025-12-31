@@ -3,6 +3,7 @@
 import type { Pane, PaneId } from '~/features/layout/stores/tabs-store';
 import { useCallback, useRef, useState } from 'react';
 
+import { useDragStore } from '~/features/layout/stores/drag-store';
 import { useTabsStore } from '~/features/layout/stores/tabs-store';
 import { HapticFeedbackPattern, useHaptics } from '~/hooks/use-haptics';
 
@@ -29,6 +30,7 @@ export function SplitViewContainer({
   onSizesChange,
 }: SplitViewContainerProps) {
   const setSplitSizes = useTabsStore(s => s.setSplitSizes);
+  const isDragging = useDragStore(s => s.isDragging);
 
   const setSizes = useCallback(
     (sizes: [number, number]) => {
@@ -168,6 +170,7 @@ export function SplitViewContainer({
             'bg-primary/40',
             isVertical ? 'w-2' : 'h-2',
           ],
+          isDragging && 'opacity-0 pointer-events-none',
           'focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset focus-visible:outline-none',
         )}
       >
