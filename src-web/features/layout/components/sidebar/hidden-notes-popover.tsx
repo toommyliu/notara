@@ -27,7 +27,7 @@ function HiddenNoteItem({ noteId, isActive, onClick }: HiddenNoteItemProps) {
       )}
     >
       <span className="text-base leading-none">{note.emoji}</span>
-      <span className="flex-1 truncate">{note.title}</span>
+      <span className="flex-1 truncate min-w-0">{note.title}</span>
     </button>
   );
 }

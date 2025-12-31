@@ -13,7 +13,7 @@ export function SidebarDragOverlay({ noteId, isNoteDrag }: SidebarDragOverlayPro
   return (
     <div className="flex items-center gap-2 px-3 py-1.5 bg-background border rounded-md shadow-lg text-sm z-50 pointer-events-none">
       <span>{note.emoji}</span>
-      <span>{note.title}</span>
+      <span className="truncate max-w-50">{note.title}</span>
     </div>
   );
 }
