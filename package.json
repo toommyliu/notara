@@ -12,6 +12,7 @@
     "dev": "cd src-web && bun run dev",
     "build": "bun run --filter '*' build",
     "tauri": "tauri",
+    "tauri:build": "tauri build",
     "postinstall": "bun run --filter '*' postinstall"
   },
   "devDependencies": {
