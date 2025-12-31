@@ -1,6 +1,5 @@
 @import 'tailwindcss';
 
-@plugin "tailwind-scrollbar-hide";
 @import 'tw-animate-css';
 
 @custom-variant dark (&:is(.dark *));
@@ -192,7 +191,7 @@
   }
 
   /* Sidebar hover-to-reveal for offcanvas mode */
-  [data-slot='sidebar-hover-trigger']:hover + [data-slot='sidebar-container'],
+  [data-slot='sidebar-hover-trigger']:hover+[data-slot='sidebar-container'],
   [data-slot='sidebar-container']:hover {
     transition-delay: 0s !important;
     transform: translateX(0) !important;
@@ -289,6 +288,7 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
   }

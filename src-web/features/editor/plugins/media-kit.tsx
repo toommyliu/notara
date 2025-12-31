@@ -7,7 +7,6 @@ import {
   ImagePlugin,
   MediaEmbedPlugin,
   PlaceholderPlugin,
-  VideoPlugin,
 } from '@platejs/media/react';
 import { KEYS } from 'platejs';
 
@@ -18,7 +17,6 @@ import { ImageElement } from '~/features/editor/components/media-image-node';
 import { PlaceholderElement } from '~/features/editor/components/media-placeholder-node';
 import { MediaPreviewDialog } from '~/features/editor/components/media-preview-dialog';
 import { MediaUploadToast } from '~/features/editor/components/media-upload-toast';
-import { VideoElement } from '~/features/editor/components/media-video-node';
 
 export const MediaKit = [
   ImagePlugin.configure({
@@ -26,7 +24,6 @@ export const MediaKit = [
     render: { afterEditable: MediaPreviewDialog, node: ImageElement },
   }),
   MediaEmbedPlugin.withComponent(MediaEmbedElement),
-  VideoPlugin.withComponent(VideoElement),
   AudioPlugin.withComponent(AudioElement),
   FilePlugin.withComponent(FileElement),
   PlaceholderPlugin.configure({
