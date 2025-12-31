@@ -5,7 +5,7 @@ import { createUploadthing } from 'uploadthing/next';
 const f = createUploadthing();
 
 export const ourFileRouter = {
-  editorUploader: f(['image', 'text', 'blob', 'pdf', 'video', 'audio'])
+  editorUploader: f(['image', 'text', 'blob', 'pdf'])
     .middleware(() => ({}))
     .onUploadComplete(({ file }) => ({
       key: file.key,

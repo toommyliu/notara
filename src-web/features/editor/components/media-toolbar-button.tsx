@@ -5,7 +5,6 @@ import type { DropdownMenuProps } from '@radix-ui/react-dropdown-menu';
 import { PlaceholderPlugin } from '@platejs/media/react';
 
 import {
-  AudioLinesIcon,
   FileUpIcon,
   FilmIcon,
   ImageIcon,
@@ -51,12 +50,6 @@ const MEDIA_CONFIG: Record<
     tooltip: string;
   }
 > = {
-  [KEYS.audio]: {
-    accept: ['audio/*'],
-    icon: <AudioLinesIcon className="size-4" />,
-    title: 'Insert Audio',
-    tooltip: 'Audio',
-  },
   [KEYS.file]: {
     accept: ['*'],
     icon: <FileUpIcon className="size-4" />,

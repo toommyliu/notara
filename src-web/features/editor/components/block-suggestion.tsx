@@ -32,7 +32,6 @@ export interface ResolvedSuggestion extends TResolvedSuggestion {
 const BLOCK_SUGGESTION = '__block__';
 
 const TYPE_TEXT_MAP: Record<string, (node?: TElement) => string> = {
-  [KEYS.audio]: () => 'Audio',
   [KEYS.blockquote]: () => 'Blockquote',
   [KEYS.callout]: () => 'Callout',
   [KEYS.codeBlock]: () => 'Code Block',

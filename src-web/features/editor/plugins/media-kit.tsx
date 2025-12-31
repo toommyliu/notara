@@ -2,7 +2,6 @@
 
 import { CaptionPlugin } from '@platejs/caption/react';
 import {
-  AudioPlugin,
   FilePlugin,
   ImagePlugin,
   MediaEmbedPlugin,
@@ -10,7 +9,6 @@ import {
 } from '@platejs/media/react';
 import { KEYS } from 'platejs';
 
-import { AudioElement } from '~/features/editor/components/media-audio-node';
 import { MediaEmbedElement } from '~/features/editor/components/media-embed-node';
 import { FileElement } from '~/features/editor/components/media-file-node';
 import { ImageElement } from '~/features/editor/components/media-image-node';
@@ -24,7 +22,6 @@ export const MediaKit = [
     render: { afterEditable: MediaPreviewDialog, node: ImageElement },
   }),
   MediaEmbedPlugin.withComponent(MediaEmbedElement),
-  AudioPlugin.withComponent(AudioElement),
   FilePlugin.withComponent(FileElement),
   PlaceholderPlugin.configure({
     options: { disableEmptyPlaceholder: true },
@@ -33,7 +30,7 @@ export const MediaKit = [
   CaptionPlugin.configure({
     options: {
       query: {
-        allow: [KEYS.img, KEYS.video, KEYS.audio, KEYS.file, KEYS.mediaEmbed],
+        allow: [KEYS.img, KEYS.video, KEYS.file, KEYS.mediaEmbed],
       },
     },
   }),

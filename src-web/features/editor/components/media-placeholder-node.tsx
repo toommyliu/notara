@@ -9,7 +9,7 @@ import {
   updateUploadHistory,
 } from '@platejs/media/react';
 
-import { AudioLines, FileUp, Film, ImageIcon, Loader2Icon } from 'lucide-react';
+import { FileUp, ImageIcon, Loader2Icon } from 'lucide-react';
 import { KEYS } from 'platejs';
 import { PlateElement, useEditorPlugin, withHOC } from 'platejs/react';
 import * as React from 'react';
@@ -26,11 +26,6 @@ const CONTENT: Record<
     icon: React.ReactNode;
   }
 > = {
-  [KEYS.audio]: {
-    accept: ['audio/*'],
-    content: 'Add an audio file',
-    icon: <AudioLines />,
-  },
   [KEYS.file]: {
     accept: ['*'],
     content: 'Add a file',
@@ -40,11 +35,6 @@ const CONTENT: Record<
     accept: ['image/*'],
     content: 'Add an image',
     icon: <ImageIcon />,
-  },
-  [KEYS.video]: {
-    accept: ['video/*'],
-    content: 'Add a video',
-    icon: <Film />,
   },
 };
 
@@ -250,9 +240,8 @@ function formatBytes(
 
   const i = Math.floor(Math.log(bytes) / Math.log(1024));
 
-  return `${(bytes / 1024 ** i).toFixed(decimals)} ${
-    sizeType === 'accurate'
-      ? (accurateSizes[i] ?? 'Bytest')
-      : (sizes[i] ?? 'Bytes')
-  }`;
+  return `${(bytes / 1024 ** i).toFixed(decimals)} ${sizeType === 'accurate'
+    ? (accurateSizes[i] ?? 'Bytest')
+    : (sizes[i] ?? 'Bytes')
+    }`;
 }
