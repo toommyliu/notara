@@ -291,3 +291,45 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Editor Styles */
+.editor-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  background: var(--background);
+}
+
+.editor-title {
+  flex-shrink: 0;
+  padding: 48px 48px 16px;
+  font-size: 2.25rem;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.025em;
+  color: var(--foreground);
+  background: transparent;
+  border: none;
+  outline: none;
+  caret-color: var(--foreground);
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+}
+
+.editor-title:empty::before {
+  content: attr(data-placeholder);
+  color: var(--muted-foreground);
+  pointer-events: none;
+}
+
+.editor-title:focus {
+  outline: none;
+}
+
+.editor-content {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
