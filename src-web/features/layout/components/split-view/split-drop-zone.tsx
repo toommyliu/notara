@@ -138,7 +138,6 @@ function ZoneIndicator({ zone, activeZone }: ZoneIndicatorProps) {
 
   const activeClasses = isActive
     ? cn(
-        'bg-gradient-to-br from-primary/10 to-primary/20',
         'border-2 border-dashed border-primary/50',
         'shadow-[inset_0_0_40px_hsl(var(--primary)/0.1),0_0_20px_hsl(var(--primary)/0.15)]',
         'backdrop-blur-[2px]',
