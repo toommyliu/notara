@@ -162,8 +162,8 @@ export function SplitTabItem({
         'group relative flex items-center select-none shrink-0 rounded-md outline-none p-0.5 gap-0.5',
         'transition-all duration-200 ease-out cursor-grab active:cursor-grabbing ring-1 ring-transparent',
         isActive
-          ? 'bg-background ring-border/60 shadow-[0_1px_2px_rgba(0,0,0,0.05)]'
-          : 'bg-muted/30 hover:bg-muted/50 hover:ring-border/40',
+          ? 'text-foreground bg-background ring-border/50 shadow-[0_1px_2px_rgba(0,0,0,0.05)]'
+          : 'text-muted-foreground/70 hover:text-foreground hover:bg-muted/40',
         isDragging && 'opacity-50',
       )}
       {...attributes}
@@ -175,7 +175,7 @@ export function SplitTabItem({
       <SplitPane
         noteId={pane.left}
         side="left"
-        isPaneActive={pane.activeSide === 'left'}
+        isPaneActive={isActive && pane.activeSide === 'left'}
         onActivateSide={onActivateSide}
         onCloseNote={onCloseNote}
         buttonRef={handleButtonRef}
@@ -183,7 +183,7 @@ export function SplitTabItem({
       <SplitPane
         noteId={pane.right}
         side="right"
-        isPaneActive={pane.activeSide === 'right'}
+        isPaneActive={isActive && pane.activeSide === 'right'}
         onActivateSide={onActivateSide}
         onCloseNote={onCloseNote}
         buttonRef={handleButtonRef}
