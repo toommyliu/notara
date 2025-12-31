@@ -193,14 +193,13 @@ function Sidebar({
         data-slot="sidebar-gap"
         className={cn(
           'relative bg-transparent',
-          // The gap should be ribbon width + sidebar width
-          'w-[calc(var(--sidebar-ribbon-width,0px)+var(--sidebar-width))]',
-          'group-data-[collapsible=offcanvas]:w-(--sidebar-ribbon-width,0px)',
-          'group-data-[mobile=true]:w-(--sidebar-ribbon-width,0px)',
+          'w-(--sidebar-width)',
+          'group-data-[collapsible=offcanvas]:w-0',
+          'group-data-[mobile=true]:w-0',
           'group-data-[side=right]:rotate-180',
           variant === 'floating' || variant === 'inset'
-            ? 'group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4))+var(--sidebar-ribbon-width,0px))]'
-            : 'group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+var(--sidebar-ribbon-width,0px))]',
+            ? 'group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)+(--spacing(4)))]'
+            : 'group-data-[collapsible=icon]:w-(--sidebar-width-icon)',
         )}
       />
 
@@ -235,7 +234,7 @@ function Sidebar({
               className={cn(
                 'fixed z-20 w-4',
                 side === 'left'
-                  ? 'left-(--sidebar-ribbon-width,0px)'
+                  ? 'left-0'
                   : 'right-0',
               )}
               style={{
@@ -254,7 +253,7 @@ function Sidebar({
             className={cn(
               'fixed bottom-0 z-10 hidden w-(--sidebar-width) md:flex',
               side === 'left'
-                ? 'left-(--sidebar-ribbon-width,0px) group-data-[collapsible=offcanvas]:-translate-x-full'
+                ? 'left-0 group-data-[collapsible=offcanvas]:-translate-x-full'
                 : 'right-0 group-data-[collapsible=offcanvas]:translate-x-full',
               // Adjust the padding for floating and inset variants.
               variant === 'floating' || variant === 'inset'
@@ -318,21 +317,11 @@ function SidebarRail({ className, ...props }: React.ComponentProps<'button'>) {
       startXRef.current = e.clientX;
       hasDraggedRef.current = false;
 
-      const wrapper = document.querySelector(
-        '[data-slot="sidebar-wrapper"]',
-      ) as HTMLElement;
       const sidebarGap = document.querySelector(
         '[data-slot="sidebar-gap"]',
       ) as HTMLElement;
-      if (wrapper && sidebarGap) {
-        const ribbonWidth = Number.parseInt(
-          getComputedStyle(wrapper).getPropertyValue(
-            '--sidebar-ribbon-width',
-          ) || '0',
-          10,
-        );
-        const totalWidth = sidebarGap.getBoundingClientRect().width;
-        startWidthRef.current = totalWidth - ribbonWidth;
+      if (sidebarGap) {
+        startWidthRef.current = sidebarGap.getBoundingClientRect().width;
       }
       else {
         startWidthRef.current = 256;

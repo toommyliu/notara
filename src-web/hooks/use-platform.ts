@@ -10,7 +10,6 @@ const MAC_LEFT_INSET = 64; // Traffic lights
 const BASE_LEFT_INSET = 0;
 const WIN_LINUX_RIGHT_INSET = 138; // idk
 const BASE_RIGHT_INSET = 0;
-const RIBBON_WIDTH = 0;
 
 const MACOS = 'macos';
 const WINDOWS = 'windows';
@@ -28,7 +27,6 @@ interface LayoutTokens {
   titlebarHeight: number;
   leftInset: number;
   rightInset: number;
-  ribbonWidth: number;
   isFullscreen: boolean;
 }
 
@@ -60,7 +58,6 @@ function getLayout(
     isWindows,
     isLinux,
     isTauri,
-    ribbonWidth: RIBBON_WIDTH,
     isFullscreen,
     titlebarHeight: TITLEBAR_HEIGHT,
     rightInset: BASE_RIGHT_INSET,
