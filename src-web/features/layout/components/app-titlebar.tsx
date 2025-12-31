@@ -22,6 +22,7 @@ export function AppTitlebar({
         'fixed inset-x-0 top-0 z-50 flex items-center select-none bg-sidebar',
         className,
       )}
+      data-tauri-drag-region
       style={{
         height: layout.titlebarHeight,
         paddingLeft: noLeftInset ? 0 : layout.leftInset,

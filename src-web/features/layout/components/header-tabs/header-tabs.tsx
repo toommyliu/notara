@@ -285,18 +285,19 @@ export function HeaderTabs() {
     >
       <div
         className="flex items-center w-full pointer-events-auto"
-        data-no-drag
-        style={{ WebkitAppRegion: 'no-drag' } as React.CSSProperties}
+        data-tauri-drag-region
       >
         <div
           ref={tabListRef}
           className="relative flex items-center min-w-0 group/tabs outline-none"
           role="tablist"
           aria-orientation="horizontal"
+          data-tauri-drag-region
         >
           <div
             ref={scrollContainerRef}
             className="flex items-center gap-1.5 min-w-0 overflow-x-auto overflow-y-hidden scrollbar-none pb-2 -mb-2 pl-2"
+            data-tauri-drag-region
             style={
               {
                 overscrollBehavior: 'contain',

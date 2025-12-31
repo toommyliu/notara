@@ -48,6 +48,7 @@ function HeaderIconTab({ icon, label, isActive, onClick, to }: HeaderIconTabProp
   const content = (
     <button
       onClick={onClick}
+      data-no-drag
       className={cn(
         'flex items-center justify-center p-1.5 rounded-md transition-colors',
         'text-muted-foreground hover:text-foreground hover:bg-muted/50',
@@ -125,9 +126,10 @@ export function AppHeader() {
       noLeftInset={true}
     >
       {/* Left side actions */}
-      <div className="flex items-center w-full h-full gap-0.5">
+      <div className="flex items-center w-full h-full gap-0.5" data-tauri-drag-region>
         <div
           className="flex items-center h-full py-2 border-r border-border/40 bg-sidebar pointer-events-auto"
+          data-tauri-drag-region
           style={{
             minWidth: 'var(--sidebar-width)',
             maxWidth: 'var(--sidebar-width)',
@@ -136,7 +138,7 @@ export function AppHeader() {
             paddingRight: 4,
           }}
         >
-          <div className="flex items-center gap-1 flex-1">
+          <div className="flex items-center gap-1 flex-1" data-tauri-drag-region>
             <HeaderIconTab
               icon={<IconFiles className="size-4" />}
               label="Files"
@@ -154,12 +156,12 @@ export function AppHeader() {
           </div>
         </div>
 
-        <div className="flex items-center h-full min-w-0 flex-1 pl-2" data-no-drag>
+        <div className="flex items-center h-full min-w-0 flex-1 pl-2" data-tauri-drag-region>
           <HeaderTabs />
         </div>
 
         {!showTabs && (emoji || title) && (
-          <div className="flex items-center gap-2 shrink-0 mr-2">
+          <div className="flex items-center gap-2 shrink-0 mr-2" data-tauri-drag-region>
             {emoji && <span className="text-base shrink-0">{emoji}</span>}
             {title && (
               <span className="truncate font-medium text-sm max-w-37.5">
@@ -176,7 +178,7 @@ export function AppHeader() {
         )}
 
         {actions && (
-          <div className="flex items-center gap-0.5 shrink-0">
+          <div className="flex items-center gap-0.5 shrink-0" data-tauri-drag-region>
             {actions}
           </div>
         )}
@@ -184,7 +186,7 @@ export function AppHeader() {
         <Separator orientation="vertical" className="h-4 mr-1 bg-border/60 self-center!" />
 
         {/* Right-side actions */}
-        <div className="flex items-center gap-1 shrink-0 pr-3 pl-2 pointer-events-auto">
+        <div className="flex items-center gap-1 shrink-0 pr-3 pl-2 pointer-events-auto" data-tauri-drag-region>
           {hasSplitPane && (
             <DropdownMenu>
               <Tooltip>
@@ -192,7 +194,10 @@ export function AppHeader() {
                   render={(
                     <DropdownMenuTrigger
                       render={(
-                        <button className="flex items-center justify-center p-1.5 rounded-md transition-colors text-muted-foreground hover:text-foreground hover:bg-muted/50">
+                        <button
+                          data-no-drag
+                          className="flex items-center justify-center p-1.5 rounded-md transition-colors text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                        >
                           <IconColumns className="size-4" />
                         </button>
                       )}
@@ -223,6 +228,7 @@ export function AppHeader() {
             <TooltipTrigger
               render={(
                 <button
+                  data-no-drag
                   className="flex items-center justify-center p-1.5 rounded-md transition-colors text-muted-foreground hover:text-foreground hover:bg-muted/50"
                   onClick={() => open()}
                 >
@@ -233,12 +239,16 @@ export function AppHeader() {
             <TooltipContent side="bottom" className="text-xs">Settings</TooltipContent>
           </Tooltip>
 
-          <SidebarTrigger />
+          <SidebarTrigger data-no-drag />
 
           <Tooltip>
             <TooltipTrigger
               render={(
-                <Avatar size="sm" className="cursor-pointer transition-transform hover:scale-105">
+                <Avatar
+                  size="sm"
+                  className="cursor-pointer transition-transform hover:scale-105"
+                  data-no-drag
+                >
                   <AvatarFallback>U</AvatarFallback>
                 </Avatar>
               )}

@@ -140,7 +140,6 @@ function ZoneIndicator({ zone, activeZone }: ZoneIndicatorProps) {
     ? cn(
         'border-2 border-dashed border-primary/50',
         'shadow-[inset_0_0_40px_hsl(var(--primary)/0.1),0_0_20px_hsl(var(--primary)/0.15)]',
-        'backdrop-blur-[2px]',
         'scale-100 opacity-100',
       )
     : 'scale-95 opacity-0';
