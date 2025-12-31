@@ -52,7 +52,7 @@ function SplitPane({
         )}
       >
         <span className="text-[14px] shrink-0">{note.emoji}</span>
-        <span className="text-[13px] font-medium truncate max-w-[100px]">
+        <span className="text-[13px] font-medium truncate max-w-[140px]">
           {note.title}
         </span>
       </button>
