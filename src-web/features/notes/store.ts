@@ -8,7 +8,6 @@ export interface Note {
   id: string;
   title: string;
   emoji: string;
-  // TODO:
   content: string;
   showTOC?: boolean;
   createdAt: Date;
