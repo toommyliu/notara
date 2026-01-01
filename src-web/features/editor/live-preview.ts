@@ -124,6 +124,7 @@ function getDecorations(view: EditorView): DecorationSet {
               decorations.push(HIDDEN_MARK.range(child.from, child.to + 1)); // +1 for space
             }
           }
+
           decorations.push(
             Decoration.mark({ class: 'cm-md-blockquote' }).range(node.from, node.to),
           );
@@ -163,6 +164,84 @@ function getDecorations(view: EditorView): DecorationSet {
               Decoration.mark({ class: 'cm-md-hr' }).range(node.from, node.to),
             );
           }
+        }
+
+        // Handle fenced code blocks
+        if (node.name === 'FencedCode') {
+          const cursorInside = cursorPos >= node.from && cursorPos <= node.to;
+          const startLine = view.state.doc.lineAt(node.from);
+          const endLine = view.state.doc.lineAt(node.to);
+
+          let language = '';
+          node.node.cursor().iterate((child) => {
+            if (child.name === 'CodeInfo')
+              language = view.state.doc.sliceString(child.from, child.to).trim();
+          });
+
+          if (!cursorInside) {
+            // Hide opening fence line completely (zero height)
+            decorations.push(
+              Decoration.line({ class: 'cm-md-codeblock-fence-hidden' }).range(startLine.from),
+            );
+
+            // Hide closing fence line completely
+            if (endLine.number !== startLine.number) {
+              decorations.push(
+                Decoration.line({ class: 'cm-md-codeblock-fence-hidden' }).range(endLine.from),
+              );
+            }
+
+            // Apply line decorations for each code line (between fences)
+            const contentStartLine = startLine.number + 1;
+            const contentEndLine = endLine.number - 1;
+            const totalContentLines = contentEndLine - contentStartLine + 1;
+
+            for (let lineNum = contentStartLine; lineNum <= contentEndLine; lineNum++) {
+              const line = view.state.doc.line(lineNum);
+              let lineClass = 'cm-md-codeblock-line cm-md-codeblock-middle';
+
+              if (totalContentLines === 1)
+                lineClass = 'cm-md-codeblock-line cm-md-codeblock-single';
+              else if (lineNum === contentStartLine)
+                lineClass = 'cm-md-codeblock-line cm-md-codeblock-first';
+              else if (lineNum === contentEndLine)
+                lineClass = 'cm-md-codeblock-line cm-md-codeblock-last';
+
+              decorations.push(
+                Decoration.line({
+                  class: lineClass,
+                  attributes: (lineNum === contentStartLine && language)
+                    ? { 'data-language': language }
+                    : {},
+                }).range(line.from),
+              );
+            }
+          }
+          else {
+            // When cursor inside, show subtle editing background with proper padding
+            const totalLines = endLine.number - startLine.number + 1;
+
+            for (let lineNum = startLine.number; lineNum <= endLine.number; lineNum++) {
+              const line = view.state.doc.line(lineNum);
+              let editClass = 'cm-md-codeblock-editing';
+
+              if (totalLines === 1) {
+                editClass += ' cm-md-codeblock-editing-single';
+              }
+              else if (lineNum === startLine.number) {
+                editClass += ' cm-md-codeblock-editing-first';
+              }
+              else if (lineNum === endLine.number) {
+                editClass += ' cm-md-codeblock-editing-last';
+              }
+
+              decorations.push(
+                Decoration.line({ class: editClass }).range(line.from),
+              );
+            }
+          }
+
+          return false;
         }
       },
     });
@@ -268,5 +347,90 @@ export const livePreviewTheme = EditorView.baseTheme({
     height: '1px',
     backgroundColor: 'var(--border)',
     verticalAlign: 'middle',
+  },
+  '.cm-md-codeblock-fence-hidden': {
+    display: 'none !important',
+    height: '0 !important',
+    margin: '0 !important',
+    padding: '0 !important',
+    lineHeight: '0 !important',
+  },
+  '.cm-md-codeblock-line': {
+    fontFamily: 'ui-monospace, "SF Mono", Menlo, Monaco, monospace',
+    fontSize: '0.875em',
+    lineHeight: '1.65',
+    backgroundColor: 'var(--muted)',
+    paddingLeft: '1.5rem !important',
+    paddingRight: '1.5rem !important',
+    position: 'relative',
+  },
+  '.cm-md-codeblock-first': {
+    paddingTop: '1rem !important',
+    borderTopLeftRadius: '0.625rem',
+    borderTopRightRadius: '0.625rem',
+    marginTop: '0.75rem',
+  },
+  '.cm-md-codeblock-first::after': {
+    content: 'attr(data-language)',
+    position: 'absolute',
+    top: '0.75rem',
+    right: '1rem',
+    fontSize: '0.65em',
+    color: 'var(--muted-foreground)',
+    textTransform: 'uppercase',
+    fontWeight: '500',
+    letterSpacing: '0.05em',
+    opacity: '0.7',
+    fontFamily: 'ui-sans-serif, -apple-system, BlinkMacSystemFont, sans-serif',
+  },
+  '.cm-md-codeblock-last': {
+    paddingBottom: '1rem !important',
+    borderBottomLeftRadius: '0.625rem',
+    borderBottomRightRadius: '0.625rem',
+    marginBottom: '0.75rem',
+  },
+  '.cm-md-codeblock-single': {
+    paddingTop: '1rem !important',
+    paddingBottom: '1rem !important',
+    borderRadius: '0.625rem',
+    marginTop: '0.75rem',
+    marginBottom: '0.75rem',
+  },
+  '.cm-md-codeblock-single::after': {
+    content: 'attr(data-language)',
+    position: 'absolute',
+    top: '0.75rem',
+    right: '1rem',
+    fontSize: '0.65em',
+    color: 'var(--muted-foreground)',
+    textTransform: 'uppercase',
+    fontWeight: '500',
+    letterSpacing: '0.05em',
+    opacity: '0.7',
+    fontFamily: 'ui-sans-serif, -apple-system, BlinkMacSystemFont, sans-serif',
+  },
+  '.cm-md-codeblock-editing': {
+    backgroundColor: 'color-mix(in oklch, var(--muted) 50%, transparent)',
+    paddingLeft: '1.25rem !important',
+    paddingRight: '1.25rem !important',
+  },
+  '.cm-md-codeblock-editing-first': {
+    paddingTop: '0.75rem !important',
+    borderTopLeftRadius: '0.5rem',
+    borderTopRightRadius: '0.5rem',
+    marginTop: '0.5rem',
+  },
+  '.cm-md-codeblock-editing-last': {
+    paddingBottom: '0.75rem !important',
+    borderBottomLeftRadius: '0.5rem',
+    borderBottomRightRadius: '0.5rem',
+    marginBottom: '0.5rem',
+  },
+  '.cm-md-codeblock-editing-single': {
+    paddingTop: '0.75rem !important',
+    paddingBottom: '0.75rem !important',
+    borderRadius: '0.5rem',
+    marginTop: '0.5rem',
+    marginBottom: '0.5rem',
   },
 });

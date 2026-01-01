@@ -18,7 +18,6 @@ export const editorTheme = EditorView.theme({
     lineHeight: '24px',
     caretColor: 'var(--foreground)',
   },
-
   '.cm-gutters': {
     display: 'none',
   },
