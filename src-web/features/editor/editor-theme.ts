@@ -3,19 +3,22 @@ import { EditorView } from '@codemirror/view';
 export const editorTheme = EditorView.theme({
   '&': {
     fontSize: '16px',
-    // fontFamily: 'ui-sans-serif, -apple-system, "system-ui", "Segoe UI", Roboto, Inter, sans-serif',
+    fontFamily: 'ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", "Helvetica Neue", sans-serif',
+  },
+  '.cm-scroller': {
+    fontFamily: 'inherit',
+    overflow: 'visible',
   },
   '.cm-content': {
+    fontFamily: 'inherit',
     paddingTop: '0',
     paddingRight: '3rem',
     paddingBottom: '3rem',
     paddingLeft: '3rem',
-    lineHeight: '1.6',
+    lineHeight: '24px',
     caretColor: 'var(--foreground)',
   },
-  '.cm-scroller': {
-    overflow: 'visible',
-  },
+
   '.cm-gutters': {
     display: 'none',
   },
@@ -40,18 +43,21 @@ export const editorThemeDark = EditorView.theme({
   '&': {
     height: '100%',
     fontSize: '16px',
-    fontFamily: 'ui-sans-serif, -apple-system, "system-ui", "Segoe UI", Roboto, Inter, sans-serif',
+    fontFamily: 'ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", "Helvetica Neue", sans-serif',
     backgroundColor: 'var(--background)',
     color: 'var(--foreground)',
   },
-  '.cm-content': {
-    padding: '3rem',
-    lineHeight: '1.6',
-    caretColor: 'var(--foreground)',
-  },
   '.cm-scroller': {
+    fontFamily: 'inherit',
     overflow: 'auto',
   },
+  '.cm-content': {
+    fontFamily: 'inherit',
+    padding: '3rem',
+    lineHeight: '24px',
+    caretColor: 'var(--foreground)',
+  },
+
   '.cm-gutters': {
     display: 'none',
   },
