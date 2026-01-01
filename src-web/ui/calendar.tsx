@@ -1,12 +1,10 @@
 import type { DayButton } from 'react-day-picker';
-import {
-  ChevronDownIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-} from 'lucide-react';
-
 import * as React from 'react';
 import { DayPicker, getDefaultClassNames } from 'react-day-picker';
+
+import ChevronDownIcon from '~icons/lucide/chevron-down';
+import ChevronLeftIcon from '~icons/lucide/chevron-left';
+import ChevronRightIcon from '~icons/lucide/chevron-right';
 import { cn } from '~/lib/utils';
 import { Button, buttonVariants } from '~/ui/button';
 

@@ -15,7 +15,6 @@
     "analyze-bundle": "vite-bundle-visualizer"
   },
   "dependencies": {
-    "@ariakit/react": "^0.4.20",
     "@base-ui/react": "^1.0.0",
     "@codemirror/commands": "^6.10.1",
     "@codemirror/lang-markdown": "^6.5.0",

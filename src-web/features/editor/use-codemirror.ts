@@ -7,7 +7,7 @@ import { EditorView, keymap } from '@codemirror/view';
 import * as React from 'react';
 
 import { editorTheme } from './editor-theme';
-import { livePreview, livePreviewTheme } from './live-preview';
+import { livePreview, livePreviewClickHandler, livePreviewTheme } from './live-preview';
 import { wordCountField } from './word-count';
 
 interface UseCodeMirrorOptions {
@@ -50,6 +50,7 @@ export function useCodeMirror({ initialValue, onChange }: UseCodeMirrorOptions) 
         markdown({ base: markdownLanguage, codeLanguages: languages }),
         editorTheme,
         livePreview,
+        livePreviewClickHandler,
         livePreviewTheme,
         updateListener,
         wordCountField,
