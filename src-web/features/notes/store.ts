@@ -1,6 +1,7 @@
 import { arrayMove } from '@dnd-kit/sortable';
 import { create } from 'zustand';
 import { useShallow } from 'zustand/react/shallow';
+import { DEFAULT_NOTE_CONTENT } from './default-content';
 
 export const DEFAULT_GROUP_ID = 'group-private';
 
@@ -62,11 +63,11 @@ type NotesStore = NotesState
   };
 
 const INITIAL_NOTES: Note[] = [
-  { id: 'note-1', title: 'My First Note', emoji: '📝', content: '', createdAt: new Date(), updatedAt: new Date() },
-  { id: 'note-2', title: 'Project Ideas', emoji: '💡', content: '', createdAt: new Date(), updatedAt: new Date() },
-  { id: 'note-3', title: 'Meeting Notes', emoji: '📋', content: '', createdAt: new Date(), updatedAt: new Date() },
-  { id: 'note-4', title: 'Reading List', emoji: '📚', content: '', createdAt: new Date(), updatedAt: new Date() },
-  { id: 'note-5', title: 'Travel Plans', emoji: '✈️', content: '', createdAt: new Date(), updatedAt: new Date() },
+  { id: 'note-1', title: 'My First Note', emoji: '📝', content: DEFAULT_NOTE_CONTENT, createdAt: new Date(), updatedAt: new Date() },
+  { id: 'note-2', title: 'Project Ideas', emoji: '💡', content: DEFAULT_NOTE_CONTENT, createdAt: new Date(), updatedAt: new Date() },
+  { id: 'note-3', title: 'Meeting Notes', emoji: '📋', content: DEFAULT_NOTE_CONTENT, createdAt: new Date(), updatedAt: new Date() },
+  { id: 'note-4', title: 'Reading List', emoji: '📚', content: DEFAULT_NOTE_CONTENT, createdAt: new Date(), updatedAt: new Date() },
+  { id: 'note-5', title: 'Travel Plans', emoji: '✈️', content: DEFAULT_NOTE_CONTENT, createdAt: new Date(), updatedAt: new Date() },
 ];
 
 const INITIAL_GROUPS: Group[] = [
@@ -107,7 +108,7 @@ export const useNotesStore = create<NotesStore>()((set, get) => ({
 
     set((s) => {
       const newNotes = new Map(s.notes);
-      newNotes.set(id, { id, title, emoji, content: '', createdAt: now, updatedAt: now });
+      newNotes.set(id, { id, title, emoji, content: DEFAULT_NOTE_CONTENT, createdAt: now, updatedAt: now });
 
       return {
         notes: newNotes,

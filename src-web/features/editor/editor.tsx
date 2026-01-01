@@ -32,6 +32,7 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
       titleRef.current.textContent = title;
     }
   }, [title, noteId]);
+
   const handleTitleBlur = React.useCallback(() => {
     if (titleRef.current) {
       const newTitle = titleRef.current.textContent?.trim() || 'Untitled';
