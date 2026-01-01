@@ -43,6 +43,7 @@ export function useCodeMirror({ initialValue, onChange }: UseCodeMirrorOptions) 
         livePreviewTheme,
         updateListener,
         EditorView.lineWrapping,
+        EditorView.scrollMargins.of(() => ({ bottom: 250 })),
       ],
     });
 

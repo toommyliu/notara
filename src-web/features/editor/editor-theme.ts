@@ -2,17 +2,19 @@ import { EditorView } from '@codemirror/view';
 
 export const editorTheme = EditorView.theme({
   '&': {
-    height: '100%',
     fontSize: '16px',
     // fontFamily: 'ui-sans-serif, -apple-system, "system-ui", "Segoe UI", Roboto, Inter, sans-serif',
   },
   '.cm-content': {
-    padding: '3rem',
+    paddingTop: '0',
+    paddingRight: '3rem',
+    paddingBottom: '3rem',
+    paddingLeft: '3rem',
     lineHeight: '1.6',
     caretColor: 'var(--foreground)',
   },
   '.cm-scroller': {
-    overflow: 'auto',
+    overflow: 'visible',
   },
   '.cm-gutters': {
     display: 'none',
