@@ -326,40 +326,88 @@ function getDecorations(view: EditorView): DecorationSet {
           const startLine = view.state.doc.lineAt(node.from);
           const endLine = view.state.doc.lineAt(node.to);
 
+          const cursorInsideCodeblock = cursorLine >= startLine.number && cursorLine <= endLine.number;
+
           let language = '';
+
           node.node.cursor().iterate((child) => {
-            if (child.name === 'CodeInfo')
+            if (child.name === 'CodeInfo') {
               language = view.state.doc.sliceString(child.from, child.to).trim();
+            }
           });
 
           // Apply line decoration to all lines in the codeblock
           for (let lineNum = startLine.number; lineNum <= endLine.number; lineNum++) {
             const line = view.state.doc.line(lineNum);
             const totalLines = endLine.number - startLine.number + 1;
+            const isFirstLine = lineNum === startLine.number;
+            const isLastLine = lineNum === endLine.number;
+            const isFenceLine = isFirstLine || isLastLine;
 
             let lineClass = 'cm-md-codeblock-line';
 
-            if (totalLines === 1) {
-              lineClass += ' cm-md-codeblock-single';
-            }
-            else if (lineNum === startLine.number) {
-              lineClass += ' cm-md-codeblock-first';
-            }
-            else if (lineNum === endLine.number) {
-              lineClass += ' cm-md-codeblock-last';
+            if (cursorInsideCodeblock) {
+              // When editing, show all lines including fences
+              if (totalLines === 1) {
+                lineClass += ' cm-md-codeblock-single';
+              }
+              else if (isFirstLine) {
+                lineClass += ' cm-md-codeblock-first';
+              }
+              else if (isLastLine) {
+                lineClass += ' cm-md-codeblock-last';
+              }
+              else {
+                lineClass += ' cm-md-codeblock-middle';
+              }
             }
             else {
-              lineClass += ' cm-md-codeblock-middle';
+              // When not editing, hide fence lines via CSS
+              if (isFenceLine) {
+                lineClass += ' cm-md-codeblock-fence-hidden';
+              }
+              else {
+                const contentLines = totalLines - 2;
+                const contentLineNum = lineNum - startLine.number - 1;
+
+                if (contentLines === 1) {
+                  lineClass += ' cm-md-codeblock-single';
+                }
+                else if (contentLineNum === 0) {
+                  lineClass += ' cm-md-codeblock-first';
+                }
+                else if (contentLineNum === contentLines - 1) {
+                  lineClass += ' cm-md-codeblock-last';
+                }
+                else {
+                  lineClass += ' cm-md-codeblock-middle';
+                }
+              }
             }
 
             decorations.push(
               Decoration.line({
                 class: lineClass,
-                attributes: (lineNum === startLine.number && language)
+                attributes: (cursorInsideCodeblock && isFirstLine && language)
                   ? { 'data-language': language }
-                  : {},
+                  : (!cursorInsideCodeblock && lineNum === startLine.number + 1 && language)
+                      ? { 'data-language': language }
+                      : {},
               }).range(line.from),
             );
+          }
+
+          // When editing, style the fence markers as muted syntax
+          if (cursorInsideCodeblock) {
+            decorations.push(
+              Decoration.mark({ class: 'cm-md-syntax' }).range(startLine.from, startLine.to),
+            );
+
+            if (endLine.number !== startLine.number) {
+              decorations.push(
+                Decoration.mark({ class: 'cm-md-syntax' }).range(endLine.from, endLine.to),
+              );
+            }
           }
 
           return false;
@@ -583,6 +631,15 @@ export const livePreviewTheme = EditorView.baseTheme({
     marginBottom: '0.75rem',
   },
   '.cm-md-codeblock-middle': {
+  },
+  '.cm-md-codeblock-fence-hidden': {
+    height: '0 !important',
+    padding: '0 !important',
+    margin: '0 !important',
+    lineHeight: '0 !important',
+    fontSize: '0 !important',
+    overflow: 'hidden',
+    visibility: 'hidden',
   },
   '.cm-md-codeblock-single': {
     paddingTop: '1rem !important',
