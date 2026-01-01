@@ -12,8 +12,6 @@ import {
   WidgetType,
 } from '@codemirror/view';
 
-const HIDDEN_MARK = Decoration.mark({ class: 'cm-md-hidden' });
-
 const INLINE_FORMATS: Record<string, { class: string; markerLen: number }> = {
   StrongEmphasis: { class: 'cm-md-bold', markerLen: 2 },
   Emphasis: { class: 'cm-md-italic', markerLen: 1 },
@@ -79,16 +77,11 @@ function getDecorations(view: EditorView): DecorationSet {
       from,
       to,
       enter: (node) => {
-        // Handle list markers
+        // Handle list markers - style them when on the line
         if (node.name === 'ListMark') {
-          const nodeLine = view.state.doc.lineAt(node.from).number;
-          const cursorOnLine = cursorLine === nodeLine;
-
-          if (cursorOnLine) {
-            decorations.push(
-              Decoration.mark({ class: 'cm-md-list-marker' }).range(node.from, node.to),
-            );
-          }
+          decorations.push(
+            Decoration.mark({ class: 'cm-md-list-marker' }).range(node.from, node.to),
+          );
         }
 
         // Handle task list checkboxes
@@ -97,33 +90,15 @@ function getDecorations(view: EditorView): DecorationSet {
           const cursorOnLine = cursorLine === nodeLine;
           const text = view.state.sliceDoc(node.from, node.to);
           const isChecked = text.includes('x') || text.includes('X');
-
-          // Find the list marker (- ) that precedes the TaskMarker
           const line = view.state.doc.lineAt(node.from);
-          const lineText = line.text;
-          const markerMatch = lineText.match(/^(\s*)([-*+])\s/);
 
           if (!cursorOnLine) {
-            if (markerMatch) {
-              const listMarkerStart = line.from + markerMatch[1].length;
-              const listMarkerEnd = line.from + markerMatch[0].length;
-
-              // Hide the list marker (- ) and replace TaskMarker with checkbox
-              decorations.push(HIDDEN_MARK.range(listMarkerStart, listMarkerEnd));
-              decorations.push(
-                Decoration.replace({
-                  widget: new CheckboxWidget(isChecked, node.from),
-                }).range(node.from, node.to),
-              );
-            }
-            else {
-              // Fallback: just replace the TaskMarker
-              decorations.push(
-                Decoration.replace({
-                  widget: new CheckboxWidget(isChecked, node.from),
-                }).range(node.from, node.to),
-              );
-            }
+            // Replace TaskMarker with checkbox widget
+            decorations.push(
+              Decoration.replace({
+                widget: new CheckboxWidget(isChecked, node.from),
+              }).range(node.from, node.to),
+            );
           }
           else {
             // Style the task marker when editing
@@ -144,69 +119,41 @@ function getDecorations(view: EditorView): DecorationSet {
         if (inlineFormat) {
           const nodeFrom = node.from;
           const nodeTo = node.to;
-          const cursorInside = cursorPos >= nodeFrom && cursorPos <= nodeTo;
+          const contentFrom = nodeFrom + inlineFormat.markerLen;
+          const contentTo = nodeTo - inlineFormat.markerLen;
 
-          if (cursorInside) {
+          // Style the content
+          if (contentTo > contentFrom) {
             decorations.push(
-              Decoration.mark({ class: inlineFormat.class }).range(
-                nodeFrom + inlineFormat.markerLen,
-                nodeTo - inlineFormat.markerLen,
-              ),
+              Decoration.mark({ class: inlineFormat.class }).range(contentFrom, contentTo),
             );
           }
-          else {
-            decorations.push(HIDDEN_MARK.range(nodeFrom, nodeFrom + inlineFormat.markerLen));
-            decorations.push(HIDDEN_MARK.range(nodeTo - inlineFormat.markerLen, nodeTo));
-            decorations.push(
-              Decoration.mark({ class: inlineFormat.class }).range(
-                nodeFrom + inlineFormat.markerLen,
-                nodeTo - inlineFormat.markerLen,
-              ),
-            );
-          }
+
+          // Style the markers as muted
+          decorations.push(
+            Decoration.mark({ class: 'cm-md-syntax' }).range(nodeFrom, contentFrom),
+          );
+          decorations.push(
+            Decoration.mark({ class: 'cm-md-syntax' }).range(contentTo, nodeTo),
+          );
+
           return;
         }
 
         // Handle headings
         const headingClass = HEADING_CLASSES[node.name];
         if (headingClass) {
-          const nodeLine = view.state.doc.lineAt(node.from).number;
-          const cursorOnLine = cursorLine === nodeLine;
+          // Style the entire heading including the # marks
+          decorations.push(
+            Decoration.mark({ class: headingClass }).range(node.from, node.to),
+          );
 
-          let headerMarkFrom = -1;
-          let headerMarkTo = -1;
-          let contentFrom = node.from;
-
-          // Find the HeaderMark child to get the # symbols
+          // Find and mute the HeaderMark
           const child = node.node.firstChild;
           if (child?.name === 'HeaderMark') {
-            headerMarkFrom = child.from;
-            headerMarkTo = child.to;
-            // Content starts after HeaderMark and any whitespace
-            contentFrom = headerMarkTo;
-            // Skip whitespace after #
-            const text = view.state.doc.sliceString(headerMarkTo, node.to);
-            const leadingSpace = text.match(/^\s*/)?.[0].length ?? 0;
-            contentFrom = headerMarkTo + leadingSpace;
-          }
-
-          if (cursorOnLine) {
-            // Show raw syntax, style the entire line including # symbols
             decorations.push(
-              Decoration.mark({ class: headingClass }).range(node.from, node.to),
+              Decoration.mark({ class: 'cm-md-syntax' }).range(child.from, child.to),
             );
-          }
-          else {
-            // Hide the # marks and style the whole line
-            if (headerMarkFrom >= 0 && headerMarkTo > headerMarkFrom) {
-              decorations.push(HIDDEN_MARK.range(headerMarkFrom, contentFrom));
-            }
-
-            if (contentFrom < node.to) {
-              decorations.push(
-                Decoration.mark({ class: headingClass }).range(contentFrom, node.to),
-              );
-            }
           }
 
           return false;
@@ -214,61 +161,56 @@ function getDecorations(view: EditorView): DecorationSet {
 
         // Handle blockquotes
         if (node.name === 'Blockquote') {
-          const nodeLine = view.state.doc.lineAt(node.from).number;
-          const cursorOnLine = cursorLine === nodeLine;
-
-          if (!cursorOnLine) {
-            // Find QuoteMark child
-            const child = node.node.firstChild;
-            if (child && child.name === 'QuoteMark') {
-              decorations.push(HIDDEN_MARK.range(child.from, child.to + 1)); // +1 for space
-            }
-          }
-
           decorations.push(
             Decoration.mark({ class: 'cm-md-blockquote' }).range(node.from, node.to),
           );
+
+          // Find and mute the QuoteMark
+          const child = node.node.firstChild;
+          if (child && child.name === 'QuoteMark') {
+            decorations.push(
+              Decoration.mark({ class: 'cm-md-syntax' }).range(child.from, child.to),
+            );
+          }
         }
 
-        // Handle links
+        // Handle links - style the whole link, mute the syntax
         if (node.name === 'Link') {
-          const cursorInside = cursorPos >= node.from && cursorPos <= node.to;
-          if (!cursorInside) {
-            // Hide URL part, show only link text
-            let linkTextFrom = -1;
-            let linkTextTo = -1;
+          let linkTextFrom = -1;
+          let linkTextTo = -1;
 
-            node.node.cursor().iterate((child) => {
-              if (child.name === 'LinkLabel') {
-                linkTextFrom = child.from + 1; // Skip [
-                linkTextTo = child.to - 1; // Skip ]
-              }
-            });
-
-            if (linkTextFrom >= 0 && linkTextTo > linkTextFrom) {
-              decorations.push(HIDDEN_MARK.range(node.from, linkTextFrom));
-              decorations.push(HIDDEN_MARK.range(linkTextTo, node.to));
-              decorations.push(
-                Decoration.mark({ class: 'cm-md-link' }).range(linkTextFrom, linkTextTo),
-              );
+          node.node.cursor().iterate((child) => {
+            if (child.name === 'LinkLabel') {
+              linkTextFrom = child.from + 1; // Skip [
+              linkTextTo = child.to - 1; // Skip ]
             }
+          });
+
+          if (linkTextFrom >= 0 && linkTextTo > linkTextFrom) {
+            // Style the link text
+            decorations.push(
+              Decoration.mark({ class: 'cm-md-link' }).range(linkTextFrom, linkTextTo),
+            );
+
+            // Mute the syntax parts
+            decorations.push(
+              Decoration.mark({ class: 'cm-md-syntax' }).range(node.from, linkTextFrom),
+            );
+            decorations.push(
+              Decoration.mark({ class: 'cm-md-syntax' }).range(linkTextTo, node.to),
+            );
           }
         }
 
         // Handle horizontal rules
         if (node.name === 'HorizontalRule') {
-          const nodeLine = view.state.doc.lineAt(node.from).number;
-          const cursorOnLine = cursorLine === nodeLine;
-          if (!cursorOnLine) {
-            decorations.push(
-              Decoration.mark({ class: 'cm-md-hr' }).range(node.from, node.to),
-            );
-          }
+          decorations.push(
+            Decoration.mark({ class: 'cm-md-hr' }).range(node.from, node.to),
+          );
         }
 
-        // Handle fenced code blocks
+        // Handle fenced code blocks with line decorations
         if (node.name === 'FencedCode') {
-          const cursorInside = cursorPos >= node.from && cursorPos <= node.to;
           const startLine = view.state.doc.lineAt(node.from);
           const endLine = view.state.doc.lineAt(node.to);
 
@@ -278,67 +220,34 @@ function getDecorations(view: EditorView): DecorationSet {
               language = view.state.doc.sliceString(child.from, child.to).trim();
           });
 
-          if (!cursorInside) {
-            // Hide opening fence line completely (zero height)
-            decorations.push(
-              Decoration.line({ class: 'cm-md-codeblock-fence-hidden' }).range(startLine.from),
-            );
-
-            // Hide closing fence line completely
-            if (endLine.number !== startLine.number) {
-              decorations.push(
-                Decoration.line({ class: 'cm-md-codeblock-fence-hidden' }).range(endLine.from),
-              );
-            }
-
-            // Apply line decorations for each code line (between fences)
-            const contentStartLine = startLine.number + 1;
-            const contentEndLine = endLine.number - 1;
-            const totalContentLines = contentEndLine - contentStartLine + 1;
-
-            for (let lineNum = contentStartLine; lineNum <= contentEndLine; lineNum++) {
-              const line = view.state.doc.line(lineNum);
-              let lineClass = 'cm-md-codeblock-line cm-md-codeblock-middle';
-
-              if (totalContentLines === 1)
-                lineClass = 'cm-md-codeblock-line cm-md-codeblock-single';
-              else if (lineNum === contentStartLine)
-                lineClass = 'cm-md-codeblock-line cm-md-codeblock-first';
-              else if (lineNum === contentEndLine)
-                lineClass = 'cm-md-codeblock-line cm-md-codeblock-last';
-
-              decorations.push(
-                Decoration.line({
-                  class: lineClass,
-                  attributes: (lineNum === contentStartLine && language)
-                    ? { 'data-language': language }
-                    : {},
-                }).range(line.from),
-              );
-            }
-          }
-          else {
-            // When cursor inside, show subtle editing background with proper padding
+          // Apply line decoration to all lines in the codeblock
+          for (let lineNum = startLine.number; lineNum <= endLine.number; lineNum++) {
+            const line = view.state.doc.line(lineNum);
             const totalLines = endLine.number - startLine.number + 1;
 
-            for (let lineNum = startLine.number; lineNum <= endLine.number; lineNum++) {
-              const line = view.state.doc.line(lineNum);
-              let editClass = 'cm-md-codeblock-editing';
+            let lineClass = 'cm-md-codeblock-line';
 
-              if (totalLines === 1) {
-                editClass += ' cm-md-codeblock-editing-single';
-              }
-              else if (lineNum === startLine.number) {
-                editClass += ' cm-md-codeblock-editing-first';
-              }
-              else if (lineNum === endLine.number) {
-                editClass += ' cm-md-codeblock-editing-last';
-              }
-
-              decorations.push(
-                Decoration.line({ class: editClass }).range(line.from),
-              );
+            if (totalLines === 1) {
+              lineClass += ' cm-md-codeblock-single';
             }
+            else if (lineNum === startLine.number) {
+              lineClass += ' cm-md-codeblock-first';
+            }
+            else if (lineNum === endLine.number) {
+              lineClass += ' cm-md-codeblock-last';
+            }
+            else {
+              lineClass += ' cm-md-codeblock-middle';
+            }
+
+            decorations.push(
+              Decoration.line({
+                class: lineClass,
+                attributes: (lineNum === startLine.number && language)
+                  ? { 'data-language': language }
+                  : {},
+              }).range(line.from),
+            );
           }
 
           return false;
@@ -376,11 +285,9 @@ export const livePreview = ViewPlugin.fromClass(
 );
 
 export const livePreviewTheme = EditorView.baseTheme({
-  '.cm-md-hidden': {
-    fontSize: '0',
-    width: '0',
-    display: 'inline-block',
-    overflow: 'hidden',
+  '.cm-md-syntax': {
+    color: 'var(--muted-foreground)',
+    opacity: '0.5',
   },
   '.cm-md-checkbox-wrapper': {
     display: 'inline-flex',
@@ -395,7 +302,7 @@ export const livePreviewTheme = EditorView.baseTheme({
     height: '1.05em',
     border: '1px solid var(--border)',
     borderRadius: '0.25em',
-    marginRight: '0.5em',
+    marginRight: '0.25em',
     cursor: 'pointer',
     position: 'relative',
     flexShrink: '0',
@@ -483,22 +390,14 @@ export const livePreviewTheme = EditorView.baseTheme({
   '.cm-md-hr': {
     display: 'block',
     textAlign: 'center',
-    overflow: 'hidden',
+    color: 'var(--muted-foreground)',
+    opacity: '0.5',
   },
-  '.cm-md-hr::after': {
-    content: '""',
-    display: 'inline-block',
-    width: '100%',
-    height: '1px',
-    backgroundColor: 'var(--border)',
-    verticalAlign: 'middle',
+  '.cm-md-list-marker': {
+    color: 'var(--muted-foreground)',
   },
-  '.cm-md-codeblock-fence-hidden': {
-    display: 'none !important',
-    height: '0 !important',
-    margin: '0 !important',
-    padding: '0 !important',
-    lineHeight: '0 !important',
+  '.cm-md-task-marker': {
+    color: 'var(--muted-foreground)',
   },
   '.cm-md-codeblock-line': {
     fontFamily: 'ui-monospace, "SF Mono", Menlo, Monaco, monospace',
@@ -534,6 +433,8 @@ export const livePreviewTheme = EditorView.baseTheme({
     borderBottomRightRadius: '0.625rem',
     marginBottom: '0.75rem',
   },
+  '.cm-md-codeblock-middle': {
+  },
   '.cm-md-codeblock-single': {
     paddingTop: '1rem !important',
     paddingBottom: '1rem !important',
@@ -553,35 +454,5 @@ export const livePreviewTheme = EditorView.baseTheme({
     letterSpacing: '0.05em',
     opacity: '0.7',
     fontFamily: 'ui-sans-serif, -apple-system, BlinkMacSystemFont, sans-serif',
-  },
-  '.cm-md-codeblock-editing': {
-    backgroundColor: 'color-mix(in oklch, var(--muted) 50%, transparent)',
-    paddingLeft: '1.25rem !important',
-    paddingRight: '1.25rem !important',
-  },
-  '.cm-md-codeblock-editing-first': {
-    paddingTop: '0.75rem !important',
-    borderTopLeftRadius: '0.5rem',
-    borderTopRightRadius: '0.5rem',
-    marginTop: '0.5rem',
-  },
-  '.cm-md-codeblock-editing-last': {
-    paddingBottom: '0.75rem !important',
-    borderBottomLeftRadius: '0.5rem',
-    borderBottomRightRadius: '0.5rem',
-    marginBottom: '0.5rem',
-  },
-  '.cm-md-codeblock-editing-single': {
-    paddingTop: '0.75rem !important',
-    paddingBottom: '0.75rem !important',
-    borderRadius: '0.5rem',
-    marginTop: '0.5rem',
-    marginBottom: '0.5rem',
-  },
-  '.cm-md-list-marker': {
-    color: 'var(--muted-foreground)',
-  },
-  '.cm-md-task-marker': {
-    color: 'var(--muted-foreground)',
   },
 });

@@ -54,7 +54,6 @@ export function useCodeMirror({ initialValue, onChange }: UseCodeMirrorOptions) 
         updateListener,
         wordCountField,
         EditorView.lineWrapping,
-        EditorView.scrollMargins.of(() => ({ bottom: 250 })),
       ],
     });
 
