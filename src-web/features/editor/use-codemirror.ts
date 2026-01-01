@@ -64,6 +64,7 @@ export function useCodeMirror({ initialValue, onChange }: UseCodeMirrorOptions) 
     });
 
     viewRef.current = view;
+
     const initialStats = view.state.field(wordCountField);
     statsRef.current = initialStats;
     setStats(initialStats);

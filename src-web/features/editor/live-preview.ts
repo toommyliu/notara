@@ -111,6 +111,11 @@ function isExternalUrl(url: string): boolean {
   return url.startsWith('http://') || url.startsWith('https://');
 }
 
+function isFenceLineText(text: string): boolean {
+  const t = text.trim();
+  return t.startsWith('```') || t.startsWith('~~~');
+}
+
 function getDecorations(view: EditorView): DecorationSet {
   const decorations: Range<Decoration>[] = [];
   const cursorPos = view.state.selection.main.head;
@@ -141,6 +146,8 @@ function getDecorations(view: EditorView): DecorationSet {
             decorations.push(
               Decoration.replace({
                 widget: new CheckboxWidget(isChecked, node.from),
+                inclusiveStart: false,
+                inclusiveEnd: false,
               }).range(node.from, node.to),
             );
           }
@@ -294,7 +301,10 @@ function getDecorations(view: EditorView): DecorationSet {
 
               // Hide the opening syntax [
               decorations.push(
-                Decoration.replace({}).range(node.from, linkTextFrom),
+                Decoration.replace({
+                  inclusiveStart: false,
+                  inclusiveEnd: false,
+                }).range(node.from, linkTextFrom),
               );
 
               // Hide the closing syntax ](url) and add external icon if needed
@@ -302,12 +312,17 @@ function getDecorations(view: EditorView): DecorationSet {
                 decorations.push(
                   Decoration.replace({
                     widget: new ExternalLinkIconWidget(url),
+                    inclusiveStart: false,
+                    inclusiveEnd: false,
                   }).range(linkTextTo, node.to),
                 );
               }
               else {
                 decorations.push(
-                  Decoration.replace({}).range(linkTextTo, node.to),
+                  Decoration.replace({
+                    inclusiveStart: false,
+                    inclusiveEnd: false,
+                  }).range(linkTextTo, node.to),
                 );
               }
             }
@@ -326,6 +341,7 @@ function getDecorations(view: EditorView): DecorationSet {
           const startLine = view.state.doc.lineAt(node.from);
           const endLine = view.state.doc.lineAt(node.to);
 
+          // When cursor is on any line of the codeblock (including fences), show all lines for editing
           const cursorInsideCodeblock = cursorLine >= startLine.number && cursorLine <= endLine.number;
 
           let language = '';
@@ -360,11 +376,31 @@ function getDecorations(view: EditorView): DecorationSet {
               else {
                 lineClass += ' cm-md-codeblock-middle';
               }
+
+              decorations.push(
+                Decoration.line({
+                  class: lineClass,
+                  attributes: (isFirstLine && language) ? { 'data-language': language } : {},
+                }).range(line.from),
+              );
             }
             else {
-              // When not editing, hide fence lines via CSS
+              // When not editing, fully collapse fence lines visually
               if (isFenceLine) {
-                lineClass += ' cm-md-codeblock-fence-hidden';
+                decorations.push(
+                  Decoration.line({
+                    class: 'cm-md-codeblock-fence-hidden',
+                  }).range(line.from),
+                );
+
+                if (line.length > 0) {
+                  decorations.push(
+                    Decoration.replace({
+                      inclusiveStart: false,
+                      inclusiveEnd: false,
+                    }).range(line.from, line.to),
+                  );
+                }
               }
               else {
                 const contentLines = totalLines - 2;
@@ -382,19 +418,15 @@ function getDecorations(view: EditorView): DecorationSet {
                 else {
                   lineClass += ' cm-md-codeblock-middle';
                 }
+
+                decorations.push(
+                  Decoration.line({
+                    class: lineClass,
+                    attributes: (contentLineNum === 0 && language) ? { 'data-language': language } : {},
+                  }).range(line.from),
+                );
               }
             }
-
-            decorations.push(
-              Decoration.line({
-                class: lineClass,
-                attributes: (cursorInsideCodeblock && isFirstLine && language)
-                  ? { 'data-language': language }
-                  : (!cursorInsideCodeblock && lineNum === startLine.number + 1 && language)
-                      ? { 'data-language': language }
-                      : {},
-              }).range(line.from),
-            );
           }
 
           // When editing, style the fence markers as muted syntax
@@ -444,7 +476,79 @@ export const livePreview = ViewPlugin.fromClass(
   },
 );
 
+// Note: codeFenceSelectionGuard was removed because fence lines now use display:none when hidden
+// (making them unclickable), and when visible we want to allow cursor placement for editing.
+
 export const livePreviewClickHandler = EditorView.domEventHandlers({
+  mousedown(ev, view) {
+    const pos = view.posAtCoords({ x: ev.clientX, y: ev.clientY });
+    if (pos === null)
+      return false;
+
+    const line = view.state.doc.lineAt(pos);
+    const lineText = line.text.trim();
+
+    const isFenceLine = isFenceLineText(lineText);
+    if (!isFenceLine)
+      return false;
+
+    const cursorLine = view.state.doc.lineAt(view.state.selection.main.head).number;
+    const cursorInsideCodeblock = (() => {
+      let inside = false;
+      const tree = syntaxTree(view.state);
+      tree.iterate({
+        enter: (node) => {
+          if (node.name === 'FencedCode') {
+            const startLine = view.state.doc.lineAt(node.from).number;
+            const endLine = view.state.doc.lineAt(node.to).number;
+            if (cursorLine > startLine && cursorLine < endLine) {
+              inside = true;
+              return false;
+            }
+          }
+        },
+      });
+      return inside;
+    })();
+
+    if (cursorInsideCodeblock)
+      return false;
+
+    ev.preventDefault();
+    ev.stopPropagation();
+
+    let targetPos = line.from;
+    const tree = syntaxTree(view.state);
+    tree.iterate({
+      enter: (node) => {
+        if (node.name === 'FencedCode') {
+          const startLine = view.state.doc.lineAt(node.from);
+          const endLine = view.state.doc.lineAt(node.to);
+
+          if (line.number === startLine.number) {
+            const nextLine = view.state.doc.line(startLine.number + 1);
+            targetPos = nextLine.from;
+            return false;
+          }
+
+          if (line.number === endLine.number) {
+            const prevLine = view.state.doc.line(endLine.number - 1);
+            targetPos = prevLine.to;
+            return false;
+          }
+        }
+      },
+    });
+
+    view.dispatch({
+      selection: { anchor: targetPos },
+      scrollIntoView: true,
+    });
+
+    view.focus();
+    return true;
+  },
+
   click(ev, _view) {
     const target = ev.target as HTMLElement;
     const linkElement = target.closest('[data-href]');
@@ -606,10 +710,9 @@ export const livePreviewTheme = EditorView.baseTheme({
     position: 'relative',
   },
   '.cm-md-codeblock-first': {
-    paddingTop: '1rem !important',
+    paddingTop: '1.75rem !important',
     borderTopLeftRadius: '0.625rem',
     borderTopRightRadius: '0.625rem',
-    marginTop: '0.75rem',
   },
   '.cm-md-codeblock-first::after': {
     content: 'attr(data-language)',
@@ -625,28 +728,19 @@ export const livePreviewTheme = EditorView.baseTheme({
     fontFamily: 'ui-sans-serif, -apple-system, BlinkMacSystemFont, sans-serif',
   },
   '.cm-md-codeblock-last': {
-    paddingBottom: '1rem !important',
+    paddingBottom: '1.75rem !important',
     borderBottomLeftRadius: '0.625rem',
     borderBottomRightRadius: '0.625rem',
-    marginBottom: '0.75rem',
   },
   '.cm-md-codeblock-middle': {
   },
   '.cm-md-codeblock-fence-hidden': {
-    height: '0 !important',
-    padding: '0 !important',
-    margin: '0 !important',
-    lineHeight: '0 !important',
-    fontSize: '0 !important',
-    overflow: 'hidden',
-    visibility: 'hidden',
+    display: 'none !important',
   },
   '.cm-md-codeblock-single': {
-    paddingTop: '1rem !important',
-    paddingBottom: '1rem !important',
+    paddingTop: '1.75rem !important',
+    paddingBottom: '1.75rem !important',
     borderRadius: '0.625rem',
-    marginTop: '0.75rem',
-    marginBottom: '0.75rem',
   },
   '.cm-md-codeblock-single::after': {
     content: 'attr(data-language)',

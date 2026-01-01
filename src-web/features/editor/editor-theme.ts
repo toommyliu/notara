@@ -10,7 +10,7 @@ export const editorTheme = EditorView.theme({
   },
   '.cm-scroller': {
     fontFamily: 'inherit',
-    overflow: 'visible',
+    overflow: 'auto',
   },
   '.cm-content': {
     fontFamily: 'inherit',

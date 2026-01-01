@@ -16,7 +16,6 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
   const updateNote = useNotesStore(s => s.updateNote);
 
   const titleRef = React.useRef<HTMLDivElement>(null);
-  const scrollContainerRef = React.useRef<HTMLDivElement>(null);
 
   const handleContentChange = (value: string) => {
     updateNote(noteId, { content: value });
@@ -68,8 +67,8 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
         title={title}
         onTitleChange={handleHeaderTitleChange}
       />
-      <div ref={scrollContainerRef} className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden pt-9">
-        <div className="flex flex-col min-h-full w-full max-w-[850px] mx-auto">
+      <div className="flex-1 min-h-0 overflow-hidden pt-9">
+        <div className="flex flex-col h-full w-full max-w-[850px] mx-auto">
           <div
             ref={titleRef}
             contentEditable
@@ -82,7 +81,7 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
           />
           <div
             ref={containerRef}
-            className="flex-1 pb-[50vh]"
+            className="flex-1 min-h-0 w-full"
           />
         </div>
       </div>
