@@ -22,7 +22,7 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
     updateNote(noteId, { content: value });
   };
 
-  const { containerRef } = useCodeMirror({
+  const { containerRef, stats } = useCodeMirror({
     initialValue: content,
     onChange: handleContentChange,
   });
@@ -85,6 +85,12 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
           />
         </div>
       </div>
+      <footer className="absolute bottom-0 right-0 px-4 py-2 text-xs text-muted-foreground pointer-events-none">
+        {stats.words}
+        {' words · '}
+        {stats.characters}
+        {' characters'}
+      </footer>
     </div>
   );
 }

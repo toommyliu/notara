@@ -9,6 +9,7 @@ import {
   Decoration,
   EditorView,
   ViewPlugin,
+  WidgetType,
 } from '@codemirror/view';
 
 const HIDDEN_MARK = Decoration.mark({ class: 'cm-md-hidden' });
@@ -29,6 +30,45 @@ const HEADING_CLASSES: Record<string, string> = {
   ATXHeading6: 'cm-md-h6',
 };
 
+class CheckboxWidget extends WidgetType {
+  constructor(
+    readonly checked: boolean,
+    readonly pos: number,
+  ) {
+    super();
+  }
+
+  toDOM(view: EditorView) {
+    const wrapper = document.createElement('span');
+    wrapper.className = 'cm-md-checkbox-wrapper';
+
+    const input = document.createElement('input');
+    input.type = 'checkbox';
+    input.checked = this.checked;
+    input.className = 'cm-md-checkbox';
+    input.setAttribute('aria-label', this.checked ? 'Completed task' : 'Incomplete task');
+
+    input.addEventListener('mousedown', (ev) => {
+      ev.preventDefault();
+      const replacement = this.checked ? '[ ]' : '[x]';
+      view.dispatch({
+        changes: { from: this.pos, to: this.pos + 3, insert: replacement },
+      });
+    });
+
+    wrapper.appendChild(input);
+    return wrapper;
+  }
+
+  eq(other: CheckboxWidget) {
+    return this.checked === other.checked && this.pos === other.pos;
+  }
+
+  ignoreEvent() {
+    return false;
+  }
+}
+
 function getDecorations(view: EditorView): DecorationSet {
   const decorations: Range<Decoration>[] = [];
   const cursorPos = view.state.selection.main.head;
@@ -39,6 +79,66 @@ function getDecorations(view: EditorView): DecorationSet {
       from,
       to,
       enter: (node) => {
+        // Handle list markers
+        if (node.name === 'ListMark') {
+          const nodeLine = view.state.doc.lineAt(node.from).number;
+          const cursorOnLine = cursorLine === nodeLine;
+
+          if (cursorOnLine) {
+            decorations.push(
+              Decoration.mark({ class: 'cm-md-list-marker' }).range(node.from, node.to),
+            );
+          }
+        }
+
+        // Handle task list checkboxes
+        if (node.name === 'TaskMarker') {
+          const nodeLine = view.state.doc.lineAt(node.from).number;
+          const cursorOnLine = cursorLine === nodeLine;
+          const text = view.state.sliceDoc(node.from, node.to);
+          const isChecked = text.includes('x') || text.includes('X');
+
+          // Find the list marker (- ) that precedes the TaskMarker
+          const line = view.state.doc.lineAt(node.from);
+          const lineText = line.text;
+          const markerMatch = lineText.match(/^(\s*)([-*+])\s/);
+
+          if (!cursorOnLine) {
+            if (markerMatch) {
+              const listMarkerStart = line.from + markerMatch[1].length;
+              const listMarkerEnd = line.from + markerMatch[0].length;
+
+              // Hide the list marker (- ) and replace TaskMarker with checkbox
+              decorations.push(HIDDEN_MARK.range(listMarkerStart, listMarkerEnd));
+              decorations.push(
+                Decoration.replace({
+                  widget: new CheckboxWidget(isChecked, node.from),
+                }).range(node.from, node.to),
+              );
+            }
+            else {
+              // Fallback: just replace the TaskMarker
+              decorations.push(
+                Decoration.replace({
+                  widget: new CheckboxWidget(isChecked, node.from),
+                }).range(node.from, node.to),
+              );
+            }
+          }
+          else {
+            // Style the task marker when editing
+            decorations.push(
+              Decoration.mark({ class: 'cm-md-task-marker' }).range(node.from, node.to),
+            );
+          }
+
+          if (isChecked) {
+            decorations.push(
+              Decoration.mark({ class: 'cm-md-task-checked' }).range(node.to, line.to),
+            );
+          }
+        }
+
         // Handle inline formatting (bold, italic, code, strikethrough)
         const inlineFormat = INLINE_FORMATS[node.name];
         if (inlineFormat) {
@@ -282,6 +382,51 @@ export const livePreviewTheme = EditorView.baseTheme({
     display: 'inline-block',
     overflow: 'hidden',
   },
+  '.cm-md-checkbox-wrapper': {
+    display: 'inline-flex',
+    alignItems: 'center',
+    verticalAlign: 'middle',
+    height: '100%',
+  },
+  '.cm-md-checkbox': {
+    appearance: 'none',
+    WebkitAppearance: 'none',
+    width: '1.05em',
+    height: '1.05em',
+    border: '1px solid var(--border)',
+    borderRadius: '0.25em',
+    marginRight: '0.5em',
+    cursor: 'pointer',
+    position: 'relative',
+    flexShrink: '0',
+    transition: 'all 0.1s ease-in-out',
+    transform: 'translateY(-0.1em)',
+  },
+  '.cm-md-checkbox:hover': {
+    borderColor: 'var(--brand)',
+    backgroundColor: 'color-mix(in srgb, var(--brand) 10%, transparent)',
+  },
+  '.cm-md-checkbox:checked': {
+    backgroundColor: 'var(--brand)',
+    borderColor: 'var(--brand)',
+  },
+  '.cm-md-checkbox:checked::after': {
+    content: '""',
+    position: 'absolute',
+    left: '50%',
+    top: '45%',
+    width: '0.3em',
+    height: '0.55em',
+    border: 'solid white',
+    borderWidth: '0 2px 2px 0',
+    transform: 'translate(-50%, -50%) rotate(45deg)',
+  },
+  '.cm-md-task-checked': {
+    textDecoration: 'line-through',
+    color: 'var(--muted-foreground)',
+    opacity: '0.8',
+    transition: 'opacity 0.2s ease',
+  },
   '.cm-md-bold': {
     fontWeight: '700',
   },
@@ -432,5 +577,11 @@ export const livePreviewTheme = EditorView.baseTheme({
     borderRadius: '0.5rem',
     marginTop: '0.5rem',
     marginBottom: '0.5rem',
+  },
+  '.cm-md-list-marker': {
+    color: 'var(--muted-foreground)',
+  },
+  '.cm-md-task-marker': {
+    color: 'var(--muted-foreground)',
   },
 });
