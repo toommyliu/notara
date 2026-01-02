@@ -1,8 +1,6 @@
 import { createRootRoute, Outlet } from '@tanstack/react-router';
 import { listen } from '@tauri-apps/api/event';
 import { lazy, Suspense, useEffect, useMemo } from 'react';
-import { DndProvider } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
 
 import {
   AppHeader,
@@ -22,10 +20,10 @@ import { SidebarInset, SidebarProvider, useSidebar } from '~/ui/sidebar';
 const DEV = import.meta.env.DEV;
 const TanStackRouterDevtools = DEV
   ? lazy(() =>
-      import('@tanstack/react-router-devtools').then(mod => ({
-        default: mod.TanStackRouterDevtools,
-      })),
-    )
+    import('@tanstack/react-router-devtools').then(mod => ({
+      default: mod.TanStackRouterDevtools,
+    })),
+  )
   : () => null;
 
 function MainContent() {
@@ -58,15 +56,15 @@ function AppShell() {
 
     listen('toggle-sidebar', () => toggleSidebar())
       .then(fn => unlisteners.push(fn))
-      .catch(() => {});
+      .catch(() => { });
 
     listen('open-settings', () => openSettings())
       .then(fn => unlisteners.push(fn))
-      .catch(() => {});
+      .catch(() => { });
 
     listen('new-note', () => addNote())
       .then(fn => unlisteners.push(fn))
-      .catch(() => {});
+      .catch(() => { });
 
     return () => {
       unlisteners.forEach(fn => fn());
@@ -107,10 +105,8 @@ function AppShell() {
 
 export const Route = createRootRoute({
   component: () => (
-    <DndProvider backend={HTML5Backend}>
-      <SidebarProvider>
-        <AppShell />
-      </SidebarProvider>
-    </DndProvider>
+    <SidebarProvider>
+      <AppShell />
+    </SidebarProvider>
   ),
 });
