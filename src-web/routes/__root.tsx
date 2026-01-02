@@ -18,13 +18,14 @@ import { useIsTauri } from '~/hooks/use-tauri';
 import { SidebarInset, SidebarProvider, useSidebar } from '~/ui/sidebar';
 
 const DEV = import.meta.env.DEV;
-const TanStackRouterDevtools = DEV
-  ? lazy(() =>
-    import('@tanstack/react-router-devtools').then(mod => ({
-      default: mod.TanStackRouterDevtools,
-    })),
-  )
-  : () => null;
+// const TanStackRouterDevtools = DEV
+//   ? lazy(() =>
+//     import('@tanstack/react-router-devtools').then(mod => ({
+//       default: mod.TanStackRouterDevtools,
+//     })),
+//   )
+//   : () => null;
+const TanStackRouterDevtools = () => null;
 
 function MainContent() {
   return (
