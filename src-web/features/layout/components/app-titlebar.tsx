@@ -6,13 +6,11 @@ import { cn } from '~/lib/utils';
 
 type AppTitlebarProps = PropsWithChildren<{
   className?: string;
-  noLeftInset?: boolean;
 }>;
 
 export function AppTitlebar({
   children,
   className,
-  noLeftInset,
 }: AppTitlebarProps) {
   const layout = usePlatformLayout();
 
@@ -25,7 +23,7 @@ export function AppTitlebar({
       data-tauri-drag-region
       style={{
         height: layout.titlebarHeight,
-        paddingLeft: noLeftInset ? 0 : layout.leftInset,
+        paddingLeft: layout.leftInset,
         paddingRight: layout.rightInset,
       }}
     >

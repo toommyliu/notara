@@ -123,7 +123,6 @@ export function AppHeader() {
   return (
     <AppTitlebar
       className="border-b border-border/40 overscroll-none select-none"
-      noLeftInset={true}
     >
       {/* Left side actions */}
       <div className="flex items-center w-full h-full gap-0.5" data-tauri-drag-region>
@@ -131,10 +130,10 @@ export function AppHeader() {
           className="flex items-center h-full py-2 border-r border-border/40 bg-sidebar pointer-events-auto"
           data-tauri-drag-region
           style={{
-            minWidth: 'var(--sidebar-width)',
-            maxWidth: 'var(--sidebar-width)',
-            width: 'var(--sidebar-width)',
-            paddingLeft: hasTrafficLights ? (layout.isMac ? 80 : 12) : 12,
+            minWidth: `calc(var(--sidebar-width) - ${layout.leftInset}px)`,
+            maxWidth: `calc(var(--sidebar-width) - ${layout.leftInset}px)`,
+            width: `calc(var(--sidebar-width) - ${layout.leftInset}px)`,
+            paddingLeft: 12,
             paddingRight: 4,
           }}
         >
