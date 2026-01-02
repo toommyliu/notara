@@ -1,7 +1,9 @@
 #![allow(deprecated)]
 use crate::PluginState;
+use cocoa::base::id;
 use csscolorparser::Color;
 use objc::{msg_send, sel, sel_impl};
+use std::sync::OnceLock;
 use tauri::{Emitter, Manager, Runtime, State, Window};
 
 struct UnsafeWindowHandle(*mut std::ffi::c_void);
@@ -10,9 +12,83 @@ unsafe impl Send for UnsafeWindowHandle {}
 
 unsafe impl Sync for UnsafeWindowHandle {}
 
-const WINDOW_CONTROL_PAD_X: f64 = 13.0;
-const WINDOW_CONTROL_PAD_Y: f64 = 18.0;
 const MAIN_WINDOW_PREFIX: &str = "main";
+
+#[derive(Debug, Clone, Copy)]
+pub struct MacOSVersion {
+    pub major: i64,
+    pub minor: i64,
+    pub patch: i64,
+}
+
+impl MacOSVersion {
+    /// Returns true if running on macOS Tahoe (26.x) or later
+    pub fn is_tahoe_or_later(&self) -> bool {
+        self.major >= 26
+    }
+
+    /// Returns true if running on macOS Sequoia (15.x)
+    pub fn is_sequoia(&self) -> bool {
+        self.major == 15
+    }
+}
+
+static MACOS_VERSION: OnceLock<MacOSVersion> = OnceLock::new();
+
+fn detect_macos_version() -> MacOSVersion {
+    unsafe {
+        let process_info: id = msg_send![objc::class!(NSProcessInfo), processInfo];
+
+        #[repr(C)]
+        #[derive(Debug, Clone, Copy)]
+        struct NSOperatingSystemVersion {
+            major: i64,
+            minor: i64,
+            patch: i64,
+        }
+
+        let version: NSOperatingSystemVersion = msg_send![process_info, operatingSystemVersion];
+
+        MacOSVersion {
+            major: version.major,
+            minor: version.minor,
+            patch: version.patch,
+        }
+    }
+}
+
+pub fn get_macos_version() -> MacOSVersion {
+    *MACOS_VERSION.get_or_init(detect_macos_version)
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct TrafficLightConfig {
+    pub pad_x: f64,
+    pub pad_y: f64,
+}
+
+impl TrafficLightConfig {
+    pub fn for_current_os() -> Self {
+        let version = get_macos_version();
+
+        if version.is_tahoe_or_later() {
+            Self {
+                pad_x: 14.0,
+                pad_y: 22.0,
+            }
+        } else {
+            Self {
+                pad_x: 14.0,
+                pad_y: 18.0,
+            }
+        }
+    }
+}
+
+fn get_traffic_light_padding() -> (f64, f64) {
+    let config = TrafficLightConfig::for_current_os();
+    (config.pad_x, config.pad_y)
+}
 
 pub(crate) fn update_window_title<R: Runtime>(window: Window<R>, title: String) {
     use cocoa::{appkit::NSWindow, base::nil, foundation::NSString};
@@ -31,12 +107,13 @@ pub(crate) fn update_window_title<R: Runtime>(window: Window<R>, title: String) 
             let handle = window_handle;
             NSWindow::setTitle_(handle.0 as cocoa::base::id, win_title);
             if !native_titlebar {
+                let (pad_x, pad_y) = get_traffic_light_padding();
                 position_traffic_lights(
                     UnsafeWindowHandle(
                         window2.ns_window().expect("Failed to create window handle"),
                     ),
-                    WINDOW_CONTROL_PAD_X,
-                    WINDOW_CONTROL_PAD_Y,
+                    pad_x,
+                    pad_y,
                     label,
                 );
             }
@@ -70,12 +147,13 @@ pub(crate) fn update_window_theme<R: Runtime>(window: Window<R>, color: Color) {
 
             NSWindow::setAppearance(handle.0 as cocoa::base::id, selected_appearance);
             if !native_titlebar {
+                let (pad_x, pad_y) = get_traffic_light_padding();
                 position_traffic_lights(
                     UnsafeWindowHandle(
                         window2.ns_window().expect("Failed to create window handle"),
                     ),
-                    WINDOW_CONTROL_PAD_X,
-                    WINDOW_CONTROL_PAD_Y,
+                    pad_x,
+                    pad_y,
                     label,
                 );
             }
@@ -144,10 +222,11 @@ pub fn setup_traffic_light_positioner<R: Runtime>(window: &Window<R>) {
         return;
     }
 
+    let (pad_x, pad_y) = get_traffic_light_padding();
     position_traffic_lights(
         UnsafeWindowHandle(window.ns_window().expect("Failed to create window handle")),
-        WINDOW_CONTROL_PAD_X,
-        WINDOW_CONTROL_PAD_Y,
+        pad_x,
+        pad_y,
         window.label().to_string(),
     );
 
@@ -193,10 +272,11 @@ pub fn setup_traffic_light_positioner<R: Runtime>(window: &Window<R>) {
                         .expect("NS window should exist on state to handle resize")
                         as id;
 
+                    let (pad_x, pad_y) = get_traffic_light_padding();
                     position_traffic_lights(
                         UnsafeWindowHandle(id as *mut c_void),
-                        WINDOW_CONTROL_PAD_X,
-                        WINDOW_CONTROL_PAD_Y,
+                        pad_x,
+                        pad_y,
                         state.window.label().to_string(),
                     );
                 });
@@ -325,10 +405,11 @@ pub fn setup_traffic_light_positioner<R: Runtime>(window: &Window<R>) {
                         .expect("Failed to emit event");
 
                     let id = state.window.ns_window().expect("Failed to emit event") as id;
+                    let (pad_x, pad_y) = get_traffic_light_padding();
                     position_traffic_lights(
                         UnsafeWindowHandle(id as *mut c_void),
-                        WINDOW_CONTROL_PAD_X,
-                        WINDOW_CONTROL_PAD_Y,
+                        pad_x,
+                        pad_y,
                         state.window.label().to_string(),
                     );
                 });
