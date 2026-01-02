@@ -6,8 +6,6 @@ import { ThemeProvider } from '~/providers/theme';
 
 import { routeTree } from '~/routeTree.gen';
 
-import { TooltipProvider } from '~/ui/tooltip';
-
 const router = createRouter({ routeTree });
 
 if (import.meta.env.VITE_REACT_SCAN === 'true') {
@@ -15,15 +13,13 @@ if (import.meta.env.VITE_REACT_SCAN === 'true') {
     .then(({ scan }) => {
       scan({ enabled: true });
     })
-    .catch(() => {});
+    .catch(() => { });
 }
 
 createRoot(document.getElementById('root') as HTMLElement).render(
   <StrictMode>
     <ThemeProvider>
-      <TooltipProvider delay={500}>
-        <RouterProvider router={router} />
-      </TooltipProvider>
+      <RouterProvider router={router} />
     </ThemeProvider>
   </StrictMode>,
 );
