@@ -67,7 +67,7 @@ export function NoteEditor({ noteId }: NoteEditorProps) {
         title={title}
         onTitleChange={handleHeaderTitleChange}
       />
-      <div className="flex-1 min-h-0 overflow-hidden pt-9">
+      <div className="flex-1 min-h-0 overflow-y-auto pt-9 scrollbar-custom">
         <div className="flex flex-col h-full w-full max-w-[850px] mx-auto">
           <div
             ref={titleRef}
