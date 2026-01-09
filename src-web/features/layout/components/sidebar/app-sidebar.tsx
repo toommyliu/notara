@@ -226,7 +226,6 @@ export function AppSidebar() {
     const activeType = active.data.current?.type;
     const overType = over.data.current?.type;
 
-    // Reorder groups
     if (activeType === 'group') {
       if (overType === 'group') {
         reorderGroups(active.id as string, over.id as string);
@@ -240,7 +239,6 @@ export function AppSidebar() {
       return;
     }
 
-    // Reorder or move notes
     if (activeType === 'note') {
       const activeGroupId = active.data.current?.groupId;
 
@@ -248,7 +246,6 @@ export function AppSidebar() {
         const overGroupId = over.data.current?.groupId;
 
         if (activeGroupId === overGroupId) {
-          // Reorder within same group
           reorderNotesInGroup(
             activeGroupId,
             active.id as string,
@@ -256,7 +253,6 @@ export function AppSidebar() {
           );
         }
         else {
-          // Move to different group
           moveNote(
             active.id as string,
             activeGroupId,
@@ -266,13 +262,11 @@ export function AppSidebar() {
         }
       }
       else if (overType === 'group') {
-        // Drop on group header - add to end of that group
         if (activeGroupId !== over.id) {
           moveNote(active.id as string, activeGroupId, over.id as string);
         }
       }
       else if (overType === 'group-end') {
-        // Drop at end of group
         const targetGroupId = over.data.current?.groupId;
         if (activeGroupId !== targetGroupId) {
           moveNote(active.id as string, activeGroupId, targetGroupId);

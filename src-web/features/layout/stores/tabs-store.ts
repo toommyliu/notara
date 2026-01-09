@@ -64,20 +64,16 @@ interface TabsActions {
   toggleTabBar: () => void;
 }
 
-// Generate a unique pane ID
 const generatePaneId = (): PaneId => crypto.randomUUID();
 
-// Get all note IDs from a pane
 export function getPaneNoteIds(pane: Pane): NoteId[] {
   return pane.type === 'single' ? [pane.noteId] : [pane.left, pane.right];
 }
 
-// Get the "active" note ID from a pane
 export function getActiveNoteFromPane(pane: Pane): NoteId {
   return pane.type === 'single' ? pane.noteId : pane.activeSide === 'left' ? pane.left : pane.right;
 }
 
-// Find which pane contains a specific note
 function findPaneByNoteId(panes: Map<PaneId, Pane>, noteId: NoteId): PaneId | null {
   for (const [paneId, pane] of panes) {
     if (pane.type === 'single' && pane.noteId === noteId)
@@ -109,7 +105,6 @@ export const useTabsStore = create<TabsState & TabsActions>()(
 
       openNote: noteId =>
         set((s) => {
-          // Check if note is already open in any pane
           const existingPaneId = findPaneByNoteId(s.panes, noteId);
 
           if (existingPaneId) {
@@ -129,7 +124,6 @@ export const useTabsStore = create<TabsState & TabsActions>()(
             return { activePaneId: existingPaneId };
           }
 
-          // Create new single pane
           const newPaneId = generatePaneId();
           const newPane: Pane = { type: 'single', noteId };
           const newPanes = new Map(s.panes);
@@ -154,7 +148,6 @@ export const useTabsStore = create<TabsState & TabsActions>()(
           const newPinnedPaneIds = new Set(s.pinnedPaneIds);
           newPinnedPaneIds.delete(paneId);
 
-          // If we closed the active pane, select adjacent one
           let newActivePaneId = s.activePaneId;
           if (s.activePaneId === paneId) {
             const oldIndex = s.paneOrder.indexOf(paneId);
@@ -179,8 +172,8 @@ export const useTabsStore = create<TabsState & TabsActions>()(
             return s;
 
           if (pane.type === 'single') {
-            // Closing the only note in a single pane = close the pane
-            return get().closePane(paneId), s;
+            get().closePane(paneId);
+            return s;
           }
 
           // Split pane - convert to single
@@ -204,7 +197,6 @@ export const useTabsStore = create<TabsState & TabsActions>()(
 
           const newPanes = new Map(s.panes);
 
-          // Remove any existing pane that contains secondNoteId as a single pane
           const existingPaneId = findPaneByNoteId(s.panes, secondNoteId);
           let newPaneOrder = s.paneOrder;
           let newPinnedPaneIds = s.pinnedPaneIds;

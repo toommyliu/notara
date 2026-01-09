@@ -100,8 +100,6 @@ export function AppHeader() {
   const hasSplitPane = activePane?.type === 'split';
   const showTabs = isTabBarVisible && orderedPanes.length > 0;
 
-  const hasTrafficLights = layout.isTauri && layout.isMac && !layout.isFullscreen;
-
   const handleSwapSides = () => {
     if (activePaneId) {
       swapSides(activePaneId);

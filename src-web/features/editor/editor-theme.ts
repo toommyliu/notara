@@ -30,12 +30,6 @@ export const editorTheme = EditorView.theme({
   '&.cm-focused': {
     outline: 'none',
   },
-  // '.cm-selectionBackground, .cm-content ::selection': {
-  //   backgroundColor: 'var(--highlight) !important',
-  // },
-  // '&.cm-focused .cm-selectionBackground': {
-  //   backgroundColor: 'var(--highlight) !important',
-  // },
   '.cm-activeLine': {
     backgroundColor: 'transparent',
   },

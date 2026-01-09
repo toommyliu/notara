@@ -28,6 +28,34 @@ const HEADING_CLASSES: Record<string, string> = {
   ATXHeading6: 'cm-md-h6',
 };
 
+const ALERT_TYPES: Record<string, { class: string; icon: string; label: string }> = {
+  NOTE: {
+    class: 'cm-md-alert-note',
+    icon: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>',
+    label: 'Note',
+  },
+  TIP: {
+    class: 'cm-md-alert-tip',
+    icon: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>',
+    label: 'Tip',
+  },
+  IMPORTANT: {
+    class: 'cm-md-alert-important',
+    icon: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>',
+    label: 'Important',
+  },
+  WARNING: {
+    class: 'cm-md-alert-warning',
+    icon: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>',
+    label: 'Warning',
+  },
+  CAUTION: {
+    class: 'cm-md-alert-caution',
+    icon: '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>',
+    label: 'Caution',
+  },
+};
+
 class CheckboxWidget extends WidgetType {
   constructor(
     readonly checked: boolean,
@@ -64,6 +92,36 @@ class CheckboxWidget extends WidgetType {
 
   ignoreEvent() {
     return false;
+  }
+}
+
+class AlertLabelWidget extends WidgetType {
+  constructor(
+    readonly alertType: string,
+    readonly config: { class: string; icon: string; label: string },
+  ) {
+    super();
+  }
+
+  toDOM() {
+    const wrapper = document.createElement('span');
+    wrapper.className = `cm-md-alert-label ${this.config.class}-label`;
+
+    const iconSpan = document.createElement('span');
+    iconSpan.className = 'cm-md-alert-icon';
+    iconSpan.innerHTML = this.config.icon;
+
+    const textSpan = document.createElement('span');
+    textSpan.className = 'cm-md-alert-text';
+    textSpan.textContent = this.config.label;
+
+    wrapper.appendChild(iconSpan);
+    wrapper.appendChild(textSpan);
+    return wrapper;
+  }
+
+  eq(other: AlertLabelWidget) {
+    return this.alertType === other.alertType;
   }
 }
 
@@ -205,15 +263,100 @@ function getDecorations(view: EditorView): DecorationSet {
       }
 
       if (node.name === 'Blockquote') {
-        decorations.push(
-          Decoration.mark({ class: 'cm-md-blockquote' }).range(node.from, node.to),
-        );
+        const startLine = view.state.doc.lineAt(node.from);
+        const endLine = view.state.doc.lineAt(node.to);
+        const firstLineText = startLine.text;
 
-        const child = node.node.firstChild;
-        if (child && child.name === 'QuoteMark') {
+        const alertMatch = firstLineText.match(/^\s*>\s*\[!([A-Z]+)\]/);
+        const alertType = alertMatch ? alertMatch[1] : null;
+        const alertConfig = alertType ? ALERT_TYPES[alertType] : null;
+
+        const cursorInsideBlock = cursorLine >= startLine.number && cursorLine <= endLine.number;
+        if (alertConfig) {
+
+          for (let lineNum = startLine.number; lineNum <= endLine.number; lineNum++) {
+            const line = view.state.doc.line(lineNum);
+            const isFirstLine = lineNum === startLine.number;
+            const isLastLine = lineNum === endLine.number;
+            const totalLines = endLine.number - startLine.number + 1;
+
+            let lineClass = `cm-md-alert-line ${alertConfig.class}`;
+
+            if (totalLines === 1) {
+              lineClass += ' cm-md-alert-single';
+            }
+            else if (isFirstLine) {
+              lineClass += ' cm-md-alert-first';
+            }
+            else if (isLastLine) {
+              lineClass += ' cm-md-alert-last';
+            }
+            else {
+              lineClass += ' cm-md-alert-middle';
+            }
+
+            decorations.push(
+              Decoration.line({ class: lineClass }).range(line.from),
+            );
+          }
+
+          const markerMatch = firstLineText.match(/^(\s*>\s*)(\[!([A-Z]+)\])/);
+          if (markerMatch) {
+            const markerStart = startLine.from;
+            const markerEnd = startLine.from + markerMatch[1].length + markerMatch[2].length;
+
+            if (cursorInsideBlock && cursorLine === startLine.number) {
+              decorations.push(
+                Decoration.mark({ class: 'cm-md-syntax' }).range(markerStart, markerEnd),
+              );
+            }
+            else {
+              decorations.push(
+                Decoration.replace({
+                  widget: new AlertLabelWidget(alertType!, alertConfig),
+                  inclusiveStart: false,
+                  inclusiveEnd: false,
+                }).range(markerStart, markerEnd),
+              );
+            }
+          }
+
+          node.node.cursor().iterate((child) => {
+            if (child.name === 'QuoteMark') {
+              const lineNum = view.state.doc.lineAt(child.from).number;
+              if (cursorInsideBlock && cursorLine === lineNum) {
+                decorations.push(
+                  Decoration.mark({ class: 'cm-md-syntax' }).range(child.from, child.to),
+                );
+              }
+              else {
+                decorations.push(
+                  Decoration.replace({}).range(child.from, child.to),
+                );
+              }
+            }
+          });
+        }
+        else {
           decorations.push(
-            Decoration.mark({ class: 'cm-md-syntax' }).range(child.from, child.to),
+            Decoration.mark({ class: 'cm-md-blockquote' }).range(node.from, node.to),
           );
+
+          node.node.cursor().iterate((child) => {
+            if (child.name === 'QuoteMark') {
+              const lineNum = view.state.doc.lineAt(child.from).number;
+              if (cursorInsideBlock && cursorLine === lineNum) {
+                decorations.push(
+                  Decoration.mark({ class: 'cm-md-syntax' }).range(child.from, child.to),
+                );
+              }
+              else {
+                decorations.push(
+                  Decoration.replace({}).range(child.from, child.to),
+                );
+              }
+            }
+          });
         }
       }
 
@@ -407,7 +550,8 @@ function getDecorations(view: EditorView): DecorationSet {
           const isLastLine = lineNum === endLine.number;
           const isFenceLine = isFirstLine || isLastLine;
 
-          let lineClass = 'cm-md-codeblock-line';
+          const isNested = node.node.parent?.name === 'Blockquote';
+          let lineClass = isNested ? 'cm-md-codeblock-line cm-md-codeblock-line-nested' : 'cm-md-codeblock-line';
 
           if (cursorInsideCodeblock) {
             if (totalLines === 1) {
@@ -703,6 +847,117 @@ export const livePreviewTheme = EditorView.baseTheme({
     color: 'var(--muted-foreground)',
     fontStyle: 'italic',
   },
+  '.cm-md-alert-line': {
+    paddingLeft: '1rem !important',
+    paddingRight: '1rem !important',
+    position: 'relative',
+    color: 'var(--foreground)',
+    borderLeft: '4px solid transparent',
+  },
+  '.cm-md-alert-first': {
+    paddingTop: '1rem !important',
+    borderTopLeftRadius: '0.375rem',
+    borderTopRightRadius: '0.375rem',
+  },
+  '.cm-md-alert-last': {
+    paddingBottom: '1rem !important',
+    borderBottomLeftRadius: '0.375rem',
+    borderBottomRightRadius: '0.375rem',
+  },
+  '.cm-md-alert-single': {
+    paddingTop: '1rem !important',
+    paddingBottom: '1rem !important',
+    borderRadius: '0.375rem',
+  },
+  '.cm-md-alert-middle': {},
+  '.cm-md-alert-label': {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: '0.5rem',
+    fontWeight: '500',
+    fontSize: '1em',
+  },
+  '.cm-md-alert-icon': {
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  '.cm-md-alert-icon svg': {
+    display: 'block',
+    width: '16px',
+    height: '16px',
+  },
+  '.cm-md-alert-text': {},
+  '.cm-md-alert-note': {
+    backgroundColor: 'color-mix(in srgb, #0969da 8%, transparent)',
+    borderLeftColor: '#0969da',
+  },
+  '.cm-md-alert-note-label': {
+    color: '#0969da',
+  },
+  '.dark .cm-md-alert-note': {
+    backgroundColor: 'color-mix(in srgb, #4493f8 15%, transparent)',
+    borderLeftColor: '#4493f8',
+  },
+  '.dark .cm-md-alert-note-label': {
+    color: '#4493f8',
+  },
+  '.cm-md-alert-tip': {
+    backgroundColor: 'color-mix(in srgb, #1a7f37 8%, transparent)',
+    borderLeftColor: '#1a7f37',
+  },
+  '.cm-md-alert-tip-label': {
+    color: '#1a7f37',
+  },
+  '.dark .cm-md-alert-tip': {
+    backgroundColor: 'color-mix(in srgb, #3fb950 15%, transparent)',
+    borderLeftColor: '#3fb950',
+  },
+  '.dark .cm-md-alert-tip-label': {
+    color: '#3fb950',
+  },
+  '.cm-md-alert-important': {
+    backgroundColor: 'color-mix(in srgb, #8250df 8%, transparent)',
+    borderLeftColor: '#8250df',
+  },
+  '.cm-md-alert-important-label': {
+    color: '#8250df',
+  },
+  '.dark .cm-md-alert-important': {
+    backgroundColor: 'color-mix(in srgb, #a371f7 15%, transparent)',
+    borderLeftColor: '#a371f7',
+  },
+  '.dark .cm-md-alert-important-label': {
+    color: '#a371f7',
+  },
+  '.cm-md-alert-warning': {
+    backgroundColor: 'color-mix(in srgb, #9a6700 8%, transparent)',
+    borderLeftColor: '#9a6700',
+  },
+  '.cm-md-alert-warning-label': {
+    color: '#9a6700',
+  },
+  '.dark .cm-md-alert-warning': {
+    backgroundColor: 'color-mix(in srgb, #d29922 15%, transparent)',
+    borderLeftColor: '#d29922',
+  },
+  '.dark .cm-md-alert-warning-label': {
+    color: '#d29922',
+  },
+  '.cm-md-alert-caution': {
+    backgroundColor: 'color-mix(in srgb, #d1242f 8%, transparent)',
+    borderLeftColor: '#d1242f',
+  },
+  '.cm-md-alert-caution-label': {
+    color: '#d1242f',
+  },
+  '.dark .cm-md-alert-caution': {
+    backgroundColor: 'color-mix(in srgb, #f85149 15%, transparent)',
+    borderLeftColor: '#f85149',
+  },
+  '.dark .cm-md-alert-caution-label': {
+    color: '#f85149',
+  },
   '.cm-md-link': {
     color: 'var(--brand)',
     textDecoration: 'underline',
@@ -792,6 +1047,9 @@ export const livePreviewTheme = EditorView.baseTheme({
     paddingTop: '1.75rem !important',
     paddingBottom: '1.75rem !important',
     borderRadius: '0.625rem',
+  },
+  '.cm-md-codeblock-line-nested': {
+    backgroundColor: 'transparent !important',
   },
   '.cm-md-codeblock-single::after': {
     content: 'attr(data-language)',

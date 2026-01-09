@@ -153,7 +153,6 @@ export const useNotesStore = create<NotesStore>()((set, get) => ({
       const newNotes = new Map(s.notes);
       newNotes.set(newId, newNote);
 
-      // Find which group contains the original and insert after it
       const groups = s.groups.map((g) => {
         const idx = g.noteIds.indexOf(noteId);
         if (idx !== -1) {
@@ -180,7 +179,6 @@ export const useNotesStore = create<NotesStore>()((set, get) => ({
         noteIds: g.noteIds.filter(id => id !== noteId),
       }));
 
-      // Update active note if we deleted the active one
       let activeNoteId = s.activeNoteId;
       if (activeNoteId === noteId) {
         const allNoteIds = groups.flatMap(g => g.noteIds);
@@ -275,12 +273,10 @@ export const useNotesStore = create<NotesStore>()((set, get) => ({
 
   sortData: () =>
     set((s) => {
-      // Sort groups alphabetically
       const sortedGroups = [...s.groups].sort((a, b) =>
         a.title.localeCompare(b.title),
       );
 
-      // Sort notes within each group alphabetically
       const sortedGroupsWithSortedNotes = sortedGroups.map((group) => {
         const groupNotes = group.noteIds
           .map(id => s.notes.get(id))
