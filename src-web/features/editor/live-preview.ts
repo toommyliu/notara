@@ -3,7 +3,7 @@ import type {
   DecorationSet,
   ViewUpdate,
 } from '@codemirror/view';
-import { syntaxTree } from '@codemirror/language';
+import { ensureSyntaxTree, syntaxTree } from '@codemirror/language';
 import { RangeSetBuilder } from '@codemirror/state';
 import {
   Decoration,
@@ -78,7 +78,6 @@ class ExternalLinkIconWidget extends WidgetType {
     span.setAttribute('role', 'img');
     span.setAttribute('aria-label', 'External link');
 
-    // lucide ExternalLink
     span.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>`;
 
     span.addEventListener('click', (ev) => {
@@ -121,256 +120,335 @@ function getDecorations(view: EditorView): DecorationSet {
   const cursorPos = view.state.selection.main.head;
   const cursorLine = view.state.doc.lineAt(cursorPos).number;
 
-  for (const { from, to } of view.visibleRanges) {
-    syntaxTree(view.state).iterate({
-      from,
-      to,
-      enter: (node) => {
-        // Handle list markers
-        if (node.name === 'ListMark') {
+  // Ensure the syntax tree is fully parsed for the entire document.
+  // This prevents styles from not applying to unparsed content on initial load.
+  ensureSyntaxTree(view.state, view.state.doc.length, 500);
+  const tree = syntaxTree(view.state);
+
+  // Decorate the whole document to avoid missing styles and layout gaps on long notes.
+  tree.iterate({
+    from: 0,
+    to: view.state.doc.length,
+    enter: (node) => {
+      if (node.name === 'ListMark') {
+        decorations.push(
+          Decoration.mark({ class: 'cm-md-list-marker' }).range(node.from, node.to),
+        );
+      }
+
+      if (node.name === 'TaskMarker') {
+        const nodeLine = view.state.doc.lineAt(node.from).number;
+        const cursorOnLine = cursorLine === nodeLine;
+        const text = view.state.sliceDoc(node.from, node.to);
+        const isChecked = text.includes('x') || text.includes('X');
+        const line = view.state.doc.lineAt(node.from);
+
+        if (!cursorOnLine) {
           decorations.push(
-            Decoration.mark({ class: 'cm-md-list-marker' }).range(node.from, node.to),
+            Decoration.replace({
+              widget: new CheckboxWidget(isChecked, node.from),
+              inclusiveStart: false,
+              inclusiveEnd: false,
+            }).range(node.from, node.to),
+          );
+        }
+        else {
+          decorations.push(
+            Decoration.mark({ class: 'cm-md-task-marker' }).range(node.from, node.to),
           );
         }
 
-        // Handle task list checkboxes
-        if (node.name === 'TaskMarker') {
-          const nodeLine = view.state.doc.lineAt(node.from).number;
-          const cursorOnLine = cursorLine === nodeLine;
-          const text = view.state.sliceDoc(node.from, node.to);
-          const isChecked = text.includes('x') || text.includes('X');
-          const line = view.state.doc.lineAt(node.from);
+        if (isChecked) {
+          decorations.push(
+            Decoration.mark({ class: 'cm-md-task-checked' }).range(node.to, line.to),
+          );
+        }
+      }
 
-          if (!cursorOnLine) {
-            // Replace TaskMarker with checkbox widget
+      const inlineFormat = INLINE_FORMATS[node.name];
+      if (inlineFormat) {
+        const nodeFrom = node.from;
+        const nodeTo = node.to;
+        const contentFrom = nodeFrom + inlineFormat.markerLen;
+        const contentTo = nodeTo - inlineFormat.markerLen;
+
+        if (contentTo > contentFrom) {
+          decorations.push(
+            Decoration.mark({ class: inlineFormat.class }).range(contentFrom, contentTo),
+          );
+        }
+
+        decorations.push(
+          Decoration.mark({ class: 'cm-md-syntax' }).range(nodeFrom, contentFrom),
+        );
+        decorations.push(
+          Decoration.mark({ class: 'cm-md-syntax' }).range(contentTo, nodeTo),
+        );
+
+        return;
+      }
+
+      const headingClass = HEADING_CLASSES[node.name];
+      if (headingClass) {
+        decorations.push(
+          Decoration.mark({ class: headingClass }).range(node.from, node.to),
+        );
+
+        const child = node.node.firstChild;
+        if (child?.name === 'HeaderMark') {
+          decorations.push(
+            Decoration.mark({ class: 'cm-md-syntax' }).range(child.from, child.to),
+          );
+        }
+
+        return false;
+      }
+
+      if (node.name === 'Blockquote') {
+        decorations.push(
+          Decoration.mark({ class: 'cm-md-blockquote' }).range(node.from, node.to),
+        );
+
+        const child = node.node.firstChild;
+        if (child && child.name === 'QuoteMark') {
+          decorations.push(
+            Decoration.mark({ class: 'cm-md-syntax' }).range(child.from, child.to),
+          );
+        }
+      }
+
+      if (node.name === 'Link') {
+        const nodeLine = view.state.doc.lineAt(node.from).number;
+        const cursorOnLine = cursorLine === nodeLine;
+
+        let linkTextFrom = -1;
+        let linkTextTo = -1;
+        let urlFrom = -1;
+        let urlTo = -1;
+
+        const linkMarks: { from: number; to: number; text: string }[] = [];
+
+        node.node.cursor().iterate((child) => {
+          if (child.name === 'LinkMark') {
+            linkMarks.push({
+              from: child.from,
+              to: child.to,
+              text: view.state.sliceDoc(child.from, child.to),
+            });
+          }
+
+          if (child.name === 'URL') {
+            urlFrom = child.from;
+            urlTo = child.to;
+          }
+        });
+
+        const openBracket = linkMarks.find(m => m.text === '[');
+        const closeBracket = linkMarks.find(m => m.text === ']');
+
+        if (openBracket && closeBracket) {
+          linkTextFrom = openBracket.to;
+          linkTextTo = closeBracket.from;
+        }
+
+        if (linkTextFrom >= 0 && linkTextTo > linkTextFrom) {
+          const url = urlFrom >= 0 ? view.state.sliceDoc(urlFrom, urlTo) : '';
+          const isExternal = isExternalUrl(url);
+
+          if (cursorOnLine) {
             decorations.push(
-              Decoration.replace({
-                widget: new CheckboxWidget(isChecked, node.from),
-                inclusiveStart: false,
-                inclusiveEnd: false,
-              }).range(node.from, node.to),
+              Decoration.mark({ class: 'cm-md-link' }).range(linkTextFrom, linkTextTo),
             );
+
+            decorations.push(
+              Decoration.mark({ class: 'cm-md-syntax' }).range(node.from, linkTextFrom),
+            );
+
+            decorations.push(
+              Decoration.mark({ class: 'cm-md-syntax' }).range(linkTextTo, node.to),
+            );
+
+            if (isExternal) {
+              decorations.push(
+                Decoration.widget({
+                  widget: new ExternalLinkIconWidget(url),
+                  side: 1,
+                }).range(node.to),
+              );
+            }
           }
           else {
-            // Style the task marker when editing
             decorations.push(
-              Decoration.mark({ class: 'cm-md-task-marker' }).range(node.from, node.to),
+              Decoration.mark({
+                class: isExternal ? 'cm-md-link cm-md-link-external' : 'cm-md-link',
+                attributes: { 'data-href': url },
+              }).range(linkTextFrom, linkTextTo),
             );
-          }
 
-          if (isChecked) {
             decorations.push(
-              Decoration.mark({ class: 'cm-md-task-checked' }).range(node.to, line.to),
+              Decoration.replace({
+                inclusiveStart: false,
+                inclusiveEnd: false,
+              }).range(node.from, linkTextFrom),
             );
-          }
-        }
 
-        // Handle inline formatting (bold, italic, code, strikethrough)
-        const inlineFormat = INLINE_FORMATS[node.name];
-        if (inlineFormat) {
-          const nodeFrom = node.from;
-          const nodeTo = node.to;
-          const contentFrom = nodeFrom + inlineFormat.markerLen;
-          const contentTo = nodeTo - inlineFormat.markerLen;
-
-          // Style the content
-          if (contentTo > contentFrom) {
-            decorations.push(
-              Decoration.mark({ class: inlineFormat.class }).range(contentFrom, contentTo),
-            );
-          }
-
-          // Style the markers as muted
-          decorations.push(
-            Decoration.mark({ class: 'cm-md-syntax' }).range(nodeFrom, contentFrom),
-          );
-          decorations.push(
-            Decoration.mark({ class: 'cm-md-syntax' }).range(contentTo, nodeTo),
-          );
-
-          return;
-        }
-
-        // Handle headings
-        const headingClass = HEADING_CLASSES[node.name];
-        if (headingClass) {
-          // Style the entire heading including the # marks
-          decorations.push(
-            Decoration.mark({ class: headingClass }).range(node.from, node.to),
-          );
-
-          // Find and mute the HeaderMark
-          const child = node.node.firstChild;
-          if (child?.name === 'HeaderMark') {
-            decorations.push(
-              Decoration.mark({ class: 'cm-md-syntax' }).range(child.from, child.to),
-            );
-          }
-
-          return false;
-        }
-
-        // Handle blockquotes
-        if (node.name === 'Blockquote') {
-          decorations.push(
-            Decoration.mark({ class: 'cm-md-blockquote' }).range(node.from, node.to),
-          );
-
-          // Find and mute the QuoteMark
-          const child = node.node.firstChild;
-          if (child && child.name === 'QuoteMark') {
-            decorations.push(
-              Decoration.mark({ class: 'cm-md-syntax' }).range(child.from, child.to),
-            );
-          }
-        }
-
-        // Handle links
-        if (node.name === 'Link') {
-          const nodeLine = view.state.doc.lineAt(node.from).number;
-          const cursorOnLine = cursorLine === nodeLine;
-
-          let linkTextFrom = -1;
-          let linkTextTo = -1;
-          let urlFrom = -1;
-          let urlTo = -1;
-
-          // For inline links [text](url), find boundaries using child nodes
-          const linkMarks: { from: number; to: number; text: string }[] = [];
-
-          node.node.cursor().iterate((child) => {
-            if (child.name === 'LinkMark') {
-              linkMarks.push({
-                from: child.from,
-                to: child.to,
-                text: view.state.sliceDoc(child.from, child.to),
-              });
-            }
-
-            if (child.name === 'URL') {
-              urlFrom = child.from;
-              urlTo = child.to;
-            }
-          });
-
-          // Find [ and ] marks to identify link text boundaries
-          const openBracket = linkMarks.find(m => m.text === '[');
-          const closeBracket = linkMarks.find(m => m.text === ']');
-
-          if (openBracket && closeBracket) {
-            linkTextFrom = openBracket.to;
-            linkTextTo = closeBracket.from;
-          }
-
-          if (linkTextFrom >= 0 && linkTextTo > linkTextFrom) {
-            const url = urlFrom >= 0 ? view.state.sliceDoc(urlFrom, urlTo) : '';
-            const isExternal = isExternalUrl(url);
-
-            if (cursorOnLine) {
-              // When editing: show full syntax with muted markers, plus external icon inline
+            if (isExternal) {
               decorations.push(
-                Decoration.mark({ class: 'cm-md-link' }).range(linkTextFrom, linkTextTo),
+                Decoration.replace({
+                  widget: new ExternalLinkIconWidget(url),
+                  inclusiveStart: false,
+                  inclusiveEnd: false,
+                }).range(linkTextTo, node.to),
               );
-
-              decorations.push(
-                Decoration.mark({ class: 'cm-md-syntax' }).range(node.from, linkTextFrom),
-              );
-
-              decorations.push(
-                Decoration.mark({ class: 'cm-md-syntax' }).range(linkTextTo, node.to),
-              );
-
-              // Add external icon inline after the closing )
-              if (isExternal) {
-                decorations.push(
-                  Decoration.widget({
-                    widget: new ExternalLinkIconWidget(url),
-                    side: 1,
-                  }).range(node.to),
-                );
-              }
             }
             else {
-              // When not editing: hide syntax, show only link text with optional external icon
-              decorations.push(
-                Decoration.mark({
-                  class: isExternal ? 'cm-md-link cm-md-link-external' : 'cm-md-link',
-                  attributes: { 'data-href': url },
-                }).range(linkTextFrom, linkTextTo),
-              );
-
-              // Hide the opening syntax [
               decorations.push(
                 Decoration.replace({
                   inclusiveStart: false,
                   inclusiveEnd: false,
-                }).range(node.from, linkTextFrom),
+                }).range(linkTextTo, node.to),
               );
-
-              // Hide the closing syntax ](url) and add external icon if needed
-              if (isExternal) {
-                decorations.push(
-                  Decoration.replace({
-                    widget: new ExternalLinkIconWidget(url),
-                    inclusiveStart: false,
-                    inclusiveEnd: false,
-                  }).range(linkTextTo, node.to),
-                );
-              }
-              else {
-                decorations.push(
-                  Decoration.replace({
-                    inclusiveStart: false,
-                    inclusiveEnd: false,
-                  }).range(linkTextTo, node.to),
-                );
-              }
             }
           }
         }
+      }
 
-        // Handle horizontal rules
-        if (node.name === 'HorizontalRule') {
-          decorations.push(
-            Decoration.mark({ class: 'cm-md-hr' }).range(node.from, node.to),
-          );
+      if (node.name === 'Image') {
+        const nodeLine = view.state.doc.lineAt(node.from).number;
+        const cursorOnLine = cursorLine === nodeLine;
+
+        let altTextFrom = -1;
+        let altTextTo = -1;
+
+        const imageMarks: { from: number; to: number; text: string }[] = [];
+
+        node.node.cursor().iterate((child) => {
+          if (child.name === 'LinkMark') {
+            imageMarks.push({
+              from: child.from,
+              to: child.to,
+              text: view.state.sliceDoc(child.from, child.to),
+            });
+          }
+        });
+
+        const openBracket = imageMarks.find(m => m.text === '[');
+        const closeBracket = imageMarks.find(m => m.text === ']');
+
+        if (openBracket && closeBracket) {
+          altTextFrom = openBracket.to;
+          altTextTo = closeBracket.from;
         }
 
-        // Handle fenced code blocks with line decorations
-        if (node.name === 'FencedCode') {
-          const startLine = view.state.doc.lineAt(node.from);
-          const endLine = view.state.doc.lineAt(node.to);
-
-          // When cursor is on any line of the codeblock (including fences), show all lines for editing
-          const cursorInsideCodeblock = cursorLine >= startLine.number && cursorLine <= endLine.number;
-
-          let language = '';
-
-          node.node.cursor().iterate((child) => {
-            if (child.name === 'CodeInfo') {
-              language = view.state.doc.sliceString(child.from, child.to).trim();
+        if (altTextFrom >= 0 && altTextTo >= altTextFrom) {
+          if (cursorOnLine) {
+            if (altTextTo > altTextFrom) {
+              decorations.push(
+                Decoration.mark({ class: 'cm-md-image-alt' }).range(altTextFrom, altTextTo),
+              );
             }
-          });
 
-          // Apply line decoration to all lines in the codeblock
-          for (let lineNum = startLine.number; lineNum <= endLine.number; lineNum++) {
-            const line = view.state.doc.line(lineNum);
-            const totalLines = endLine.number - startLine.number + 1;
-            const isFirstLine = lineNum === startLine.number;
-            const isLastLine = lineNum === endLine.number;
-            const isFenceLine = isFirstLine || isLastLine;
+            decorations.push(
+              Decoration.mark({ class: 'cm-md-syntax' }).range(node.from, altTextFrom),
+            );
 
-            let lineClass = 'cm-md-codeblock-line';
+            decorations.push(
+              Decoration.mark({ class: 'cm-md-syntax' }).range(altTextTo, node.to),
+            );
+          }
+          else {
+            if (altTextTo > altTextFrom) {
+              decorations.push(
+                Decoration.mark({ class: 'cm-md-image-placeholder' }).range(altTextFrom, altTextTo),
+              );
+            }
 
-            if (cursorInsideCodeblock) {
-              // When editing, show all lines including fences
-              if (totalLines === 1) {
+            decorations.push(
+              Decoration.replace({
+                inclusiveStart: false,
+                inclusiveEnd: false,
+              }).range(node.from, altTextFrom),
+            );
+
+            decorations.push(
+              Decoration.replace({
+                inclusiveStart: false,
+                inclusiveEnd: false,
+              }).range(altTextTo, node.to),
+            );
+          }
+        }
+      }
+
+      if (node.name === 'HorizontalRule') {
+        decorations.push(
+          Decoration.mark({ class: 'cm-md-hr' }).range(node.from, node.to),
+        );
+      }
+
+      if (node.name === 'FencedCode') {
+        const startLine = view.state.doc.lineAt(node.from);
+        const endLine = view.state.doc.lineAt(node.to);
+
+        const cursorInsideCodeblock = cursorLine >= startLine.number && cursorLine <= endLine.number;
+
+        let language = '';
+
+        node.node.cursor().iterate((child) => {
+          if (child.name === 'CodeInfo') {
+            language = view.state.doc.sliceString(child.from, child.to).trim();
+          }
+        });
+
+        for (let lineNum = startLine.number; lineNum <= endLine.number; lineNum++) {
+          const line = view.state.doc.line(lineNum);
+          const totalLines = endLine.number - startLine.number + 1;
+          const isFirstLine = lineNum === startLine.number;
+          const isLastLine = lineNum === endLine.number;
+          const isFenceLine = isFirstLine || isLastLine;
+
+          let lineClass = 'cm-md-codeblock-line';
+
+          if (cursorInsideCodeblock) {
+            if (totalLines === 1) {
+              lineClass += ' cm-md-codeblock-single';
+            }
+            else if (isFirstLine) {
+              lineClass += ' cm-md-codeblock-first';
+            }
+            else if (isLastLine) {
+              lineClass += ' cm-md-codeblock-last';
+            }
+            else {
+              lineClass += ' cm-md-codeblock-middle';
+            }
+
+            decorations.push(
+              Decoration.line({
+                class: lineClass,
+                attributes: (isFirstLine && language) ? { 'data-language': language } : {},
+              }).range(line.from),
+            );
+          }
+          else {
+            if (isFenceLine) {
+              decorations.push(
+                Decoration.line({
+                  class: 'cm-md-codeblock-fence-hidden',
+                }).range(line.from),
+              );
+            }
+            else {
+              const contentLines = totalLines - 2;
+              const contentLineNum = lineNum - startLine.number - 1;
+
+              if (contentLines === 1) {
                 lineClass += ' cm-md-codeblock-single';
               }
-              else if (isFirstLine) {
+              else if (contentLineNum === 0) {
                 lineClass += ' cm-md-codeblock-first';
               }
-              else if (isLastLine) {
+              else if (contentLineNum === contentLines - 1) {
                 lineClass += ' cm-md-codeblock-last';
               }
               else {
@@ -380,73 +458,29 @@ function getDecorations(view: EditorView): DecorationSet {
               decorations.push(
                 Decoration.line({
                   class: lineClass,
-                  attributes: (isFirstLine && language) ? { 'data-language': language } : {},
+                  attributes: (contentLineNum === 0 && language) ? { 'data-language': language } : {},
                 }).range(line.from),
               );
             }
-            else {
-              // When not editing, fully collapse fence lines visually
-              if (isFenceLine) {
-                decorations.push(
-                  Decoration.line({
-                    class: 'cm-md-codeblock-fence-hidden',
-                  }).range(line.from),
-                );
-
-                if (line.length > 0) {
-                  decorations.push(
-                    Decoration.replace({
-                      inclusiveStart: false,
-                      inclusiveEnd: false,
-                    }).range(line.from, line.to),
-                  );
-                }
-              }
-              else {
-                const contentLines = totalLines - 2;
-                const contentLineNum = lineNum - startLine.number - 1;
-
-                if (contentLines === 1) {
-                  lineClass += ' cm-md-codeblock-single';
-                }
-                else if (contentLineNum === 0) {
-                  lineClass += ' cm-md-codeblock-first';
-                }
-                else if (contentLineNum === contentLines - 1) {
-                  lineClass += ' cm-md-codeblock-last';
-                }
-                else {
-                  lineClass += ' cm-md-codeblock-middle';
-                }
-
-                decorations.push(
-                  Decoration.line({
-                    class: lineClass,
-                    attributes: (contentLineNum === 0 && language) ? { 'data-language': language } : {},
-                  }).range(line.from),
-                );
-              }
-            }
           }
-
-          // When editing, style the fence markers as muted syntax
-          if (cursorInsideCodeblock) {
-            decorations.push(
-              Decoration.mark({ class: 'cm-md-syntax' }).range(startLine.from, startLine.to),
-            );
-
-            if (endLine.number !== startLine.number) {
-              decorations.push(
-                Decoration.mark({ class: 'cm-md-syntax' }).range(endLine.from, endLine.to),
-              );
-            }
-          }
-
-          return false;
         }
-      },
-    });
-  }
+
+        if (cursorInsideCodeblock) {
+          decorations.push(
+            Decoration.mark({ class: 'cm-md-syntax' }).range(startLine.from, startLine.to),
+          );
+
+          if (endLine.number !== startLine.number) {
+            decorations.push(
+              Decoration.mark({ class: 'cm-md-syntax' }).range(endLine.from, endLine.to),
+            );
+          }
+        }
+
+        return false;
+      }
+    },
+  });
 
   decorations.sort((a, b) => a.from - b.from || a.value.startSide - b.value.startSide);
 
@@ -460,14 +494,21 @@ function getDecorations(view: EditorView): DecorationSet {
 export const livePreview = ViewPlugin.fromClass(
   class {
     decorations: DecorationSet;
+    parsedUpTo: number;
 
     constructor(view: EditorView) {
       this.decorations = getDecorations(view);
+      this.parsedUpTo = syntaxTree(view.state).length;
     }
 
     update(update: ViewUpdate) {
-      if (update.docChanged || update.selectionSet || update.viewportChanged) {
+      const tree = syntaxTree(update.state);
+      const currentParsedUpTo = tree.length;
+      const parsingProgressed = currentParsedUpTo > this.parsedUpTo;
+
+      if (update.docChanged || update.selectionSet || parsingProgressed) {
         this.decorations = getDecorations(update.view);
+        this.parsedUpTo = currentParsedUpTo;
       }
     }
   },
@@ -475,9 +516,6 @@ export const livePreview = ViewPlugin.fromClass(
     decorations: v => v.decorations,
   },
 );
-
-// Note: codeFenceSelectionGuard was removed because fence lines now use display:none when hidden
-// (making them unclickable), and when visible we want to allow cursor placement for editing.
 
 export const livePreviewClickHandler = EditorView.domEventHandlers({
   mousedown(ev, view) {
@@ -688,6 +726,13 @@ export const livePreviewTheme = EditorView.baseTheme({
     display: 'inline',
     verticalAlign: 'text-bottom',
   },
+  '.cm-md-image-alt': {
+    color: 'var(--muted-foreground)',
+  },
+  '.cm-md-image-placeholder': {
+    color: 'var(--muted-foreground)',
+    fontStyle: 'italic',
+  },
   '.cm-md-hr': {
     display: 'block',
     textAlign: 'center',
@@ -735,7 +780,13 @@ export const livePreviewTheme = EditorView.baseTheme({
   '.cm-md-codeblock-middle': {
   },
   '.cm-md-codeblock-fence-hidden': {
-    display: 'none !important',
+    visibility: 'hidden',
+    height: '0',
+    lineHeight: '0',
+    overflow: 'hidden',
+    pointerEvents: 'none',
+    padding: '0 !important',
+    margin: '0',
   },
   '.cm-md-codeblock-single': {
     paddingTop: '1.75rem !important',
