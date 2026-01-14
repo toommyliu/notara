@@ -1,0 +1,6 @@
+[default]
+description = "Default permissions for the notara-mac-window plugin"
+permissions = [
+  "allow-set-theme",
+  "allow-set-title",
+]

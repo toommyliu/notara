@@ -1,0 +1,259 @@
+import { Link, useLocation } from '@tanstack/react-router';
+
+import IconArrowLeftRight from '~icons/lucide/arrow-left-right';
+import IconColumns from '~icons/lucide/columns-2';
+import IconFlipHorizontal from '~icons/lucide/flip-horizontal-2';
+import IconFiles from '~icons/lucide/folder-open';
+import IconLock from '~icons/lucide/lock';
+
+import IconSearch from '~icons/lucide/search';
+import IconSettings from '~icons/lucide/settings';
+import IconStar from '~icons/lucide/star';
+import IconX from '~icons/lucide/x';
+import { usePageHeaderStore } from '~/features/layout/stores/page-header-store';
+import {
+  useActivePane,
+  useOrderedPanes,
+  useTabsStore,
+} from '~/features/layout/stores/tabs-store';
+import { useSettingsStore } from '~/features/settings/';
+import { usePlatformLayout } from '~/hooks/use-platform';
+import { cn } from '~/lib/utils';
+
+import { Avatar, AvatarFallback } from '~/ui/avatar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '~/ui/dropdown-menu';
+import { Separator } from '~/ui/separator';
+import { SidebarTrigger } from '~/ui/sidebar';
+
+import { Tooltip, TooltipContent, TooltipTrigger } from '~/ui/tooltip';
+
+import { AppTitlebar } from './app-titlebar';
+import { HeaderTabs } from './header-tabs';
+
+interface HeaderIconTabProps {
+  icon: React.ReactNode;
+  label: string;
+  isActive?: boolean;
+  onClick?: () => void;
+  to?: string;
+}
+
+function HeaderIconTab({ icon, label, isActive, onClick, to }: HeaderIconTabProps) {
+  const content = (
+    <button
+      onClick={onClick}
+      data-no-drag
+      className={cn(
+        'flex items-center justify-center p-1.5 rounded-md transition-colors',
+        'text-muted-foreground hover:text-foreground hover:bg-muted/50',
+        isActive && 'text-foreground bg-muted/80 shadow-sm',
+      )}
+    >
+      {icon}
+    </button>
+  );
+
+  if (to) {
+    return (
+      <Tooltip>
+        <TooltipTrigger
+          render={(
+            <Link to={to} className="flex">{content}</Link>
+          )}
+        />
+        <TooltipContent side="bottom" className="text-xs">{label}</TooltipContent>
+      </Tooltip>
+    );
+  }
+
+  return (
+    <Tooltip>
+      <TooltipTrigger render={content} />
+      <TooltipContent side="bottom" className="text-xs">{label}</TooltipContent>
+    </Tooltip>
+  );
+}
+
+export function AppHeader() {
+  const layout = usePlatformLayout();
+  const location = useLocation();
+  const { config } = usePageHeaderStore();
+  const { title, emoji, isPrivate, actions } = config;
+
+  const isTabBarVisible = useTabsStore(s => s.isTabBarVisible);
+  const swapSides = useTabsStore(s => s.swapSides);
+  const toggleOrientation = useTabsStore(s => s.toggleOrientation);
+  const unsplitPane = useTabsStore(s => s.unsplitPane);
+  const activePaneId = useTabsStore(s => s.activePaneId);
+
+  const activePane = useActivePane();
+  const orderedPanes = useOrderedPanes();
+
+  const { open } = useSettingsStore();
+
+  const hasSplitPane = activePane?.type === 'split';
+  const showTabs = isTabBarVisible && orderedPanes.length > 0;
+
+  const handleSwapSides = () => {
+    if (activePaneId) {
+      swapSides(activePaneId);
+    }
+  };
+
+  const handleToggleOrientation = () => {
+    if (activePaneId) {
+      toggleOrientation(activePaneId);
+    }
+  };
+
+  const handleCloseSplit = () => {
+    if (activePaneId && activePane?.type === 'split') {
+      unsplitPane(activePaneId);
+    }
+  };
+
+  return (
+    <AppTitlebar
+      className="border-b border-border/40 overscroll-none select-none"
+    >
+      {/* Left side actions */}
+      <div className="flex items-center w-full h-full gap-0.5" data-tauri-drag-region>
+        <div
+          className="flex items-center h-full py-2 border-r border-border/40 bg-sidebar pointer-events-auto"
+          data-tauri-drag-region
+          style={{
+            minWidth: `calc(var(--sidebar-width) - ${layout.leftInset}px)`,
+            maxWidth: `calc(var(--sidebar-width) - ${layout.leftInset}px)`,
+            width: `calc(var(--sidebar-width) - ${layout.leftInset}px)`,
+            paddingLeft: 12,
+            paddingRight: 4,
+          }}
+        >
+          <div className="flex items-center gap-1 flex-1" data-tauri-drag-region>
+            <HeaderIconTab
+              icon={<IconFiles className="size-4" />}
+              label="Files"
+              to="/notes"
+              isActive={location.pathname.startsWith('/notes')}
+            />
+            <HeaderIconTab
+              icon={<IconSearch className="size-4" />}
+              label="Search"
+            />
+            <HeaderIconTab
+              icon={<IconStar className="size-4" />}
+              label="Starred"
+            />
+          </div>
+        </div>
+
+        <div className="flex items-center h-full min-w-0 flex-1 pl-2" data-tauri-drag-region>
+          <HeaderTabs />
+        </div>
+
+        {!showTabs && (emoji || title) && (
+          <div className="flex items-center gap-2 shrink-0 mr-2" data-tauri-drag-region>
+            {emoji && <span className="text-base shrink-0">{emoji}</span>}
+            {title && (
+              <span className="truncate font-medium text-sm max-w-37.5">
+                {title}
+              </span>
+            )}
+            {isPrivate && (
+              <div className="flex items-center gap-1 text-xs text-muted-foreground/70 shrink-0">
+                <IconLock className="size-3" />
+                <span className="hidden sm:inline">Private</span>
+              </div>
+            )}
+          </div>
+        )}
+
+        {actions && (
+          <div className="flex items-center gap-0.5 shrink-0" data-tauri-drag-region>
+            {actions}
+          </div>
+        )}
+
+        <Separator orientation="vertical" className="h-4 mr-1 bg-border/60 self-center!" />
+
+        {/* Right-side actions */}
+        <div className="flex items-center gap-1 shrink-0 pr-3 pl-2 pointer-events-auto" data-tauri-drag-region>
+          {hasSplitPane && (
+            <DropdownMenu>
+              <Tooltip>
+                <TooltipTrigger
+                  render={(
+                    <DropdownMenuTrigger
+                      render={(
+                        <button
+                          data-no-drag
+                          className="flex items-center justify-center p-1.5 rounded-md transition-colors text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                        >
+                          <IconColumns className="size-4" />
+                        </button>
+                      )}
+                    />
+                  )}
+                />
+                <TooltipContent side="bottom" className="text-xs">Split View</TooltipContent>
+              </Tooltip>
+              <DropdownMenuContent align="end" sideOffset={8} className="min-w-44">
+                <DropdownMenuItem onClick={handleSwapSides}>
+                  <IconArrowLeftRight className="size-4" />
+                  Swap Panes
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleToggleOrientation}>
+                  <IconFlipHorizontal className="size-4" />
+                  Toggle Orientation
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem variant="destructive" onClick={handleCloseSplit}>
+                  <IconX className="size-4" />
+                  Close Split
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+
+          <Tooltip>
+            <TooltipTrigger
+              render={(
+                <button
+                  data-no-drag
+                  className="flex items-center justify-center p-1.5 rounded-md transition-colors text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                  onClick={() => open()}
+                >
+                  <IconSettings className="size-4" />
+                </button>
+              )}
+            />
+            <TooltipContent side="bottom" className="text-xs">Settings</TooltipContent>
+          </Tooltip>
+
+          <SidebarTrigger data-no-drag />
+
+          <Tooltip>
+            <TooltipTrigger
+              render={(
+                <Avatar
+                  size="sm"
+                  className="cursor-pointer transition-transform hover:scale-105"
+                  data-no-drag
+                >
+                  <AvatarFallback>U</AvatarFallback>
+                </Avatar>
+              )}
+            />
+            <TooltipContent side="bottom" className="text-xs">Account</TooltipContent>
+          </Tooltip>
+        </div>
+      </div>
+    </AppTitlebar>
+  );
+}

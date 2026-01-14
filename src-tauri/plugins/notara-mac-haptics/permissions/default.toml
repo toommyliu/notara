@@ -1,0 +1,6 @@
+[default]
+description = "Default permissions for the notara-mac-haptics plugin"
+permissions = [
+  "allow-is-supported",
+  "allow-perform",
+]
